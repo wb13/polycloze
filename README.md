@@ -1,21 +1,4 @@
-# polycloze-blacklist
+# tokenized-sentences
 
-Rule-based classifiers for blacklisting "non-words".
-
-## Usage
-
-```bash
-python -m blacklist spa < words.txt > blacklist.txt
-```
-
-## Supported languages
-
-- deu (German)
-- eng (English)
-- fra (French)
-- ita (Italian)
-- spa (Spanish)
-
-## Other tools
-
-- `blacklist.uncsv` (for extracting first column out of CSV file)
+All the sentences are from <https://tatoeba.org>.
+They are released under [CC BY 2.0](https://creativecommons.org/licenses/by/2.0).
