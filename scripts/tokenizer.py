@@ -4,23 +4,35 @@
 
 from collections import Counter
 import csv
+from dataclasses import dataclass
 from functools import reduce
 import json
 from pathlib import Path
 import typing as t
 
+from spacy.language import Language
+from spacy.lang.de import German
 from spacy.lang.es import Spanish
 
 
-nlp = Spanish()
+@dataclass
+class Tokenizer:
+    nlp: Language
+
+    def tokenize(self, sentence: str) -> list[str]:
+        tokens = (
+            [token.text for token in self.nlp.tokenizer(word)]
+            for word in sentence.split()
+        )
+        return reduce(lambda x, y: x + [" "] + y, tokens)
 
 
-def tokenize_spanish(sentence: str) -> list[str]:
-    tokens = (
-        [token.text for token in nlp.tokenizer(word)]
-        for word in sentence.split()
-    )
-    return reduce(lambda x, y: x + [" "] + y, tokens)
+def load_language(code: str) -> Language:
+    match code:
+        case "deu":
+            return German()
+        case "spa":
+            return Spanish()
 
 
 def count_words(sentences: dict[str, list[str]]) -> Counter:
@@ -31,11 +43,12 @@ def count_words(sentences: dict[str, list[str]]) -> Counter:
 
 
 def main() -> None:
+    tokenizer = Tokenizer(load_language("spa"))
     sentences = {}
 
     try:
         while line := input():
-            sentences[line] = tokenize_spanish(line)
+            sentences[line] = tokenizer.tokenize(line)
     except EOFError:
         pass
 
