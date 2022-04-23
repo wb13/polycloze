@@ -2,12 +2,14 @@
 
 """Tokenizes sentences from standard input and outputs CSV files."""
 
+from argparse import ArgumentParser
 from collections import Counter
 import csv
 from dataclasses import dataclass
 from functools import reduce
 import json
 from pathlib import Path
+import sys
 import typing as t
 
 from spacy.language import Language
@@ -33,6 +35,8 @@ def load_language(code: str) -> Language:
             return German()
         case "spa":
             return Spanish()
+        case _:
+            sys.exit("unknown language code")
 
 
 def count_words(sentences: dict[str, list[str]]) -> Counter:
@@ -42,8 +46,15 @@ def count_words(sentences: dict[str, list[str]]) -> Counter:
     return counter
 
 
+def parse_args():
+    parser = ArgumentParser()
+    parser.add_argument("language", help="ISO 639-3 language code")
+    return vars(parser.parse_args())
+
+
 def main() -> None:
-    tokenizer = Tokenizer(load_language("spa"))
+    args = parse_args()
+    tokenizer = Tokenizer(load_language(args.get("language")))
     sentences = {}
 
     try:
