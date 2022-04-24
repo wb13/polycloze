@@ -15,8 +15,8 @@ from tempfile import TemporaryDirectory
 import typing as t
 
 from spacy.language import Language
-from spacy.lang.de import German
-from spacy.lang.es import Spanish
+
+from .languages import load_language
 
 
 @dataclass
@@ -29,16 +29,6 @@ class Tokenizer:
             for word in sentence.split()
         )
         return reduce(lambda x, y: x + [" "] + y, tokens)
-
-
-def load_language(code: str) -> Language:
-    match code:
-        case "deu":
-            return German()
-        case "spa":
-            return Spanish()
-        case _:
-            sys.exit("unknown language code")
 
 
 def count_words(sentences: dict[str, list[str]]) -> Counter:
