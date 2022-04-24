@@ -31,9 +31,21 @@ class Tokenizer:
         return reduce(lambda x, y: x + [" "] + y, tokens)
 
 
-def count_words(sentences: dict[str, list[str]]) -> Counter:
+class Sentence(t.NamedTuple):
+    # id: int
+    text: str
+    tokens: list[str]
+
+    def __hash__(self) -> int:
+        return hash(self.text)
+
+    def row(self) -> tuple[str, str]:
+        return (self.text, json.dumps(self.tokens))
+
+
+def count_words(sentences: t.Iterable[t.Iterable[str]]) -> Counter:
     counter = Counter()
-    for _, tokens in sentences.items():
+    for tokens in sentences:
         counter.update(token.casefold() for token in tokens)
     return counter
 
@@ -63,11 +75,15 @@ def write_csv(path: Path | str, rows: t.Iterable[t.Sequence[t.Any]]) -> None:
 def main() -> None:
     args = parse_args()
     tokenizer = Tokenizer(load_language(args.language))
-    sentences = {}
+    sentences = set()
 
     try:
         while line := input():
-            sentences[line] = tokenizer.tokenize(line)
+            sentence = Sentence(
+                text=line,
+                tokens=tokenizer.tokenize(line),
+            )
+            sentences.add(sentence)
     except EOFError:
         pass
 
@@ -76,10 +92,13 @@ def main() -> None:
         words_csv = tmpdir/"words.csv"
         sentences_csv = tmpdir/"sentences.csv"
 
-        write_csv(words_csv, count_words(sentences).most_common())
+        write_csv(
+            words_csv,
+            count_words(sentence.tokens for sentence in sentences).most_common(),
+        )
         write_csv(
             sentences_csv,
-            ([sentence, json.dumps(tokens)] for sentence, tokens in sentences.items()),
+            (sentence.row() for sentence in sentences),
         )
 
         with tarfile.open(args.output, "w:gz") as tar:
