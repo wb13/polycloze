@@ -32,7 +32,7 @@ class Tokenizer:
 
 
 class Sentence(t.NamedTuple):
-    # id: int
+    id: int | None
     text: str
     tokens: list[str]
 
@@ -40,7 +40,9 @@ class Sentence(t.NamedTuple):
         return hash(self.text)
 
     def row(self) -> tuple[str, str]:
-        return (self.text, json.dumps(self.tokens))
+        if self.id is None:
+            return (self.text, json.dumps(self.tokens))
+        return (self.id, self.text, json.dumps(self.tokens))
 
 
 def count_words(sentences: t.Iterable[t.Iterable[str]]) -> Counter:
@@ -62,6 +64,12 @@ def parse_args() -> Namespace:
         help="output file",
         required=True,
     )
+    parser.add_argument(
+        "--no-ids",
+        dest="has_ids",
+        help="input has no IDs",
+        action="store_false",
+    )
     return parser.parse_args()
 
 
@@ -79,7 +87,12 @@ def main() -> None:
 
     try:
         while line := input():
+            id_ = None
+            if args.has_ids:
+                # TODO handle exception
+                id_, line = line.split("\t", maxsplit=1)
             sentence = Sentence(
+                id=id_,
                 text=line,
                 tokens=tokenizer.tokenize(line),
             )

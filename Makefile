@@ -6,7 +6,7 @@ build/sentences/$(1).txt:	$(latest)
 	./scripts/sentences.sh $(1) > $$@
 
 dist/$(1).tar.gz:	build/sentences/$(1).txt
-	python -m scripts.tokenizer $(1) -o $$@ < $$<
+	python -m scripts.tokenizer --no-ids $(1) -o $$@ < $$<
 endef
 
 .PHONY:	all
