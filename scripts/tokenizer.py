@@ -34,7 +34,7 @@ class Tokenizer:
 def count_words(sentences: dict[str, list[str]]) -> Counter:
     counter = Counter()
     for _, tokens in sentences.items():
-        counter.update(tokens)
+        counter.update(token.casefold() for token in tokens)
     return counter
 
 
