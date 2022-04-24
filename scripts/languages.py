@@ -2,37 +2,38 @@
 
 from argparse import ArgumentParser, Namespace
 
+class LanguageLoader:
+    @staticmethod
+    def deu():
+        from spacy.lang.de import German
+        return German()
 
-def deu():
-    from spacy.lang.de import German
-    return German()
+    @staticmethod
+    def eng():
+        from spacy.lang.en import English
+        return English()
+
+    @staticmethod
+    def fra():
+        from spacy.lang.fr import French
+        return French()
+
+    @staticmethod
+    def ita():
+        from spacy.lang.it import Italian
+        return Italian()
+
+    @staticmethod
+    def spa():
+        from spacy.lang.es import Spanish
+        return Spanish()
 
 
-def fra():
-    from spacy.lang.fr import French
-    return French()
-
-
-def ita():
-    from spacy.lang.it import Italian
-    return Italian()
-
-
-def spa():
-    from spacy.lang.es import Spanish
-    return Spanish()
-
-
-languages = {
-    "deu": deu,
-    "fra": fra,
-    "ita": ita,
-    "spa": spa,
-}
+languages = [name for name in dir(LanguageLoader) if not name.startswith("_")]
 
 
 def load_language(code: str):
-    language = languages.get(code)
+    language = getattr(LanguageLoader, code, None)
     if not language:
         sys.exit("unknown language code")
     return language()
