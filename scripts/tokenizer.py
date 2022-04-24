@@ -83,7 +83,7 @@ def write_csv(path: Path | str, rows: t.Iterable[t.Sequence[t.Any]]) -> None:
 def main() -> None:
     args = parse_args()
     tokenizer = Tokenizer(load_language(args.language))
-    sentences = set()
+    sentences = []
 
     try:
         while line := input():
@@ -96,7 +96,7 @@ def main() -> None:
                 text=line,
                 tokens=tokenizer.tokenize(line),
             )
-            sentences.add(sentence)
+            sentences.append(sentence)
     except EOFError:
         pass
 
