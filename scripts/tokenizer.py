@@ -2,7 +2,7 @@
 
 """Tokenizes sentences from standard input and outputs CSV files."""
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from collections import Counter
 import csv
 from dataclasses import dataclass
@@ -10,6 +10,8 @@ from functools import reduce
 import json
 from pathlib import Path
 import sys
+import tarfile
+from tempfile import TemporaryDirectory
 import typing as t
 
 from spacy.language import Language
@@ -46,15 +48,31 @@ def count_words(sentences: dict[str, list[str]]) -> Counter:
     return counter
 
 
-def parse_args():
+def parse_args() -> Namespace:
     parser = ArgumentParser()
-    parser.add_argument("language", help="ISO 639-3 language code")
-    return vars(parser.parse_args())
+    parser.add_argument(
+        "language",
+        help="ISO 639-3 language code",
+    )
+    parser.add_argument(
+        "-o",
+        dest="output",
+        help="output file",
+        required=True,
+    )
+    return parser.parse_args()
+
+
+def write_csv(path: Path | str, rows: t.Iterable[t.Sequence[t.Any]]) -> None:
+    with open(path, "w", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+        for row in rows:
+            writer.writerow(row)
 
 
 def main() -> None:
     args = parse_args()
-    tokenizer = Tokenizer(load_language(args.get("language")))
+    tokenizer = Tokenizer(load_language(args.language))
     sentences = {}
 
     try:
@@ -63,15 +81,19 @@ def main() -> None:
     except EOFError:
         pass
 
-    with open("words.csv", "w", newline="") as csvfile:
-        writer = csv.writer(csvfile)
-        for word, count in count_words(sentences).most_common():
-            writer.writerow([word, count])
+    with TemporaryDirectory() as tmpdirname:
+        tmpdir = Path(tmpdirname)
+        words_csv = tmpdir/"words.csv"
+        sentences_csv = tmpdir/"sentences.csv"
 
-    with open("sentences.csv", "w", newline="") as csvfile:
-        writer = csv.writer(csvfile)
-        for sentence, tokens in sentences.items():
-            writer.writerow([sentence, json.dumps(tokens)])
+        write_csv(words_csv, count_words(sentences).most_common())
+        write_csv(
+            sentences_csv,
+            ([sentence, json.dumps(tokens)] for sentence, tokens in sentences.items()),
+        )
+
+        with tarfile.open(args.output, "w:gz") as tar:
+            tar.add(tmpdir, arcname=args.language)
 
 
 if __name__ == "__main__":
