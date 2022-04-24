@@ -15,4 +15,10 @@ all:
 .PHONY:	dist
 dist:	$(patsubst %,dist/%.tar.gz,$(languages))
 
+build/ids.txt:	$(latest)
+	@for lang in $(languages); \
+	do \
+		./scripts/sentence-ids.sh $${lang} > $@; \
+	done
+
 $(foreach lang,$(languages),$(eval $(call add_language,$(lang))))
