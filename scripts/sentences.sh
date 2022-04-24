@@ -7,5 +7,5 @@ if [[ "$1" == "" ]]; then
 	exit 1
 fi
 
-latest=$(find sentences/sentences.*.csv | sort -r | head -n 1)
+latest=$(find build/tatoeba/sentences.*.csv | sort -r | head -n 1)
 grep -h -P "\t$1\t" "$latest" | sed "s/.\+\t.\+\t\(.\+\)/\1/g"

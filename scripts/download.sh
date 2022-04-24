@@ -5,4 +5,6 @@
 wget https://downloads.tatoeba.org/exports/sentences.tar.bz2
 tar -xvf sentences.tar.bz2
 rm sentences.tar.bz2
-mv sentences.csv "sentences.$(date -I).csv"
+
+mkdir -p build/tatoeba
+mv sentences.csv "build/tatoeba/sentences.$(date -I).csv"
