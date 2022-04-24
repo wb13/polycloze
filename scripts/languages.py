@@ -2,20 +2,23 @@
 
 from argparse import ArgumentParser, Namespace
 
-from spacy.language import Language
 
-
-def deu() -> Language:
+def deu():
     from spacy.lang.de import German
     return German()
 
 
-def fra() -> Language:
+def fra():
     from spacy.lang.fr import French
     return French()
 
 
-def spa() -> Language:
+def ita():
+    from spacy.lang.it import Italian
+    return Italian()
+
+
+def spa():
     from spacy.lang.es import Spanish
     return Spanish()
 
@@ -23,11 +26,12 @@ def spa() -> Language:
 languages = {
     "deu": deu,
     "fra": fra,
+    "ita": ita,
     "spa": spa,
 }
 
 
-def load_language(code: str) -> Language:
+def load_language(code: str):
     language = languages.get(code)
     if not language:
         sys.exit("unknown language code")
