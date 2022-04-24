@@ -8,4 +8,9 @@ if [[ "$1" == "" ]]; then
 fi
 
 latest=$(find build/tatoeba/sentences.*.csv | sort -r | head -n 1)
-grep -h -P "\t$1\t" "$latest" | sed "s/.\+\t.\+\t\(.\+\)/\1/g"
+
+grep -h -P "\t$1\t" "$latest" | if [[ "$2" == "-i" ]]; then
+	sed "s/\(.\+\)\t.\+\t\(.\+\)/\1\t\2/g"
+else
+	sed "s/.\+\t.\+\t\(.\+\)/\1/g"
+fi
