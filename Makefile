@@ -16,9 +16,7 @@ all:
 dist:	$(patsubst %,dist/%.tar.gz,$(languages))
 
 build/ids.txt:	$(latest)
-	@for lang in $(languages); \
-	do \
-		./scripts/sentences.sh $${lang} | ./scripts/format.sh id > $@; \
-	done
+	languages=$$(printf "${languages}" | tr '[:space:]' '|'); \
+	./scripts/sentences.sh $${languages} | ./scripts/format.sh id > $@
 
 $(foreach lang,$(languages),$(eval $(call add_language,$(lang))))
