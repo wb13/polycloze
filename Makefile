@@ -20,3 +20,9 @@ build/ids.txt:	$(latest)
 	./scripts/sentences.sh $${languages} | ./scripts/format.sh id > $@
 
 $(foreach lang,$(languages),$(eval $(call add_language,$(lang))))
+
+
+### nim stuff
+
+build/reflexive:	src/reflexive.nim
+	nim c -o:$@ --stackTrace:off --checks:off --opt:speed $<
