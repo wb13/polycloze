@@ -24,5 +24,5 @@ $(foreach lang,$(languages),$(eval $(call add_language,$(lang))))
 
 ### nim stuff
 
-build/reflexive:	src/reflexive.nim
+build/reflexive build/subset:	build/%:	src/%.nim
 	nim c -o:$@ --stackTrace:off --checks:off --opt:speed $<
