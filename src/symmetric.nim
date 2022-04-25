@@ -1,4 +1,4 @@
-# Simplifies reflexive relation.
+# Simplifies symmetric relation.
 
 import std/rdstdin
 import std/strformat
