@@ -1,4 +1,3 @@
-BEGIN TRANSACTION;
 PRAGMA user_version = 1;
 
 -- Table of coefficients, used to update intervals after reviewing.
@@ -31,5 +30,3 @@ CREATE VIEW MostRecentReview AS
 SELECT DISTINCT A.word, A.due, A.interval, A.reviewed, A.correct
 FROM Review AS A CROSS JOIN Review AS B
 WHERE A.word = B.word AND A.reviewed >= B.reviewed;
-
-COMMIT;
