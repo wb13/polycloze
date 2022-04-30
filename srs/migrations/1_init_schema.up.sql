@@ -3,6 +3,9 @@ PRAGMA user_version = 1;
 -- Table of coefficients, used to update intervals after reviewing.
 CREATE TABLE Coefficient (
 	streak INTEGER PRIMARY KEY,
+
+	-- Multiplier to get the interval for the next level, except for going from
+	-- level 0 to 1 (sets due date to the next day instead)
 	coefficient FLOAT NOT NULL DEFAULT 2.0,
 	updated NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
