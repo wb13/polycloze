@@ -24,11 +24,11 @@ GROUP BY streak ORDER BY streak ASC
 	}
 	defer rows.Close()
 
-	var counts []float64
+	var counts []int
 	for rows.Next() {
-		var count float64
+		var count int
 		if err := rows.Scan(&count); err != nil {
-			return count, err
+			return math.NaN(), err
 		}
 		counts = append(counts, count)
 	}
