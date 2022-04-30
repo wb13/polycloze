@@ -73,13 +73,8 @@ func (ws *WordScheduler) Update(word string, correct bool) error {
 INSERT INTO Review (word, interval, due, correct)
 VALUES (?, ?, ?, ?)
 `
-	var next Review
-	if review == nil {
-		next = defaultReview(correct)
-	} else {
-		next = nextReview(review, correct)
-	}
 
+	next := nextReview(review, correct)
 	_, err = tx.Exec(query, word, next.Interval, next.Due, correct)
 	if err != nil {
 		return err

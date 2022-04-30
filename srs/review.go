@@ -14,27 +14,16 @@ type Review struct {
 	Correct  bool
 }
 
-// Creates initial Review with default values.
-func defaultReview(correct bool) Review {
-	var interval time.Duration = 0
-	if correct {
-		interval = day
-	}
-
-	now := time.Now()
-	return Review{
-		Reviewed: now,
-		Interval: interval,
-		Due:      now.Add(interval),
-		Correct:  correct,
-	}
-}
-
 // Computes next review schedule.
+// If review is nil, creates Review with default values for initial review.
 func nextReview(review *Review, correct bool) Review {
 	var interval time.Duration = 0
 	if correct {
-		interval = 2 * review.Interval
+		if review != nil {
+			interval = 2 * review.Interval
+		} else {
+			interval = day
+		}
 	}
 
 	now := time.Now()
