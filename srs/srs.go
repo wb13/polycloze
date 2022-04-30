@@ -43,7 +43,7 @@ SELECT word FROM MostRecentReview WHERE due < ? LIMIT ?
 // Result is nil if something goes wrong.
 func mostRecentReview(tx *sql.Tx, word string) *Review {
 	query := `
-SELECT due, interval, reviewed, correct FROM MostRecentReview
+SELECT due, interval, reviewed, correct, streak FROM MostRecentReview
 WHERE word = ?
 `
 	var review Review
@@ -53,6 +53,7 @@ WHERE word = ?
 		&review.Interval,
 		&review.Reviewed,
 		&review.Correct,
+		&review.Streak,
 	)
 	if err != nil {
 		return nil
@@ -70,12 +71,12 @@ func (ws *WordScheduler) Update(word string, correct bool) error {
 	review := mostRecentReview(tx, word)
 
 	query := `
-INSERT INTO Review (word, interval, due, correct)
-VALUES (?, ?, ?, ?)
+INSERT INTO Review (word, interval, due, correct, streak)
+VALUES (?, ?, ?, ?, ?)
 `
 
 	next := nextReview(review, correct)
-	_, err = tx.Exec(query, word, next.Interval, next.Due, correct)
+	_, err = tx.Exec(query, word, next.Interval, next.Due, correct, next.Streak)
 	if err != nil {
 		return err
 	}
