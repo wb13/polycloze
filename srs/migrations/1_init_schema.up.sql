@@ -29,11 +29,11 @@ WHEN NEW.streak NOT IN (SELECT streak FROM Coefficient)
 		INSERT INTO Coefficient (streak, coefficient) VALUES (NEW.streak, 2.0);
 	END;
 
--- rowid comparison needed because timestamps might not have enough precision.
+-- See https://sqlite.org/lang_select.html#bare_columns_in_an_aggregate_query.
 CREATE VIEW MostRecentReview AS
-SELECT DISTINCT A.* FROM Review AS A JOIN Review AS B USING (word)
-WHERE A.reviewed >= B.reviewed AND A.rowid >= B.rowid;
+SELECT Review.* FROM Review JOIN (SELECT max(rowid) FROM Review GROUP BY word)
+USING (rowid);
 
 CREATE VIEW UpdatedCoefficient AS
-SELECT DISTINCT A.* FROM Coefficient AS A JOIN Coefficient AS B USING (streak)
-WHERE A.updated >= B.updated AND A.rowid >= B.rowid;
+SELECT Coefficient.* FROM Coefficient JOIN (SELECT max(rowid) FROM Coefficient GROUP BY streak)
+USING (rowid);
