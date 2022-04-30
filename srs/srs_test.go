@@ -3,6 +3,7 @@ package srs
 import (
 	"database/sql"
 	"testing"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -32,6 +33,58 @@ func TestInitSchedulerTwice(t *testing.T) {
 
 	if _, err := InitWordScheduler(db); err != nil {
 		t.Log("expected err to be nil on second InitWordScheduler", err)
+		t.Fail()
+	}
+}
+
+// Returns WordScheduler for testing.
+func wordScheduler() WordScheduler {
+	db, _ := sql.Open("sqlite3", ":memory:")
+	ws, _ := InitWordScheduler(db)
+	return ws
+}
+
+func TestSchedule(t *testing.T) {
+	// Result should be empty with no errors.
+	ws := wordScheduler()
+
+	words, err := ws.Schedule(time.Now(), 100)
+
+	if err != nil {
+		t.Log("expected err to be nil", err)
+		t.Fail()
+	}
+	if len(words) > 0 {
+		t.Log("expected words to be empty", words)
+		t.Fail()
+	}
+}
+
+func TestUpdate(t *testing.T) {
+	// Only incorrect review needs to be reviewed.
+	ws := wordScheduler()
+
+	if err := ws.Update("foo", false); err != nil {
+		t.Log("expected err to be nil", err)
+		t.Fail()
+	}
+	if err := ws.Update("bar", true); err != nil {
+		t.Log("expected err to be nil", err)
+		t.Fail()
+	}
+
+	words, err := ws.Schedule(time.Now(), 100)
+	if err != nil {
+		t.Log("expected err to be nil", err)
+		t.Fail()
+	}
+
+	if len(words) != 1 {
+		t.Log("expected different number of results", words)
+		t.Fail()
+	}
+	if words[0] != "foo" {
+		t.Log("expected scheduled words to contain \"foo\"", words[0])
 		t.Fail()
 	}
 }
