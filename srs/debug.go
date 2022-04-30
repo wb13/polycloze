@@ -3,7 +3,19 @@ package srs
 
 import (
 	"database/sql"
+	"fmt"
 )
+
+func printReview(review Review) {
+	fmt.Printf(
+		"Review(due=%v, interval=%v, reviewed=%v, correct=%v, streak=%v)\n",
+		review.Due,
+		review.Interval,
+		review.Reviewed,
+		review.Correct,
+		review.Streak,
+	)
+}
 
 // Prints Reviews in database for debugging purposes.
 func printReviews(tx *sql.Tx) error {
@@ -18,11 +30,14 @@ SELECT word, due, interval, reviewed, correct, streak FROM Review`
 	for rows.Next() {
 		var word string
 		var review Review
+
+		var due string
+		var reviewed string
 		err := rows.Scan(
 			&word,
-			&review.Due,
+			&due,
 			&review.Interval,
-			&review.Reviewed,
+			&reviewed,
 			&review.Correct,
 			&review.Streak,
 		)
@@ -30,15 +45,19 @@ SELECT word, due, interval, reviewed, correct, streak FROM Review`
 			return err
 		}
 
-		println(
-			"Review(word={}, due={}, interval={}, reviewed={}, correct={}, streak={})",
-			word,
-			review.Due.String(),
-			review.Interval,
-			review.Reviewed.String(),
-			review.Correct,
-			review.Streak,
-		)
+		parsedDue, err := parseTimestamp(due)
+		if err != nil {
+			return err
+		}
+		parsedReviewed, err := parseTimestamp(reviewed)
+		if err != nil {
+			return err
+		}
+
+		review.Due = parsedDue
+		review.Reviewed = parsedReviewed
+
+		printReview(review)
 	}
 	return nil
 }

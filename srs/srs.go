@@ -2,6 +2,7 @@ package srs
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 )
 
@@ -40,25 +41,41 @@ SELECT word FROM MostRecentReview WHERE due < ? LIMIT ?
 }
 
 // Gets most recent review of word.
-// Result is nil if something goes wrong.
-func mostRecentReview(tx *sql.Tx, word string) *Review {
+func mostRecentReview(tx *sql.Tx, word string) (*Review, error) {
 	query := `
 SELECT due, interval, reviewed, correct, streak FROM MostRecentReview
 WHERE word = ?
 `
 	row := tx.QueryRow(query, word)
 	var review Review
+
+	var due string
+	var reviewed string
 	err := row.Scan(
-		&review.Due,
+		&due,
 		&review.Interval,
-		&review.Reviewed,
+		&reviewed,
 		&review.Correct,
 		&review.Streak,
 	)
 	if err != nil {
-		return nil
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
 	}
-	return &review
+
+	parsedDue, err := parseTimestamp(due)
+	if err != nil {
+		return nil, err
+	}
+	parsedReviewed, err := parseTimestamp(reviewed)
+	if err != nil {
+		return nil, err
+	}
+	review.Due = parsedDue
+	review.Reviewed = parsedReviewed
+	return &review, nil
 }
 
 // Gets updated coefficient for specified level.
@@ -78,7 +95,10 @@ func (ws *WordScheduler) Update(word string, correct bool) error {
 		return err
 	}
 
-	review := mostRecentReview(tx, word)
+	review, err := mostRecentReview(tx, word)
+	if err != nil {
+		return err
+	}
 
 	query := `
 INSERT INTO Review (word, interval, due, correct, streak)
@@ -91,7 +111,6 @@ VALUES (?, ?, ?, ?, ?)
 	if err != nil {
 		return err
 	}
-
 	if err := autoTune(tx); err != nil {
 		return err
 	}
