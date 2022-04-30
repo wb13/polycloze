@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"embed"
 	"errors"
+	"strings"
+	"time"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite3"
@@ -13,6 +15,8 @@ import (
 
 //go:embed migrations/*.sql
 var fs embed.FS
+
+const layout string = "2006-01-02 15:04:05"
 
 // Upgrades the database to the latest version.
 func migrateUp(db *sql.DB) error {
@@ -40,4 +44,10 @@ func migrateUp(db *sql.DB) error {
 		return err
 	}
 	return nil
+}
+
+// Parses sqlite timestamps.
+func parseTimestamp(timestamp string) (time.Time, error) {
+	prefix := strings.TrimSpace(timestamp)[:len(layout)]
+	return time.Parse(layout, prefix)
 }
