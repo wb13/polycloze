@@ -51,3 +51,10 @@ func parseTimestamp(timestamp string) (time.Time, error) {
 	prefix := strings.TrimSpace(timestamp)[:len(layout)]
 	return time.Parse(layout, prefix)
 }
+
+type CanQuery interface {
+	*sql.DB | *sql.Tx
+
+	Query(query string, args ...any) (*sql.Rows, error)
+	QueryRow(query string, args ...any) *sql.Row
+}

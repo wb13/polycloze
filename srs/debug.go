@@ -2,7 +2,6 @@
 package srs
 
 import (
-	"database/sql"
 	"fmt"
 )
 
@@ -18,10 +17,10 @@ func printReview(review Review) {
 }
 
 // Prints Reviews in database for debugging purposes.
-func printReviews(tx *sql.Tx) error {
+func printReviews[T CanQuery](db T) error {
 	query := `
 SELECT word, due, interval, reviewed, correct, streak FROM Review`
-	rows, err := tx.Query(query)
+	rows, err := db.Query(query)
 	if err != nil {
 		return err
 	}
