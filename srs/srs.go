@@ -46,8 +46,8 @@ func mostRecentReview(tx *sql.Tx, word string) *Review {
 SELECT due, interval, reviewed, correct, streak FROM MostRecentReview
 WHERE word = ?
 `
-	var review Review
 	row := tx.QueryRow(query, word)
+	var review Review
 	err := row.Scan(
 		&review.Due,
 		&review.Interval,
@@ -59,6 +59,16 @@ WHERE word = ?
 		return nil
 	}
 	return &review
+}
+
+// Gets updated coefficient for specified level.
+// Returns 2.0 on error.
+func getCoefficient(tx *sql.Tx, level int) float64 {
+	query := `SELECT coefficient FROM UpdatedCoefficient WHERE streak = ?`
+	row := tx.QueryRow(query, level)
+	coefficient := 2.0
+	row.Scan(&coefficient)
+	return coefficient
 }
 
 // Updates review status of word.
@@ -78,8 +88,8 @@ INSERT INTO Review (word, interval, due, correct, streak)
 VALUES (?, ?, ?, ?, ?)
 `
 
-	// TODO use auto-tuned coefficient
-	next := nextReview(review, correct)
+	coefficient := getCoefficient(tx, getStreak(review))
+	next := nextReview(review, correct, coefficient)
 	_, err = tx.Exec(query, word, next.Interval, next.Due, correct, next.Streak)
 	if err != nil {
 		return err

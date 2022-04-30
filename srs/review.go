@@ -19,13 +19,12 @@ type Review struct {
 
 // Computes next review schedule.
 // If review is nil, creates Review with default values for initial review.
-func nextReview(review *Review, correct bool) Review {
-	// TODO use auto-tuned coefficient
+func nextReview(review *Review, correct bool, coefficient float64) Review {
 	var interval time.Duration = 0
 	streak := 0
 	if correct {
 		if review != nil {
-			interval = 2 * review.Interval
+			interval = time.Duration(coefficient * float64(review.Interval.Nanoseconds()))
 			streak = review.Streak + 1
 		} else {
 			interval = day
@@ -41,4 +40,13 @@ func nextReview(review *Review, correct bool) Review {
 		Correct:  correct,
 		Streak:   streak,
 	}
+}
+
+// Returns value of streak in Review.
+// If Review is nil, returns 0.
+func getStreak(review *Review) int {
+	if review == nil {
+		return 0
+	}
+	return review.Streak
 }
