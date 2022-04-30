@@ -32,7 +32,7 @@ func nextReview(review *Review, correct bool, coefficient float64) Review {
 		}
 	}
 
-	now := time.Now()
+	now := time.Now().UTC()
 	return Review{
 		Reviewed: now,
 		Interval: interval,
