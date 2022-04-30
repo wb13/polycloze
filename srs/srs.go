@@ -40,6 +40,11 @@ SELECT word FROM MostRecentReview WHERE due < ? LIMIT ?
 	return words, nil
 }
 
+// Same as Schedule, but with some default args.
+func (ws *WordScheduler) ScheduleNow(count int) ([]string, error) {
+	return ws.Schedule(time.Now(), count)
+}
+
 // Gets most recent review of word.
 func mostRecentReview(tx *sql.Tx, word string) (*Review, error) {
 	query := `
