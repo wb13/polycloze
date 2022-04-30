@@ -44,7 +44,14 @@ GROUP BY streak ORDER BY streak ASC
 		panic("expected both levels to be non-empty")
 	}
 
-	rate := counts[1] / counts[0]
+	if counts[0] < counts[1] {
+		if err := printReviews(tx); err != nil {
+			return math.NaN(), err
+		}
+		panic("expected counts[0] >= counts[1]")
+	}
+
+	rate := float64(counts[1]) / float64(counts[0])
 	if rate < 0.0 || rate > 1.0 {
 		panic("expected rate to be between 0 and 1")
 	}
