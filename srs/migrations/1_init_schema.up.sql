@@ -27,6 +27,5 @@ WHEN NEW.streak NOT IN (SELECT streak FROM Coefficient)
 	END;
 
 CREATE VIEW MostRecentReview AS
-SELECT DISTINCT A.word, A.due, A.interval, A.reviewed, A.correct
-FROM Review AS A CROSS JOIN Review AS B
-WHERE A.word = B.word AND A.reviewed >= B.reviewed;
+SELECT DISTINCT A.* FROM Review AS A JOIN Review AS B USING (word)
+WHERE A.reviewed >= B.reviewed;

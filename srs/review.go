@@ -8,8 +8,8 @@ import (
 const day time.Duration = 86400000000000 // In nanoseconds
 
 type Review struct {
-	Due      time.Time
-	Interval time.Duration
+	Due      time.Time     // Due date of next review
+	Interval time.Duration // Interval between now and due date
 	Reviewed time.Time
 	Correct  bool
 }

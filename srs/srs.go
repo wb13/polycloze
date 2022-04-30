@@ -16,7 +16,7 @@ func InitWordScheduler(db *sql.DB) (WordScheduler, error) {
 	return WordScheduler{db}, nil
 }
 
-// Schedule due words, no more than count.
+// Returns words that are due for review, no more than count.
 // Pass a negative count if you want to get all due words.
 func (ws *WordScheduler) Schedule(due time.Time, count int) ([]string, error) {
 	query := `
@@ -39,8 +39,8 @@ SELECT word FROM MostRecentReview WHERE due < ? LIMIT ?
 	return words, nil
 }
 
-// Get most recent review of word.
-// Result is nil whenever something goes wrong.
+// Gets most recent review of word.
+// Result is nil if something goes wrong.
 func mostRecentReview(tx *sql.Tx, word string) *Review {
 	query := `
 SELECT due, interval, reviewed, correct FROM MostRecentReview
@@ -60,7 +60,7 @@ WHERE word = ?
 	return &review
 }
 
-// Update review status of word.
+// Updates review status of word.
 func (ws *WordScheduler) Update(word string, correct bool) error {
 	tx, err := ws.db.Begin()
 	if err != nil {
