@@ -4,6 +4,7 @@ package srs
 import (
 	"database/sql"
 	"embed"
+	"errors"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite3"
@@ -35,5 +36,8 @@ func migrateUp(db *sql.DB) error {
 		return err
 	}
 
-	return m.Up()
+	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return err
+	}
+	return nil
 }
