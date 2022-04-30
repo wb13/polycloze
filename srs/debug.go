@@ -19,7 +19,7 @@ func printReview(review Review) {
 // Prints Reviews in database for debugging purposes.
 func printReviews[T CanQuery](db T) error {
 	query := `
-SELECT word, due, interval, reviewed, correct, streak FROM Review`
+SELECT rowid, word, due, interval, reviewed, correct, streak FROM Review`
 	rows, err := db.Query(query)
 	if err != nil {
 		return err
@@ -27,12 +27,14 @@ SELECT word, due, interval, reviewed, correct, streak FROM Review`
 	defer rows.Close()
 
 	for rows.Next() {
+		var rowid int
 		var word string
 		var review Review
 
 		var due string
 		var reviewed string
 		err := rows.Scan(
+			&rowid,
 			&word,
 			&due,
 			&review.Interval,
@@ -56,6 +58,7 @@ SELECT word, due, interval, reviewed, correct, streak FROM Review`
 		review.Due = parsedDue
 		review.Reviewed = parsedReviewed
 
+		print(rowid, " ")
 		printReview(review)
 	}
 	return nil
