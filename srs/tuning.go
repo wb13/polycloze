@@ -2,6 +2,7 @@
 package srs
 
 import (
+	"database/sql"
 	"math"
 )
 
@@ -37,4 +38,9 @@ GROUP BY streak ORDER BY streak
 		panic("expected both levels to be non-empty")
 	}
 	return counts[1] / counts[0], nil
+}
+
+// Auto-tune update coefficients.
+func autoTune(tx *sql.Tx) error {
+	panic("TODO not implemented")
 }

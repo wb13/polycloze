@@ -69,12 +69,16 @@ func (ws *WordScheduler) Update(word string, correct bool) error {
 	}
 
 	review := mostRecentReview(tx, word)
+	if err := autoTune(tx); err != nil {
+		return err
+	}
 
 	query := `
 INSERT INTO Review (word, interval, due, correct, streak)
 VALUES (?, ?, ?, ?, ?)
 `
 
+	// TODO use auto-tuned coefficient
 	next := nextReview(review, correct)
 	_, err = tx.Exec(query, word, next.Interval, next.Due, correct, next.Streak)
 	if err != nil {

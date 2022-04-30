@@ -20,6 +20,7 @@ type Review struct {
 // Computes next review schedule.
 // If review is nil, creates Review with default values for initial review.
 func nextReview(review *Review, correct bool) Review {
+	// TODO use auto-tuned coefficient
 	var interval time.Duration = 0
 	streak := 0
 	if correct {
