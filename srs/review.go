@@ -14,7 +14,7 @@ type Review struct {
 	Correct  bool
 
 	// Length of streak of correct answers, including current review
-	Streak	 int
+	Streak int
 }
 
 // Computes next review schedule.
@@ -38,6 +38,6 @@ func nextReview(review *Review, correct bool) Review {
 		Interval: interval,
 		Due:      now.Add(interval),
 		Correct:  correct,
-		Streak: 	streak,
+		Streak:   streak,
 	}
 }
