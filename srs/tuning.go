@@ -8,6 +8,8 @@ import (
 
 // Computes rate of items in given level that advance to the next level.
 // Assumes the specified level and the next level are defined in the database.
+//
+// NOTE Returns 0.925 if there's not enough data.
 func advancementRate(tx *sql.Tx, level int) (float64, error) {
 	// The result also includes reviews that use old coefficient values.
 	// There wouldn't be enough data if those were also excluded.
@@ -31,8 +33,12 @@ GROUP BY streak ORDER BY streak ASC
 		counts = append(counts, count)
 	}
 
-	if len(counts) != 2 {
-		panic("expected both levels to be defined")
+	if len(counts) > 2 {
+		panic("expected <= 2 levels")
+	}
+	if len(counts) < 2 {
+		// Not the actual rate, but there's not enough data to calculate it.
+		return 0.925, nil
 	}
 	if counts[0]*counts[1] == 0.0 {
 		panic("expected both levels to be non-empty")
