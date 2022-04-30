@@ -29,10 +29,11 @@ WHEN NEW.streak NOT IN (SELECT streak FROM Coefficient)
 		INSERT INTO Coefficient (streak, coefficient) VALUES (NEW.streak, 2.0);
 	END;
 
+-- rowid comparison needed because timestamps might not have enough precision.
 CREATE VIEW MostRecentReview AS
 SELECT DISTINCT A.* FROM Review AS A JOIN Review AS B USING (word)
-WHERE A.reviewed >= B.reviewed;
+WHERE A.reviewed >= B.reviewed AND A.rowid >= B.rowid;
 
 CREATE VIEW UpdatedCoefficient AS
 SELECT DISTINCT A.* FROM Coefficient AS A JOIN Coefficient AS B USING (streak)
-WHERE A.updated >= B.updated;
+WHERE A.updated >= B.updated AND A.rowid >= B.rowid;
