@@ -14,7 +14,7 @@ func advancementRate(tx *sql.Tx, level int) (float64, error) {
 
 	query := `
 SELECT count(streak) FROM Review WHERE streak >= ? AND streak <= ?
-GROUP BY streak ORDER BY streak
+GROUP BY streak ORDER BY streak ASC
 `
 	rows, err := tx.Query(query, level, level+1)
 	if err != nil {
