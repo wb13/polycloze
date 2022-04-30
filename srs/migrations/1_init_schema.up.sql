@@ -1,8 +1,8 @@
 PRAGMA user_version = 1;
 
--- Table of coefficients, used to update intervals after reviewing.
+-- Append-only table of coefficients, used to update intervals after reviewing.
 CREATE TABLE Coefficient (
-	streak INTEGER PRIMARY KEY,
+	streak INTEGER,
 
 	-- Multiplier to get the interval for the next level, except for going from
 	-- level 0 to 1 (sets due date to the next day instead)
