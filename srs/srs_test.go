@@ -88,3 +88,12 @@ func TestUpdate(t *testing.T) {
 		t.Fail()
 	}
 }
+
+func TestUpdateRepeatedlyCorrect(t *testing.T) {
+	// Its streak should increase by one for each update.
+	ws := wordScheduler()
+
+	ws.Update("foo", true)
+	ws.Update("foo", true)
+	ws.Update("foo", true)
+}
