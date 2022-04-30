@@ -29,3 +29,7 @@ WHEN NEW.streak NOT IN (SELECT streak FROM Coefficient)
 CREATE VIEW MostRecentReview AS
 SELECT DISTINCT A.* FROM Review AS A JOIN Review AS B USING (word)
 WHERE A.reviewed >= B.reviewed;
+
+CREATE VIEW UpdatedCoefficient AS
+SELECT DISTINCT A.* FROM Coefficient AS A JOIN Coefficient AS B USING (streak)
+WHERE A.updated >= B.updated;
