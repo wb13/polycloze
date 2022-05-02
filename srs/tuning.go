@@ -6,56 +6,43 @@ import (
 	"math"
 )
 
-// Computes rate of items in given level that advance to the next level.
-// Assumes the specified level and the next level are defined in the database.
-//
-// NOTE Returns 0.925 if there's not enough data.
+// Calculates rate of reviews that reach the next level.
+// Returns 0.925 when no review has ever left the level, to avoid setting off
+// auto-tune when there's not enough data.
 func advancementRate(tx *sql.Tx, level int) (float64, error) {
-	// The result also includes reviews that use old coefficient values.
-	// There wouldn't be enough data if those were also excluded.
-
-	query := `
-SELECT count(streak) FROM Review WHERE streak >= ? AND streak <= ?
-GROUP BY streak ORDER BY streak ASC
-`
-	rows, err := tx.Query(query, level, level+1)
+	query := `SELECT word, streak FROM Review ORDER BY id ASC`
+	rows, err := tx.Query(query)
 	if err != nil {
 		return math.NaN(), err
 	}
 	defer rows.Close()
 
-	var counts []int
+	failed := 0
+	advanced := 0
+
+	activeStreak := make(map[string]bool)
 	for rows.Next() {
-		var count int
-		if err := rows.Scan(&count); err != nil {
+		var word string
+		var streak int
+		if err := rows.Scan(&word, &streak); err != nil {
 			return math.NaN(), err
 		}
-		counts = append(counts, count)
+
+		if streak == 0 && activeStreak[word] {
+			failed++
+			activeStreak[word] = false
+		} else if streak == level {
+			activeStreak[word] = true
+		} else if streak == level+1 {
+			advanced++
+			activeStreak[word] = false
+		}
 	}
 
-	if len(counts) > 2 {
-		panic("expected <= 2 levels")
-	}
-	if len(counts) < 2 {
-		// Not the actual rate, but there's not enough data to calculate it.
+	if failed == 0 && advanced == 0 {
 		return 0.925, nil
 	}
-	if counts[0]*counts[1] == 0.0 {
-		panic("expected both levels to be non-empty")
-	}
-
-	if counts[0] < counts[1] {
-		if err := printReviews(tx); err != nil {
-			return math.NaN(), err
-		}
-		panic("expected counts[0] >= counts[1]")
-	}
-
-	rate := float64(counts[1]) / float64(counts[0])
-	if rate < 0.0 || rate > 1.0 {
-		panic("expected rate to be between 0 and 1")
-	}
-	return rate, nil
+	return float64(advanced) / float64(failed+advanced), nil
 }
 
 // Gets maximum streak in the database.
