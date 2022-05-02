@@ -83,16 +83,6 @@ WHERE word = ?
 	return &review, nil
 }
 
-// Gets updated coefficient for specified level.
-// Returns 2.0 on error.
-func getCoefficient(tx *sql.Tx, level int) float64 {
-	query := `SELECT coefficient FROM UpdatedCoefficient WHERE streak = ?`
-	row := tx.QueryRow(query, level)
-	coefficient := 2.0
-	row.Scan(&coefficient)
-	return coefficient
-}
-
 // Updates review status of word.
 func (ws *WordScheduler) Update(word string, correct bool) error {
 	tx, err := ws.db.Begin()

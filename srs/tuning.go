@@ -57,8 +57,18 @@ func maxStreak(tx *sql.Tx) (int, error) {
 	return streak, nil
 }
 
-// Updates coefficient.
-func updateCoefficient(tx *sql.Tx, level int, coefficient float64) error {
+// Gets level coefficient.
+// Returns the default value (2.0) on error.
+func getCoefficient(tx *sql.Tx, level int) float64 {
+	query := `SELECT coefficient FROM UpdatedCoefficient WHERE streak = ?`
+	row := tx.QueryRow(query, level)
+	coefficient := 2.0
+	row.Scan(&coefficient)
+	return coefficient
+}
+
+// Sets new coefficient for level.
+func setCoefficient(tx *sql.Tx, level int, coefficient float64) error {
 	query := `INSERT INTO Coefficient (streak, coefficient) VALUES (?, ?)`
 	_, err := tx.Exec(query, level, coefficient)
 	return err
@@ -82,9 +92,9 @@ func autoTune(tx *sql.Tx) error {
 		}
 
 		if rate < 0.9 {
-			err = updateCoefficient(tx, i, (1+coefficient)/2)
+			err = setCoefficient(tx, i, (1+coefficient)/2)
 		} else if rate > 0.95 {
-			err = updateCoefficient(tx, i, coefficient*2)
+			err = setCoefficient(tx, i, coefficient*2)
 		}
 		if err != nil {
 			return err
