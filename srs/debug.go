@@ -58,7 +58,7 @@ SELECT id, word, due, interval, reviewed, correct, streak FROM Review`
 		review.Due = parsedDue
 		review.Reviewed = parsedReviewed
 
-		print(id, " ")
+		print(id, " ", word, " ")
 		printReview(review)
 	}
 	return nil
