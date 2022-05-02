@@ -23,7 +23,7 @@ func (ws *WordScheduler) Schedule(due time.Time, count int) ([]string, error) {
 	query := `
 SELECT word FROM MostRecentReview WHERE due < ? LIMIT ?
 `
-	rows, err := ws.db.Query(query, due, count)
+	rows, err := ws.db.Query(query, due.UTC(), count)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ SELECT word FROM MostRecentReview WHERE due < ? LIMIT ?
 
 // Same as Schedule, but with some default args.
 func (ws *WordScheduler) ScheduleNow(count int) ([]string, error) {
-	return ws.Schedule(time.Now(), count)
+	return ws.Schedule(time.Now().UTC(), count)
 }
 
 // Gets most recent review of word.

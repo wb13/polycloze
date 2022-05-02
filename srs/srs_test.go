@@ -3,7 +3,6 @@ package srs
 import (
 	"database/sql"
 	"testing"
-	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -48,7 +47,7 @@ func TestSchedule(t *testing.T) {
 	// Result should be empty with no errors.
 	ws := wordScheduler()
 
-	words, err := ws.Schedule(time.Now(), 100)
+	words, err := ws.ScheduleNow(100)
 
 	if err != nil {
 		t.Log("expected err to be nil", err)
@@ -73,7 +72,7 @@ func TestUpdate(t *testing.T) {
 		t.Fail()
 	}
 
-	words, err := ws.Schedule(time.Now(), 100)
+	words, err := ws.ScheduleNow(100)
 	if err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
