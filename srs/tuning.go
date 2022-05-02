@@ -3,6 +3,7 @@ package srs
 
 import (
 	"database/sql"
+	"errors"
 	"math"
 )
 
@@ -45,14 +46,15 @@ func advancementRate(tx *sql.Tx, level int) (float64, error) {
 	return float64(advanced) / float64(failed+advanced), nil
 }
 
-// Gets maximum streak in the database.
-// Returns -1 if there is none.
-func maxStreak(tx *sql.Tx) int {
+// Returns maximum review streak.
+func maxStreak(tx *sql.Tx) (int, error) {
 	query := `SELECT max(streak) FROM Review`
 	row := tx.QueryRow(query)
-	streak := -1
-	row.Scan(&streak)
-	return streak
+	var streak int
+	if err := row.Scan(&streak); err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return 0, err
+	}
+	return streak, nil
 }
 
 // Updates coefficient.
@@ -64,7 +66,12 @@ func updateCoefficient(tx *sql.Tx, level int, coefficient float64) error {
 
 // Auto-tunes update coefficients.
 func autoTune(tx *sql.Tx) error {
-	for i := 0; i < maxStreak(tx)+1; i++ {
+	max, err := maxStreak(tx)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < max+1; i++ {
 		// Target rate is between 90 (to reduce congestion) and 95% (could be higher,
 		// but it would be hard to tell if the spacing between levels is too short).
 
