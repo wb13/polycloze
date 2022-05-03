@@ -88,12 +88,44 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
+func TestUpdateRecentlyAnsweredWordDoesntGetScheduled(t *testing.T) {
+	ws := wordScheduler()
+	words := []string{"foo", "bar", "baz"}
+	for _, word := range words {
+		ws.Update(word, true)
+	}
+
+	words, err := ws.ScheduleNow(-1)
+	if err != nil {
+		t.Log("expected err to be nil", err)
+		t.Fail()
+	}
+	if len(words) > 0 {
+		t.Log("expected words to be empty", words)
+		t.Fail()
+	}
+}
+
 func TestUpdateRepeatedlyCorrect(t *testing.T) {
 	// Its streak should increase by one for each update.
 	ws := wordScheduler()
-
 	ws.Update("foo", true)
 	ws.Update("foo", true)
 	ws.Update("foo", true)
 	// TODO
+}
+
+func TestUpdateIncorrectThenCorrect(t *testing.T) {
+	// Scheduled words should be empty.
+	ws := wordScheduler()
+	ws.Update("foo", false)
+	ws.Update("foo", true)
+
+	printReviews(ws.db)
+
+	words, _ := ws.ScheduleNow(-1)
+	if len(words) > 0 {
+		t.Log("expected words to be empty", words)
+		t.Fail()
+	}
 }
