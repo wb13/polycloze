@@ -7,19 +7,19 @@ import (
 
 func printReview(review Review) {
 	fmt.Printf(
-		"Review(due=%v, interval=%v, reviewed=%v, correct=%v, streak=%v)\n",
+		"Review(due=%v, interval=%v, reviewed=%v, correct=%v, level=%v)\n",
 		review.Due,
 		review.Interval,
 		review.Reviewed,
 		review.Correct,
-		review.Streak,
+		review.Level(),
 	)
 }
 
 // Prints Reviews in database for debugging purposes.
 func printReviews[T CanQuery](db T) error {
 	query := `
-SELECT id, word, due, interval, reviewed, correct, streak FROM Review`
+SELECT id, word, due, interval, reviewed, correct FROM Review`
 	rows, err := db.Query(query)
 	if err != nil {
 		return err
@@ -40,7 +40,6 @@ SELECT id, word, due, interval, reviewed, correct, streak FROM Review`
 			&review.Interval,
 			&reviewed,
 			&review.Correct,
-			&review.Streak,
 		)
 		if err != nil {
 			return err

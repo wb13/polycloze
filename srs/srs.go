@@ -48,7 +48,7 @@ func (ws *WordScheduler) ScheduleNow(count int) ([]string, error) {
 // Gets most recent review of word.
 func mostRecentReview(tx *sql.Tx, word string) (*Review, error) {
 	query := `
-SELECT due, interval, reviewed, correct, streak FROM MostRecentReview
+SELECT due, interval, reviewed, correct FROM MostRecentReview
 WHERE word = ?
 `
 	row := tx.QueryRow(query, word)
@@ -61,7 +61,6 @@ WHERE word = ?
 		&review.Interval,
 		&reviewed,
 		&review.Correct,
-		&review.Streak,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -96,13 +95,13 @@ func (ws *WordScheduler) Update(word string, correct bool) error {
 	}
 
 	query := `
-INSERT INTO Review (word, interval, due, correct, streak)
-VALUES (?, ?, ?, ?, ?)
+INSERT INTO Review (word, interval, due, correct)
+VALUES (?, ?, ?, ?)
 `
 
-	coefficient := getCoefficient(tx, getStreak(review))
+	coefficient := getCoefficient(tx, getLevel(review))
 	next := nextReview(review, correct, coefficient)
-	_, err = tx.Exec(query, word, next.Interval, next.Due, correct, next.Streak)
+	_, err = tx.Exec(query, word, next.Interval, next.Due, correct)
 	if err != nil {
 		return err
 	}

@@ -1,3 +1,5 @@
+//go:build sqlite_math_functions
+
 package srs
 
 import (
@@ -107,7 +109,6 @@ func TestUpdateRecentlyAnsweredWordDoesntGetScheduled(t *testing.T) {
 }
 
 func TestUpdateRepeatedlyCorrect(t *testing.T) {
-	// Its streak should increase by one for each update.
 	ws := wordScheduler()
 	ws.Update("foo", true)
 	ws.Update("foo", true)
@@ -122,7 +123,6 @@ func TestUpdateIncorrectThenCorrect(t *testing.T) {
 	ws.Update("foo", true)
 
 	printReviews(ws.db)
-
 	words, _ := ws.ScheduleNow(-1)
 	if len(words) > 0 {
 		t.Log("expected words to be empty", words)

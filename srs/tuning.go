@@ -11,56 +11,58 @@ import (
 // Returns 0.925 when no review has ever left the level, to avoid setting off
 // auto-tune when there's not enough data.
 func advancementRate(tx *sql.Tx, level int) (float64, error) {
-	query := `SELECT word, streak FROM Review ORDER BY id ASC`
+	query := `SELECT word, level FROM Review ORDER BY id ASC`
 	rows, err := tx.Query(query)
 	if err != nil {
 		return math.NaN(), err
 	}
 	defer rows.Close()
 
-	failed := 0
-	advanced := 0
+	increased := 0
+	decreased := 0
+	// NOTE items that stayed at the same level after review (because the student
+	// crammed) are not counted
 
-	activeStreak := make(map[string]bool)
+	fromLevel := make(map[string]bool)
 	for rows.Next() {
 		var word string
-		var streak int
-		if err := rows.Scan(&word, &streak); err != nil {
+		var lv int
+		if err := rows.Scan(&word, &lv); err != nil {
 			return math.NaN(), err
 		}
 
-		if streak == 0 && activeStreak[word] {
-			failed++
-			activeStreak[word] = false
-		} else if streak == level {
-			activeStreak[word] = true
-		} else if streak == level+1 {
-			advanced++
-			activeStreak[word] = false
+		if lv < level && fromLevel[word] {
+			decreased++
+			fromLevel[word] = false
+		} else if lv == level {
+			fromLevel[word] = true
+		} else if lv > level+1 {
+			increased++
+			fromLevel[word] = false
 		}
 	}
 
-	if failed == 0 && advanced == 0 {
+	if decreased == 0 && increased == 0 {
 		return 0.925, nil
 	}
-	return float64(advanced) / float64(failed+advanced), nil
+	return float64(increased) / float64(decreased+increased), nil
 }
 
-// Returns maximum review streak.
-func maxStreak(tx *sql.Tx) (int, error) {
-	query := `SELECT max(streak) FROM Review`
+// Returns maximum review level.
+func maxLevel(tx *sql.Tx) (int, error) {
+	query := `SELECT max(level) FROM Review`
 	row := tx.QueryRow(query)
-	var streak int
-	if err := row.Scan(&streak); err != nil && !errors.Is(err, sql.ErrNoRows) {
+	var level int
+	if err := row.Scan(&level); err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return 0, err
 	}
-	return streak, nil
+	return level, nil
 }
 
 // Gets level coefficient.
 // Returns the default value (2.0) on error.
 func getCoefficient(tx *sql.Tx, level int) float64 {
-	query := `SELECT coefficient FROM UpdatedCoefficient WHERE streak = ?`
+	query := `SELECT coefficient FROM UpdatedCoefficient WHERE level = ?`
 	row := tx.QueryRow(query, level)
 	coefficient := 2.0
 	row.Scan(&coefficient)
@@ -69,14 +71,14 @@ func getCoefficient(tx *sql.Tx, level int) float64 {
 
 // Sets new coefficient for level.
 func setCoefficient(tx *sql.Tx, level int, coefficient float64) error {
-	query := `INSERT INTO Coefficient (streak, coefficient) VALUES (?, ?)`
+	query := `INSERT INTO Coefficient (level, coefficient) VALUES (?, ?)`
 	_, err := tx.Exec(query, level, coefficient)
 	return err
 }
 
 // Auto-tunes update coefficients.
 func autoTune(tx *sql.Tx) error {
-	max, err := maxStreak(tx)
+	max, err := maxLevel(tx)
 	if err != nil {
 		return err
 	}
