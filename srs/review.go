@@ -27,18 +27,28 @@ func getLevel(r *Review) int {
 	return r.Level()
 }
 
+// Calculates interval for next review.
+func calculateInterval(review *Review, correct bool, coefficient float64) time.Duration {
+	if !correct {
+		return 0
+	}
+	if review == nil {
+		return day
+	}
+
+	now := time.Now().UTC()
+	if review.Due.Before(now) {
+		return review.Interval
+	}
+
+	interval := now.Sub(review.Reviewed)
+	return time.Duration(coefficient * float64(interval.Nanoseconds()))
+}
+
 // Computes next review schedule.
 // If review is nil, creates Review with default values for initial review.
 func nextReview(review *Review, correct bool, coefficient float64) Review {
-	var interval time.Duration = 0
-	if correct {
-		if review != nil {
-			interval = time.Duration(coefficient * float64(review.Interval.Nanoseconds()))
-		} else {
-			interval = day
-		}
-	}
-
+	interval := calculateInterval(review, correct, coefficient)
 	now := time.Now().UTC()
 	return Review{
 		Reviewed: now,
