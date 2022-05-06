@@ -24,6 +24,7 @@ func main() {
 	assertNil(err)
 
 	assertNil(ws.Update("foo", false))
+	assertNil(ws.Update("foo", true))
 	assertNil(ws.Update("bar", true))
 
 	words, err := ws.ScheduleNow(-1)
