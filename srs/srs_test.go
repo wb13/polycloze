@@ -122,7 +122,6 @@ func TestUpdateIncorrectThenCorrect(t *testing.T) {
 	ws.Update("foo", false)
 	ws.Update("foo", true)
 
-	printReviews(ws.db)
 	words, _ := ws.ScheduleNow(-1)
 	if len(words) > 0 {
 		t.Log("expected words to be empty", words)
