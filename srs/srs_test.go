@@ -49,14 +49,14 @@ func TestSchedule(t *testing.T) {
 	// Result should be empty with no errors.
 	ws := wordScheduler()
 
-	words, err := ws.ScheduleNow(100)
+	items, err := ws.ScheduleNow(100)
 
 	if err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
 	}
-	if len(words) > 0 {
-		t.Log("expected words to be empty", words)
+	if len(items) > 0 {
+		t.Log("expected items to be empty", items)
 		t.Fail()
 	}
 }
@@ -74,36 +74,36 @@ func TestUpdate(t *testing.T) {
 		t.Fail()
 	}
 
-	words, err := ws.ScheduleNow(100)
+	items, err := ws.ScheduleNow(100)
 	if err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
 	}
 
-	if len(words) != 1 {
-		t.Log("expected different number of results", words)
+	if len(items) != 1 {
+		t.Log("expected different number of results", items)
 		t.Fail()
 	}
-	if words[0] != "foo" {
-		t.Log("expected scheduled words to contain \"foo\"", words[0])
+	if items[0] != "foo" {
+		t.Log("expected scheduled items to contain \"foo\"", items[0])
 		t.Fail()
 	}
 }
 
 func TestUpdateRecentlyAnsweredWordDoesntGetScheduled(t *testing.T) {
 	ws := wordScheduler()
-	words := []string{"foo", "bar", "baz"}
-	for _, word := range words {
-		ws.Update(word, true)
+	items := []string{"foo", "bar", "baz"}
+	for _, item := range items {
+		ws.Update(item, true)
 	}
 
-	words, err := ws.ScheduleNow(-1)
+	items, err := ws.ScheduleNow(-1)
 	if err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
 	}
-	if len(words) > 0 {
-		t.Log("expected words to be empty", words)
+	if len(items) > 0 {
+		t.Log("expected items to be empty", items)
 		t.Fail()
 	}
 }
@@ -117,14 +117,14 @@ func TestUpdateRepeatedlyCorrect(t *testing.T) {
 }
 
 func TestUpdateIncorrectThenCorrect(t *testing.T) {
-	// Scheduled words should be empty.
+	// Scheduled items should be empty.
 	ws := wordScheduler()
 	ws.Update("foo", false)
 	ws.Update("foo", true)
 
-	words, _ := ws.ScheduleNow(-1)
-	if len(words) > 0 {
-		t.Log("expected words to be empty", words)
+	items, _ := ws.ScheduleNow(-1)
+	if len(items) > 0 {
+		t.Log("expected items to be empty", items)
 		t.Fail()
 	}
 }

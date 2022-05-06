@@ -14,7 +14,7 @@ CREATE TABLE Coefficient (
 -- Unseen items don't appear here.
 CREATE TABLE Review (
 	id INTEGER PRIMARY KEY,
-	word TEXT NOT NULL,
+	item TEXT NOT NULL,
 	reviewed NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	correct BOOLEAN NOT NULL,		-- Result of this review.
 
@@ -33,7 +33,7 @@ WHEN NEW.level NOT IN (SELECT level FROM Coefficient)
 
 -- See https://sqlite.org/lang_select.html#bare_columns_in_an_aggregate_query.
 CREATE VIEW MostRecentReview AS
-SELECT Review.* FROM Review JOIN (SELECT max(id) AS id FROM Review GROUP BY word)
+SELECT Review.* FROM Review JOIN (SELECT max(id) AS id FROM Review GROUP BY item)
 USING (id);
 
 CREATE VIEW UpdatedCoefficient AS

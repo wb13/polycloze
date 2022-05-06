@@ -17,11 +17,11 @@ func InitWordScheduler(db *sql.DB) (WordScheduler, error) {
 	return WordScheduler{db}, nil
 }
 
-// Returns words that are due for review, no more than count.
-// Pass a negative count if you want to get all due words.
+// Returns items due for review, no more than count.
+// Pass a negative count if you want to get all due items.
 func (ws *WordScheduler) Schedule(due time.Time, count int) ([]string, error) {
 	query := `
-SELECT word FROM MostRecentReview WHERE due < ? LIMIT ?
+SELECT item FROM MostRecentReview WHERE due < ? LIMIT ?
 `
 	rows, err := ws.db.Query(query, due.UTC(), count)
 	if err != nil {
@@ -29,15 +29,15 @@ SELECT word FROM MostRecentReview WHERE due < ? LIMIT ?
 	}
 	defer rows.Close()
 
-	var words []string
+	var items []string
 	for rows.Next() {
-		var word string
-		if err := rows.Scan(&word); err != nil {
+		var item string
+		if err := rows.Scan(&item); err != nil {
 			return nil, err
 		}
-		words = append(words, word)
+		items = append(items, item)
 	}
-	return words, nil
+	return items, nil
 }
 
 // Same as Schedule, but with some default args.
@@ -45,13 +45,13 @@ func (ws *WordScheduler) ScheduleNow(count int) ([]string, error) {
 	return ws.Schedule(time.Now().UTC(), count)
 }
 
-// Gets most recent review of word.
-func mostRecentReview(tx *sql.Tx, word string) (*Review, error) {
+// Gets most recent review of item.
+func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 	query := `
 SELECT due, interval, reviewed, correct FROM MostRecentReview
-WHERE word = ?
+WHERE item = ?
 `
-	row := tx.QueryRow(query, word)
+	row := tx.QueryRow(query, item)
 	var review Review
 
 	var due string
@@ -82,26 +82,26 @@ WHERE word = ?
 	return &review, nil
 }
 
-// Updates review status of word.
-func (ws *WordScheduler) Update(word string, correct bool) error {
+// Updates review status of item.
+func (ws *WordScheduler) Update(item string, correct bool) error {
 	tx, err := ws.db.Begin()
 	if err != nil {
 		return err
 	}
 
-	review, err := mostRecentReview(tx, word)
+	review, err := mostRecentReview(tx, item)
 	if err != nil {
 		return err
 	}
 
 	query := `
-INSERT INTO Review (word, interval, due, correct)
+INSERT INTO Review (item, interval, due, correct)
 VALUES (?, ?, ?, ?)
 `
 
 	coefficient := getCoefficient(tx, getLevel(review))
 	next := nextReview(review, correct, coefficient)
-	_, err = tx.Exec(query, word, next.Interval, next.Due, correct)
+	_, err = tx.Exec(query, item, next.Interval, next.Due, correct)
 	if err != nil {
 		return err
 	}

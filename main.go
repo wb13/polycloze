@@ -27,9 +27,9 @@ func main() {
 	assertNil(ws.Update("foo", true))
 	assertNil(ws.Update("bar", true))
 
-	words, err := ws.ScheduleNow(-1)
+	items, err := ws.ScheduleNow(-1)
 	assertNil(err)
-	for _, word := range words {
-		fmt.Println(word)
+	for _, item := range items {
+		fmt.Println(item)
 	}
 }

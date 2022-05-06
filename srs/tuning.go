@@ -11,7 +11,7 @@ import (
 // Returns 0.925 when no review has ever left the level, to avoid setting off
 // auto-tune when there's not enough data.
 func advancementRate(tx *sql.Tx, level int) (float64, error) {
-	query := `SELECT word, level FROM Review ORDER BY id ASC`
+	query := `SELECT item, level FROM Review ORDER BY id ASC`
 	rows, err := tx.Query(query)
 	if err != nil {
 		return math.NaN(), err
@@ -25,20 +25,20 @@ func advancementRate(tx *sql.Tx, level int) (float64, error) {
 
 	fromLevel := make(map[string]bool)
 	for rows.Next() {
-		var word string
+		var item string
 		var lv int
-		if err := rows.Scan(&word, &lv); err != nil {
+		if err := rows.Scan(&item, &lv); err != nil {
 			return math.NaN(), err
 		}
 
-		if lv < level && fromLevel[word] {
+		if lv < level && fromLevel[item] {
 			decreased++
-			fromLevel[word] = false
+			fromLevel[item] = false
 		} else if lv == level {
-			fromLevel[word] = true
+			fromLevel[item] = true
 		} else if lv > level+1 {
 			increased++
-			fromLevel[word] = false
+			fromLevel[item] = false
 		}
 	}
 
