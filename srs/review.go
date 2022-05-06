@@ -12,7 +12,10 @@ type Review struct {
 	Due      time.Time     // Due date of next review
 	Interval time.Duration // Interval between now and due date
 	Reviewed time.Time
-	Correct  bool
+}
+
+func (r Review) Correct() bool {
+	return r.Interval > 0
 }
 
 func (r Review) Level() int {
@@ -57,6 +60,5 @@ func nextReview(review *Review, correct bool, coefficient float64) Review {
 		Reviewed: now,
 		Interval: interval,
 		Due:      now.Add(interval),
-		Correct:  correct,
 	}
 }

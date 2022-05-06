@@ -48,7 +48,7 @@ func (ws *ReviewScheduler) ScheduleNow(count int) ([]string, error) {
 // Gets most recent review of item.
 func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 	query := `
-SELECT due, interval, reviewed, correct FROM MostRecentReview
+SELECT due, interval, reviewed FROM MostRecentReview
 WHERE item = ?
 `
 	row := tx.QueryRow(query, item)
@@ -60,7 +60,6 @@ WHERE item = ?
 		&due,
 		&review.Interval,
 		&reviewed,
-		&review.Correct,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -95,13 +94,13 @@ func (ws *ReviewScheduler) Update(item string, correct bool) error {
 	}
 
 	query := `
-INSERT INTO Review (item, interval, due, correct)
-VALUES (?, ?, ?, ?)
+INSERT INTO Review (item, interval, due)
+VALUES (?, ?, ?)
 `
 
 	coefficient := getCoefficient(tx, getLevel(review))
 	next := nextReview(review, correct, coefficient)
-	_, err = tx.Exec(query, item, next.Interval, next.Due, correct)
+	_, err = tx.Exec(query, item, next.Interval, next.Due)
 	if err != nil {
 		return err
 	}
