@@ -5,7 +5,12 @@ import (
 	"fmt"
 )
 
-func printReview(review Review) {
+func printReview(review *Review) {
+	if review == nil {
+		fmt.Println("Review(nil)")
+		return
+	}
+
 	fmt.Printf(
 		"Review(due=%v, interval=%v, reviewed=%v, correct=%v, level=%v)\n",
 		review.Due,
@@ -58,7 +63,7 @@ SELECT id, word, due, interval, reviewed, correct FROM Review`
 		review.Reviewed = parsedReviewed
 
 		print(id, " ", word, " ")
-		printReview(review)
+		printReview(&review)
 	}
 	return nil
 }
