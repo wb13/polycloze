@@ -40,7 +40,7 @@ func calculateInterval(review *Review, correct bool, coefficient float64) time.D
 	}
 
 	now := time.Now().UTC()
-	if review.Due.Before(now) {
+	if now.Before(review.Due) {
 		return review.Interval
 	}
 

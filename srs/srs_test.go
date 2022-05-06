@@ -5,20 +5,21 @@ package srs
 import (
 	"database/sql"
 	"testing"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func TestInitScheduler(t *testing.T) {
 	db, _ := sql.Open("sqlite3", ":memory:")
-	ws, err := InitReviewScheduler(db)
+	rs, err := InitReviewScheduler(db)
 
 	if err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
 	}
 
-	if ws.db == nil {
+	if rs.db == nil {
 		t.Log("expected ReviewScheduler.db to be not nil")
 		t.Fail()
 	}
@@ -41,15 +42,15 @@ func TestInitSchedulerTwice(t *testing.T) {
 // Returns ReviewScheduler for testing.
 func reviewScheduler() ReviewScheduler {
 	db, _ := sql.Open("sqlite3", ":memory:")
-	ws, _ := InitReviewScheduler(db)
-	return ws
+	rs, _ := InitReviewScheduler(db)
+	return rs
 }
 
 func TestSchedule(t *testing.T) {
 	// Result should be empty with no errors.
-	ws := reviewScheduler()
+	rs := reviewScheduler()
 
-	items, err := ws.ScheduleNow(100)
+	items, err := rs.ScheduleNow(100)
 
 	if err != nil {
 		t.Log("expected err to be nil", err)
@@ -63,18 +64,18 @@ func TestSchedule(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	// Only incorrect review needs to be reviewed.
-	ws := reviewScheduler()
+	rs := reviewScheduler()
 
-	if err := ws.Update("foo", false); err != nil {
+	if err := rs.Update("foo", false); err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
 	}
-	if err := ws.Update("bar", true); err != nil {
+	if err := rs.Update("bar", true); err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
 	}
 
-	items, err := ws.ScheduleNow(100)
+	items, err := rs.ScheduleNow(100)
 	if err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
@@ -91,13 +92,13 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestUpdateRecentlyAnsweredItemDoesntGetScheduled(t *testing.T) {
-	ws := reviewScheduler()
+	rs := reviewScheduler()
 	items := []string{"foo", "bar", "baz"}
 	for _, item := range items {
-		ws.Update(item, true)
+		rs.Update(item, true)
 	}
 
-	items, err := ws.ScheduleNow(-1)
+	items, err := rs.ScheduleNow(-1)
 	if err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
@@ -108,23 +109,47 @@ func TestUpdateRecentlyAnsweredItemDoesntGetScheduled(t *testing.T) {
 	}
 }
 
-func TestUpdateRepeatedlyCorrect(t *testing.T) {
-	ws := reviewScheduler()
-	ws.Update("foo", true)
-	ws.Update("foo", true)
-	ws.Update("foo", true)
-	// TODO
-}
-
 func TestUpdateIncorrectThenCorrect(t *testing.T) {
 	// Scheduled items should be empty.
-	ws := reviewScheduler()
-	ws.Update("foo", false)
-	ws.Update("foo", true)
+	rs := reviewScheduler()
+	rs.Update("foo", false)
+	rs.Update("foo", true)
 
-	items, _ := ws.ScheduleNow(-1)
+	items, _ := rs.ScheduleNow(-1)
 	if len(items) > 0 {
 		t.Log("expected items to be empty", items)
 		t.Fail()
+	}
+}
+
+func TestUpdateSuccessfulReviewDoesNotDecreaseIntervalSize(t *testing.T) {
+	rs := reviewScheduler()
+	rs.Update("foo", true)
+	rs.Update("foo", true)
+	rs.Update("foo", true)
+
+	query := `SELECT interval FROM Review ORDER BY id ASC`
+	rows, err := rs.db.Query(query)
+	if err != nil {
+		t.Log("expected err to be nil", err)
+		t.Fail()
+	}
+	defer rows.Close()
+
+	var intervals []time.Duration
+	for rows.Next() {
+		var interval time.Duration
+		if err := rows.Scan(&interval); err != nil {
+			t.Log("expected err to be nil", err)
+			t.Fail()
+		}
+		intervals = append(intervals, interval)
+	}
+
+	for i := 1; i < len(intervals); i++ {
+		if intervals[i-1] > intervals[i] {
+			t.Log("expected sequence of successful reviews to have non-decreasing intervals", intervals)
+			t.Fail()
+		}
 	}
 }
