@@ -1,3 +1,3 @@
 # polycloze-srs
 
-Word scheduler used by polycloze.
+Review scheduler used by polycloze.

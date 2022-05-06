@@ -20,7 +20,7 @@ func main() {
 	db, err := sql.Open("sqlite3", "test.db")
 	assertNil(err)
 
-	ws, err := srs.InitWordScheduler(db)
+	ws, err := srs.InitReviewScheduler(db)
 	assertNil(err)
 
 	assertNil(ws.Update("foo", false))

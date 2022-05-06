@@ -11,7 +11,7 @@ import (
 
 func TestInitScheduler(t *testing.T) {
 	db, _ := sql.Open("sqlite3", ":memory:")
-	ws, err := InitWordScheduler(db)
+	ws, err := InitReviewScheduler(db)
 
 	if err != nil {
 		t.Log("expected err to be nil", err)
@@ -19,7 +19,7 @@ func TestInitScheduler(t *testing.T) {
 	}
 
 	if ws.db == nil {
-		t.Log("expected WordScheduler.db to be not nil")
+		t.Log("expected ReviewScheduler.db to be not nil")
 		t.Fail()
 	}
 }
@@ -27,27 +27,27 @@ func TestInitScheduler(t *testing.T) {
 func TestInitSchedulerTwice(t *testing.T) {
 	// Migration should go smoothly both times, even if there are no changes.
 	db, _ := sql.Open("sqlite3", ":memory:")
-	if _, err := InitWordScheduler(db); err != nil {
-		t.Log("expected err to be nil on first InitWordScheduler", err)
+	if _, err := InitReviewScheduler(db); err != nil {
+		t.Log("expected err to be nil on first InitReviewScheduler", err)
 		t.Fail()
 	}
 
-	if _, err := InitWordScheduler(db); err != nil {
-		t.Log("expected err to be nil on second InitWordScheduler", err)
+	if _, err := InitReviewScheduler(db); err != nil {
+		t.Log("expected err to be nil on second InitReviewScheduler", err)
 		t.Fail()
 	}
 }
 
-// Returns WordScheduler for testing.
-func wordScheduler() WordScheduler {
+// Returns ReviewScheduler for testing.
+func reviewScheduler() ReviewScheduler {
 	db, _ := sql.Open("sqlite3", ":memory:")
-	ws, _ := InitWordScheduler(db)
+	ws, _ := InitReviewScheduler(db)
 	return ws
 }
 
 func TestSchedule(t *testing.T) {
 	// Result should be empty with no errors.
-	ws := wordScheduler()
+	ws := reviewScheduler()
 
 	items, err := ws.ScheduleNow(100)
 
@@ -63,7 +63,7 @@ func TestSchedule(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	// Only incorrect review needs to be reviewed.
-	ws := wordScheduler()
+	ws := reviewScheduler()
 
 	if err := ws.Update("foo", false); err != nil {
 		t.Log("expected err to be nil", err)
@@ -90,8 +90,8 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
-func TestUpdateRecentlyAnsweredWordDoesntGetScheduled(t *testing.T) {
-	ws := wordScheduler()
+func TestUpdateRecentlyAnsweredItemDoesntGetScheduled(t *testing.T) {
+	ws := reviewScheduler()
 	items := []string{"foo", "bar", "baz"}
 	for _, item := range items {
 		ws.Update(item, true)
@@ -109,7 +109,7 @@ func TestUpdateRecentlyAnsweredWordDoesntGetScheduled(t *testing.T) {
 }
 
 func TestUpdateRepeatedlyCorrect(t *testing.T) {
-	ws := wordScheduler()
+	ws := reviewScheduler()
 	ws.Update("foo", true)
 	ws.Update("foo", true)
 	ws.Update("foo", true)
@@ -118,7 +118,7 @@ func TestUpdateRepeatedlyCorrect(t *testing.T) {
 
 func TestUpdateIncorrectThenCorrect(t *testing.T) {
 	// Scheduled items should be empty.
-	ws := wordScheduler()
+	ws := reviewScheduler()
 	ws.Update("foo", false)
 	ws.Update("foo", true)
 
