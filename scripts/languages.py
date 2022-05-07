@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from argparse import ArgumentParser, Namespace
-
 class LanguageLoader:
     @staticmethod
     def deu():
