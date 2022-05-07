@@ -28,7 +28,12 @@ begin transaction;
 		word not null references word
 	);
 
-	commit;
+	create view max_frequency as
+		select max(frequency) as max_frequency from word;
 
-	-- TODO
-	-- select id, word, cast(floor(0.5 - log2(frequency/98578.0)) as int) as frequency_class from word;
+	create view frequency_class as
+		select id, word,
+			cast(floor(0.5 - log2(cast(frequency as float) / (select * from max_frequency))) as int) as frequency_class
+		from word;
+
+	commit;
