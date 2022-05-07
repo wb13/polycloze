@@ -29,3 +29,6 @@ begin transaction;
 	);
 
 	commit;
+
+	-- TODO
+	-- select id, word, cast(floor(0.5 - log2(frequency/98578.0)) as int) as frequency_class from word;
