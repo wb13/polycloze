@@ -73,9 +73,16 @@ def parse_args() -> Namespace:
     return parser.parse_args()
 
 
-def write_csv(path: Path | str, rows: t.Iterable[t.Sequence[t.Any]]) -> None:
+def write_csv(
+    path: Path | str,
+    rows: t.Iterable[t.Sequence[t.Any]],
+    *,
+    header: t.Optional[t.Sequence[str]] = None,
+) -> None:
     with open(path, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
+        if header:
+            writer.writerow(header)
         for row in rows:
             writer.writerow(row)
 
@@ -108,10 +115,12 @@ def main() -> None:
         write_csv(
             words_csv,
             count_words(sentence.tokens for sentence in sentences).most_common(),
+            header=["word", "frequency"],
         )
         write_csv(
             sentences_csv,
             (sentence.row() for sentence in sentences),
+            header=["tatoeba_id", "text", "tokens"],
         )
 
         with tarfile.open(args.output, "w:gz") as tar:
