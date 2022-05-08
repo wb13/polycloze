@@ -27,6 +27,11 @@ build/translations.tsv:	build/ids.txt build/subset build/symmetric
 
 $(foreach lang,$(languages),$(eval $(call add_language,$(lang))))
 
+.PHONY:	download
+download:
+	./scripts/download.sh
+	python ./scripts/partition.py ./build/sentences < $(latest_sentences)
+
 
 ### nim stuff
 
