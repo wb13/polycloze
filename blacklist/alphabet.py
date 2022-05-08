@@ -22,6 +22,10 @@ languages = {
         alphabet=set("abcdefghijklmnñopqrstuvwxyzáéíóúü"),
         symbols=set("-."),
     ),
+    "tgl": Language(
+        alphabet=set("abcdefghijklmnñopqrstuvwxyz"),
+        symbols=set("-"),
+    ),
 }
 
 
