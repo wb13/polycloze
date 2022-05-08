@@ -3,3 +3,5 @@ __pycache__/
 build/
 dist/
 env/
+links.tar.bz2
+sentences.tar.bz2
