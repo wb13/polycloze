@@ -10,11 +10,11 @@ class Language:
 languages = {
     "deu": Language(
         alphabet=set("abcdefghijklmnopqrstuvwxyzäéöüß"),
-        symbols=set("-."),
+        symbols=set("-.'"),
     ),
     "eng": Language(
         alphabet=set("abcdefghijklmnopqrstuvwxyz"),
-        symbols=set("-."),
+        symbols=set("-.'"),
     ),
     "fra": Language(alphabet=set("abcdefghijklmnopqrstuvwxyzéàèùâêîôûëïüÿçñ")),
     "ita": Language(alphabet=set("abcdefghilmnopqrstuvzéóàèìòùî")),
@@ -24,7 +24,7 @@ languages = {
     ),
     "tgl": Language(
         alphabet=set("abcdefghijklmnñopqrstuvwxyzáàâéèêëíìîóòôúùû"),
-        symbols=set("-"),
+        symbols=set("-.'"),
     ),
 }
 
