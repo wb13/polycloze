@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """Tokenizes sentences from standard input and outputs CSV files."""
 
 from argparse import ArgumentParser, Namespace
@@ -10,8 +8,6 @@ from functools import reduce
 import json
 from pathlib import Path
 import sys
-import tarfile
-from tempfile import TemporaryDirectory
 import typing as t
 
 from spacy.language import Language
@@ -61,7 +57,7 @@ def parse_args() -> Namespace:
     parser.add_argument(
         "-o",
         dest="output",
-        help="output file",
+        help="output directory",
         required=True,
     )
     parser.add_argument(
@@ -89,6 +85,12 @@ def write_csv(
 
 def main() -> None:
     args = parse_args()
+
+    output = Path(args.output)
+    if output.is_file():
+        sys.exit(f"{args.output} is a file")
+    output.mkdir(parents=True, exist_ok=True)
+
     tokenizer = Tokenizer(load_language(args.language))
     sentences = []
 
@@ -107,24 +109,16 @@ def main() -> None:
     except EOFError:
         pass
 
-    with TemporaryDirectory() as tmpdirname:
-        tmpdir = Path(tmpdirname)
-        words_csv = tmpdir/"words.csv"
-        sentences_csv = tmpdir/"sentences.csv"
-
-        write_csv(
-            words_csv,
-            count_words(sentence.tokens for sentence in sentences).most_common(),
-            header=["word", "frequency"],
-        )
-        write_csv(
-            sentences_csv,
-            (sentence.row() for sentence in sentences),
-            header=["tatoeba_id", "text", "tokens"],
-        )
-
-        with tarfile.open(args.output, "w:gz") as tar:
-            tar.add(tmpdir, arcname=args.language)
+    write_csv(
+        output/"words.csv",
+        count_words(sentence.tokens for sentence in sentences).most_common(),
+        header=["word", "frequency"],
+    )
+    write_csv(
+        output/"sentences.csv",
+        (sentence.row() for sentence in sentences),
+        header=["tatoeba_id", "text", "tokens"],
+    )
 
 
 if __name__ == "__main__":
