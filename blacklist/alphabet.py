@@ -23,7 +23,7 @@ languages = {
         symbols=set("-."),
     ),
     "tgl": Language(
-        alphabet=set("abcdefghijklmnñopqrstuvwxyz"),
+        alphabet=set("abcdefghijklmnñopqrstuvwxyzáàâéèêëíìîóòôúùû"),
         symbols=set("-"),
     ),
 }
