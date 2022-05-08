@@ -12,19 +12,14 @@ class LanguageLoader:
         return English()
 
     @staticmethod
-    def fra():
-        from spacy.lang.fr import French
-        return French()
-
-    @staticmethod
-    def ita():
-        from spacy.lang.it import Italian
-        return Italian()
-
-    @staticmethod
     def spa():
         from spacy.lang.es import Spanish
         return Spanish()
+
+    @staticmethod
+    def tgl():
+        from spacy.lang.tl import Tagalog
+        return Tagalog()
 
 
 languages = [name for name in dir(LanguageLoader) if not name.startswith("_")]
