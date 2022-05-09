@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from argparse import ArgumentParser, Namespace
 import csv
 import json
 from pathlib import Path
@@ -55,10 +56,33 @@ def insert_contains(con: Connection) -> None:
     con.commit()
 
 
+def parse_args() -> Namespace:
+    """Parse command-line args."""
+    parser = ArgumentParser()
+    parser.add_argument(
+        "database",
+        help="sqlite database",
+    )
+    parser.add_argument(
+        "-s",
+        dest="sentences_csv",
+        help="sentences.csv file",
+        required=True,
+    )
+    parser.add_argument(
+        "-w",
+        dest="words_csv",
+        help="words.csv file",
+        required=True,
+    )
+    return parser.parse_args()
+
+
 def main():
-    with connect("test.db") as con:
-        import_csv(con, "words.csv", import_word_row)
-        import_csv(con, "sentences.csv", import_sentence_row)
+    args = parse_args()
+    with connect(args.database) as con:
+        import_csv(con, args.words_csv, import_word_row)
+        import_csv(con, args.sentences_csv, import_sentence_row)
         insert_contains(con)
 
 
