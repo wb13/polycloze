@@ -75,11 +75,24 @@ def parse_args() -> Namespace:
         help="words.csv file",
         required=True,
     )
+    parser.add_argument(
+        "-i",
+        "--ignore",
+        dest="ignore",
+        help="new-line separated list of words to ignore",
+    )
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
+    ignored_words = set()
+    if args.ignore:
+        try:
+            ignored_words = set(Path(args.ignore).read_text().splitlines())
+        except FileNotFoundError:
+            pass
+
     with connect(args.database) as con:
         import_csv(con, args.words_csv, import_word_row)
         import_csv(con, args.sentences_csv, import_sentence_row)
