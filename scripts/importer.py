@@ -7,10 +7,12 @@ from sqlite3 import Connection, connect
 import sqlite3
 import typing as t
 
+RowImporter = t.Callable[[Connection, csv.reader], None]
+
 def import_csv(
     con: Connection,
     path: Path | str,
-    import_row: t.Callable[[Connection, csv.reader], None],
+    import_row: RowImporter,
 ) -> None:
     with open(path) as file:
         reader = csv.reader(file)
@@ -20,11 +22,16 @@ def import_csv(
         con.commit()
 
 
-def import_word_row(con: Connection, row: tuple[str, ...]) -> None:
-    word = row[0]
-    frequency = int(row[1])
-    query = "insert or ignore into word (word, frequency) values (?, ?)"
-    con.execute(query, (word, frequency))
+def import_accepted_word_row(ignored_words: set[str]) -> RowImporter:
+    def import_word_row(con: Connection, row: tuple[str, ...]) -> None:
+        word = row[0]
+        if word in ignored_words:
+            return
+        frequency = int(row[1])
+        query = "insert or ignore into word (word, frequency) values (?, ?)"
+        con.execute(query, (word, frequency))
+
+    return import_word_row
 
 
 def import_sentence_row(con: Connection, row: tuple[str, ...]) -> None:
@@ -94,7 +101,7 @@ def main():
             pass
 
     with connect(args.database) as con:
-        import_csv(con, args.words_csv, import_word_row)
+        import_csv(con, args.words_csv, import_accepted_word_row(ignored_words))
         import_csv(con, args.sentences_csv, import_sentence_row)
         insert_contains(con)
 
