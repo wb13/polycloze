@@ -11,7 +11,7 @@ import (
 // Returns 0.925 when no review has ever left the level, to avoid setting off
 // auto-tune when there's not enough data.
 func advancementRate(tx *sql.Tx, level int) (float64, error) {
-	query := `SELECT item, level FROM Review ORDER BY id ASC`
+	query := `SELECT item, level FROM review ORDER BY id ASC`
 	rows, err := tx.Query(query)
 	if err != nil {
 		return math.NaN(), err
@@ -50,7 +50,7 @@ func advancementRate(tx *sql.Tx, level int) (float64, error) {
 
 // Returns maximum review level.
 func maxLevel(tx *sql.Tx) (int, error) {
-	query := `SELECT max(level) FROM Review`
+	query := `SELECT max(level) FROM review`
 	row := tx.QueryRow(query)
 	var level int
 	if err := row.Scan(&level); err != nil && !errors.Is(err, sql.ErrNoRows) {
@@ -62,7 +62,7 @@ func maxLevel(tx *sql.Tx) (int, error) {
 // Gets level coefficient.
 // Returns the default value (2.0) on error.
 func getCoefficient(tx *sql.Tx, level int) float64 {
-	query := `SELECT coefficient FROM UpdatedCoefficient WHERE level = ?`
+	query := `SELECT coefficient FROM updated_coefficient WHERE level = ?`
 	row := tx.QueryRow(query, level)
 	coefficient := 2.0
 	row.Scan(&coefficient)
@@ -71,7 +71,7 @@ func getCoefficient(tx *sql.Tx, level int) float64 {
 
 // Sets new coefficient for level.
 func setCoefficient(tx *sql.Tx, level int, coefficient float64) error {
-	query := `INSERT INTO Coefficient (level, coefficient) VALUES (?, ?)`
+	query := `INSERT INTO coefficient (level, coefficient) VALUES (?, ?)`
 	_, err := tx.Exec(query, level, coefficient)
 	return err
 }

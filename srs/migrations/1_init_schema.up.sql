@@ -2,7 +2,7 @@ PRAGMA user_version = 1;
 
 -- Append-only table of coefficients, which are used to update intervals after
 -- reviewing.
-CREATE TABLE Coefficient (
+CREATE TABLE coefficient (
 	id INTEGER PRIMARY KEY,
 	level INTEGER,
 	coefficient FLOAT NOT NULL DEFAULT 2.0
@@ -12,7 +12,7 @@ CREATE TABLE Coefficient (
 
 -- Table of review sessions.
 -- Unseen items don't appear here.
-CREATE TABLE Review (
+CREATE TABLE review (
 	id INTEGER PRIMARY KEY,
 	item TEXT NOT NULL,
 	reviewed NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -26,16 +26,16 @@ CREATE TABLE Review (
 );
 
 CREATE TRIGGER insert_default_coefficient BEFORE INSERT ON Review
-WHEN NEW.level NOT IN (SELECT level FROM Coefficient)
+WHEN NEW.level NOT IN (SELECT level FROM coefficient)
 	BEGIN
-		INSERT INTO Coefficient (level, coefficient) VALUES (NEW.level, 2.0);
+		INSERT INTO coefficient (level, coefficient) VALUES (NEW.level, 2.0);
 	END;
 
 -- See https://sqlite.org/lang_select.html#bare_columns_in_an_aggregate_query.
-CREATE VIEW MostRecentReview AS
-SELECT Review.* FROM Review JOIN (SELECT max(id) AS id FROM Review GROUP BY item)
+CREATE VIEW most_recent_review AS
+SELECT review.* FROM review JOIN (SELECT max(id) AS id FROM review GROUP BY item)
 USING (id);
 
-CREATE VIEW UpdatedCoefficient AS
-SELECT Coefficient.* FROM Coefficient JOIN (SELECT max(id) AS id FROM Coefficient GROUP BY level)
+CREATE VIEW updated_coefficient AS
+SELECT coefficient.* FROM coefficient JOIN (SELECT max(id) AS id FROM coefficient GROUP BY level)
 USING (id);

@@ -1,9 +1,9 @@
-PRAGMA user_version = 0;
+pragma user_version = 0;
 
-DROP VIEW MostRecentReview;
-DROP VIEW UpdatedCoefficient;
+drop view most_recent_review;
+drop view updated_coefficient;
 
-DROP TRIGGER insert_default_coefficient;
+drop trigger insert_default_coefficient;
 
-DROP TABLE Review;
-DROP TABLE Coefficient;
+drop table review;
+drop table coefficient;

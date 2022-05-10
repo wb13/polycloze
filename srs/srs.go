@@ -21,7 +21,7 @@ func InitReviewScheduler(db *sql.DB) (ReviewScheduler, error) {
 // Pass a negative count if you want to get all due items.
 func (ws *ReviewScheduler) Schedule(due time.Time, count int) ([]string, error) {
 	query := `
-SELECT item FROM MostRecentReview WHERE due < ? LIMIT ?
+SELECT item FROM most_recent_review WHERE due < ? LIMIT ?
 `
 	rows, err := ws.db.Query(query, due.UTC(), count)
 	if err != nil {
@@ -48,7 +48,7 @@ func (ws *ReviewScheduler) ScheduleNow(count int) ([]string, error) {
 // Gets most recent review of item.
 func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 	query := `
-SELECT due, interval, reviewed FROM MostRecentReview
+SELECT due, interval, reviewed FROM most_recent_review
 WHERE item = ?
 `
 	row := tx.QueryRow(query, item)
@@ -94,7 +94,7 @@ func (ws *ReviewScheduler) Update(item string, correct bool) error {
 	}
 
 	query := `
-INSERT INTO Review (item, interval, due)
+INSERT INTO review (item, interval, due)
 VALUES (?, ?, ?)
 `
 
