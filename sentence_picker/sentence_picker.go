@@ -22,18 +22,18 @@ func InitSentencePicker(db *sql.DB, langDB, reviewDB string) error {
 // Returns "easiest" sentence that contains word.
 func PickSentence(db *sql.DB, word string) ([]string, error) {
 	query := `
-select tokens, min(difficulty)
-from sentence
-join contains on (sentence.id = contains.sentence)
-join word on (word.id = contains.word)
-join sentence_difficulty using (sentence)
-where word.word = ?
+select tokens from sentence
+	join
+		(select sentence, min(difficulty) from sentence_difficulty where sentence in
+			(select sentence from contains
+				join (select id from word where word = ?) as A
+				on contains.word = A.id)) as B
+	on (sentence.id = B.sentence)
 `
 	row := db.QueryRow(query, word)
 
 	var jsonStr string
-	var difficulty float64
-	if err := row.Scan(&jsonStr, &difficulty); err != nil {
+	if err := row.Scan(&jsonStr); err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
 			return nil, err
 		}
