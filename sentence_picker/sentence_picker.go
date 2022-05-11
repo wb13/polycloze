@@ -3,7 +3,7 @@ package sentence_picker
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
+	"math"
 )
 
 func InitSentencePicker(db *sql.DB, langDB, reviewDB string) error {
@@ -19,26 +19,42 @@ func InitSentencePicker(db *sql.DB, langDB, reviewDB string) error {
 	return nil
 }
 
-// Returns "easiest" sentence that contains word.
-func PickSentence(db *sql.DB, word string) ([]string, error) {
+// Returns map of sentence ID -> sentence difficulty of sentences containing word.
+func sentencesThatContain(db *sql.DB, word string) (map[int]float64, error) {
 	query := `
-select tokens from sentence
-	join
-		(select sentence, min(difficulty) from sentence_difficulty where sentence in
-			(select sentence from contains
-				join (select id from word where word = ?) as A
-				on contains.word = A.id)) as B
-	on (sentence.id = B.sentence)
+select contains.sentence as sentence,
+			(count(word) + sum(difficulty)) / coalesce(counter, 1.0) as difficulty
+from contains
+join word_difficulty using(word)
+left join seen on (contains.sentence = seen.sentence)
+where contains.sentence in
+	(select sentence from contains join word on (contains.word = word.id) where word.word = ?)
+group by contains.sentence;
 `
-	row := db.QueryRow(query, word)
+	rows, err := db.Query(query, word)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-	var jsonStr string
-	if err := row.Scan(&jsonStr); err != nil {
-		if !errors.Is(err, sql.ErrNoRows) {
+	sentences := make(map[int]float64)
+	for rows.Next() {
+		var id int
+		var difficulty float64
+		if err := rows.Scan(&id, &difficulty); err != nil {
 			return nil, err
 		}
-		// doesn't panic, because words in db are guaranteed to be in a sentence
-		panic("no sentences found")
+		sentences[id] = difficulty
+	}
+	return sentences, nil
+}
+
+func sentenceTokens(db *sql.DB, sentence int) ([]string, error) {
+	query := `select tokens from sentence where id = ?`
+	row := db.QueryRow(query, sentence)
+	var jsonStr string
+	if err := row.Scan(&jsonStr); err != nil {
+		return nil, err
 	}
 
 	var tokens []string
@@ -46,4 +62,29 @@ select tokens from sentence
 		return nil, err
 	}
 	return tokens, nil
+}
+
+// Returns "easiest" sentence that contains word.
+func PickSentence(db *sql.DB, word string) ([]string, error) {
+	sentences, err := sentencesThatContain(db, word)
+	if err != nil {
+		return nil, err
+	}
+
+	ok := false
+	sentence := 0
+	minDifficulty := math.Inf(1)
+
+	for id, difficulty := range sentences {
+		if difficulty < minDifficulty {
+			ok = true
+			sentence = id
+			minDifficulty = difficulty
+		}
+	}
+
+	if !ok {
+		panic("no sentences found")
+	}
+	return sentenceTokens(db, sentence)
 }
