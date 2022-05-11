@@ -1,7 +1,7 @@
 create temp view word_difficulty as
 select frequency_class.id as word,
-			 frequency_class/(1.0 + coalesce((select level from review_schema.most_recent_review where item = frequency_class.word), 0.0)) as difficulty
-from language_schema.frequency_class;
+			 frequency_class/(1.0 + coalesce(level, 0.0)) as difficulty
+from frequency_class left join most_recent_review on (frequency_class.word = most_recent_review.item);
 
 create temp view sentence_difficulty as
 select sentence,
