@@ -25,7 +25,7 @@ build/sqlite/$(1).db:	build/languages/$(1)/non-words.txt build/languages/$(1)/se
 endef
 
 .PHONY:	all
-all:
+all:	build/translations.db
 
 build/ids.txt:	$(latest_sentences)
 	languages=$$(printf "${languages}" | tr '[:space:]' '|'); \
@@ -33,6 +33,9 @@ build/ids.txt:	$(latest_sentences)
 
 build/translations.csv:	build/ids.txt build/subset build/symmetric
 	./build/subset $< < $(latest_links) | ./build/symmetric > $@
+
+build/translations.db:	build/translations.csv
+	./scripts/make-translation-db.sh $< $@
 
 $(foreach lang,$(languages),$(eval $(call add_language,$(lang))))
 
