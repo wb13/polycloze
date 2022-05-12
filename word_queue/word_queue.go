@@ -8,7 +8,7 @@ import (
 // Gets up to n new words from db.
 // Pass a negative n if you don't want a word limit.
 // Expects language DB and review DB to be attached.
-func GetNewWord(db *sql.DB, n int) ([]string, error) {
+func GetNewWords(db *sql.DB, n int) ([]string, error) {
 	query := `
 select word from word where word not in
 (select item from review)
