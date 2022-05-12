@@ -9,6 +9,8 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite3"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 //go:embed migrations/*/*.sql
@@ -40,6 +42,17 @@ func Upgrade(db *sql.DB, migrationsPath string) error {
 		return err
 	}
 	return nil
+}
+
+// Upgrades database (specified by path) to the latest version.
+func UpgradeFile(dbPath, migrationsPath string) error {
+	db, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	return Upgrade(db, migrationsPath)
 }
 
 // Attaches database.
