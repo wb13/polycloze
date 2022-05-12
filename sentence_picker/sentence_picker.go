@@ -89,3 +89,13 @@ func PickSentence(db *sql.DB, word string) ([]string, error) {
 	}
 	return sentenceTokens(db, sentence)
 }
+
+func IncrementSeenCount(db *sql.DB, sentence int) error {
+	query := `
+update or ignore seen
+set last = current_timestamp, counter = counter + 1
+where sentence = ?
+`
+	_, err := db.Exec(query, sentence)
+	return err
+}
