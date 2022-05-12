@@ -7,26 +7,30 @@ import (
 	"errors"
 
 	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/sqlite3"
+	"github.com/golang-migrate/migrate/v4/database/sqlite3"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 //go:embed migrations/*/*.sql
 var fs embed.FS
 
-// Upgrades database (specified by path) to the latest version.
-func Upgrade(databaseUrl string, migrationsPath string) error {
+// Upgrades database to the latest version.
+func Upgrade(db *sql.DB, migrationsPath string) error {
+	dbDriver, err := sqlite3.WithInstance(db, &sqlite3.Config{})
+	if err != nil {
+		return err
+	}
+
 	srcDriver, err := iofs.New(fs, migrationsPath)
 	if err != nil {
 		return err
 	}
 
-	m, err := migrate.NewWithSourceInstance(
+	m, err := migrate.NewWithInstance(
 		"iofs",
 		srcDriver,
-		databaseUrl,
+		"sqlite3",
+		dbDriver,
 	)
 	if err != nil {
 		return err
