@@ -12,7 +12,7 @@ proc main() =
     let target = parseInt(row[1])
 
     if source < target:
-      writeLine(stdout, &"{source}\t{target}")
+      writeLine(stdout, &"{source},{target}")
   flushFile(stdout)
 
 main()

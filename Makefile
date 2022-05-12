@@ -31,7 +31,7 @@ build/ids.txt:	$(latest_sentences)
 	languages=$$(printf "${languages}" | tr '[:space:]' '|'); \
 	./scripts/sentences.sh $${languages} | ./scripts/format.sh id > $@
 
-build/translations.tsv:	build/ids.txt build/subset build/symmetric
+build/translations.csv:	build/ids.txt build/subset build/symmetric
 	./build/subset $< < $(latest_links) | ./build/symmetric > $@
 
 $(foreach lang,$(languages),$(eval $(call add_language,$(lang))))
