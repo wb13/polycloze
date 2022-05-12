@@ -1,4 +1,4 @@
-package srs
+package review_scheduler
 
 import (
 	"database/sql"

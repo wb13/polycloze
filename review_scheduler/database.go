@@ -1,5 +1,5 @@
 // Database management stuff.
-package srs
+package review_scheduler
 
 import (
 	"database/sql"

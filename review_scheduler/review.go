@@ -1,5 +1,5 @@
 // Defines the Review struct for storing rows from the Review table.
-package srs
+package review_scheduler
 
 import (
 	"math"

@@ -1,6 +1,6 @@
 //go:build sqlite_math_functions
 
-package srs
+package review_scheduler
 
 import (
 	"database/sql"

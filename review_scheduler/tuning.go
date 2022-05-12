@@ -1,5 +1,5 @@
 // Auto-tuning stuff (of spacing algorithm parameters).
-package srs
+package review_scheduler
 
 import (
 	"database/sql"

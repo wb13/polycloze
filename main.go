@@ -7,7 +7,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/lggruspe/polycloze-srs/srs"
+	"github.com/lggruspe/polycloze-srs/review_scheduler"
 )
 
 func assertNil(value any) {
@@ -20,14 +20,14 @@ func main() {
 	db, err := sql.Open("sqlite3", "test.db")
 	assertNil(err)
 
-	ws, err := srs.InitReviewScheduler(db)
+	rs, err := review_scheduler.InitReviewScheduler(db)
 	assertNil(err)
 
-	assertNil(ws.Update("foo", false))
-	assertNil(ws.Update("foo", true))
-	assertNil(ws.Update("bar", true))
+	assertNil(rs.Update("foo", false))
+	assertNil(rs.Update("foo", true))
+	assertNil(rs.Update("bar", true))
 
-	items, err := ws.ScheduleNow(-1)
+	items, err := rs.ScheduleNow(-1)
 	assertNil(err)
 	for _, item := range items {
 		fmt.Println(item)

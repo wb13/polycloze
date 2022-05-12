@@ -1,5 +1,5 @@
 // Debugging stuff.
-package srs
+package review_scheduler
 
 import (
 	"fmt"
