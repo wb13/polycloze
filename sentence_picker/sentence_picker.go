@@ -21,9 +21,10 @@ func InitSentencePicker(db *sql.DB, langDB, reviewDB string) error {
 
 // Returns map of sentence ID -> sentence difficulty of sentences containing word.
 func sentencesThatContain(db *sql.DB, word string) (map[int]float64, error) {
+	// NOTE seen counter is only used to add variation in the returned sentences
 	query := `
 select contains.sentence as sentence,
-			(count(word) + sum(difficulty)) / coalesce(counter, 1.0) as difficulty
+			count(word) + sum(difficulty) + coalesce(counter, 0.0) as difficulty
 from contains
 join word_difficulty using(word)
 left join seen on (contains.sentence = seen.sentence)

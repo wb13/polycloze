@@ -5,8 +5,8 @@ from frequency_class left join most_recent_review on (frequency_class.word = mos
 
 create temp view sentence_difficulty as
 select sentence,
-			 (sum(word_difficulty.difficulty) + count(word))
-					/ coalesce((select counter from seen where sentence = contains.sentence), 1.0)
+			 sum(word_difficulty.difficulty) + count(word)
+					+ coalesce((select counter from seen where sentence = contains.sentence), 0.0)
 					as difficulty
 from contains join word_difficulty using (word)
 group by sentence;
