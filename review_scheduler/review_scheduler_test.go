@@ -6,51 +6,19 @@ import (
 	"database/sql"
 	"testing"
 	"time"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
-func TestInitScheduler(t *testing.T) {
-	db, _ := sql.Open("sqlite3", ":memory:")
-	rs, err := InitReviewScheduler(db)
-
-	if err != nil {
-		t.Log("expected err to be nil", err)
-		t.Fail()
-	}
-
-	if rs.db == nil {
-		t.Log("expected ReviewScheduler.db to be not nil")
-		t.Fail()
-	}
-}
-
-func TestInitSchedulerTwice(t *testing.T) {
-	// Migration should go smoothly both times, even if there are no changes.
-	db, _ := sql.Open("sqlite3", ":memory:")
-	if _, err := InitReviewScheduler(db); err != nil {
-		t.Log("expected err to be nil on first InitReviewScheduler", err)
-		t.Fail()
-	}
-
-	if _, err := InitReviewScheduler(db); err != nil {
-		t.Log("expected err to be nil on second InitReviewScheduler", err)
-		t.Fail()
-	}
-}
-
 // Returns ReviewScheduler for testing.
-func reviewScheduler() ReviewScheduler {
-	db, _ := sql.Open("sqlite3", ":memory:")
-	rs, _ := InitReviewScheduler(db)
-	return rs
+func reviewScheduler() *sql.DB {
+	db, _ := New(":memory:")
+	return db
 }
 
 func TestSchedule(t *testing.T) {
 	// Result should be empty with no errors.
-	rs := reviewScheduler()
+	db := reviewScheduler()
 
-	items, err := rs.ScheduleNow(100)
+	items, err := ScheduleReviewNow(db, 100)
 
 	if err != nil {
 		t.Log("expected err to be nil", err)
@@ -64,18 +32,18 @@ func TestSchedule(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	// Only incorrect review needs to be reviewed.
-	rs := reviewScheduler()
+	db := reviewScheduler()
 
-	if err := rs.Update("foo", false); err != nil {
+	if err := UpdateReview(db, "foo", false); err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
 	}
-	if err := rs.Update("bar", true); err != nil {
+	if err := UpdateReview(db, "bar", true); err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
 	}
 
-	items, err := rs.ScheduleNow(100)
+	items, err := ScheduleReviewNow(db, 100)
 	if err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
@@ -92,13 +60,13 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestUpdateRecentlyAnsweredItemDoesntGetScheduled(t *testing.T) {
-	rs := reviewScheduler()
+	db := reviewScheduler()
 	items := []string{"foo", "bar", "baz"}
 	for _, item := range items {
-		rs.Update(item, true)
+		UpdateReview(db, item, true)
 	}
 
-	items, err := rs.ScheduleNow(-1)
+	items, err := ScheduleReviewNow(db, -1)
 	if err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
@@ -111,11 +79,11 @@ func TestUpdateRecentlyAnsweredItemDoesntGetScheduled(t *testing.T) {
 
 func TestUpdateIncorrectThenCorrect(t *testing.T) {
 	// Scheduled items should be empty.
-	rs := reviewScheduler()
-	rs.Update("foo", false)
-	rs.Update("foo", true)
+	db := reviewScheduler()
+	UpdateReview(db, "foo", false)
+	UpdateReview(db, "foo", true)
 
-	items, _ := rs.ScheduleNow(-1)
+	items, _ := ScheduleReviewNow(db, -1)
 	if len(items) > 0 {
 		t.Log("expected items to be empty", items)
 		t.Fail()
@@ -123,13 +91,13 @@ func TestUpdateIncorrectThenCorrect(t *testing.T) {
 }
 
 func TestUpdateSuccessfulReviewDoesNotDecreaseIntervalSize(t *testing.T) {
-	rs := reviewScheduler()
-	rs.Update("foo", true)
-	rs.Update("foo", true)
-	rs.Update("foo", true)
+	db := reviewScheduler()
+	UpdateReview(db, "foo", true)
+	UpdateReview(db, "foo", true)
+	UpdateReview(db, "foo", true)
 
 	query := `SELECT interval FROM review ORDER BY id ASC`
-	rows, err := rs.db.Query(query)
+	rows, err := db.Query(query)
 	if err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
