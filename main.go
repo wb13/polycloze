@@ -6,7 +6,8 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/lggruspe/polycloze-srs/review_scheduler"
+	rs "github.com/lggruspe/polycloze-srs/review_scheduler"
+	ws "github.com/lggruspe/polycloze-srs/word_scheduler"
 )
 
 func assertNil(value any) {
@@ -16,24 +17,17 @@ func assertNil(value any) {
 }
 
 func main() {
-	db, err := review_scheduler.New("test.db")
+	db, err := ws.New("review.db", "spa.db")
 	assertNil(err)
 
-	assertNil(review_scheduler.UpdateReview(db, "foo", false))
-	assertNil(review_scheduler.UpdateReview(db, "foo", true))
-	assertNil(review_scheduler.UpdateReview(db, "bar", true))
-
-	items, err := review_scheduler.ScheduleReviewNow(db, -1)
+	words, err := ws.GetWords(db, 10)
 	assertNil(err)
-	for _, item := range items {
-		fmt.Println(item)
+
+	for _, word := range words {
+		fmt.Println(word)
 	}
 
-	/*
-	database.UpgradeFile("review.db", "migrations/review_scheduler")
-
-	db, _ := sql.Open("sqlite3", ":memory:")
-	database.Attach(db, "review", "review.db")
-	database.Attach(db, "language", "language.db")
-	*/
+	if len(words) > 0 {
+		assertNil(rs.UpdateReview(db, words[0], true))
+	}
 }
