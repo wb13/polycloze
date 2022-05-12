@@ -3,7 +3,10 @@ package review_scheduler
 import (
 	"database/sql"
 	"errors"
+	"path"
 	"time"
+
+	"github.com/lggruspe/polycloze-srs/database"
 )
 
 type ReviewScheduler struct {
@@ -11,7 +14,8 @@ type ReviewScheduler struct {
 }
 
 func InitReviewScheduler(db *sql.DB) (ReviewScheduler, error) {
-	if err := migrateUp(db); err != nil {
+	err := database.Upgrade(db, path.Join("migrations", "review_scheduler"))
+	if err != nil {
 		return ReviewScheduler{nil}, err
 	}
 	return ReviewScheduler{db}, nil
