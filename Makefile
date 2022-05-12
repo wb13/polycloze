@@ -8,6 +8,7 @@ run:
 
 .PHONY:	test
 test:
+	cd database; go test -tags sqlite_math_functions
 	cd review_scheduler; go test -tags sqlite_math_functions
 
 .PHONY:	clean
