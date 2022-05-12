@@ -19,11 +19,11 @@ func InitReviewScheduler(db *sql.DB) (ReviewScheduler, error) {
 
 // Returns items due for review, no more than count.
 // Pass a negative count if you want to get all due items.
-func (ws *ReviewScheduler) Schedule(due time.Time, count int) ([]string, error) {
+func (rs *ReviewScheduler) Schedule(due time.Time, count int) ([]string, error) {
 	query := `
 SELECT item FROM most_recent_review WHERE due < ? LIMIT ?
 `
-	rows, err := ws.db.Query(query, due.UTC(), count)
+	rows, err := rs.db.Query(query, due.UTC(), count)
 	if err != nil {
 		return nil, err
 	}
@@ -41,8 +41,8 @@ SELECT item FROM most_recent_review WHERE due < ? LIMIT ?
 }
 
 // Same as Schedule, but with some default args.
-func (ws *ReviewScheduler) ScheduleNow(count int) ([]string, error) {
-	return ws.Schedule(time.Now().UTC(), count)
+func (rs *ReviewScheduler) ScheduleNow(count int) ([]string, error) {
+	return rs.Schedule(time.Now().UTC(), count)
 }
 
 // Gets most recent review of item.
@@ -82,8 +82,8 @@ WHERE item = ?
 }
 
 // Updates review status of item.
-func (ws *ReviewScheduler) Update(item string, correct bool) error {
-	tx, err := ws.db.Begin()
+func (rs *ReviewScheduler) Update(item string, correct bool) error {
+	tx, err := rs.db.Begin()
 	if err != nil {
 		return err
 	}
