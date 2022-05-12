@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 
@@ -17,19 +16,24 @@ func assertNil(value any) {
 }
 
 func main() {
-	db, err := sql.Open("sqlite3", "test.db")
+	db, err := review_scheduler.New("test.db")
 	assertNil(err)
 
-	rs, err := review_scheduler.InitReviewScheduler(db)
-	assertNil(err)
+	assertNil(review_scheduler.UpdateReview(db, "foo", false))
+	assertNil(review_scheduler.UpdateReview(db, "foo", true))
+	assertNil(review_scheduler.UpdateReview(db, "bar", true))
 
-	assertNil(rs.Update("foo", false))
-	assertNil(rs.Update("foo", true))
-	assertNil(rs.Update("bar", true))
-
-	items, err := rs.ScheduleNow(-1)
+	items, err := review_scheduler.ScheduleReviewNow(db, -1)
 	assertNil(err)
 	for _, item := range items {
 		fmt.Println(item)
 	}
+
+	/*
+	database.UpgradeFile("review.db", "migrations/review_scheduler")
+
+	db, _ := sql.Open("sqlite3", ":memory:")
+	database.Attach(db, "review", "review.db")
+	database.Attach(db, "language", "language.db")
+	*/
 }
