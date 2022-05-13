@@ -2,11 +2,22 @@ package translator
 
 import (
 	"database/sql"
+	"encoding/json"
+	"errors"
+	"math/rand"
 )
+
+var ErrNoTranslationsFound = errors.New("no translations found")
 
 type Translator struct {
 	db *sql.DB
-	// TODO backup translation service
+}
+
+type Sentence struct {
+	Id        int
+	TatoebaId int64 // negative if none
+	Text      string
+	Tokens    []string
 }
 
 // db should be empty in-memory database.
@@ -23,17 +34,65 @@ func NewTranslator(db *sql.DB, sourceDB, targetDB, translationDB string) (*Trans
 	return &Translator{db: db}, nil
 }
 
-func (t Translator) Translate(sentence string) (string, error) {
-	// TODO result should vary if there are multiple translations
-	// TODO use backup translation service if no translations found
+func findSentence(db *sql.DB, text string) (Sentence, error) {
+	query := `select id, tatoeba_id, tokens from source.sentence where text = ?`
+	row := db.QueryRow(query, text)
+
+	var sentence Sentence
+	sentence.Text = text
+	var tatoebaId sql.NullInt64
+	var jsonStr string
+	err := row.Scan(&sentence.Id, &tatoebaId, &jsonStr)
+	if err != nil {
+		return sentence, err
+	}
+	if tatoebaId.Valid {
+		sentence.TatoebaId = tatoebaId.Int64
+	} else {
+		sentence.TatoebaId = -1
+	}
+
+	if err := json.Unmarshal([]byte(jsonStr), &sentence.Tokens); err != nil {
+		return sentence, err
+	}
+	return sentence, nil
+}
+
+// Returns tatoeba translations.
+func (t Translator) tatoebaTranslate(text string) []string {
+	sentence, err := findSentence(t.db, text)
+	if err != nil || sentence.TatoebaId < 0 {
+		return nil
+	}
+
 	query := `
-select target.sentence.text from translation
-join source.sentence on (translation.source = source.sentence.id)
-join target.sentence on (translation.target = target.sentence.id)
-where source.sentence.text = ?
+select text from translation join target.sentence
+on (translation.target = target.sentence.tatoeba_id)
+where source = ?
 `
-	row := t.db.QueryRow(query, sentence)
-	var translation string
-	err := row.Scan(&translation)
-	return translation, err
+	rows, err := t.db.Query(query, sentence.TatoebaId)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	var translations []string
+	for rows.Next() {
+		var translation string
+		if err := rows.Scan(&translation); err == nil {
+			translations = append(translations, translation)
+		}
+	}
+	return translations
+}
+
+func (t Translator) Translate(sentence string) (string, error) {
+	translations := t.tatoebaTranslate(sentence)
+	// TODO use backup translation service if no translations found
+	n := len(translations)
+	if n == 0 {
+		return "", ErrNoTranslationsFound
+	}
+	choice := rand.Intn(n)
+	return translations[choice], nil
 }
