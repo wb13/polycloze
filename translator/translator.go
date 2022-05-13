@@ -35,7 +35,10 @@ func NewTranslator(db *sql.DB, sourceDB, targetDB, translationDB string) (*Trans
 }
 
 func findSentence(db *sql.DB, text string) (Sentence, error) {
-	query := `select id, tatoeba_id, tokens from source.sentence where text = ?`
+	query := `
+select id, tatoeba_id, tokens from source.sentence where text = ?
+collate nocase
+`
 	row := db.QueryRow(query, text)
 
 	var sentence Sentence
