@@ -13,7 +13,7 @@ import (
 )
 
 // Returns in-memory sqlite DB, and attaches specified databases.
-func New(reviewDB, languageDB string) (*sql.DB, error) {
+func New(reviewDB, l2db string) (*sql.DB, error) {
 	migrations := path.Join("migrations", "review_scheduler")
 	if err := database.UpgradeFile(reviewDB, migrations); err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func New(reviewDB, languageDB string) (*sql.DB, error) {
 	if err := database.Attach(db, "review", reviewDB); err != nil {
 		return nil, err
 	}
-	if err := database.Attach(db, "language", languageDB); err != nil {
+	if err := database.Attach(db, "l2", l2db); err != nil {
 		return nil, err
 	}
 	return db, nil
