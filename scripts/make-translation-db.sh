@@ -15,6 +15,8 @@ fi
 
 sql="create table if not exists translation (source, target);
 
+create index if not exists index_translation_source on translation (source);
+
 .mode csv
 .import '$translations_csv' translation
 
