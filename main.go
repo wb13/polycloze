@@ -31,5 +31,5 @@ func main() {
 
 	sentence, err := sentence_picker.PickSentence(db, word)
 	assertNil(err)
-	fmt.Printf("picked sentence: %v\n", sentence)
+	fmt.Printf("picked sentence: %v\n", *sentence)
 }

@@ -6,6 +6,13 @@ import (
 	"math"
 )
 
+type Sentence struct {
+	Id        int
+	TatoebaId int64
+	Text      string
+	Tokens    []string
+}
+
 func InitSentencePicker(db *sql.DB, langDB, reviewDB string) error {
 	if err := migrateUp(db); err != nil {
 		return err
@@ -50,23 +57,34 @@ group by contains.sentence;
 	return sentences, nil
 }
 
-func sentenceTokens(db *sql.DB, sentence int) ([]string, error) {
-	query := `select tokens from sentence where id = ?`
-	row := db.QueryRow(query, sentence)
+func getSentence(db *sql.DB, id int) (*Sentence, error) {
+	query := `select tatoeba_id, text, tokens from sentence where id = ?`
+	row := db.QueryRow(query, id)
+
+	var sentence Sentence
+	sentence.Id = id
+	var tatoebaId sql.NullInt64
 	var jsonStr string
-	if err := row.Scan(&jsonStr); err != nil {
+
+	err := row.Scan(&tatoebaId, &sentence.Text, &jsonStr)
+	if err != nil {
 		return nil, err
 	}
 
-	var tokens []string
-	if err := json.Unmarshal([]byte(jsonStr), &tokens); err != nil {
+	if err := json.Unmarshal([]byte(jsonStr), &sentence.Tokens); err != nil {
 		return nil, err
 	}
-	return tokens, nil
+
+	if tatoebaId.Valid {
+		sentence.TatoebaId = tatoebaId.Int64
+	} else {
+		sentence.TatoebaId = -1
+	}
+	return &sentence, nil
 }
 
 // Returns "easiest" sentence that contains word.
-func PickSentence(db *sql.DB, word string) ([]string, error) {
+func PickSentence(db *sql.DB, word string) (*Sentence, error) {
 	sentences, err := sentencesThatContain(db, word)
 	if err != nil {
 		return nil, err
@@ -87,7 +105,7 @@ func PickSentence(db *sql.DB, word string) ([]string, error) {
 	if !ok {
 		panic("no sentences found")
 	}
-	return sentenceTokens(db, sentence)
+	return getSentence(db, sentence)
 }
 
 func IncrementSeenCount(db *sql.DB, sentence int) error {
