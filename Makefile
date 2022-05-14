@@ -1,10 +1,11 @@
+packages = database flashcards review_scheduler sentence_picker translator word_queue word_scheduler \
+					 cmd/flashcards cmd/sentence_picker cmd/srs cmd/translator
+
 .PHONY:	build
 build:
-	go build -tags sqlite_math_functions
-
-.PHONY:	run
-run:
-	go run -tags sqlite_math_functions .
+	@for package in $(packages); do \
+		(cd $$package; go build -tags sqlite_math_functions); \
+	done
 
 .PHONY:	test
 test:
