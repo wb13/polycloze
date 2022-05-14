@@ -2,6 +2,7 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"embed"
 	"errors"
@@ -59,5 +60,12 @@ func UpgradeFile(dbPath string) error {
 func Attach(db *sql.DB, name, path string) error {
 	query := `attach database ? as ?`
 	_, err := db.Exec(query, path, name)
+	return err
+}
+
+// TODO replace Attach with this function.
+func attach(con *sql.Conn, name, path string) error {
+	query := `attach database ? as ?`
+	_, err := con.ExecContext(context.TODO(), query, path, name)
 	return err
 }
