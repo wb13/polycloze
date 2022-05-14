@@ -15,21 +15,8 @@ type Sentence struct {
 	Tokens    []string
 }
 
-func InitSentencePicker(db *sql.DB, langDB, reviewDB string) error {
-	if err := database.Upgrade(db); err != nil {
-		return err
-	}
-	if err := database.Attach(db, "language_schema", langDB); err != nil {
-		return err
-	}
-	if err := database.Attach(db, "review_schema", reviewDB); err != nil {
-		return err
-	}
-	return nil
-}
-
 // Returns map of sentence ID -> sentence difficulty of sentences containing word.
-func sentencesThatContain(db *sql.DB, word string) (map[int]float64, error) {
+func sentencesThatContain(s *database.Session, word string) (map[int]float64, error) {
 	// NOTE seen counter is only used to add variation in the returned sentences
 	query := `
 select contains.sentence as sentence,
@@ -41,7 +28,7 @@ where contains.sentence in
 	(select sentence from contains join word on (contains.word = word.id) where word.word = ?)
 group by contains.sentence;
 `
-	rows, err := db.Query(query, word)
+	rows, err := s.Query(query, word)
 	if err != nil {
 		return nil, err
 	}
@@ -59,9 +46,9 @@ group by contains.sentence;
 	return sentences, nil
 }
 
-func getSentence(db *sql.DB, id int) (*Sentence, error) {
+func getSentence(s *database.Session, id int) (*Sentence, error) {
 	query := `select tatoeba_id, text, tokens from sentence where id = ?`
-	row := db.QueryRow(query, id)
+	row := s.QueryRow(query, id)
 
 	var sentence Sentence
 	sentence.Id = id
@@ -86,8 +73,8 @@ func getSentence(db *sql.DB, id int) (*Sentence, error) {
 }
 
 // Returns "easiest" sentence that contains word.
-func PickSentence(db *sql.DB, word string) (*Sentence, error) {
-	sentences, err := sentencesThatContain(db, word)
+func PickSentence(s *database.Session, word string) (*Sentence, error) {
+	sentences, err := sentencesThatContain(s, word)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +94,7 @@ func PickSentence(db *sql.DB, word string) (*Sentence, error) {
 	if !ok {
 		panic("no sentences found")
 	}
-	return getSentence(db, sentence)
+	return getSentence(s, sentence)
 }
 
 func IncrementSeenCount(db *sql.DB, sentence int) error {
