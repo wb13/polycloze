@@ -15,3 +15,9 @@ $(packages):	%:
 test:
 	cd database; go test -tags sqlite_math_functions
 	cd review_scheduler; go test -tags sqlite_math_functions
+
+.PHONY:	format
+format:
+	@for package in $(packages); do \
+		(cd $$package; gofmt -s -w .); \
+	done
