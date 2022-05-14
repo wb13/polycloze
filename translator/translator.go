@@ -67,13 +67,12 @@ func (t Translator) tatoebaTranslate(text string) []string {
 	if err != nil || sentence.TatoebaId < 0 {
 		return nil
 	}
-
 	query := `
-select text from translation join target.sentence
-on (translation.target = target.sentence.tatoeba_id)
-where source = ?
+select text from target.sentence where tatoeba_id in
+	(select source from translation where target = ?
+		union select target from translation where source = ?)
 `
-	rows, err := t.db.Query(query, sentence.TatoebaId)
+	rows, err := t.db.Query(query, sentence.TatoebaId, sentence.TatoebaId)
 	if err != nil {
 		return nil
 	}
