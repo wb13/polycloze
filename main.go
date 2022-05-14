@@ -3,11 +3,15 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
+	"time"
 
 	"github.com/lggruspe/polycloze-flashcards/flashcards"
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	// TODO where is 'seen' table?
 	ig, err := flashcards.NewItemGenerator(
 		"review.db",
