@@ -7,9 +7,9 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/lggruspe/polycloze-srs/database"
-	rs "github.com/lggruspe/polycloze-srs/review_scheduler"
-	"github.com/lggruspe/polycloze-srs/word_queue"
+	"github.com/lggruspe/polycloze/database"
+	rs "github.com/lggruspe/polycloze/review_scheduler"
+	"github.com/lggruspe/polycloze/word_queue"
 )
 
 // Returns in-memory sqlite DB, and attaches specified databases.

@@ -8,7 +8,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/lggruspe/polycloze-srs/database"
+	"github.com/lggruspe/polycloze/database"
 )
 
 // Returns sql.DB with review_scheduler schema.
