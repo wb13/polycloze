@@ -2,20 +2,19 @@
 package word_queue
 
 import (
-	"database/sql"
+	"github.com/lggruspe/polycloze/database"
 )
 
 // Gets up to n new words from db.
 // Pass a negative n if you don't want a word limit.
-// Expects language DB and review DB to be attached.
-func GetNewWords(db *sql.DB, n int) ([]string, error) {
+func GetNewWords(s *database.Session, n int) ([]string, error) {
 	query := `
 select word from word where word not in
 (select item from review)
 order by frequency desc
 limit ?
 `
-	rows, err := db.Query(query, n)
+	rows, err := s.Query(query, n)
 	if err != nil {
 		return nil, err
 	}

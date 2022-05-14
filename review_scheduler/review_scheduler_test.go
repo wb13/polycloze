@@ -1,22 +1,24 @@
 package review_scheduler
 
 import (
-	"database/sql"
 	"testing"
 	"time"
+
+	"github.com/lggruspe/polycloze/database"
 )
 
 // Returns ReviewScheduler for testing.
-func reviewScheduler() *sql.DB {
+func reviewScheduler() *database.Session {
 	db, _ := New(":memory:")
-	return db
+	s, _ := database.NewSession(db, "", "", "")
+	return s
 }
 
 func TestSchedule(t *testing.T) {
 	// Result should be empty with no errors.
-	db := reviewScheduler()
+	s := reviewScheduler()
 
-	items, err := ScheduleReviewNow(db, 100)
+	items, err := ScheduleReviewNow(s, 100)
 
 	if err != nil {
 		t.Log("expected err to be nil", err)
@@ -30,18 +32,18 @@ func TestSchedule(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	// Only incorrect review needs to be reviewed.
-	db := reviewScheduler()
+	s := reviewScheduler()
 
-	if err := UpdateReview(db, "foo", false); err != nil {
+	if err := UpdateReview(s, "foo", false); err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
 	}
-	if err := UpdateReview(db, "bar", true); err != nil {
+	if err := UpdateReview(s, "bar", true); err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
 	}
 
-	items, err := ScheduleReviewNow(db, 100)
+	items, err := ScheduleReviewNow(s, 100)
 	if err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
@@ -58,13 +60,13 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestUpdateRecentlyAnsweredItemDoesntGetScheduled(t *testing.T) {
-	db := reviewScheduler()
+	s := reviewScheduler()
 	items := []string{"foo", "bar", "baz"}
 	for _, item := range items {
-		UpdateReview(db, item, true)
+		UpdateReview(s, item, true)
 	}
 
-	items, err := ScheduleReviewNow(db, -1)
+	items, err := ScheduleReviewNow(s, -1)
 	if err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()
@@ -77,11 +79,11 @@ func TestUpdateRecentlyAnsweredItemDoesntGetScheduled(t *testing.T) {
 
 func TestUpdateIncorrectThenCorrect(t *testing.T) {
 	// Scheduled items should be empty.
-	db := reviewScheduler()
-	UpdateReview(db, "foo", false)
-	UpdateReview(db, "foo", true)
+	s := reviewScheduler()
+	UpdateReview(s, "foo", false)
+	UpdateReview(s, "foo", true)
 
-	items, _ := ScheduleReviewNow(db, -1)
+	items, _ := ScheduleReviewNow(s, -1)
 	if len(items) > 0 {
 		t.Log("expected items to be empty", items)
 		t.Fail()
@@ -89,13 +91,13 @@ func TestUpdateIncorrectThenCorrect(t *testing.T) {
 }
 
 func TestUpdateSuccessfulReviewDoesNotDecreaseIntervalSize(t *testing.T) {
-	db := reviewScheduler()
-	UpdateReview(db, "foo", true)
-	UpdateReview(db, "foo", true)
-	UpdateReview(db, "foo", true)
+	s := reviewScheduler()
+	UpdateReview(s, "foo", true)
+	UpdateReview(s, "foo", true)
+	UpdateReview(s, "foo", true)
 
 	query := `SELECT interval FROM review ORDER BY id ASC`
-	rows, err := db.Query(query)
+	rows, err := s.Query(query)
 	if err != nil {
 		t.Log("expected err to be nil", err)
 		t.Fail()

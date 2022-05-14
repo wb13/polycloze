@@ -31,11 +31,9 @@ func InitAttached(db *sql.DB, dbPath string) error {
 
 // Returns items due for review, no more than count.
 // Pass a negative count if you want to get all due items.
-//
-// Expects db to contain updated review_scheduler schema.
-func ScheduleReview(db *sql.DB, due time.Time, count int) ([]string, error) {
+func ScheduleReview(s *database.Session, due time.Time, count int) ([]string, error) {
 	query := `SELECT item FROM most_recent_review WHERE due < ? LIMIT ?`
-	rows, err := db.Query(query, due.UTC(), count)
+	rows, err := s.Query(query, due.UTC(), count)
 	if err != nil {
 		return nil, err
 	}
@@ -53,8 +51,8 @@ func ScheduleReview(db *sql.DB, due time.Time, count int) ([]string, error) {
 }
 
 // Same as Schedule, but with some default args.
-func ScheduleReviewNow(db *sql.DB, count int) ([]string, error) {
-	return ScheduleReview(db, time.Now().UTC(), count)
+func ScheduleReviewNow(s *database.Session, count int) ([]string, error) {
+	return ScheduleReview(s, time.Now().UTC(), count)
 }
 
 // Gets most recent review of item.
@@ -94,8 +92,8 @@ WHERE item = ?
 }
 
 // Updates review status of item.
-func UpdateReview(db *sql.DB, item string, correct bool) error {
-	tx, err := db.Begin()
+func UpdateReview(s *database.Session, item string, correct bool) error {
+	tx, err := s.Begin()
 	if err != nil {
 		return err
 	}

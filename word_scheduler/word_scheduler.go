@@ -32,13 +32,12 @@ func New(reviewDB, l2db string) (*sql.DB, error) {
 }
 
 // NOTE Only returns new words if words for review < n.
-// Expects language DB and review DB to already be attached.
-func GetWords(db *sql.DB, n int) ([]string, error) {
-	reviews, err := rs.ScheduleReviewNow(db, n)
+func GetWords(s *database.Session, n int) ([]string, error) {
+	reviews, err := rs.ScheduleReviewNow(s, n)
 	if err != nil {
 		return nil, err
 	}
-	words, err := word_queue.GetNewWords(db, n-len(reviews))
+	words, err := word_queue.GetNewWords(s, n-len(reviews))
 	if err != nil {
 		return nil, err
 	}
