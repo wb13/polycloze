@@ -24,7 +24,6 @@ type Item struct {
 
 type ItemGenerator struct {
 	db *sql.DB
-	tr translator.Translator
 
 	// databases to be attached
 	l1db          string
@@ -33,20 +32,13 @@ type ItemGenerator struct {
 }
 
 // Creates an ItemGenerator.
-func NewItemGenerator(db *sql.DB, lang1Db, lang2Db, translationsDb string) (ItemGenerator, error) {
-	var ig ItemGenerator
-	ig.db = db
-
-	// Initialize translator
-	tr, err := translator.NewTranslator(db, lang2Db, lang1Db, translationsDb)
-	if err != nil {
-		return ig, err
+func NewItemGenerator(db *sql.DB, lang1Db, lang2Db, translationDb string) ItemGenerator {
+	return ItemGenerator{
+		db:            db,
+		l1db:          lang1Db,
+		l2db:          lang2Db,
+		translationDb: translationDb,
 	}
-	ig.tr = *tr
-	ig.l1db = lang1Db
-	ig.l2db = lang2Db
-	ig.translationDb = translationsDb
-	return ig, nil
 }
 
 func getParts(tokens []string, word string) []string {
@@ -86,7 +78,7 @@ func (ig ItemGenerator) generateItem(word string) (Item, error) {
 	if err != nil {
 		return item, err
 	}
-	translation, err := ig.tr.Translate(sentence.Text)
+	translation, err := translator.Translate(session, sentence.Text)
 	if err != nil {
 		return item, err
 	}

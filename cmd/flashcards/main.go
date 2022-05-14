@@ -17,15 +17,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	ig, err := flashcards.NewItemGenerator(
+	ig := flashcards.NewItemGenerator(
 		db,
 		"eng.db",
 		"spa.db",
 		"translations.db",
 	)
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	items := ig.GenerateItems(10)
 	for _, item := range items {
