@@ -74,3 +74,10 @@ func attach(con *sql.Conn, name, path string) error {
 	_, err := con.ExecContext(context.TODO(), query, path, name)
 	return err
 }
+
+// Detaches database from connection.
+func detach(con *sql.Conn, name string) error {
+	query := `detach database ?`
+	_, err := con.ExecContext(context.TODO(), query, name)
+	return err
+}
