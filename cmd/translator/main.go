@@ -27,7 +27,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	session, err := database.NewSession(db, "eng.db", "spa.db", "translations.db")
+	session, err := database.NewSession(db, "../eng.db", "../spa.db", "../translations.db")
 	if err != nil {
 		log.Fatal(err)
 	}
