@@ -74,6 +74,27 @@ func getParts(tokens []string, word string) []string {
 	}
 }
 
+func (ig ItemGenerator) generateItem(word string) (Item, error) {
+	var item Item
+
+	sentence, err := sentence_picker.PickSentence(ig.db, word)
+	if err != nil {
+		return item, err
+	}
+	translation, err := ig.tr.Translate(sentence.Text)
+	if err != nil {
+		return item, err
+	}
+
+	return Item{
+		Translation: translation,
+		Sentence: Sentence{
+			Id:    sentence.Id,
+			Parts: getParts(sentence.Tokens, word),
+		},
+	}, nil
+}
+
 // Generates up to n cloze items.
 // Pass a negative value of n to get an unlimited number of items.
 func (ig ItemGenerator) GenerateItems(n int) []Item {
@@ -84,22 +105,10 @@ func (ig ItemGenerator) GenerateItems(n int) []Item {
 
 	var items []Item
 	for _, word := range words {
-		sentence, err := sentence_picker.PickSentence(ig.db, word)
-		if err != nil {
-			continue
+		item, err := ig.generateItem(word)
+		if err == nil {
+			items = append(items, item)
 		}
-		translation, err := ig.tr.Translate(sentence.Text)
-		if err != nil {
-			continue
-		}
-
-		items = append(items, Item{
-			Translation: translation,
-			Sentence: Sentence{
-				Id:    sentence.Id,
-				Parts: getParts(sentence.Tokens, word),
-			},
-		})
 	}
 	return items
 }
