@@ -19,9 +19,9 @@ func main() {
 	}
 	ig := flashcards.NewItemGenerator(
 		db,
-		"eng.db",
-		"spa.db",
-		"translations.db",
+		"../eng.db",
+		"../spa.db",
+		"../translations.db",
 	)
 
 	items := ig.GenerateItems(10)

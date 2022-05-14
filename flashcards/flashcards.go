@@ -31,6 +31,15 @@ type ItemGenerator struct {
 	translationDb string
 }
 
+func (ig ItemGenerator) Session() (*database.Session, error) {
+	return database.NewSession(
+		ig.db,
+		ig.l1db,
+		ig.l2db,
+		ig.translationDb,
+	)
+}
+
 // Creates an ItemGenerator.
 func NewItemGenerator(db *sql.DB, lang1Db, lang2Db, translationDb string) ItemGenerator {
 	return ItemGenerator{
@@ -64,15 +73,11 @@ func getParts(tokens []string, word string) []string {
 func (ig ItemGenerator) generateItem(word string) (Item, error) {
 	var item Item
 
-	session, err := database.NewSession(
-		ig.db,
-		ig.l1db,
-		ig.l2db,
-		ig.translationDb,
-	)
+	session, err := ig.Session()
 	if err != nil {
 		return item, err
 	}
+	defer session.Close()
 
 	sentence, err := sentence_picker.PickSentence(session, word)
 	if err != nil {
@@ -92,25 +97,24 @@ func (ig ItemGenerator) generateItem(word string) (Item, error) {
 	}, nil
 }
 
+// Generates up to n words.
+// Pass a negative value of n to get an unlimited number of items.
+func (ig ItemGenerator) generateWords(n int) ([]string, error) {
+	session, err := ig.Session()
+	if err != nil {
+		return nil, err
+	}
+	defer session.Close()
+	return word_scheduler.GetWords(session, n)
+}
+
 // Generates up to n cloze items.
 // Pass a negative value of n to get an unlimited number of items.
 func (ig ItemGenerator) GenerateItems(n int) []Item {
-	session, err := database.NewSession(
-		ig.db,
-		ig.l1db,
-		ig.l2db,
-		ig.translationDb,
-	)
+	words, err := ig.generateWords(n)
 	if err != nil {
 		return nil
 	}
-
-	words, err := word_scheduler.GetWords(session, n)
-	if err != nil {
-		return nil
-	}
-
-	session.Close()
 
 	var wg sync.WaitGroup
 	ch := make(chan Item, len(words))
