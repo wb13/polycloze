@@ -6,15 +6,19 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/flashcards"
 )
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	// TODO where is 'seen' table?
+	db, err := database.New("review.db")
+	if err != nil {
+		log.Fatal(err)
+	}
 	ig, err := flashcards.NewItemGenerator(
-		"review.db",
+		db,
 		"eng.db",
 		"spa.db",
 		"translations.db",

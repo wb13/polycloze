@@ -6,6 +6,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
+	"github.com/lggruspe/polycloze/database"
 	rs "github.com/lggruspe/polycloze/review_scheduler"
 	ws "github.com/lggruspe/polycloze/word_scheduler"
 )
@@ -17,10 +18,13 @@ func assertNil(value any) {
 }
 
 func main() {
-	db, err := ws.New("review.db", "spa.db")
+	db, err := database.New("review.db")
 	assertNil(err)
 
-	words, err := ws.GetWords(db, 10)
+	session, err := database.NewSession(db, "eng.db", "spa.db", "")
+	assertNil(err)
+
+	words, err := ws.GetWords(session, 10)
 	assertNil(err)
 
 	for _, word := range words {
@@ -28,6 +32,6 @@ func main() {
 	}
 
 	if len(words) > 0 {
-		assertNil(rs.UpdateReview(db, words[0], true))
+		assertNil(rs.UpdateReview(session, words[0], true))
 	}
 }

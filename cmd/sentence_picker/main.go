@@ -1,13 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
-	_ "github.com/mattn/go-sqlite3"
-
+	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/sentence_picker"
 )
 
@@ -23,13 +21,13 @@ func main() {
 	}
 	word := os.Args[1]
 
-	db, err := sql.Open("sqlite3", ":memory:")
+	db, err := database.New(":memory:")
 	assertNil(err)
 
-	err = sentence_picker.InitSentencePicker(db, "spa.db", "review.db")
+	session, err := database.NewSession(db, "", "spa.db", "")
 	assertNil(err)
 
-	sentence, err := sentence_picker.PickSentence(db, word)
+	sentence, err := sentence_picker.PickSentence(session, word)
 	assertNil(err)
 	fmt.Printf("picked sentence: %v\n", *sentence)
 }
