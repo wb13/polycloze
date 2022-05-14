@@ -22,13 +22,6 @@ func New(dbPath string) (*sql.DB, error) {
 	return db, nil
 }
 
-func InitAttached(db *sql.DB, dbPath string) error {
-	if err := database.UpgradeFile(dbPath); err != nil {
-		return err
-	}
-	return database.Attach(db, "review", dbPath)
-}
-
 // Returns items due for review, no more than count.
 // Pass a negative count if you want to get all due items.
 func ScheduleReview(s *database.Session, due time.Time, count int) ([]string, error) {

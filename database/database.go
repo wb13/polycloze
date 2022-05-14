@@ -68,14 +68,7 @@ func UpgradeFile(dbPath string) error {
 	return Upgrade(db)
 }
 
-// Attaches database.
-func Attach(db *sql.DB, name, path string) error {
-	query := `attach database ? as ?`
-	_, err := db.Exec(query, path, name)
-	return err
-}
-
-// TODO replace Attach with this function.
+// Attaches database to the connection.
 func attach(con *sql.Conn, name, path string) error {
 	query := `attach database ? as ?`
 	_, err := con.ExecContext(context.TODO(), query, path, name)
