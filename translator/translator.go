@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"math/rand"
+
+	"github.com/lggruspe/polycloze/database"
 )
 
 var ErrNoTranslationsFound = errors.New("no translations found")
@@ -22,13 +24,13 @@ type Sentence struct {
 
 // db should be empty in-memory database.
 func NewTranslator(db *sql.DB, sourceDB, targetDB, translationDB string) (*Translator, error) {
-	if err := attach(db, "source", sourceDB); err != nil {
+	if err := database.Attach(db, "source", sourceDB); err != nil {
 		return nil, err
 	}
-	if err := attach(db, "target", targetDB); err != nil {
+	if err := database.Attach(db, "target", targetDB); err != nil {
 		return nil, err
 	}
-	if err := attach(db, "translation", translationDB); err != nil {
+	if err := database.Attach(db, "translation", translationDB); err != nil {
 		return nil, err
 	}
 	return &Translator{db: db}, nil
