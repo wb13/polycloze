@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"math"
+
+	"github.com/lggruspe/polycloze/database"
 )
 
 type Sentence struct {
@@ -14,13 +16,13 @@ type Sentence struct {
 }
 
 func InitSentencePicker(db *sql.DB, langDB, reviewDB string) error {
-	if err := migrateUp(db); err != nil {
+	if err := database.Upgrade(db, "migrations/sentence_picker"); err != nil {
 		return err
 	}
-	if err := attachDatabase(db, "language_schema", langDB); err != nil {
+	if err := database.Attach(db, "language_schema", langDB); err != nil {
 		return err
 	}
-	if err := attachDatabase(db, "review_schema", reviewDB); err != nil {
+	if err := database.Attach(db, "review_schema", reviewDB); err != nil {
 		return err
 	}
 	return nil
