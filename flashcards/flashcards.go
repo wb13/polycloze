@@ -6,6 +6,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/sentence_picker"
 	"github.com/lggruspe/polycloze/translator"
 	"github.com/lggruspe/polycloze/word_scheduler"
@@ -24,6 +25,11 @@ type Item struct {
 type ItemGenerator struct {
 	db *sql.DB
 	tr translator.Translator
+
+	// databases to be attached
+	l1db          string
+	l2db          string
+	translationDb string
 }
 
 // Creates an ItemGenerator.
@@ -52,6 +58,9 @@ func NewItemGenerator(reviewDb, lang1Db, lang2Db, translationsDb string) (ItemGe
 		return ig, err
 	}
 	ig.tr = *tr
+	ig.l1db = lang1Db
+	ig.l2db = lang2Db
+	ig.translationDb = translationsDb
 	return ig, nil
 }
 
@@ -99,7 +108,17 @@ func (ig ItemGenerator) generateItem(word string) (Item, error) {
 // Generates up to n cloze items.
 // Pass a negative value of n to get an unlimited number of items.
 func (ig ItemGenerator) GenerateItems(n int) []Item {
-	words, err := word_scheduler.GetWords(ig.db, n)
+	session, err := database.NewSession(
+		ig.db,
+		ig.l1db,
+		ig.l2db,
+		ig.translationDb,
+	)
+	if err != nil {
+		return nil
+	}
+
+	words, err := word_scheduler.GetWords(session, n)
 	if err != nil {
 		return nil
 	}
