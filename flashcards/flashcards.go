@@ -33,24 +33,9 @@ type ItemGenerator struct {
 }
 
 // Creates an ItemGenerator.
-//
-// reviewDb doesn't have to exist, but the other databases are expected to
-// exist and to have the appropriate schema.
-func NewItemGenerator(reviewDb, lang1Db, lang2Db, translationsDb string) (ItemGenerator, error) {
+func NewItemGenerator(db *sql.DB, lang1Db, lang2Db, translationsDb string) (ItemGenerator, error) {
 	var ig ItemGenerator
-
-	// Initialize word_scheduler
-	db, err := word_scheduler.New(reviewDb, lang2Db)
-	if err != nil {
-		return ig, err
-	}
 	ig.db = db
-
-	// Initialize sentence_picker
-	err = sentence_picker.InitSentencePicker(db, lang2Db, reviewDb)
-	if err != nil {
-		return ig, err
-	}
 
 	// Initialize translator
 	tr, err := translator.NewTranslator(db, lang2Db, lang1Db, translationsDb)
@@ -87,7 +72,17 @@ func getParts(tokens []string, word string) []string {
 func (ig ItemGenerator) generateItem(word string) (Item, error) {
 	var item Item
 
-	sentence, err := sentence_picker.PickSentence(ig.db, word)
+	session, err := database.NewSession(
+		ig.db,
+		ig.l1db,
+		ig.l2db,
+		ig.translationDb,
+	)
+	if err != nil {
+		return item, err
+	}
+
+	sentence, err := sentence_picker.PickSentence(session, word)
 	if err != nil {
 		return item, err
 	}
@@ -122,6 +117,8 @@ func (ig ItemGenerator) GenerateItems(n int) []Item {
 	if err != nil {
 		return nil
 	}
+
+	session.Close()
 
 	var wg sync.WaitGroup
 	ch := make(chan Item, len(words))
