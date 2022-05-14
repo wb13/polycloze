@@ -1,4 +1,4 @@
-module github.com/lggruspe/polycloze-translator
+module github.com/lggruspe/polycloze
 
 go 1.18
 
