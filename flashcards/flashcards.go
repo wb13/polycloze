@@ -103,12 +103,18 @@ func (ig ItemGenerator) GenerateItems(n int) []Item {
 		return nil
 	}
 
-	var items []Item
+	ch := make(chan Item, len(words))
 	for _, word := range words {
 		item, err := ig.generateItem(word)
 		if err == nil {
-			items = append(items, item)
+			ch <- item
 		}
+	}
+	close(ch)
+
+	var items []Item
+	for item := range ch {
+		items = append(items, item)
 	}
 	return items
 }
