@@ -66,7 +66,7 @@ func getParts(tokens []string, word string) []string {
 		panic("something went wrong: Python casefold different from golang ToLower")
 	}
 
-	index := rand.Intn(len(indices))
+	index := indices[rand.Intn(len(indices))]
 	return []string{
 		strings.Join(tokens[:index], ""),
 		word,
