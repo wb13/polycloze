@@ -5,9 +5,9 @@ import (
 	"math/rand"
 	"strings"
 
-	"github.com/lggruspe/polycloze-sentence-picker/sentence_picker"
-	"github.com/lggruspe/polycloze-srs/word_scheduler"
-	"github.com/lggruspe/polycloze-translator/translator"
+	"github.com/lggruspe/polycloze/sentence_picker"
+	"github.com/lggruspe/polycloze/translator"
+	"github.com/lggruspe/polycloze/word_scheduler"
 )
 
 type Sentence struct {
