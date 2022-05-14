@@ -3,7 +3,6 @@ package word_scheduler
 
 import (
 	"database/sql"
-	"path"
 
 	_ "github.com/mattn/go-sqlite3"
 
@@ -14,8 +13,7 @@ import (
 
 // Returns in-memory sqlite DB, and attaches specified databases.
 func New(reviewDB, l2db string) (*sql.DB, error) {
-	migrations := path.Join("migrations", "review_scheduler")
-	if err := database.UpgradeFile(reviewDB, migrations); err != nil {
+	if err := database.UpgradeFile(reviewDB); err != nil {
 		return nil, err
 	}
 

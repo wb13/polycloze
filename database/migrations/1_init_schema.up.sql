@@ -1,4 +1,4 @@
-PRAGMA user_version = 1;
+---- used by review_scheduler
 
 -- Append-only table of coefficients, which are used to update intervals after
 -- reviewing.
@@ -39,3 +39,12 @@ USING (id);
 CREATE VIEW updated_coefficient AS
 SELECT coefficient.* FROM coefficient JOIN (SELECT max(id) AS id FROM coefficient GROUP BY level)
 USING (id);
+
+
+---- used by sentence_picker
+
+create table seen (
+	sentence int primary key,
+	last not null default (current_timestamp),
+	counter not null default (0)
+);

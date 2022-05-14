@@ -3,7 +3,6 @@ package review_scheduler
 import (
 	"database/sql"
 	"errors"
-	"path"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -17,16 +16,14 @@ func New(dbPath string) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = database.Upgrade(db, path.Join("migrations", "review_scheduler"))
-	if err != nil {
+	if err := database.Upgrade(db); err != nil {
 		return nil, err
 	}
 	return db, nil
 }
 
 func InitAttached(db *sql.DB, dbPath string) error {
-	err := database.UpgradeFile(dbPath, path.Join("migrations", "review_scheduler"))
-	if err != nil {
+	if err := database.UpgradeFile(dbPath); err != nil {
 		return err
 	}
 	return database.Attach(db, "review", dbPath)

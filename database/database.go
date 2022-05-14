@@ -13,17 +13,17 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-//go:embed migrations/*/*.sql
+//go:embed migrations/*.sql
 var fs embed.FS
 
 // Upgrades database to the latest version.
-func Upgrade(db *sql.DB, migrationsPath string) error {
+func Upgrade(db *sql.DB) error {
 	dbDriver, err := sqlite3.WithInstance(db, &sqlite3.Config{})
 	if err != nil {
 		return err
 	}
 
-	srcDriver, err := iofs.New(fs, migrationsPath)
+	srcDriver, err := iofs.New(fs, "migrations")
 	if err != nil {
 		return err
 	}
@@ -45,14 +45,14 @@ func Upgrade(db *sql.DB, migrationsPath string) error {
 }
 
 // Upgrades database (specified by path) to the latest version.
-func UpgradeFile(dbPath, migrationsPath string) error {
+func UpgradeFile(dbPath string) error {
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		return err
 	}
 	defer db.Close()
 
-	return Upgrade(db, migrationsPath)
+	return Upgrade(db)
 }
 
 // Attaches database.

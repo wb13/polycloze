@@ -16,7 +16,7 @@ type Sentence struct {
 }
 
 func InitSentencePicker(db *sql.DB, langDB, reviewDB string) error {
-	if err := database.Upgrade(db, "migrations/sentence_picker"); err != nil {
+	if err := database.Upgrade(db); err != nil {
 		return err
 	}
 	if err := database.Attach(db, "language_schema", langDB); err != nil {

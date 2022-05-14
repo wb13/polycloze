@@ -1,5 +1,3 @@
-//go:build sqlite_math_functions
-
 package review_scheduler
 
 import (
