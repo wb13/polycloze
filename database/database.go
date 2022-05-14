@@ -17,6 +17,18 @@ import (
 //go:embed migrations/*.sql
 var fs embed.FS
 
+// Convenience function for creating upgraded sqlite DB.
+func New(path string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", path)
+	if err != nil {
+		return nil, err
+	}
+	if err := Upgrade(db); err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
 // Upgrades database to the latest version.
 func Upgrade(db *sql.DB) error {
 	dbDriver, err := sqlite3.WithInstance(db, &sqlite3.Config{})
