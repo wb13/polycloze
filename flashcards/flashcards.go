@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"math/rand"
 	"strings"
+	"sync"
 
 	"github.com/lggruspe/polycloze/sentence_picker"
 	"github.com/lggruspe/polycloze/translator"
@@ -103,13 +104,21 @@ func (ig ItemGenerator) GenerateItems(n int) []Item {
 		return nil
 	}
 
+	var wg sync.WaitGroup
 	ch := make(chan Item, len(words))
+
+	wg.Add(len(words))
 	for _, word := range words {
-		item, err := ig.generateItem(word)
-		if err == nil {
-			ch <- item
-		}
+		go func(ig *ItemGenerator, word string) {
+			defer wg.Done()
+			item, err := ig.generateItem(word)
+			if err == nil {
+				ch <- item
+			}
+		}(&ig, word)
 	}
+
+	wg.Wait()
 	close(ch)
 
 	var items []Item
