@@ -70,7 +70,7 @@ func NewSession(db *sql.DB, l1db, l2db, translationDb string) (*Session, error) 
 create temp view word_difficulty as
 select frequency_class.id as word,
 			 frequency_class/(1.0 + coalesce(level, 0.0)) as difficulty
-from frequency_class left join most_recent_review on (frequency_class.word = most_recent_review.item)
+from l2.frequency_class left join most_recent_review on (frequency_class.word = most_recent_review.item)
 `
 	if _, err := session.Exec(query); err != nil {
 		return nil, err

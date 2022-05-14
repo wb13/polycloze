@@ -21,11 +21,11 @@ func sentencesThatContain(s *database.Session, word string) (map[int]float64, er
 	query := `
 select contains.sentence as sentence,
 			count(word) + sum(difficulty) + coalesce(counter, 0.0) as difficulty
-from contains
+from l2.contains
 join word_difficulty using(word)
 left join seen on (contains.sentence = seen.sentence)
 where contains.sentence in
-	(select sentence from contains join word on (contains.word = word.id) where word.word = ?)
+	(select sentence from l2.contains join l2.word on (contains.word = word.id) where word.word = ?)
 group by contains.sentence;
 `
 	rows, err := s.Query(query, word)
@@ -47,7 +47,7 @@ group by contains.sentence;
 }
 
 func getSentence(s *database.Session, id int) (*Sentence, error) {
-	query := `select tatoeba_id, text, tokens from sentence where id = ?`
+	query := `select tatoeba_id, text, tokens from l2.sentence where id = ?`
 	row := s.QueryRow(query, id)
 
 	var sentence Sentence

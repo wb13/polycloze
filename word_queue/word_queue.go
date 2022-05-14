@@ -9,7 +9,7 @@ import (
 // Pass a negative n if you don't want a word limit.
 func GetNewWords(s *database.Session, n int) ([]string, error) {
 	query := `
-select word from word where word not in
+select word from l2.word where word not in
 (select item from review)
 order by frequency desc
 limit ?
