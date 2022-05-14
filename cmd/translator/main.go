@@ -12,7 +12,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	translator "github.com/lggruspe/polycloze-translator/translator"
+	translator "github.com/lggruspe/polycloze/translator"
 )
 
 func readInput() string {

@@ -6,8 +6,8 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	rs "github.com/lggruspe/polycloze-srs/review_scheduler"
-	ws "github.com/lggruspe/polycloze-srs/word_scheduler"
+	rs "github.com/lggruspe/polycloze/review_scheduler"
+	ws "github.com/lggruspe/polycloze/word_scheduler"
 )
 
 func assertNil(value any) {

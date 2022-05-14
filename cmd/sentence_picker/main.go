@@ -8,7 +8,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/lggruspe/polycloze-sentence-picker/sentence_picker"
+	"github.com/lggruspe/polycloze/sentence_picker"
 )
 
 func assertNil(value any) {

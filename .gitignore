@@ -1,6 +1,6 @@
 /*.db
 /*.db-journal
-/polycloze-flashcards
-/polycloze-sentence-picker
-/polycloze-srs
-/polycloze-translator
+/cmd/flashcards/flashcards
+/cmd/sentence_picker/sentence_picker
+/cmd/srs/srs
+/cmd/translator/translator

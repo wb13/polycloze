@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/lggruspe/polycloze-flashcards/flashcards"
+	"github.com/lggruspe/polycloze/flashcards"
 )
 
 func main() {
