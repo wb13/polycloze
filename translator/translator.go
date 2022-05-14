@@ -11,10 +11,6 @@ import (
 
 var ErrNoTranslationsFound = errors.New("no translations found")
 
-type Translator struct {
-	db *sql.DB
-}
-
 type Sentence struct {
 	Id        int
 	TatoebaId int64 // negative if none
@@ -22,26 +18,12 @@ type Sentence struct {
 	Tokens    []string
 }
 
-// db should be empty in-memory database.
-func NewTranslator(db *sql.DB, sourceDB, targetDB, translationDB string) (*Translator, error) {
-	if err := database.Attach(db, "source", sourceDB); err != nil {
-		return nil, err
-	}
-	if err := database.Attach(db, "target", targetDB); err != nil {
-		return nil, err
-	}
-	if err := database.Attach(db, "translation", translationDB); err != nil {
-		return nil, err
-	}
-	return &Translator{db: db}, nil
-}
-
-func findSentence(db *sql.DB, text string) (Sentence, error) {
+func findSentence(s *database.Session, text string) (Sentence, error) {
 	query := `
-select id, tatoeba_id, tokens from source.sentence where text = ?
+select id, tatoeba_id, tokens from l2.sentence where text = ?
 collate nocase
 `
-	row := db.QueryRow(query, text)
+	row := s.QueryRow(query, text)
 
 	var sentence Sentence
 	sentence.Text = text
@@ -64,17 +46,17 @@ collate nocase
 }
 
 // Returns tatoeba translations.
-func (t Translator) tatoebaTranslate(text string) []string {
-	sentence, err := findSentence(t.db, text)
+func tatoebaTranslate(s *database.Session, text string) []string {
+	sentence, err := findSentence(s, text)
 	if err != nil || sentence.TatoebaId < 0 {
 		return nil
 	}
 	query := `
-select text from target.sentence where tatoeba_id in
+select text from l1.sentence where tatoeba_id in
 	(select source from translation where target = ?
 		union select target from translation where source = ?)
 `
-	rows, err := t.db.Query(query, sentence.TatoebaId, sentence.TatoebaId)
+	rows, err := s.Query(query, sentence.TatoebaId, sentence.TatoebaId)
 	if err != nil {
 		return nil
 	}
@@ -90,8 +72,8 @@ select text from target.sentence where tatoeba_id in
 	return translations
 }
 
-func (t Translator) Translate(sentence string) (string, error) {
-	translations := t.tatoebaTranslate(sentence)
+func Translate(s *database.Session, sentence string) (string, error) {
+	translations := tatoebaTranslate(s, sentence)
 	// TODO use backup translation service if no translations found
 	n := len(translations)
 	if n == 0 {

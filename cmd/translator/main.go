@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"database/sql"
 	"fmt"
 	"log"
 	"math/rand"
@@ -10,9 +9,8 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
-
-	translator "github.com/lggruspe/polycloze/translator"
+	"github.com/lggruspe/polycloze/database"
+	"github.com/lggruspe/polycloze/translator"
 )
 
 func readInput() string {
@@ -24,18 +22,18 @@ func readInput() string {
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	db, err := sql.Open("sqlite3", ":memory:")
+	db, err := database.New(":memory:")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	tr, err := translator.NewTranslator(db, "spa.db", "eng.db", "translations.db")
+	session, err := database.NewSession(db, "eng.db", "spa.db", "translations.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	text := readInput()
-	result, err := tr.Translate(text)
+	result, err := translator.Translate(session, text)
 	if err != nil {
 		log.Fatal(err)
 	}
