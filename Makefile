@@ -35,6 +35,7 @@ build/translations.csv:	build/ids.txt build/subset build/symmetric
 	./build/subset $< < $(latest_links) | ./build/symmetric > $@
 
 build/translations.db:	build/translations.csv
+	rm -f $@
 	./scripts/make-translation-db.sh $< $@
 
 $(foreach lang,$(languages),$(eval $(call add_language,$(lang))))
