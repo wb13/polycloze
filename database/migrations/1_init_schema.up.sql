@@ -39,12 +39,3 @@ USING (id);
 CREATE VIEW updated_coefficient AS
 SELECT coefficient.* FROM coefficient JOIN (SELECT max(id) AS id FROM coefficient GROUP BY level)
 USING (id);
-
-
----- used by sentence_picker
-
-create table seen (
-	sentence int primary key,
-	last not null default (current_timestamp),
-	counter not null default (0)
-);

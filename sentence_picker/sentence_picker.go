@@ -17,13 +17,10 @@ type Sentence struct {
 
 // Returns map of sentence ID -> sentence difficulty of sentences containing word.
 func sentencesThatContain(s *database.Session, word string) (map[int]float64, error) {
-	// NOTE seen counter is only used to add variation in the returned sentences
+	// TODO won't the same sentence just get chosen repeatedly?
 	query := `
-select contains.sentence as sentence,
-			count(word) + sum(difficulty) + coalesce(counter, 0.0) as difficulty
-from l2.contains
-join word_difficulty using(word)
-left join seen on (contains.sentence = seen.sentence)
+select contains.sentence as sentence, max(difficulty) as difficulty
+from l2.contains join word_difficulty using(word)
 where contains.sentence in
 	(select sentence from l2.contains join l2.word on (contains.word = word.id) where word.word = ?)
 group by contains.sentence;
@@ -95,14 +92,4 @@ func PickSentence(s *database.Session, word string) (*Sentence, error) {
 		panic("no sentences found")
 	}
 	return getSentence(s, sentence)
-}
-
-func IncrementSeenCount(db *sql.DB, sentence int) error {
-	query := `
-update or ignore seen
-set last = current_timestamp, counter = counter + 1
-where sentence = ?
-`
-	_, err := db.Exec(query, sentence)
-	return err
 }

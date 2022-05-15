@@ -6,6 +6,3 @@ drop trigger insert_default_coefficient;
 
 drop table review;
 drop table coefficient;
-
--- used by sentence_picker
-drop table seen;
