@@ -17,7 +17,7 @@ sql="create table if not exists translation (source, target);
 
 create index if not exists index_translation_source on translation (source);
 
-create index if not exists index_translation_target on translation (source);
+create index if not exists index_translation_target on translation (target);
 
 .mode csv
 .import '$translations_csv' translation
