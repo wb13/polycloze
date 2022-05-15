@@ -68,9 +68,9 @@ func NewSession(db *sql.DB, l1db, l2db, translationDb string) (*Session, error) 
 	session := Session{con: con}
 	query := `
 create temp view word_difficulty as
-select frequency_class.id as word,
+select word.id as word,
 			 frequency_class/(1.0 + coalesce(level, 0.0)) as difficulty
-from l2.frequency_class left join most_recent_review on (frequency_class.word = most_recent_review.item)
+from l2.word left join most_recent_review on (word = most_recent_review.item)
 `
 	if _, err := session.Exec(query); err != nil {
 		return nil, err
