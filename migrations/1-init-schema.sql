@@ -28,6 +28,8 @@ begin transaction;
 		word not null references word
 	);
 
+	create index index_contains_word on contains (word);
+
 	create view max_frequency as
 		select max(frequency) as max_frequency from word;
 
