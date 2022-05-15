@@ -4,7 +4,8 @@ begin transaction;
 	create table word (
 		id integer primary key,
 		word unique not null,
-		frequency not null
+		frequency integer not null,
+		frequency_class integer
 	);
 
 	create table sentence (
@@ -20,13 +21,5 @@ begin transaction;
 	);
 
 	create index index_contains_word on contains (word);
-
-	create view max_frequency as
-		select max(frequency) as max_frequency from word;
-
-	create view frequency_class as
-		select id, word,
-			cast(floor(0.5 - log2(cast(frequency as float) / (select * from max_frequency))) as int) as frequency_class
-		from word;
 
 	commit;

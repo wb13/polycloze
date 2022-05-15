@@ -63,6 +63,27 @@ def insert_contains(con: Connection) -> None:
     con.commit()
 
 
+def get_max_frequency(con: Connection) -> t.Optional[int]:
+    cur = con.cursor()
+    cur.execute("select max(frequency) from word")
+    row = cur.fetchone()
+    if not row:
+        return None
+    return row[0]
+
+
+def update_frequency_classes(con: Connection) -> None:
+    max_freq = get_max_frequency(con)
+    if not max_freq:
+        return None
+
+    query = """
+update word set frequency_class = cast(floor(0.5 - log2(frequency / ?)) as int)
+"""
+    con.execute(query, (float(max_freq),))
+    con.commit()
+
+
 def parse_args() -> Namespace:
     """Parse command-line args."""
     parser = ArgumentParser()
@@ -104,6 +125,7 @@ def main():
         import_csv(con, args.words_csv, import_accepted_word_row(ignored_words))
         import_csv(con, args.sentences_csv, import_sentence_row)
         insert_contains(con)
+        update_frequency_classes(con)
 
 
 if __name__ == "__main__":
