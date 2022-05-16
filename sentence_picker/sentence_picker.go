@@ -57,12 +57,14 @@ func PickSentence(s *database.Session, word string) (*Sentence, error) {
 	}
 
 	// Sentence difficulty = max word difficulty
+	// NOTE Only takes easiest sentence from random sample of sentences.
+	// Taking the easiest sentence over all the sentences may take too long.
 	query := `
 select sentence, min(difficulty) from
 	(select sentence, max(difficulty) as difficulty from l2.contains
 		join word_difficulty using (word)
 		where sentence in
-			(select sentence from l2.contains where word = ?)
+			(select sentence from l2.contains where word = ? order by random() limit 500)
 		group by sentence)
 `
 	var sentence int
