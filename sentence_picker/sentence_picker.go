@@ -15,17 +15,30 @@ type Sentence struct {
 	Tokens    []string
 }
 
+func findWordId(s *database.Session, word string) (int, error) {
+	query := `select id from l2.word where word = ?`
+	row := s.QueryRow(query, word)
+
+	var id int
+	err := row.Scan(&id)
+	return id, err
+}
+
 // Returns map of sentence ID -> sentence difficulty of sentences containing word.
 func sentencesThatContain(s *database.Session, word string) (map[int]float64, error) {
+	id, err := findWordId(s, word)
+	if err != nil {
+		return nil, err
+	}
+
 	// TODO won't the same sentence just get chosen repeatedly?
 	query := `
 select contains.sentence as sentence, max(difficulty) as difficulty
 from l2.contains join word_difficulty using(word)
-where contains.sentence in
-	(select sentence from l2.contains join l2.word on (contains.word = word.id) where word.word = ?)
+where contains.sentence in (select sentence from l2.contains where word = ?)
 group by contains.sentence;
 `
-	rows, err := s.Query(query, word)
+	rows, err := s.Query(query, id)
 	if err != nil {
 		return nil, err
 	}
