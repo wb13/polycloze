@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/lggruspe/polycloze/database"
@@ -11,6 +13,15 @@ import (
 )
 
 func main() {
+	n := 10
+	var err error
+	if len(os.Args) >= 2 {
+		n, err = strconv.Atoi(os.Args[1])
+		if err != nil {
+			n = 10
+		}
+	}
+
 	rand.Seed(time.Now().UnixNano())
 
 	db, err := database.New("review.db")
@@ -24,8 +35,13 @@ func main() {
 		"../translations.db",
 	)
 
-	items := ig.GenerateItems(10)
+	start := time.Now()
+
+	items := ig.GenerateItems(n)
 	for _, item := range items {
 		fmt.Println(item)
 	}
+
+	throughput := float64(len(items)) / time.Since(start).Seconds()
+	fmt.Printf("throughput: %v\n", throughput)
 }
