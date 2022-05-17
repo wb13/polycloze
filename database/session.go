@@ -36,12 +36,6 @@ func (s *Session) Close() error {
 	if err := detach(s.con, "l2"); err != nil {
 		return err
 	}
-
-	query := `drop view if exists word_difficulty`
-	if _, err := s.Exec(query); err != nil {
-		return err
-	}
-
 	return s.con.Close()
 }
 
@@ -64,16 +58,5 @@ func NewSession(db *sql.DB, l1db, l2db, translationDb string) (*Session, error) 
 	if err := attach(con, "translation", translationDb); err != nil {
 		return nil, err
 	}
-
-	session := Session{con: con}
-	query := `
-create temp view word_difficulty as
-select word.id as word,
-			 frequency_class/(1.0 + coalesce(level, 0.0)) as difficulty
-from l2.word left join most_recent_review on (word = most_recent_review.item)
-`
-	if _, err := session.Exec(query); err != nil {
-		return nil, err
-	}
-	return &session, nil
+	return &Session{con: con}, nil
 }
