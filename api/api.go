@@ -10,6 +10,10 @@ import (
 	"github.com/lggruspe/polycloze/flashcards"
 )
 
+type Items struct {
+	Items []flashcards.Item `json:"items"`
+}
+
 func generateFlashcards(db *sql.DB, config Config) func(http.ResponseWriter, *http.Request) {
 	ig := flashcards.NewItemGenerator(
 		db,
@@ -18,11 +22,10 @@ func generateFlashcards(db *sql.DB, config Config) func(http.ResponseWriter, *ht
 		config.TranslationDb,
 	)
 	return func(w http.ResponseWriter, r *http.Request) {
-		// w.WriteHeader(http.StatusCreated)
 		w.Header().Set("Content-Type", "application/json")
 
 		items := ig.GenerateItems(10)
-		bytes, err := json.Marshal(items)
+		bytes, err := json.Marshal(Items{Items: items})
 		if err != nil {
 			log.Fatal(err)
 		}

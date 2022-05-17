@@ -13,13 +13,13 @@ import (
 )
 
 type Sentence struct {
-	Id    int      // id in database
-	Parts []string // Odd-numbered parts are blanks
+	Id    int      `json:"id"`    // id in database
+	Parts []string `json:"parts"` // Odd-numbered parts are blanks
 }
 
 type Item struct {
-	Sentence    Sentence
-	Translation string
+	Sentence    Sentence `json:"sentence"`
+	Translation string   `json:"translation"`
 }
 
 type ItemGenerator struct {
