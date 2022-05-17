@@ -84,6 +84,21 @@ update word set frequency_class = cast(floor(0.5 - log2(frequency / ?)) as int)
     con.commit()
 
 
+def create_temp_trigger(con: Connection) -> None:
+    query = """
+create temp trigger t1 after insert on main.contains begin
+    update sentence
+    set frequency_class = max(
+        coalesce(frequency_class, 0),
+        coalesce((select frequency_class from word where word.id = new.word), 0)
+    )
+    where sentence.id = new.sentence;
+end;
+"""
+    con.execute(query)
+    con.commit()
+
+
 def parse_args() -> Namespace:
     """Parse command-line args."""
     parser = ArgumentParser()
@@ -124,8 +139,9 @@ def main():
     with connect(args.database) as con:
         import_csv(con, args.words_csv, import_accepted_word_row(ignored_words))
         import_csv(con, args.sentences_csv, import_sentence_row)
-        insert_contains(con)
         update_frequency_classes(con)
+        create_temp_trigger(con)
+        insert_contains(con)
 
 
 if __name__ == "__main__":

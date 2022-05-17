@@ -12,7 +12,8 @@ begin transaction;
 		id integer primary key,
 		tatoeba_id integer unique,	-- null for non-tatoeba sentences
 		text unique not null,
-		tokens not null	-- json array of strings
+		tokens not null,	-- json array of strings
+		frequency_class integer	-- max frequency_class among all words in sentence
 	);
 
 	create table contains (
