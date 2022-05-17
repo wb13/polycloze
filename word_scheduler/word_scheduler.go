@@ -19,3 +19,17 @@ func GetWords(s *database.Session, n int) ([]string, error) {
 	}
 	return append(reviews, words[:]...), nil
 }
+
+// Same as GetWords, but takes an additional predicate argument.
+// Only includes words that satisfy the predicate.
+func GetWordsWith(s *database.Session, n int, pred func(word string) bool) ([]string, error) {
+	reviews, err := rs.ScheduleReviewNowWith(s, n, pred)
+	if err != nil {
+		return nil, err
+	}
+	words, err := word_queue.GetNewWordsWith(s, n-len(reviews), pred)
+	if err != nil {
+		return nil, err
+	}
+	return append(reviews, words[:]...), nil
+}

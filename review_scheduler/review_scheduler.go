@@ -48,6 +48,29 @@ func ScheduleReviewNow(s *database.Session, count int) ([]string, error) {
 	return ScheduleReview(s, time.Now().UTC(), count)
 }
 
+// Same as ScheduleReviewNowWith, but takes a predicate argument.
+// Only items that satisfy the predicate are included in the result.
+func ScheduleReviewNowWith(s *database.Session, count int, pred func(item string) bool) ([]string, error) {
+	query := `select item from most_recent_review where due < ?`
+	rows, err := s.Query(query, time.Now().UTC())
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []string
+	for rows.Next() && len(items) < count {
+		var item string
+		if err := rows.Scan(&item); err != nil {
+			return nil, err
+		}
+		if pred(item) {
+			items = append(items, item)
+		}
+	}
+	return items, nil
+}
+
 // Gets most recent review of item.
 func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 	query := `
