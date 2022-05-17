@@ -1,5 +1,6 @@
 /*.db
 /*.db-journal
+/cmd/api/api
 /cmd/flashcards/flashcards
 /cmd/sentence_picker/sentence_picker
 /cmd/srs/srs
