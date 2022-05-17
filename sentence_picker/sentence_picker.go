@@ -49,30 +49,23 @@ func getSentence(s *database.Session, id int) (*Sentence, error) {
 	return &sentence, nil
 }
 
-// Returns "easiest" sentence that contains word.
-func PickSentence(s *database.Session, word string) (*Sentence, error) {
+func PickSentence(s *database.Session, word string, maxDifficulty int) (*Sentence, error) {
 	id, err := findWordId(s, word)
 	if err != nil {
 		return nil, err
 	}
 
-	// Sentence difficulty = max word difficulty
-	// NOTE Only takes easiest sentence from random sample of sentences.
-	// Taking the easiest sentence over all the sentences may take too long.
+	// Select sentence that contains word and isn't too "difficult"
 	query := `
-select sentence, min(difficulty) from
-	(select sentence, max(difficulty) as difficulty from l2.contains
-		join word_difficulty using (word)
-		where sentence in
-			(select sentence from l2.contains where word = ? order by random() limit 500)
-		group by sentence)
+select id from l2.contains join l2.sentence on (contains.sentence = id)
+where word = ? and frequency_class <= ?
+order by random() limit 1
 `
+	row := s.QueryRow(query, id, maxDifficulty)
+
 	var sentence int
-	var difficulty float64
-	row := s.QueryRow(query, id)
-	if err := row.Scan(&sentence, &difficulty); err != nil {
+	if err := row.Scan(&sentence); err != nil {
 		return nil, err
 	}
-
 	return getSentence(s, sentence)
 }

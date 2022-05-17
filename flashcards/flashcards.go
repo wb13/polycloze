@@ -79,7 +79,7 @@ func (ig ItemGenerator) generateItem(word string) (Item, error) {
 	}
 	defer session.Close()
 
-	sentence, err := sentence_picker.PickSentence(session, word)
+	sentence, err := sentence_picker.PickSentence(session, word, 8)
 	if err != nil {
 		return item, err
 	}

@@ -27,7 +27,7 @@ func main() {
 	session, err := database.NewSession(db, "../eng.db", "../spa.db", "../translations.db")
 	assertNil(err)
 
-	sentence, err := sentence_picker.PickSentence(session, word)
+	sentence, err := sentence_picker.PickSentence(session, word, 8)
 	assertNil(err)
 	fmt.Printf("picked sentence: %v\n", *sentence)
 }
