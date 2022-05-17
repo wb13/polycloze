@@ -79,11 +79,15 @@ func (ig ItemGenerator) generateItem(word string) (Item, error) {
 	}
 	defer session.Close()
 
-	sentence, err := sentence_picker.PickSentence(session, word, 8)
-	if err != nil {
-		return item, err
-	}
-	translation, err := translator.Translate(session, sentence.Text)
+	var translation string
+	sentence, err := sentence_picker.FindSentence(session, word, 8, func(sent *sentence_picker.Sentence) bool {
+		t, err := translator.Translate(session, sent.Text)
+		if err != nil {
+			return false
+		}
+		translation = t
+		return true
+	})
 	if err != nil {
 		return item, err
 	}
