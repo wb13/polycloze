@@ -1,0 +1,43 @@
+{
+  "name": "polycloze",
+  "version": "1.0.0",
+  "description": "polycloze front-end",
+  "main": "dist/polycloze.js",
+  "scripts": {
+    "build": "esbuild --bundle src/index.ts --outdir=dist --minify --sourcemap",
+    "dev": "esbuild --bundle src/index.ts --outdir=build --watch",
+    "lint": "eslint src/*.ts",
+    "lint:fix": "eslint src/*.ts --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lggruspe/polycloze.js.git"
+  },
+  "keywords": [
+    "cloze",
+    "flashcards",
+    "languages",
+    "components"
+  ],
+  "author": "Levi Gruspe",
+  "license": "AGPLv3",
+  "bugs": {
+    "url": "https://github.com/lggruspe/polycloze.js/issues"
+  },
+  "homepage": "https://github.com/lggruspe/polycloze.js#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.25.0",
+    "@typescript-eslint/parser": "^5.25.0",
+    "esbuild": "^0.14.39",
+    "eslint": "^8.15.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "typescript": "^4.6.4"
+  },
+  "dependencies": {
+    "fastest-levenshtein": "^1.0.12"
+  }
+}
