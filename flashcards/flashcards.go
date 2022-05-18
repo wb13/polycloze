@@ -70,7 +70,7 @@ func getParts(tokens []string, word string) []string {
 	}
 }
 
-func (ig ItemGenerator) generateItem(word string) (Item, error) {
+func (ig ItemGenerator) GenerateItem(word string) (Item, error) {
 	var item Item
 
 	session, err := ig.Session()
@@ -121,7 +121,7 @@ func (ig ItemGenerator) GenerateItems(words []string) []Item {
 	for _, word := range words {
 		go func(ig *ItemGenerator, word string) {
 			defer wg.Done()
-			item, err := ig.generateItem(word)
+			item, err := ig.GenerateItem(word)
 			if err == nil {
 				ch <- item
 			}
