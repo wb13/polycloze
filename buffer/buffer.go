@@ -7,34 +7,25 @@ import (
 	"github.com/lggruspe/polycloze/flashcards"
 )
 
-type BufferedItem struct {
-	word string
-	item flashcards.Item
-}
-
 type ItemBuffer struct {
-	Channel    chan BufferedItem
-	words      map[string]bool
-	mutex      sync.Mutex // for words map
-	BufferSize int
+	Channel chan flashcards.Item
+	words   map[string]bool
+	mutex   sync.Mutex // for words map
 
 	ig flashcards.ItemGenerator
 }
 
 func NewItemBuffer(ig flashcards.ItemGenerator) ItemBuffer {
-	size := 150
 	return ItemBuffer{
-		Channel:    make(chan BufferedItem, size),
-		words:      make(map[string]bool),
-		BufferSize: size,
-		ig:         ig,
+		Channel: make(chan flashcards.Item, 20),
+		words:   make(map[string]bool),
+		ig:      ig,
 	}
 }
 
-func (buf *ItemBuffer) Add(x BufferedItem) {
-	buf.Channel <- x
+func (buf *ItemBuffer) Add(word string) {
 	buf.mutex.Lock()
-	buf.words[x.word] = true
+	buf.words[word] = true
 	buf.mutex.Unlock()
 }
 
@@ -52,20 +43,18 @@ func (buf *ItemBuffer) Fetch() error {
 	}
 
 	for _, word := range words {
-		// TODO use goroutines?
-		item, err := buf.ig.GenerateItem(word)
-		if err == nil {
-			buf.Add(BufferedItem{word: word, item: item})
-		}
+		buf.Add(word)
 	}
+	buf.ig.GenerateItemsIntoChannel(buf.Channel, words)
 	return nil
 }
 
 // Take an item out of buffer.
 func (buf *ItemBuffer) Take() flashcards.Item {
-	bufItem := <-buf.Channel
+	item := <-buf.Channel
+	word := item.Sentence.Parts[1]
 	buf.mutex.Lock()
-	delete(buf.words, bufItem.word)
+	delete(buf.words, word)
 	buf.mutex.Unlock()
-	return bufItem.item
+	return item
 }

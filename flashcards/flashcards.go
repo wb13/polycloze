@@ -148,3 +148,18 @@ func (ig ItemGenerator) GenerateItems(words []string) []Item {
 	}
 	return items
 }
+
+func (ig ItemGenerator) GenerateItemsIntoChannel(ch chan Item, words []string) {
+	var wg sync.WaitGroup
+	wg.Add(len(words))
+	for _, word := range words {
+		go func(ig *ItemGenerator, word string) {
+			defer wg.Done()
+			item, err := ig.GenerateItem(word)
+			if err == nil {
+				ch <- item
+			}
+		}(&ig, word)
+	}
+	wg.Wait()
+}

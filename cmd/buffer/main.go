@@ -42,8 +42,15 @@ func main() {
 	}
 
 	for i := 0; i < n; i++ {
-		fmt.Println("i:", i)
 		item := buf.Take()
-		fmt.Println(item)
+		word := item.Sentence.Parts[1]
+		fmt.Println(word, item)
+	}
+
+	fmt.Println(":)")
+	for i := 0; i < n; i++ {
+		item := buf.Take()
+		word := item.Sentence.Parts[1]
+		fmt.Println(word, item)
 	}
 }
