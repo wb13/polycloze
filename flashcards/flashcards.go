@@ -112,6 +112,17 @@ func (ig ItemGenerator) GenerateWords(n int) ([]string, error) {
 	return word_scheduler.GetWords(session, n)
 }
 
+// Same as GenerateWords, but takes an additional predicate argument.
+// Only returns words that satisfy the predicate.
+func (ig ItemGenerator) GenerateWordsWith(n int, pred func(word string) bool) ([]string, error) {
+	session, err := ig.Session()
+	if err != nil {
+		return nil, err
+	}
+	defer session.Close()
+	return word_scheduler.GetWordsWith(session, n, pred)
+}
+
 // Creates a cloze item for each word.
 func (ig ItemGenerator) GenerateItems(words []string) []Item {
 	var wg sync.WaitGroup
