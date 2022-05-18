@@ -1,3 +1,4 @@
+import './index.css'
 import { fetchItems } from './data'
 import { createFromItems } from './item'
 
