@@ -1,6 +1,6 @@
 import './blank.css'
-
 import { distance } from 'fastest-levenshtein'
+import { getFont, getWidth } from './text'
 
 type Status = 'correct' | 'incorrect' | 'almost';
 
@@ -13,6 +13,7 @@ export function createBlank (answer: string, done: (correct: true) => void, enab
   let correct = true
   const input = document.createElement('input')
   input.classList.add('blank')
+  input.style.setProperty('width', getWidth(getFont(input), answer))
   input.addEventListener('input', () => {
     if (input.value !== '') {
       enable()
