@@ -24,7 +24,12 @@ func generateFlashcards(db *sql.DB, config Config) func(http.ResponseWriter, *ht
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
-		items := ig.GenerateItems(10)
+		words, err := ig.GenerateWords(10)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		items := ig.GenerateItems(words)
 		bytes, err := json.Marshal(Items{Items: items})
 		if err != nil {
 			log.Fatal(err)

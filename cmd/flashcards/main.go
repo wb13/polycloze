@@ -36,8 +36,12 @@ func main() {
 	)
 
 	start := time.Now()
+	words, err := ig.GenerateWords(n)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	items := ig.GenerateItems(n)
+	items := ig.GenerateItems(words)
 	for _, item := range items {
 		fmt.Println(item)
 	}

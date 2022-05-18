@@ -103,7 +103,7 @@ func (ig ItemGenerator) generateItem(word string) (Item, error) {
 
 // Generates up to n words.
 // Pass a negative value of n to get an unlimited number of items.
-func (ig ItemGenerator) generateWords(n int) ([]string, error) {
+func (ig ItemGenerator) GenerateWords(n int) ([]string, error) {
 	session, err := ig.Session()
 	if err != nil {
 		return nil, err
@@ -112,14 +112,8 @@ func (ig ItemGenerator) generateWords(n int) ([]string, error) {
 	return word_scheduler.GetWords(session, n)
 }
 
-// Generates up to n cloze items.
-// Pass a negative value of n to get an unlimited number of items.
-func (ig ItemGenerator) GenerateItems(n int) []Item {
-	words, err := ig.generateWords(n)
-	if err != nil {
-		return nil
-	}
-
+// Creates a cloze item for each word.
+func (ig ItemGenerator) GenerateItems(words []string) []Item {
 	var wg sync.WaitGroup
 	ch := make(chan Item, len(words))
 
