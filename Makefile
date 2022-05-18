@@ -1,4 +1,4 @@
-packages = api database flashcards review_scheduler sentence_picker translator word_queue word_scheduler \
+packages = api buffer database flashcards review_scheduler sentence_picker translator word_queue word_scheduler \
 					 cmd/api cmd/flashcards cmd/sentence_picker cmd/srs cmd/translator
 
 .PHONY:	all
