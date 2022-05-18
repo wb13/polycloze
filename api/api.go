@@ -22,6 +22,10 @@ func generateFlashcards(db *sql.DB, config Config) func(http.ResponseWriter, *ht
 		config.TranslationDb,
 	)
 	return func(w http.ResponseWriter, r *http.Request) {
+		if config.AllowCORS {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 
 		words, err := ig.GenerateWords(10)

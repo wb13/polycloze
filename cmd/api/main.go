@@ -13,6 +13,7 @@ func main() {
 		Lang1Db:       "../eng.db",
 		Lang2Db:       "../spa.db",
 		TranslationDb: "../translations.db",
+		AllowCORS:     true,
 	}
 
 	mux, err := api.Mux(config)
