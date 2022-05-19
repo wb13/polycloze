@@ -1,6 +1,6 @@
 import './blank.css'
 import { distance } from 'fastest-levenshtein'
-import { getFont, getWidth } from './text'
+import { getFont, getWidth, substituteDigraphs } from './text'
 
 type Status = 'correct' | 'incorrect' | 'almost';
 
@@ -20,6 +20,7 @@ export function createBlank (answer: string, done: (correct: true) => void, enab
     if (input.value !== '') {
       enable()
     }
+    input.value = substituteDigraphs(input.value)
   })
   input.addEventListener('change', () => {
     switch (distance(input.value, answer)) {
