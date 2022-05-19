@@ -33,11 +33,11 @@ func generateFlashcards(db *sql.DB, config Config) func(http.ResponseWriter, *ht
 
 		w.Header().Set("Content-Type", "application/json")
 
-		n := 10
-		if len(buf.Channel) < n {
+		if 3*len(buf.Channel) <= 2*cap(buf.Channel) {
 			go buf.Fetch()
 		}
 
+		n := cap(buf.Channel) / 3
 		var items []flashcards.Item
 		for i := 0; i < n; i++ {
 			items = append(items, buf.Take())

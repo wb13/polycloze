@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -21,5 +22,6 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Println("Listening on port 3000")
 	log.Fatal(http.ListenAndServe(":3000", mux))
 }
