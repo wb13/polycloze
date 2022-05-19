@@ -15,9 +15,9 @@ type ItemBuffer struct {
 	ig flashcards.ItemGenerator
 }
 
-func NewItemBuffer(ig flashcards.ItemGenerator) ItemBuffer {
+func NewItemBuffer(ig flashcards.ItemGenerator, capacity int) ItemBuffer {
 	return ItemBuffer{
-		Channel: make(chan flashcards.Item, 20),
+		Channel: make(chan flashcards.Item, capacity),
 		words:   make(map[string]bool),
 		ig:      ig,
 	}

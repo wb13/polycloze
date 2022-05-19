@@ -22,7 +22,7 @@ func generateFlashcards(db *sql.DB, config Config) func(http.ResponseWriter, *ht
 		config.Lang2Db,
 		config.TranslationDb,
 	)
-	buf := buffer.NewItemBuffer(ig)
+	buf := buffer.NewItemBuffer(ig, 30)
 	if err := buf.Fetch(); err != nil {
 		log.Fatal(err)
 	}

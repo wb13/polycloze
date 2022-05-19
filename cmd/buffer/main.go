@@ -36,7 +36,7 @@ func main() {
 		"../spa.db",
 		"../translations.db",
 	)
-	buf := buffer.NewItemBuffer(ig)
+	buf := buffer.NewItemBuffer(ig, 30)
 	if err := buf.Fetch(); err != nil {
 		log.Fatal(err)
 	}
