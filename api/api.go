@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/lggruspe/polycloze/buffer"
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/flashcards"
 )
@@ -21,6 +22,10 @@ func generateFlashcards(db *sql.DB, config Config) func(http.ResponseWriter, *ht
 		config.Lang2Db,
 		config.TranslationDb,
 	)
+	buf := buffer.NewItemBuffer(ig)
+	if err := buf.Fetch(); err != nil {
+		log.Fatal(err)
+	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		if config.AllowCORS {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -28,17 +33,19 @@ func generateFlashcards(db *sql.DB, config Config) func(http.ResponseWriter, *ht
 
 		w.Header().Set("Content-Type", "application/json")
 
-		words, err := ig.GenerateWords(10)
-		if err != nil {
-			log.Fatal(err)
+		n := 10
+		if len(buf.Channel) < n {
+			go buf.Fetch()
 		}
 
-		items := ig.GenerateItems(words)
+		var items []flashcards.Item
+		for i := 0; i < n; i++ {
+			items = append(items, buf.Take())
+		}
 		bytes, err := json.Marshal(Items{Items: items})
 		if err != nil {
 			log.Fatal(err)
 		}
-
 		w.Write(bytes)
 	}
 }
