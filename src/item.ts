@@ -59,26 +59,3 @@ export function createItem (item: Item, next: (ok: boolean) => void): [HTMLDivEl
   div.append(header, body, footer)
   return [div, resize]
 }
-
-export function createFromItems (items: Item[]): [HTMLDivElement, () => void] {
-  if (items.length === 0) {
-    throw new Error('unhandled case')
-  }
-
-  const div = document.createElement('div')
-  const item = items.pop()
-  const next = () => {
-    const [replacement, ready] = createFromItems(items)
-    div.replaceWith(replacement)
-    ready()
-  }
-
-  const [child, resize] = createItem(item, next)
-  div.appendChild(child)
-
-  const ready = () => {
-    div.querySelector('.blank')?.focus()
-    resize()
-  }
-  return [div, ready]
-}
