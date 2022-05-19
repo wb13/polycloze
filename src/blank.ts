@@ -9,11 +9,13 @@ function changeStatus (input: HTMLInputElement, status: Status) {
 }
 
 // enable: Enable submit button
-export function createBlank (answer: string, done: (correct: true) => void, enable: () => void): HTMLInputElement {
+// Also returns a resize function, which should be called when the element is
+// connected to the DOM.
+export function createBlank (answer: string, done: (correct: true) => void, enable: () => void): [HTMLInputElement, () => void] {
   let correct = true
   const input = document.createElement('input')
   input.classList.add('blank')
-  input.style.setProperty('width', getWidth(getFont(input), answer))
+
   input.addEventListener('input', () => {
     if (input.value !== '') {
       enable()
@@ -38,5 +40,10 @@ export function createBlank (answer: string, done: (correct: true) => void, enab
         break
     }
   })
-  return input
+
+  const resize = () => {
+    const width = getWidth(getFont(input), answer)
+    input.style.setProperty('width', width)
+  }
+  return [input, resize]
 }
