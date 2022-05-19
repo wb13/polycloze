@@ -1,3 +1,8 @@
 .sentence {
 	font-size: 2rem;
 }
+
+.sentence input {
+	font-family: inherit;
+	font-size: inherit;
+}
