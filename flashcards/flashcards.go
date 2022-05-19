@@ -65,7 +65,7 @@ func getParts(tokens []string, word string) []string {
 	index := indices[rand.Intn(len(indices))]
 	return []string{
 		strings.Join(tokens[:index], ""),
-		word,
+		tokens[index],
 		strings.Join(tokens[index+1:], ""),
 	}
 }

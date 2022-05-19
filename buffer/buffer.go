@@ -2,6 +2,7 @@
 package buffer
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/lggruspe/polycloze/flashcards"
@@ -25,18 +26,22 @@ func NewItemBuffer(ig flashcards.ItemGenerator, capacity int) ItemBuffer {
 
 func (buf *ItemBuffer) Add(word string) {
 	buf.mutex.Lock()
-	buf.words[word] = true
+	buf.words[strings.ToLower(word)] = true
 	buf.mutex.Unlock()
+}
+
+func (buf *ItemBuffer) Contains(word string) bool {
+	buf.mutex.Lock()
+	_, ok := buf.words[strings.ToLower(word)]
+	buf.mutex.Unlock()
+	return ok
 }
 
 // Fetch items and store in buffer.
 func (buf *ItemBuffer) Fetch() error {
 	n := cap(buf.Channel) - len(buf.Channel)
 	words, err := buf.ig.GenerateWordsWith(n, func(word string) bool {
-		buf.mutex.Lock()
-		_, ok := buf.words[word]
-		buf.mutex.Unlock()
-		return !ok
+		return !buf.Contains(word)
 	})
 	if err != nil {
 		return err
@@ -54,7 +59,7 @@ func (buf *ItemBuffer) Take() flashcards.Item {
 	item := <-buf.Channel
 	word := item.Sentence.Parts[1]
 	buf.mutex.Lock()
-	delete(buf.words, word)
+	delete(buf.words, strings.ToLower(word))
 	buf.mutex.Unlock()
 	return item
 }
