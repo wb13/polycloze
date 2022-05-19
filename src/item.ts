@@ -14,6 +14,7 @@ function createItemHeader (): HTMLDivElement {
 
 function createTranslation (translation: string): HTMLDivElement {
   const div = document.createElement('div')
+  div.classList.add('translation')
   div.textContent = translation
   return div
 }

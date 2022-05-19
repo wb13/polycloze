@@ -2,3 +2,7 @@
 	display: flex;
 	flex-direction: column;
 }
+
+.translation {
+	font-size: 1.5rem;
+}

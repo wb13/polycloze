@@ -1,3 +1,8 @@
+.blank {
+	font-family: inherit;
+	font-size: inherit;
+}
+
 .correct {
 	color: green;
 }
