@@ -36,6 +36,10 @@ func generateFlashcards(buf *buffer.ItemBuffer, w http.ResponseWriter, r *http.R
 	w.Write(bytes)
 }
 
+func success() []byte {
+	return []byte("{\"success\": true}")
+}
+
 func handleReviewUpdate(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		panic("expected json body in POST request")
@@ -60,6 +64,7 @@ func handleReviewUpdate(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *
 	for _, review := range reviews.Reviews {
 		review_scheduler.UpdateReview(session, review.Word, review.Correct)
 	}
+	w.Write(success())
 }
 
 func createHandler(db *sql.DB, config Config) func(http.ResponseWriter, *http.Request) {
