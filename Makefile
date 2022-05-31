@@ -21,3 +21,7 @@ format:
 	@for package in $(packages); do \
 		(cd $$package; gofmt -s -w .); \
 	done
+
+.PHONY:	run
+run:	build
+	cd cmd/api; ./api
