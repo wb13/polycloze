@@ -17,6 +17,25 @@ type Items struct {
 	Items []flashcards.Item `json:"items"`
 }
 
+func generateFlashcards(buf *buffer.ItemBuffer, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	if 3*len(buf.Channel) <= 2*cap(buf.Channel) {
+		go buf.Fetch()
+	}
+
+	n := cap(buf.Channel) / 3
+	var items []flashcards.Item
+	for i := 0; i < n; i++ {
+		items = append(items, buf.Take())
+	}
+	bytes, err := json.Marshal(Items{Items: items})
+	if err != nil {
+		log.Fatal(err)
+	}
+	w.Write(bytes)
+}
+
 func handleReviewUpdate(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		panic("expected json body in POST request")
@@ -57,33 +76,15 @@ func createHandler(db *sql.DB, config Config) func(http.ResponseWriter, *http.Re
 	return func(w http.ResponseWriter, r *http.Request) {
 		if config.AllowCORS {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type")
 		}
 
-		if r.Method == "POST" {
+		switch r.Method {
+		case "POST":
 			handleReviewUpdate(&ig, w, r)
-			return
+		case "GET":
+			generateFlashcards(&buf, w, r)
 		}
-
-		if r.Method != "GET" {
-			panic("expected GET or POST request")
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-
-		if 3*len(buf.Channel) <= 2*cap(buf.Channel) {
-			go buf.Fetch()
-		}
-
-		n := cap(buf.Channel) / 3
-		var items []flashcards.Item
-		for i := 0; i < n; i++ {
-			items = append(items, buf.Take())
-		}
-		bytes, err := json.Marshal(Items{Items: items})
-		if err != nil {
-			log.Fatal(err)
-		}
-		w.Write(bytes)
 	}
 }
 
