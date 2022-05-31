@@ -1,5 +1,5 @@
 import './app.css'
-import { fetchItems, submitReview } from './data'
+import { fetchItems } from './data'
 import { Item, createItem } from './item'
 
 export async function createApp (items: Item[]): Promise<[HTMLDivElement, () => void]> {
@@ -16,7 +16,7 @@ export async function createApp (items: Item[]): Promise<[HTMLDivElement, () => 
     })
   }
 
-  const [child, resize] = createItem(item, next, submitReview)
+  const [child, resize] = createItem(item, next)
   div.appendChild(child)
 
   const ready = () => {
