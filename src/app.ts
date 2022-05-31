@@ -1,15 +1,15 @@
 import './app.css'
 import { Item, createItem } from './item'
 
-export async function createApp (refresh: Promise<Item[]>, items: Item[], post: (word: string, correct: boolean) => void): Promise<[HTMLDivElement, () => void]> {
+export async function createApp (items: Item[], refresh: Promise<Item[]>, post: (word: string, correct: boolean) => void): Promise<[HTMLDivElement, () => void]> {
   if (items.length === 0) {
-    return createApp(refresh, await refresh(), post)
+    return createApp(await refresh(), refresh, post)
   }
 
   const div = document.createElement('div')
   const item = items.pop()
   const next = () => {
-    createApp(refresh, items, post).then(([replacement, ready]) => {
+    createApp(items, refresh, post).then(([replacement, ready]) => {
       div.replaceWith(replacement)
       ready()
     })
