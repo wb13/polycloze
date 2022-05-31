@@ -8,14 +8,14 @@ export async function fetchItems (): Promise<Item[]> {
   return json.items
 }
 
-type Review = {
-  word: string
-  correct: boolean
-}
-
-export async function submitReviews (reviews: Review[]): Promise<boolean> {
+// Returns response status (success or not).
+export async function submitReview (word: string, correct: boolean): Promise<boolean> {
   const options = {
-    body: JSON.stringify({ reviews }),
+    body: JSON.stringify({
+      reviews: [
+        { word, correct }
+      ]
+    }),
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json'
