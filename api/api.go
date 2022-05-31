@@ -3,19 +3,47 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 
 	"github.com/lggruspe/polycloze/buffer"
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/flashcards"
+	"github.com/lggruspe/polycloze/review_scheduler"
 )
 
 type Items struct {
 	Items []flashcards.Item `json:"items"`
 }
 
-func generateFlashcards(db *sql.DB, config Config) func(http.ResponseWriter, *http.Request) {
+func handleReviewUpdate(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("Content-Type") != "application/json" {
+		panic("expected json body in POST request")
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		panic("something went wrong")
+	}
+
+	var reviews Reviews
+	if err := json.Unmarshal(body, &reviews); err != nil {
+		panic("parsing error")
+	}
+
+	session, err := ig.Session()
+	if err != nil {
+		panic("something went wrong")
+	}
+	defer session.Close()
+
+	for _, review := range reviews.Reviews {
+		review_scheduler.UpdateReview(session, review.Word, review.Correct)
+	}
+}
+
+func createHandler(db *sql.DB, config Config) func(http.ResponseWriter, *http.Request) {
 	ig := flashcards.NewItemGenerator(
 		db,
 		config.Lang1Db,
@@ -29,6 +57,15 @@ func generateFlashcards(db *sql.DB, config Config) func(http.ResponseWriter, *ht
 	return func(w http.ResponseWriter, r *http.Request) {
 		if config.AllowCORS {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
+		}
+
+		if r.Method == "POST" {
+			handleReviewUpdate(&ig, w, r)
+			return
+		}
+
+		if r.Method != "GET" {
+			panic("expected GET or POST request")
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -57,6 +94,6 @@ func Mux(config Config) (*http.ServeMux, error) {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", generateFlashcards(db, config))
+	mux.HandleFunc("/", createHandler(db, config))
 	return mux, nil
 }
