@@ -1,21 +1,22 @@
 import './app.css'
+import { fetchItems, submitReview } from './data'
 import { Item, createItem } from './item'
 
-export async function createApp (items: Item[], refresh: Promise<Item[]>, post: (word: string, correct: boolean) => void): Promise<[HTMLDivElement, () => void]> {
+export async function createApp (items: Item[]): Promise<[HTMLDivElement, () => void]> {
   if (items.length === 0) {
-    return createApp(await refresh(), refresh, post)
+    return createApp(await fetchItems())
   }
 
   const div = document.createElement('div')
   const item = items.pop()
   const next = () => {
-    createApp(items, refresh, post).then(([replacement, ready]) => {
+    createApp(items).then(([replacement, ready]) => {
       div.replaceWith(replacement)
       ready()
     })
   }
 
-  const [child, resize] = createItem(item, next, post)
+  const [child, resize] = createItem(item, next, submitReview)
   div.appendChild(child)
 
   const ready = () => {
