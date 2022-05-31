@@ -13,6 +13,18 @@ function createPart (part: string): HTMLSpanElement {
   return span
 }
 
+function isBeginning (part: string): boolean {
+  switch (part) {
+    case '':
+    case '¿':
+    case '¡':
+      return true
+
+    default:
+      return false
+  }
+}
+
 // Note: takes two callback functions.
 // - next: TODO
 // - enable: Enables submit button (used by createBlank).
@@ -46,7 +58,8 @@ export function createSentence (sentence: Sentence, next: (ok: boolean) => void,
     if (i % 2 === 0) {
       div.appendChild(createPart(part))
     } else {
-      const [blank, resize] = createBlank(part, done, enable)
+      const autocapitalize = (i === 1) && isBeginning(sentence.parts[0])
+      const [blank, resize] = createBlank(part, autocapitalize, done, enable)
       div.appendChild(blank)
       resizeFns.push(resize)
     }
