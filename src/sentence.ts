@@ -12,7 +12,16 @@ function createPart (part: string): HTMLSpanElement {
   return span
 }
 
-export function createSentence (sentence: Sentence, next: (ok: boolean) => void, enable: () => void): [HTMLDivElement, () => void, () => void] {
+// Note: takes three callback functions.
+// - next: TODO
+// - enable: Enables submit button (used by createBlank).
+// - post: Submits review result to the server.
+//
+// In addition to a div element, also returns two functions to be called by the
+// caller.
+// - check: TODO
+// - resize: TODO
+export function createSentence (sentence: Sentence, next: (ok: boolean) => void, enable: () => void, post: (word: string, correct: boolean) => void): [HTMLDivElement, () => void, () => void] {
   let ok = true
   let remaining = Math.floor(sentence.parts.length / 2)
   const check = () => {
@@ -20,7 +29,8 @@ export function createSentence (sentence: Sentence, next: (ok: boolean) => void,
       next(ok)
     }
   }
-  const done = (correct: boolean) => {
+  const done = (answer: string, correct: boolean) => {
+    post(answer, correct)
     --remaining
     if (!correct) {
       ok = false

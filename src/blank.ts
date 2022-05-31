@@ -11,7 +11,7 @@ function changeStatus (input: HTMLInputElement, status: Status) {
 // enable: Enable submit button
 // Also returns a resize function, which should be called when the element is
 // connected to the DOM.
-export function createBlank (answer: string, done: (correct: true) => void, enable: () => void): [HTMLInputElement, () => void] {
+export function createBlank (answer: string, done: (answer: string, correct: true) => void, enable: () => void): [HTMLInputElement, () => void] {
   let correct = true
   const input = document.createElement('input')
   input.classList.add('blank')
@@ -26,7 +26,7 @@ export function createBlank (answer: string, done: (correct: true) => void, enab
     switch (distance(input.value, answer)) {
       case 0:
         changeStatus(input, 'correct')
-        return done(correct)
+        return done(answer, correct)
 
       case 1:
       case 2:
