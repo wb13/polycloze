@@ -14,6 +14,7 @@ function changeStatus (input: HTMLInputElement, status: Status) {
 export function createBlank (answer: string, done: (answer: string, correct: true) => void, enable: () => void): [HTMLInputElement, () => void] {
   let correct = true
   const input = document.createElement('input')
+  input.autocapitalize = 'none'
   input.classList.add('blank')
 
   input.addEventListener('input', () => {
