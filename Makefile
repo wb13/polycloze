@@ -22,6 +22,7 @@ build/sqlite/$(1).db:	build/languages/$(1)/non-words.txt build/languages/$(1)/se
 	./scripts/importer.py $$@ -i $$< \
 		-s build/languages/$(1)/sentences.csv \
 		-w build/languages/$(1)/words.csv
+	python -m scripts.metadata $$@
 endef
 
 .PHONY:	all
