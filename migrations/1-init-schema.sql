@@ -1,6 +1,16 @@
 begin transaction;
 	pragma user_version = 1;
 
+	create table info (
+		-- only one row (language) per database
+		id integer primary key default 1,
+		code not null,
+		native not null,
+		english not null,
+		check (id = 1),
+		check (length(code) = 3)
+	);
+
 	create table word (
 		id integer primary key,
 		word unique not null,
