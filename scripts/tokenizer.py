@@ -41,11 +41,15 @@ class Sentence(t.NamedTuple):
         return (self.id, self.text, json.dumps(self.tokens))
 
 
-def count_words(sentences: t.Iterable[t.Iterable[str]]) -> Counter:
-    counter = Counter()
-    for tokens in sentences:
-        counter.update(token.casefold() for token in tokens)
-    return counter
+class WordCounter:
+    def __init__(self):
+        self.counter = Counter()
+
+    def add(self, tokens: t.Iterable[str]) -> None:
+        self.counter.update(token.casefold() for token in tokens)
+
+    def count(self) -> list[tuple[str, int]]:
+        return self.counter.most_common()
 
 
 def parse_args() -> Namespace:
@@ -92,32 +96,32 @@ def main() -> None:
     output.mkdir(parents=True, exist_ok=True)
 
     tokenizer = Tokenizer(load_language(args.language))
-    sentences = []
+    word_counter = WordCounter()
 
-    try:
-        while line := input():
-            id_ = None
-            if args.has_ids:
-                # TODO handle exception
-                id_, line = line.split("\t", maxsplit=1)
-            sentence = Sentence(
-                id=id_,
-                text=line,
-                tokens=tokenizer.tokenize(line),
-            )
-            sentences.append(sentence)
-    except EOFError:
-        pass
+    with open(output/"sentences.csv", "w") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["tatoeba_id", "text", "tokens"])
+
+        try:
+            while line := input():
+                id_ = None
+                if args.has_ids:
+                    # TODO handle exception
+                    id_, line = line.split("\t", maxsplit=1)
+                sentence = Sentence(
+                    id=id_,
+                    text=line,
+                    tokens=tokenizer.tokenize(line),
+                )
+                word_counter.add(sentence.tokens)
+                writer.writerow(sentence.row())
+        except EOFError:
+            pass
 
     write_csv(
         output/"words.csv",
-        count_words(sentence.tokens for sentence in sentences).most_common(),
+        word_counter.count(),
         header=["word", "frequency"],
-    )
-    write_csv(
-        output/"sentences.csv",
-        (sentence.row() for sentence in sentences),
-        header=["tatoeba_id", "text", "tokens"],
     )
 
 
