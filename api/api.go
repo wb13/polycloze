@@ -101,5 +101,6 @@ func Mux(config Config) (*http.ServeMux, error) {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", createHandler(db, config))
+	mux.HandleFunc("/options", languageOptions)
 	return mux, nil
 }
