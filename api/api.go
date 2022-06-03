@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -101,7 +102,7 @@ func createHandler(db *sql.DB, config Config) func(http.ResponseWriter, *http.Re
 func Router(config Config) (chi.Router, error) {
 	r := chi.NewRouter()
 
-	reviewDb := path.Join(basedir.StateDir, "user", "review.db")
+	reviewDb := path.Join(basedir.StateDir, "user", fmt.Sprintf("%v.db", config.L2))
 	db, err := database.New(reviewDb)
 	if err != nil {
 		return r, err
