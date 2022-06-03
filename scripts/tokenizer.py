@@ -20,11 +20,12 @@ class Tokenizer:
     nlp: Language
 
     def tokenize(self, sentence: str) -> list[str]:
-        tokens = (
-            [token.text for token in self.nlp.tokenizer(word)]
-            for word in sentence.split()
-        )
-        return reduce(lambda x, y: x + [" "] + y, tokens)
+        tokens = []
+        for token in self.nlp.tokenizer(sentence):
+            tokens.append(token.text)
+            if token.whitespace_:
+                tokens.append(token.whitespace_)
+        return tokens
 
 
 class Sentence(t.NamedTuple):
