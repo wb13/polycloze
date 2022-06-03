@@ -54,7 +54,7 @@ func languageDatabasePath(language string) string {
 }
 
 // Looks for supported languages in data directories (see basedir package).
-func supportedLanguages() []Language {
+func SupportedLanguages() []Language {
 	var languages []Language
 	dir := path.Join(basedir.DataDir, "languages")
 
@@ -72,7 +72,7 @@ func supportedLanguages() []Language {
 func languageOptions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	langs := Languages{Languages: supportedLanguages()}
+	langs := Languages{Languages: SupportedLanguages()}
 	bytes, err := json.Marshal(langs)
 	if err != nil {
 		log.Fatal(err)

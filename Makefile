@@ -1,4 +1,6 @@
 packages = api cmd/api
+l1 = eng
+l2 = spa
 
 .PHONY:	all
 all:
@@ -24,4 +26,4 @@ format:
 
 .PHONY:	run
 run:	build
-	cd cmd/api; ./api
+	cd cmd/api; ./api $(l1) $(l2)
