@@ -86,6 +86,22 @@ func createHandler(db *sql.DB, config Config) func(http.ResponseWriter, *http.Re
 	}
 }
 
+func handleTest(db *sql.DB, allowCORS bool) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if allowCORS {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type")
+		}
+
+		l1 := chi.URLParam(r, "l1")
+		l2 := chi.URLParam(r, "l2")
+		if err := changeLanguages(db, l1, l2); err != nil {
+			log.Fatal(err)
+		}
+		w.Write([]byte("changed languages"))
+	}
+}
+
 func Router(config Config) (chi.Router, error) {
 	r := chi.NewRouter()
 
@@ -98,5 +114,6 @@ func Router(config Config) (chi.Router, error) {
 	r.Use(middleware.Logger)
 	r.HandleFunc("/", createHandler(db, config))
 	r.HandleFunc("/options", languageOptions)
+	r.HandleFunc("/{l1}/{l2}", handleTest(db, true))
 	return r, nil
 }
