@@ -105,7 +105,7 @@ func Router(config Config) (chi.Router, error) {
 	if err != nil {
 		return r, err
 	}
-	if err := changeLanguages(db, "eng", "spa"); err != nil {
+	if err := changeLanguages(db, config.L1, config.L2); err != nil {
 		return r, err
 	}
 
