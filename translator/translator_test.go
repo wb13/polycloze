@@ -1,23 +1,29 @@
 package translator
 
 import (
+	"path"
 	"testing"
 
+	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
 )
 
 var session *database.Session
 
 func init() {
+	if err := basedir.Init(); err != nil {
+		panic(err)
+	}
+
 	db, err := database.New(":memory:")
 	if err != nil {
 		panic(err)
 	}
 	session, err = database.NewSession(
 		db,
-		"../cmd/eng.db",
-		"../cmd/spa.db",
-		"../cmd/translations.db",
+		path.Join(basedir.DataDir, "languages", "eng.db"),
+		path.Join(basedir.DataDir, "languages", "spa.db"),
+		path.Join(basedir.DataDir, "translations.db"),
 	)
 	if err != nil {
 		panic(err)
