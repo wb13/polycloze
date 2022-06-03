@@ -86,10 +86,16 @@ func (buf *ItemBuffer) Take() flashcards.Item {
 	return item
 }
 
-// Take many items out of buffer, where many = cap(buffer channel) / 3.
+// Take many items out of buffer.
+// Usually takes 1/3 of channel capacity, but only takes 2 if the channel is
+// empty to improve worst-case response time.
 func (buf *ItemBuffer) TakeMany() []flashcards.Item {
+	n := cap(buf.Channel)/3
+	if len(buf.Channel) == 0 {
+		n = 2
+	}
 	var items []flashcards.Item
-	for i := 0; i < cap(buf.Channel)/3; i++ {
+	for i := 0; i < n; i++ {
 		items = append(items, buf.Take())
 	}
 	return items
