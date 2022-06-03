@@ -1,10 +1,7 @@
 package api
 
 type Config struct {
-	ReviewDb      string
-	Lang1Db       string
-	Lang2Db       string
-	TranslationDb string
-
+	L1        string
+	L2        string
 	AllowCORS bool
 }

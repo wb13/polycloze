@@ -10,11 +10,9 @@ import (
 
 func main() {
 	config := api.Config{
-		ReviewDb:      "review.db",
-		Lang1Db:       "../eng.db",
-		Lang2Db:       "../spa.db",
-		TranslationDb: "../translations.db",
-		AllowCORS:     true,
+		L1:        "eng",
+		L2:        "spa",
+		AllowCORS: true,
 	}
 
 	mux, err := api.Mux(config)

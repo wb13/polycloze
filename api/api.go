@@ -6,7 +6,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"path"
 
+	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/buffer"
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/flashcards"
@@ -70,9 +72,9 @@ func handleReviewUpdate(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *
 func createHandler(db *sql.DB, config Config) func(http.ResponseWriter, *http.Request) {
 	ig := flashcards.NewItemGenerator(
 		db,
-		config.Lang1Db,
-		config.Lang2Db,
-		config.TranslationDb,
+		languageDatabasePath(config.L1),
+		languageDatabasePath(config.L2),
+		path.Join(basedir.DataDir, "translations.db"),
 	)
 	buf := buffer.NewItemBuffer(ig, 30)
 	if err := buf.Fetch(); err != nil {
@@ -94,7 +96,8 @@ func createHandler(db *sql.DB, config Config) func(http.ResponseWriter, *http.Re
 }
 
 func Mux(config Config) (*http.ServeMux, error) {
-	db, err := database.New(config.ReviewDb)
+	reviewDb := path.Join(basedir.StateDir, "user", "review.db")
+	db, err := database.New(reviewDb)
 	if err != nil {
 		return nil, err
 	}
