@@ -15,11 +15,11 @@ func main() {
 		AllowCORS: true,
 	}
 
-	mux, err := api.Mux(config)
+	r, err := api.Router(config)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	fmt.Println("Listening on port 3000")
-	log.Fatal(http.ListenAndServe(":3000", mux))
+	log.Fatal(http.ListenAndServe(":3000", r))
 }

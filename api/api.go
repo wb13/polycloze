@@ -8,6 +8,9 @@ import (
 	"net/http"
 	"path"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/buffer"
 	"github.com/lggruspe/polycloze/database"
@@ -95,15 +98,17 @@ func createHandler(db *sql.DB, config Config) func(http.ResponseWriter, *http.Re
 	}
 }
 
-func Mux(config Config) (*http.ServeMux, error) {
+func Router(config Config) (chi.Router, error) {
+	r := chi.NewRouter()
+
 	reviewDb := path.Join(basedir.StateDir, "user", "review.db")
 	db, err := database.New(reviewDb)
 	if err != nil {
-		return nil, err
+		return r, err
 	}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", createHandler(db, config))
-	mux.HandleFunc("/options", languageOptions)
-	return mux, nil
+	r.Use(middleware.Logger)
+	r.HandleFunc("/", createHandler(db, config))
+	r.HandleFunc("/options", languageOptions)
+	return r, nil
 }
