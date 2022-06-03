@@ -44,10 +44,6 @@ func main() {
 		path.Join(basedir.DataDir, "translations.db"),
 	)
 	buf := buffer.NewItemBuffer(ig, 30)
-	if err := buf.Fetch(); err != nil {
-		log.Fatal(err)
-	}
-
 	for i := 0; i < n; i++ {
 		item := buf.Take()
 		word := item.Sentence.Parts[1]

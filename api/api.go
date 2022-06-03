@@ -25,17 +25,7 @@ type Items struct {
 
 func generateFlashcards(buf *buffer.ItemBuffer, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
-	if 3*len(buf.Channel) <= 2*cap(buf.Channel) {
-		go buf.Fetch()
-	}
-
-	n := cap(buf.Channel) / 3
-	var items []flashcards.Item
-	for i := 0; i < n; i++ {
-		items = append(items, buf.Take())
-	}
-	bytes, err := json.Marshal(Items{Items: items})
+	bytes, err := json.Marshal(Items{Items: buf.TakeMany()})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -81,9 +71,6 @@ func createHandler(db *sql.DB, config Config) func(http.ResponseWriter, *http.Re
 		path.Join(basedir.DataDir, "translations.db"),
 	)
 	buf := buffer.NewItemBuffer(ig, 30)
-	if err := buf.Fetch(); err != nil {
-		log.Fatal(err)
-	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		if config.AllowCORS {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
