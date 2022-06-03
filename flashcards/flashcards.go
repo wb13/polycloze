@@ -60,7 +60,7 @@ func getParts(tokens []string, word string) []string {
 	}
 
 	if len(indices) == 0 {
-		message := fmt.Sprintf("Python casefold different from golang ToLower: %s, %s", token, word)
+		message := fmt.Sprintf("Python casefold different from golang ToLower: %s, %v", word, tokens)
 		panic(message)
 	}
 
