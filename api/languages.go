@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"path"
@@ -45,6 +46,11 @@ func getLanguageInfo(path string) (Language, error) {
 		return lang, err
 	}
 	return lang, nil
+}
+
+// language: ISO 639-3 code
+func languageDatabasePath(language string) string {
+	return path.Join(basedir.DataDir, "languages", fmt.Sprintf("%v.db", language))
 }
 
 // Looks for supported languages in data directories (see basedir package).
