@@ -60,11 +60,7 @@ func (buf *ItemBuffer) Fetch(n int) error {
 
 func (buf *ItemBuffer) Refill() {
 	if len(buf.Channel) == 0 {
-		buf.Fetch(2)
-		// Quickly generate 2 flashcards.
-		// Can't be Fetch(1), because worst case scenario: it keeps fetching 1
-		// repeatedly.
-
+		buf.Fetch(1)
 		go buf.Fetch(20)
 		// 20 flashcards take about ~2 seconds to generate, the same amount of time
 		// it takes to answer a flashcard.
@@ -92,7 +88,7 @@ func (buf *ItemBuffer) Take() flashcards.Item {
 func (buf *ItemBuffer) TakeMany() []flashcards.Item {
 	n := cap(buf.Channel)/3
 	if len(buf.Channel) == 0 {
-		n = 2
+		n = 1
 	}
 	var items []flashcards.Item
 	for i := 0; i < n; i++ {
