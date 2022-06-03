@@ -63,31 +63,28 @@ func handleReviewUpdate(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *
 	w.Write(success())
 }
 
-// NOTE Assumes globalSession has been set using changeLanguages.
-func createHandler(allowCORS bool) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		buf := globalSession.ItemBuffer
-		if allowCORS {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type")
-		}
+// Middleware
+func cors(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type")
+		next.ServeHTTP(w, r)
+	})
+}
 
-		switch r.Method {
-		case "POST":
-			handleReviewUpdate(&buf.ItemGenerator, w, r)
-		case "GET":
-			generateFlashcards(buf, w, r)
-		}
+// NOTE Assumes globalSession has been set using changeLanguages.
+func createHandler(w http.ResponseWriter, r *http.Request) {
+	buf := globalSession.ItemBuffer
+	switch r.Method {
+	case "POST":
+		handleReviewUpdate(&buf.ItemGenerator, w, r)
+	case "GET":
+		generateFlashcards(buf, w, r)
 	}
 }
 
-func handleTest(db *sql.DB, allowCORS bool) func(http.ResponseWriter, *http.Request) {
+func handleTest(db *sql.DB) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if allowCORS {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type")
-		}
-
 		l1 := chi.URLParam(r, "l1")
 		l2 := chi.URLParam(r, "l2")
 		if err := changeLanguages(db, l1, l2); err != nil {
@@ -109,9 +106,12 @@ func Router(config Config) (chi.Router, error) {
 		return r, err
 	}
 
+	if config.AllowCORS {
+		r.Use(cors)
+	}
 	r.Use(middleware.Logger)
-	r.HandleFunc("/", createHandler(config.AllowCORS))
+	r.HandleFunc("/", createHandler)
 	r.HandleFunc("/options", languageOptions)
-	r.HandleFunc("/{l1}/{l2}", handleTest(db, config.AllowCORS))
+	r.HandleFunc("/{l1}/{l2}", handleTest(db))
 	return r, nil
 }
