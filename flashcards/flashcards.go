@@ -2,6 +2,7 @@ package flashcards
 
 import (
 	"database/sql"
+	"fmt"
 	"math/rand"
 	"strings"
 	"sync"
@@ -59,7 +60,8 @@ func getParts(tokens []string, word string) []string {
 	}
 
 	if len(indices) == 0 {
-		panic("something went wrong: Python casefold different from golang ToLower")
+		message := fmt.Sprintf("Python casefold different from golang ToLower: %s, %s", token, word)
+		panic(message)
 	}
 
 	index := indices[rand.Intn(len(indices))]
