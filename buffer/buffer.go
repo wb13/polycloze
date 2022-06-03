@@ -13,14 +13,14 @@ type ItemBuffer struct {
 	words   map[string]bool
 	mutex		sync.RWMutex // for words map
 
-	ig flashcards.ItemGenerator
+	ItemGenerator flashcards.ItemGenerator
 }
 
 func NewItemBuffer(ig flashcards.ItemGenerator, capacity int) ItemBuffer {
 	return ItemBuffer{
 		Channel: make(chan flashcards.Item, capacity),
 		words:   make(map[string]bool),
-		ig:      ig,
+		ItemGenerator:      ig,
 	}
 }
 
@@ -45,7 +45,7 @@ func (buf *ItemBuffer) Fetch(n int) error {
 		n = max
 	}
 
-	words, err := buf.ig.GenerateWordsWith(n, func(word string) bool {
+	words, err := buf.ItemGenerator.GenerateWordsWith(n, func(word string) bool {
 		return !buf.Contains(word)
 	})
 	if err != nil {
@@ -54,7 +54,7 @@ func (buf *ItemBuffer) Fetch(n int) error {
 	for _, word := range words {
 		buf.Add(word)
 	}
-	buf.ig.GenerateItemsIntoChannel(buf.Channel, words)
+	buf.ItemGenerator.GenerateItemsIntoChannel(buf.Channel, words)
 	return nil
 }
 
