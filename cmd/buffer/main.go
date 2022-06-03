@@ -5,15 +5,21 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"path"
 	"strconv"
 	"time"
 
+	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/buffer"
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/flashcards"
 )
 
 func main() {
+	if err := basedir.Init(); err != nil {
+		log.Fatal(err)
+	}
+
 	n := 10
 	var err error
 	if len(os.Args) >= 2 {
@@ -25,16 +31,17 @@ func main() {
 
 	rand.Seed(time.Now().UnixNano())
 
-	db, err := database.New("review.db")
+	reviewDb := path.Join(basedir.StateDir, "user", "spa.db")
+	db, err := database.New(reviewDb)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	ig := flashcards.NewItemGenerator(
 		db,
-		"../eng.db",
-		"../spa.db",
-		"../translations.db",
+		path.Join(basedir.DataDir, "languages", "eng.db"),
+		path.Join(basedir.DataDir, "languages", "spa.db"),
+		path.Join(basedir.DataDir, "translations.db"),
 	)
 	buf := buffer.NewItemBuffer(ig, 30)
 	if err := buf.Fetch(); err != nil {
