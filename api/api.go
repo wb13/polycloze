@@ -63,25 +63,20 @@ func handleReviewUpdate(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *
 	w.Write(success())
 }
 
-func createHandler(db *sql.DB, config Config) func(http.ResponseWriter, *http.Request) {
-	ig := flashcards.NewItemGenerator(
-		db,
-		languageDatabasePath(config.L1),
-		languageDatabasePath(config.L2),
-		path.Join(basedir.DataDir, "translations.db"),
-	)
-	buf := buffer.NewItemBuffer(ig, 30)
+// NOTE Assumes globalSession has been set using changeLanguages.
+func createHandler(allowCORS bool) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if config.AllowCORS {
+		buf := globalSession.ItemBuffer
+		if allowCORS {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type")
 		}
 
 		switch r.Method {
 		case "POST":
-			handleReviewUpdate(&ig, w, r)
+			handleReviewUpdate(&buf.ItemGenerator, w, r)
 		case "GET":
-			generateFlashcards(&buf, w, r)
+			generateFlashcards(buf, w, r)
 		}
 	}
 }
@@ -110,10 +105,13 @@ func Router(config Config) (chi.Router, error) {
 	if err != nil {
 		return r, err
 	}
+	if err := changeLanguages(db, "eng", "spa"); err != nil {
+		return r, err
+	}
 
 	r.Use(middleware.Logger)
-	r.HandleFunc("/", createHandler(db, config))
+	r.HandleFunc("/", createHandler(config.AllowCORS))
 	r.HandleFunc("/options", languageOptions)
-	r.HandleFunc("/{l1}/{l2}", handleTest(db, true))
+	r.HandleFunc("/{l1}/{l2}", handleTest(db, config.AllowCORS))
 	return r, nil
 }
