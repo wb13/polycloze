@@ -1,10 +1,22 @@
 import { src } from './config'
 import { Item } from './item'
+import { Language } from './select'
+
+async function fetchJson (url: string, options: any): Promise<any> {
+  const request = new Request(url, options)
+  const response = await fetch(request)
+  return await response.json()
+}
+
+export async function supportedLanguages (): Promise<Language[]> {
+  const url = new URL('/options', src)
+  const options = { mode: 'cors' }
+  const json = await fetchJson(url, options)
+  return json.languages
+}
 
 export async function fetchItems (): Promise<Item[]> {
-  const request = new Request(src, { mode: 'cors' })
-  const response = await fetch(request)
-  const json = await response.json()
+  const json = await fetchJson(src, { mode: 'cors' })
   return json.items
 }
 
@@ -23,8 +35,5 @@ export async function submitReview (word: string, correct: boolean): Promise<boo
     method: 'POST',
     mode: 'cors'
   }
-  const request = new Request(src, options)
-  const response = await fetch(request)
-  const json = await response.json()
-  return json.success
+  return await fetchJson(src, options).success
 }
