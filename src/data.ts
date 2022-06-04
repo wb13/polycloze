@@ -1,6 +1,32 @@
-import { currentCourse, src } from './config'
+// Contains functions for getting data from the server and from localStorage.
+
+import { src } from './config'
 import { Item } from './item'
 import { Language } from './select'
+
+// Local storage stuff
+
+export function getL1 (): string {
+  return localStorage.getItem('l1') || 'eng'
+}
+
+export function getL2 (): string {
+  return localStorage.getItem('l2') || 'spa'
+}
+
+export function setL1 (code: string) {
+  localStorage.setItem('l1', code)
+}
+
+export function setL2 (code: string) {
+  localStorage.setItem('l2', code)
+}
+
+function currentCourse (): string {
+  return `/${getL1()}/${getL2()}`
+}
+
+// Server stuff
 
 async function fetchJson (url: string, options: any): Promise<any> {
   const request = new Request(url, options)

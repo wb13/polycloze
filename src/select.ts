@@ -1,5 +1,5 @@
 import './select.css'
-import { getL1, getL2, setL1, setL2 } from './config'
+import { getL1, getL2, setL1, setL2 } from './data'
 
 type Language = {
   code: string
