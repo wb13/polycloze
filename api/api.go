@@ -1,20 +1,15 @@
 package api
 
 import (
-	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"path"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/buffer"
-	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/flashcards"
 	"github.com/lggruspe/polycloze/review_scheduler"
 )
@@ -73,42 +68,30 @@ func cors(next http.Handler) http.Handler {
 }
 
 // NOTE Assumes globalSession has been set using changeLanguages.
-func createHandler(db *sql.DB) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// Update session languages first.
-		l1 := chi.URLParam(r, "l1")
-		l2 := chi.URLParam(r, "l2")
-		if err := changeLanguages(db, l1, l2); err != nil {
-			log.Fatal(err)
-		}
+func createHandler(w http.ResponseWriter, r *http.Request) {
+	// Update session languages first.
+	l1 := chi.URLParam(r, "l1")
+	l2 := chi.URLParam(r, "l2")
+	if err := changeLanguages(l1, l2); err != nil {
+		log.Fatal(err)
+	}
 
-		buf := globalSession.ItemBuffer
-		switch r.Method {
-		case "POST":
-			handleReviewUpdate(&buf.ItemGenerator, w, r)
-		case "GET":
-			generateFlashcards(buf, w, r)
-		}
+	buf := globalSession.ItemBuffer
+	switch r.Method {
+	case "POST":
+		handleReviewUpdate(&buf.ItemGenerator, w, r)
+	case "GET":
+		generateFlashcards(buf, w, r)
 	}
 }
 
 func Router(config Config) (chi.Router, error) {
 	r := chi.NewRouter()
-
-	reviewDb := path.Join(basedir.StateDir, "user", fmt.Sprintf("%v.db", config.L2))
-	db, err := database.New(reviewDb)
-	if err != nil {
-		return r, err
-	}
-	if err := changeLanguages(db, config.L1, config.L2); err != nil {
-		return r, err
-	}
-
 	if config.AllowCORS {
 		r.Use(cors)
 	}
 	r.Use(middleware.Logger)
 	r.HandleFunc("/options", languageOptions)
-	r.HandleFunc("/{l1}/{l2}", createHandler(db))
+	r.HandleFunc("/{l1}/{l2}", createHandler)
 	return r, nil
 }
