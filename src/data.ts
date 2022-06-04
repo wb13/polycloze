@@ -14,12 +14,31 @@ export function getL2 (): string {
   return localStorage.getItem('l2') || 'spa'
 }
 
-export function setL1 (code: string) {
-  localStorage.setItem('l1', code)
+function swapL1L2 () {
+  const l1 = getL1()
+  const l2 = getL2()
+  localStorage.setItem('l1', l2)
+  localStorage.setItem('l2', l1)
 }
 
+// NOTE Swaps L1 and L2 if code = L2.
+// This is needed to make sure the language select form is consistent with
+// what's in localStorage.
+export function setL1 (code: string) {
+  if (code !== getL2()) {
+    localStorage.setItem('l1', code)
+  } else {
+    swapL1L2()
+  }
+}
+
+// NOTE Swaps L1 and L2 if code = L1.
 export function setL2 (code: string) {
-  localStorage.setItem('l2', code)
+  if (code !== getL1()) {
+    localStorage.setItem('l2', code)
+  } else {
+    swapL1L2()
+  }
 }
 
 function currentCourse (): string {
