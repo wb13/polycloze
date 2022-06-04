@@ -26,3 +26,7 @@ export function setL1 (code: string) {
 export function setL2 (code: string) {
   l2 = code
 }
+
+export function currentCourse (): string {
+  return `/${l1}/${l2}`
+}
