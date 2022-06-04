@@ -27,15 +27,13 @@ function createLanguageSelectInput (languages: Language[], selected: string = 's
 export function createLanguageSelectForm (languages: Language[]): HTMLFormElement {
   const form = document.createElement('form')
 
-  const rerender = () => form.replaceWith(createLanguageSelectForm(languages))
-
   const l1 = createLanguageSelectInput(languages, getL1(), () => {
     setL1(l1.value)
-    rerender()
+    location.reload()
   })
   const l2 = createLanguageSelectInput(languages.filter(l => l.code !== getL1()), getL2(), () => {
     setL2(l2.value)
-    rerender()
+    location.reload()
   })
 
   form.append('🌐 ', l1, ' > ', l2)
