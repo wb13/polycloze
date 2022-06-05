@@ -27,6 +27,9 @@ const digraphs = new Map([
   ["'O", 'Ó'],
   ["'U", 'Ú'],
 
+  ['~n', 'ñ'],
+  ['~N', 'Ñ'],
+
   [':a', 'ä'],
   [':e', 'ë'],
   [':i', 'ï'],
@@ -38,8 +41,7 @@ const digraphs = new Map([
   [':O', 'Ö'],
   [':U', 'Ü'],
 
-  ['~n', 'ñ'],
-  ['~N', 'Ñ']
+  ['ss', 'ß']
 ])
 
 function reverseString (text: string): string {
