@@ -7,6 +7,8 @@ import (
 	"strings"
 	"sync"
 
+	"golang.org/x/text/cases"
+
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/sentence_picker"
 	"github.com/lggruspe/polycloze/translator"
@@ -54,13 +56,14 @@ func NewItemGenerator(db *sql.DB, lang1Db, lang2Db, translationDb string) ItemGe
 func getParts(tokens []string, word string) []string {
 	var indices []int
 	for i, token := range tokens {
-		if strings.ToLower(token) == strings.ToLower(word) {
+		caser := cases.Fold()
+		if caser.String(token) == caser.String(word) {
 			indices = append(indices, i)
 		}
 	}
 
 	if len(indices) == 0 {
-		message := fmt.Sprintf("Python casefold different from golang ToLower: %s, %v", word, tokens)
+		message := fmt.Sprintf("Python casefold different from golang x case folder: %s, %v", word, tokens)
 		panic(message)
 	}
 
