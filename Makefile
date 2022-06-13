@@ -28,12 +28,17 @@ endef
 
 define add_pair
 .PHONY:	$(1)-$(2)
-$(1)-$(2):	build/translations/$(1)-$(2).csv
+$(1)-$(2):	build/translations/$(1)-$(2).db
 
 build/translations/$(1)-$(2).csv:	build/sentences/$(1).tsv build/sentences/$(2).tsv $$(latest_links)
 	if [[ "$(1)" < "$(2)" ]]; then \
 		mkdir -p build/translations; \
 		python -m scripts.mapper $$^ > $$@; \
+	fi
+
+build/translations/$(1)-$(2).db:	build/translations/$(1)-$(2).csv
+	if [[ "$(1)" < "$(2)" ]]; then \
+		scripts/make-pair-db.sh $$< $$@; \
 	fi
 endef
 
