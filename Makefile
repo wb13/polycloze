@@ -17,8 +17,8 @@ build/languages/$(1)/words.txt build/languages/$(1)/non-words.txt	&:	build/langu
 build/sqlite/$(1).db:	build/languages/$(1)/non-words.txt build/languages/$(1)/sentences.csv build/languages/$(1)/words.csv
 	mkdir -p build/sqlite
 	rm -f $$@
-	./scripts/check-migrations.sh migrations/
-	./scripts/migrate.sh $$@ migrations/
+	./scripts/check-migrations.sh migrations/languages/
+	./scripts/migrate.sh $$@ migrations/languages/
 	./scripts/importer.py $$@ -i $$< \
 		-s build/languages/$(1)/sentences.csv \
 		-w build/languages/$(1)/words.csv
