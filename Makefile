@@ -25,6 +25,17 @@ build/sqlite/$(1).db:	build/languages/$(1)/non-words.txt build/languages/$(1)/se
 	python -m scripts.metadata $$@
 endef
 
+define add_pair
+.PHONY:	$(1)-$(2)
+$(1)-$(2):	build/translations/$(1)-$(2).csv
+
+build/translations/$(1)-$(2).csv:	build/sentences/$(1).tsv build/sentences/$(2).tsv $$(latest_links)
+	if [[ "$(1)" < "$(2)" ]]; then \
+		mkdir -p build/translations; \
+		python -m scripts.mapper $$^ > $$@; \
+	fi
+endef
+
 .PHONY:	all
 all:	build/translations.db
 
@@ -40,6 +51,7 @@ build/translations.db:	build/translations.csv
 	./scripts/make-translation-db.sh $< $@
 
 $(foreach lang,$(languages),$(eval $(call add_language,$(lang))))
+$(foreach l1,$(languages),$(foreach l2,$(languages), $(eval $(call add_pair,$(l1),$(l2)))))
 
 .PHONY:	download
 download:
