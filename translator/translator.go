@@ -45,6 +45,24 @@ collate nocase
 	return sentence, nil
 }
 
+func isReversed(s *database.Session) (bool, error) {
+	var l1, l2 string
+
+	query := `select code from l1.info`
+	row := s.QueryRow(query)
+	if err := row.Scan(&l1); err != nil {
+		return false, err
+	}
+
+	query = `select code from l2.info`
+	row = s.QueryRow(query)
+	if err := row.Scan(&l2); err != nil {
+		return false, err
+	}
+
+	return l2 < l1, nil
+}
+
 // Returns tatoeba translations.
 func tatoebaTranslate(s *database.Session, text string) []string {
 	sentence, err := findSentence(s, text)
@@ -55,6 +73,13 @@ func tatoebaTranslate(s *database.Session, text string) []string {
 select text from l1.sentence where tatoeba_id in
 	(select l1 from translation where l2 = ?)
 `
+	if reversed, _ := isReversed(s); reversed {
+		query = `
+select text from l1.sentence where tatoeba_id in
+	(select l2 from translation where l1 = ?)
+`
+	}
+
 	rows, err := s.Query(query, sentence.TatoebaId)
 	if err != nil {
 		return nil
