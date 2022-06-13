@@ -53,10 +53,9 @@ func tatoebaTranslate(s *database.Session, text string) []string {
 	}
 	query := `
 select text from l1.sentence where tatoeba_id in
-	(select source from translation where target = ?
-		union select target from translation where source = ?)
+	(select l1 from translation where l2 = ?)
 `
-	rows, err := s.Query(query, sentence.TatoebaId, sentence.TatoebaId)
+	rows, err := s.Query(query, sentence.TatoebaId)
 	if err != nil {
 		return nil
 	}

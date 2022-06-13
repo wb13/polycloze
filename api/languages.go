@@ -53,6 +53,17 @@ func languageDatabasePath(language string) string {
 	return path.Join(basedir.DataDir, "languages", fmt.Sprintf("%v.db", language))
 }
 
+func translationDatabasePath(l1, l2 string) string {
+	if l1 == l2 {
+		panic("invalid language pair")
+	}
+	if l2 < l1 {
+		l1, l2 = l2, l1
+	}
+	pair := fmt.Sprintf("%s-%s.db", l1, l2)
+	return path.Join(basedir.DataDir, "translations", pair)
+}
+
 // Looks for supported languages in data directories (see basedir package).
 func SupportedLanguages() []Language {
 	var languages []Language

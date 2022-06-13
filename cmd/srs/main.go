@@ -21,6 +21,7 @@ func main() {
 	db, err := database.New("review.db")
 	assertNil(err)
 
+	// TODO
 	session, err := database.NewSession(db, "eng.db", "spa.db", "")
 	assertNil(err)
 

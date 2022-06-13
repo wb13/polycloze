@@ -24,6 +24,7 @@ func main() {
 	db, err := database.New(":memory:")
 	assertNil(err)
 
+	// TODO
 	session, err := database.NewSession(db, "../eng.db", "../spa.db", "../translations.db")
 	assertNil(err)
 

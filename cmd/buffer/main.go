@@ -41,7 +41,7 @@ func main() {
 		db,
 		path.Join(basedir.DataDir, "languages", "eng.db"),
 		path.Join(basedir.DataDir, "languages", "spa.db"),
-		path.Join(basedir.DataDir, "translations.db"),
+		path.Join(basedir.DataDir, "translations", "eng-spa.db"),
 	)
 	buf := buffer.NewItemBuffer(ig, 30)
 	for i := 0; i < n; i++ {

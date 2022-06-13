@@ -37,7 +37,7 @@ func changeLanguages(l1 string, l2 string) error {
 		db,
 		languageDatabasePath(l1),
 		languageDatabasePath(l2),
-		path.Join(basedir.DataDir, "translations.db"),
+		translationDatabasePath(l1, l2),
 	)
 	buf := buffer.NewItemBuffer(ig, 30)
 	globalSession.L1 = l1
