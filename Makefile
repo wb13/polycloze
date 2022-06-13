@@ -45,17 +45,6 @@ endef
 .PHONY:	all
 all:	$(pairs)
 
-build/ids.txt:	$(latest_sentences)
-	languages=$$(printf "${languages}" | tr '[:space:]' '|'); \
-	./scripts/sentences.sh $${languages} | ./scripts/format.sh id > $@
-
-build/translations.csv:	build/ids.txt build/subset build/symmetric
-	./build/subset $< < $(latest_links) | ./build/symmetric > $@
-
-build/translations.db:	build/translations.csv
-	rm -f $@
-	./scripts/make-translation-db.sh $< $@
-
 $(foreach lang,$(languages),$(eval $(call add_language,$(lang))))
 $(foreach l1,$(languages),$(foreach l2,$(languages), $(eval $(call add_pair,$(l1),$(l2)))))
 
@@ -63,9 +52,3 @@ $(foreach l1,$(languages),$(foreach l2,$(languages), $(eval $(call add_pair,$(l1
 download:
 	./scripts/download.sh
 	python ./scripts/partition.py ./build/sentences < $(latest_sentences)
-
-
-### nim stuff
-
-build/subset build/symmetric:	build/%:	src/%.nim
-	nim c -o:$@ --stackTrace:off --checks:off --opt:speed $<
