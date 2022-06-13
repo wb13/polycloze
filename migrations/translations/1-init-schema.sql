@@ -6,6 +6,8 @@ begin transaction;
 		l2	-- references <l2.db>.sentence.tatoeba_id
 	);
 
+	create index index_translation_l1 on translation (l1);
+
 	create index index_translation_l2 on translation (l2);
 
 	commit;
