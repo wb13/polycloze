@@ -1,4 +1,5 @@
 languages = $(shell python -m scripts.languages)
+pairs = $(foreach l1,$(languages), $(foreach l2,$(languages), $(l1)-$(l2)))
 latest_sentences = $(shell find build/tatoeba/sentences.*.csv | sort -r | head -n 1)
 latest_links = $(shell find build/tatoeba/links.*.csv | sort -r | head -n 1)
 
@@ -37,7 +38,7 @@ build/translations/$(1)-$(2).csv:	build/sentences/$(1).tsv build/sentences/$(2).
 endef
 
 .PHONY:	all
-all:	build/translations.db
+all:	$(pairs)
 
 build/ids.txt:	$(latest_sentences)
 	languages=$$(printf "${languages}" | tr '[:space:]' '|'); \
