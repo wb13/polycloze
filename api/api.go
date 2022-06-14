@@ -9,7 +9,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	"github.com/lggruspe/polycloze/buffer"
 	"github.com/lggruspe/polycloze/flashcards"
 	"github.com/lggruspe/polycloze/review_scheduler"
 )
@@ -18,9 +17,18 @@ type Items struct {
 	Items []flashcards.Item `json:"items"`
 }
 
-func generateFlashcards(buf *buffer.ItemBuffer, w http.ResponseWriter, r *http.Request) {
+func generateFlashcards(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	bytes, err := json.Marshal(Items{Items: buf.TakeMany()})
+
+	// TODO don't generate words that are already in client's buffer using GenerateWordsWith
+	// TODO allow client to specify number of words to generate
+	words, err := ig.GenerateWords(10)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	items := ig.GenerateItems(words)
+	bytes, err := json.Marshal(Items{Items: items})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -67,21 +75,20 @@ func cors(next http.Handler) http.Handler {
 	})
 }
 
-// NOTE Assumes globalSession has been set using changeLanguages.
 func createHandler(w http.ResponseWriter, r *http.Request) {
-	// Update session languages first.
 	l1 := chi.URLParam(r, "l1")
 	l2 := chi.URLParam(r, "l2")
-	if err := changeLanguages(l1, l2); err != nil {
+
+	ig, err := loadLanguagePair(l1, l2)
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	buf := globalSession.ItemBuffer
 	switch r.Method {
 	case "POST":
-		handleReviewUpdate(&buf.ItemGenerator, w, r)
+		handleReviewUpdate(ig, w, r)
 	case "GET":
-		generateFlashcards(buf, w, r)
+		generateFlashcards(ig, w, r)
 	}
 }
 

@@ -126,21 +126,8 @@ func (ig ItemGenerator) GenerateWordsWith(n int, pred func(word string) bool) ([
 
 // Creates a cloze item for each word.
 func (ig ItemGenerator) GenerateItems(words []string) []Item {
-	var wg sync.WaitGroup
 	ch := make(chan Item, len(words))
-
-	wg.Add(len(words))
-	for _, word := range words {
-		go func(ig *ItemGenerator, word string) {
-			defer wg.Done()
-			item, err := ig.GenerateItem(word)
-			if err == nil {
-				ch <- item
-			}
-		}(&ig, word)
-	}
-
-	wg.Wait()
+	ig.GenerateItemsIntoChannel(ch, words)
 	close(ch)
 
 	var items []Item
