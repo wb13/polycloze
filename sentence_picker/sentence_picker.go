@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/lggruspe/polycloze/database"
+	"github.com/lggruspe/polycloze/translator"
 )
 
 var ErrNoSentenceFound error = errors.New("no sentence found")
@@ -80,7 +81,7 @@ func FindSentence(s *database.Session, word string, maxDifficulty int, pred func
 		return nil, err
 	}
 
-	// Select sentence that contains word and isn't too "difficult"
+	// Select sentence that contains word and isn't too difficult
 	query := `
 select id from l2.contains join l2.sentence on (contains.sentence = id)
 where word = ? and frequency_class <= ? order by random()
@@ -107,4 +108,33 @@ where word = ? and frequency_class <= ? order by random()
 		}
 	}
 	return nil, ErrNoSentenceFound
+}
+
+func FindTranslatedSentence(s *database.Session, word string, maxDifficulty int) (*Sentence, error) {
+	id, err := findWordId(s, word)
+	if err != nil {
+		return nil, err
+	}
+
+	// Select translatable sentence that contains word and isn't too difficult
+
+	query := `
+select id from l2.contains join l2.sentence on (id = sentence)
+where tatoeba_id in (select l2 from translation) and word = ? and frequency_class <= ?
+order by random() limit 1
+`
+	if reversed, _ := translator.IsReversed(s); reversed {
+		query = `
+select id from l2.contains join l2.sentence on (id = sentence)
+where tatoeba_id in (select l1 from translation) and word = ? and frequency_class <= ?
+order by random() limit 1
+`
+	}
+	row := s.QueryRow(query, id, maxDifficulty)
+
+	var sentence int
+	if err := row.Scan(&sentence); err != nil {
+		return nil, err
+	}
+	return getSentence(s, sentence)
 }

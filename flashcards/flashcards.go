@@ -84,19 +84,15 @@ func (ig ItemGenerator) GenerateItem(word string) (Item, error) {
 	}
 	defer session.Close()
 
-	var translation string
-	sentence, err := sentence_picker.FindSentence(session, word, 8, func(sent *sentence_picker.Sentence) bool {
-		t, err := translator.Translate(session, sent.Text)
-		if err != nil {
-			return false
-		}
-		translation = t
-		return true
-	})
+	sentence, err := sentence_picker.FindTranslatedSentence(session, word, 8)
 	if err != nil {
 		return item, err
 	}
 
+	translation, err := translator.Translate(session, sentence.Text)
+	if err != nil {
+		panic("unexpected error")
+	}
 	return Item{
 		Translation: translation,
 		Sentence: Sentence{

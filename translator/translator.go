@@ -45,7 +45,7 @@ collate nocase
 	return sentence, nil
 }
 
-func isReversed(s *database.Session) (bool, error) {
+func IsReversed(s *database.Session) (bool, error) {
 	var l1, l2 string
 
 	query := `select code from l1.info`
@@ -58,6 +58,10 @@ func isReversed(s *database.Session) (bool, error) {
 	row = s.QueryRow(query)
 	if err := row.Scan(&l2); err != nil {
 		return false, err
+	}
+
+	if l1 == l2 {
+		panic("invalid language pair")
 	}
 
 	return l2 < l1, nil
@@ -73,7 +77,7 @@ func tatoebaTranslate(s *database.Session, text string) []string {
 select text from l1.sentence where tatoeba_id in
 	(select l1 from translation where l2 = ?)
 `
-	if reversed, _ := isReversed(s); reversed {
+	if reversed, _ := IsReversed(s); reversed {
 		query = `
 select text from l1.sentence where tatoeba_id in
 	(select l2 from translation where l1 = ?)
