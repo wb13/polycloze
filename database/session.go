@@ -49,10 +49,10 @@ func NewSession(db *sql.DB, l1db, l2db, translationDb string) (*Session, error) 
 		return nil, err
 	}
 
-	if err := attach(con, "l1", l1db); err != nil {
+	if err := attach(con, "l2", l2db); err != nil {
 		return nil, err
 	}
-	if err := attach(con, "l2", l2db); err != nil {
+	if err := attach(con, "l1", l1db); err != nil {
 		return nil, err
 	}
 	if err := attach(con, "translation", translationDb); err != nil {
