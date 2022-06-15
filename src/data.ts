@@ -51,7 +51,10 @@ function currentCourse (n: number = 10, x: string[] = []): string {
 
 // Server stuff
 
-async function fetchJson (url: string, options: any): Promise<any> {
+async function fetchJson (url: string | URL, options: any): Promise<any> {
+  if (url instanceof URL) {
+    url = url.href
+  }
   const request = new Request(url, options)
   const response = await fetch(request)
   return await response.json()
@@ -87,5 +90,6 @@ export async function submitReview (word: string, correct: boolean): Promise<boo
     method: 'POST',
     mode: 'cors'
   }
-  return await fetchJson(url, options).success
+  const json = await fetchJson(url, options)
+  return json.success
 }

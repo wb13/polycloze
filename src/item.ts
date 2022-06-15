@@ -2,7 +2,7 @@ import './item.css'
 import { createButton } from './button'
 import { Sentence, createSentence } from './sentence'
 
-type Item = {
+export type Item = {
   sentence: Sentence
   translation: string
 }
@@ -36,7 +36,7 @@ function createItemFooter (submitBtn: HTMLButtonElement): HTMLDivElement {
   return div
 }
 
-function createSubmitButton (onClick: (event: Event) => void): [HTMLButtonElement, () => void] {
+function createSubmitButton (onClick?: (event: Event) => void): [HTMLButtonElement, () => void] {
   const button = createButton('Submit', onClick)
   button.disabled = true
 

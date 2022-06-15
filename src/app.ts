@@ -19,7 +19,8 @@ export async function createApp (buffer: ItemBuffer): Promise<[HTMLDivElement, (
   div.appendChild(child)
 
   const ready = () => {
-    div.querySelector('.blank')?.focus()
+    const blank = div.querySelector('.blank') as HTMLInputElement
+    blank.focus()
     resize()
   }
   return [div, ready]

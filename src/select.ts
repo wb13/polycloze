@@ -1,7 +1,7 @@
 import './select.css'
 import { getL1, getL2, setL1, setL2 } from './data'
 
-type Language = {
+export type Language = {
   code: string
   native: string
   english: string

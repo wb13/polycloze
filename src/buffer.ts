@@ -15,7 +15,7 @@ function * oddParts (sentence: Sentence): IterableIterator<string> {
 export class ItemBuffer {
   buffer: Item[]
   keys: Set<string>
-  backgroundFetch: Promise<Item[]>
+  backgroundFetch: Promise<Item[]> | null
 
   cleanupTasks: Array<() => void>
 
@@ -61,7 +61,7 @@ export class ItemBuffer {
       return this.take()
     }
 
-    const item = this.buffer.shift()
+    const item = this.buffer.shift()!
     return [item, () => this.cleanupTasks.push(() => this.deleteParts(item))]
   }
 }

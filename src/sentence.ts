@@ -50,7 +50,7 @@ export function createSentence (sentence: Sentence, next: (ok: boolean) => void,
     check()
   }
 
-  const resizeFns = []
+  const resizeFns: Array<() => void> = []
 
   const div = document.createElement('div')
   div.classList.add('sentence')
