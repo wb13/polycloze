@@ -17,15 +17,18 @@ export class ItemBuffer {
   keys: Set<string>
   backgroundFetch: Promise<Item[]>
 
+  cleanupTasks: Array<() => void>
+
   constructor () {
     this.buffer = []
     this.keys = new Set()
     this.backgroundFetch = null
+
+    this.cleanupTasks = []
   }
 
   // Add item if it's not a duplicate.
   add (item: Item): boolean {
-    // TODO not perfect, because no case-folding
     const parts = Array.from(oddParts(item.sentence))
     if (parts.some(part => this.keys.has(part))) {
       return false
@@ -47,6 +50,8 @@ export class ItemBuffer {
       const items = await this.backgroundFetch
       this.backgroundFetch = null
       items.forEach(item => this.add(item))
+      this.cleanupTasks.forEach(task => task())
+      this.cleanupTasks = []
     }
 
     if (this.buffer.length < 20) {
@@ -57,6 +62,6 @@ export class ItemBuffer {
     }
 
     const item = this.buffer.shift()
-    return [item, () => this.deleteParts(item)]
+    return [item, () => this.cleanupTasks.push(() => this.deleteParts(item))]
   }
 }
