@@ -41,7 +41,8 @@ export class ItemBuffer {
     }
   }
 
-  async take (): Promise<Item> {
+  // Returns Promise Item and a function should be called after submitReview.
+  async take (): Promise<[Item, () => void]> {
     if (this.backgroundFetch != null) {
       const items = await this.backgroundFetch
       this.backgroundFetch = null
@@ -56,7 +57,6 @@ export class ItemBuffer {
     }
 
     const item = this.buffer.shift()
-    this.deleteParts(item)
-    return item
+    return [item, () => this.deleteParts(item)]
   }
 }
