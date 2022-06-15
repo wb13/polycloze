@@ -41,8 +41,8 @@ export function setL2 (code: string) {
   }
 }
 
-function currentCourse (): string {
-  return `/${getL1()}/${getL2()}`
+function currentCourse (n: number = 10): string {
+  return `/${getL1()}/${getL2()}?n=${n}`
 }
 
 // Server stuff
@@ -60,11 +60,30 @@ export async function supportedLanguages (): Promise<Language[]> {
   return json.languages
 }
 
-export async function fetchItems (): Promise<Item[]> {
-  const url = new URL(currentCourse(), src)
+export async function fetchItems (n: number = 10): Promise<Item[]> {
+  const url = new URL(currentCourse(n), src)
   const options = { mode: 'cors' }
   const json = await fetchJson(url, options)
   return json.items
+}
+
+// Used by bufferedFetchItems
+let _backgroundFetch = null
+const _buffer = []
+
+// Same as fetchItems, but buffered.
+export async function bufferedFetchItems (): Promise<Item[]> {
+  if (_backgroundFetch != null) {
+    _buffer.push(...await _backgroundFetch)
+    _backgroundFetch = null
+  }
+  if (_buffer.length < 20) {
+    _backgroundFetch = fetchItems(10)
+  }
+  if (_buffer.length === 0) {
+    return fetchItems(10)
+  }
+  return _buffer.splice(0, 10)
 }
 
 // Returns response status (success or not).

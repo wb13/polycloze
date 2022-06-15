@@ -1,10 +1,10 @@
 import './app.css'
-import { fetchItems } from './data'
+import { bufferedFetchItems } from './data'
 import { Item, createItem } from './item'
 
 export async function createApp (items: Item[]): Promise<[HTMLDivElement, () => void]> {
   if (items.length === 0) {
-    return createApp(await fetchItems())
+    return createApp(await bufferedFetchItems())
   }
 
   const div = document.createElement('div')
