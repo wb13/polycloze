@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -17,12 +18,20 @@ type Items struct {
 	Items []flashcards.Item `json:"items"`
 }
 
+func getN(r *http.Request) int {
+	n := 10
+	q := r.URL.Query()
+	if i, err := strconv.Atoi(q.Get("n")); err == nil && i > 0 {
+		n = i
+	}
+	return n
+}
+
 func generateFlashcards(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *http.Request) {
+	// TODO don't generate words that are already in client's buffer using GenerateWordsWith
 	w.Header().Set("Content-Type", "application/json")
 
-	// TODO don't generate words that are already in client's buffer using GenerateWordsWith
-	// TODO allow client to specify number of words to generate
-	words, err := ig.GenerateWords(10)
+	words, err := ig.GenerateWords(getN(r))
 	if err != nil {
 		log.Fatal(err)
 	}
