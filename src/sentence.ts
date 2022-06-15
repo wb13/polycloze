@@ -25,14 +25,15 @@ function isBeginning (part: string): boolean {
   }
 }
 
+// TODO document params
 // Note: takes two callback functions.
-// - next: TODO
+// - next: ?
 // - enable: Enables submit button (used by createBlank).
 //
 // In addition to a div element, also returns two functions to be called by the
 // caller.
-// - check: TODO
-// - resize: TODO
+// - check: ?
+// - resize: ?
 export function createSentence (sentence: Sentence, next: (ok: boolean) => void, enable: () => void): [HTMLDivElement, () => void, () => void] {
   let ok = true
   let remaining = Math.floor(sentence.parts.length / 2)

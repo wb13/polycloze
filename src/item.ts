@@ -8,7 +8,7 @@ export type Item = {
 }
 
 function createItemHeader (): HTMLDivElement {
-  // TODO
+  // TODO add content to header
   return document.createElement('div')
 }
 
