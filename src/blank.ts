@@ -11,10 +11,10 @@ function changeStatus (input: HTMLInputElement, status: Status) {
 // enable: Enable submit button
 // Also returns a resize function, which should be called when the element is
 // connected to the DOM.
-export function createBlank (answer: string, autocapitalize: string, done: (answer: string, correct: boolean) => void, enable: () => void): [HTMLInputElement, () => void] {
+export function createBlank (answer: string, autocapitalize: boolean, done: (answer: string, correct: boolean) => void, enable: () => void): [HTMLInputElement, () => void] {
   let correct = true
   const input = document.createElement('input')
-  input.autocapitalize = autocapitalize || 'none'
+  input.autocapitalize = autocapitalize ? 'on' : 'none'
   input.classList.add('blank')
 
   input.addEventListener('input', () => {
