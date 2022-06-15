@@ -50,7 +50,7 @@ export class ItemBuffer {
     }
 
     if (this.buffer.length < 20) {
-      this.backgroundFetch = fetchItems(10)
+      this.backgroundFetch = fetchItems(10, Array.from(this.keys))
     }
     if (this.buffer.length === 0) {
       return this.take()

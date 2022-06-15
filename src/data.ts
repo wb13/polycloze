@@ -41,8 +41,12 @@ export function setL2 (code: string) {
   }
 }
 
-function currentCourse (n: number = 10): string {
-  return `/${getL1()}/${getL2()}?n=${n}`
+function currentCourse (n: number = 10, x: string[] = []): string {
+  let url = `/${getL1()}/${getL2()}?n=${n}`
+  for (const word of x) {
+    url += `&x=${word}`
+  }
+  return url
 }
 
 // Server stuff
@@ -60,8 +64,8 @@ export async function supportedLanguages (): Promise<Language[]> {
   return json.languages
 }
 
-export async function fetchItems (n: number = 10): Promise<Item[]> {
-  const url = new URL(currentCourse(n), src)
+export async function fetchItems (n: number = 10, x: string[] = []): Promise<Item[]> {
+  const url = new URL(currentCourse(n, x), src)
   const options = { mode: 'cors' }
   const json = await fetchJson(url, options)
   return json.items
