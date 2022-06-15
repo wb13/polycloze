@@ -1,16 +1,12 @@
 import './app.css'
-import { bufferedFetchItems } from './data'
-import { Item, createItem } from './item'
+import { ItemBuffer } from './buffer'
+import { createItem } from './item'
 
-export async function createApp (items: Item[]): Promise<[HTMLDivElement, () => void]> {
-  if (items.length === 0) {
-    return createApp(await bufferedFetchItems())
-  }
-
+export async function createApp (buffer: ItemBuffer): Promise<[HTMLDivElement, () => void]> {
   const div = document.createElement('div')
-  const item = items.pop()
+  const item = await buffer.take()
   const next = () => {
-    createApp(items).then(([replacement, ready]) => {
+    createApp(buffer).then(([replacement, ready]) => {
       div.replaceWith(replacement)
       ready()
     })

@@ -3,7 +3,6 @@
 import { src } from './config'
 import { Item } from './item'
 import { Language } from './select'
-import { Sentence } from './sentence'
 
 // Local storage stuff
 
@@ -66,49 +65,6 @@ export async function fetchItems (n: number = 10): Promise<Item[]> {
   const options = { mode: 'cors' }
   const json = await fetchJson(url, options)
   return json.items
-}
-
-function * oddParts (sentence: Sentence): IterableIterator<string> {
-  for (const [i, part] of sentence.parts.entries()) {
-    if (i % 2 === 1) {
-      yield part
-    }
-  }
-}
-
-// Used by bufferedFetchItems
-let _backgroundFetch = null
-const _buffer = []
-const _present = new Set()
-
-// Same as fetchItems, but buffered.
-export async function bufferedFetchItems (): Promise<Item[]> {
-  if (_backgroundFetch != null) {
-    const items = await _backgroundFetch
-    _backgroundFetch = null
-    for (const item of items) {
-      const parts = Array.from(oddParts(item.sentence))
-      // TODO not perfect, because no case-folding
-      // also, it may fetch words that are already in memory (createApp)
-      if (parts.every(part => !_present.has(part))) {
-        _buffer.push(item)
-        parts.forEach(part => _present.add(part))
-      }
-    }
-  }
-  if (_buffer.length < 20) {
-    _backgroundFetch = fetchItems(10)
-  }
-  if (_buffer.length === 0) {
-    return fetchItems(10)
-  }
-  const items = _buffer.splice(0, 10)
-  for (const item of items) {
-    for (const part of oddParts(item.sentence)) {
-      _present.delete(part)
-    }
-  }
-  return items
 }
 
 // Returns response status (success or not).
