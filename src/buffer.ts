@@ -35,6 +35,12 @@ export class ItemBuffer {
     return true
   }
 
+  deleteParts (item: Item) {
+    for (const part of oddParts(item.sentence)) {
+      this.keys.delete(part)
+    }
+  }
+
   async take (): Promise<Item> {
     if (this.backgroundFetch != null) {
       const items = await this.backgroundFetch
@@ -50,9 +56,7 @@ export class ItemBuffer {
     }
 
     const item = this.buffer.shift()
-    for (const part of oddParts(item.sentence)) {
-      this.keys.delete(part)
-    }
+    this.deleteParts(item)
     return item
   }
 }
