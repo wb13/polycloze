@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"golang.org/x/text/cases"
 
 	"github.com/lggruspe/polycloze/flashcards"
 	"github.com/lggruspe/polycloze/review_scheduler"
@@ -27,11 +28,23 @@ func getN(r *http.Request) int {
 	return n
 }
 
+// Returns predicate to pass to item generator.
+func excludeWords(r *http.Request) func(string) bool {
+	exclude := make(map[string]bool)
+	caser := cases.Fold()
+	for _, word := range r.URL.Query()["x"] {
+		exclude[caser.String(word)] = true
+	}
+	return func(word string) bool {
+		_, found := exclude[caser.String(word)]
+		return !found
+	}
+}
+
 func generateFlashcards(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *http.Request) {
-	// TODO don't generate words that are already in client's buffer using GenerateWordsWith
 	w.Header().Set("Content-Type", "application/json")
 
-	words, err := ig.GenerateWords(getN(r))
+	words, err := ig.GenerateWordsWith(getN(r), excludeWords(r))
 	if err != nil {
 		log.Fatal(err)
 	}
