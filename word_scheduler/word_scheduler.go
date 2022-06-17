@@ -2,6 +2,8 @@
 package word_scheduler
 
 import (
+	"golang.org/x/text/cases"
+
 	"github.com/lggruspe/polycloze/database"
 	rs "github.com/lggruspe/polycloze/review_scheduler"
 	"github.com/lggruspe/polycloze/word_queue"
@@ -32,4 +34,9 @@ func GetWordsWith(s *database.Session, n int, pred func(word string) bool) ([]st
 		return nil, err
 	}
 	return append(reviews, words[:]...), nil
+}
+
+func UpdateWord(s *database.Session, word string, correct bool) error {
+	caser := cases.Fold()
+	return rs.UpdateReview(s, caser.String(word), correct)
 }

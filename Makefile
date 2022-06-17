@@ -17,6 +17,7 @@ test:
 	cd database; go test -tags sqlite_math_functions
 	cd review_scheduler; go test -tags sqlite_math_functions
 	cd translator; go test -tags sqlite_math_functions
+	cd word_scheduler; go test -tags sqlite_math_functions
 
 .PHONY:	format
 format:

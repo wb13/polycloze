@@ -7,7 +7,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/lggruspe/polycloze/database"
-	rs "github.com/lggruspe/polycloze/review_scheduler"
 	ws "github.com/lggruspe/polycloze/word_scheduler"
 )
 
@@ -33,6 +32,6 @@ func main() {
 	}
 
 	if len(words) > 0 {
-		assertNil(rs.UpdateReview(session, words[0], true))
+		assertNil(ws.UpdateWord(session, words[0], true))
 	}
 }

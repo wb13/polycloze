@@ -12,7 +12,7 @@ import (
 	"golang.org/x/text/cases"
 
 	"github.com/lggruspe/polycloze/flashcards"
-	"github.com/lggruspe/polycloze/review_scheduler"
+	"github.com/lggruspe/polycloze/word_scheduler"
 )
 
 type Items struct {
@@ -83,7 +83,7 @@ func handleReviewUpdate(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *
 	defer session.Close()
 
 	for _, review := range reviews.Reviews {
-		review_scheduler.UpdateReview(session, review.Word, review.Correct)
+		word_scheduler.UpdateWord(session, review.Word, review.Correct)
 	}
 	w.Write(success())
 }
