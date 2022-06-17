@@ -7,10 +7,9 @@ import (
 	"strings"
 	"sync"
 
-	"golang.org/x/text/cases"
-
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/sentence_picker"
+	"github.com/lggruspe/polycloze/text"
 	"github.com/lggruspe/polycloze/translator"
 	"github.com/lggruspe/polycloze/word_scheduler"
 )
@@ -56,8 +55,7 @@ func NewItemGenerator(db *sql.DB, lang1Db, lang2Db, translationDb string) ItemGe
 func getParts(tokens []string, word string) []string {
 	var indices []int
 	for i, token := range tokens {
-		caser := cases.Fold()
-		if caser.String(token) == caser.String(word) {
+		if text.Casefold(token) == text.Casefold(word) {
 			indices = append(indices, i)
 		}
 	}

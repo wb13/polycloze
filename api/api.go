@@ -9,9 +9,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"golang.org/x/text/cases"
 
 	"github.com/lggruspe/polycloze/flashcards"
+	"github.com/lggruspe/polycloze/text"
 	"github.com/lggruspe/polycloze/word_scheduler"
 )
 
@@ -31,12 +31,11 @@ func getN(r *http.Request) int {
 // Returns predicate to pass to item generator.
 func excludeWords(r *http.Request) func(string) bool {
 	exclude := make(map[string]bool)
-	caser := cases.Fold()
 	for _, word := range r.URL.Query()["x"] {
-		exclude[caser.String(word)] = true
+		exclude[text.Casefold(word)] = true
 	}
 	return func(word string) bool {
-		_, found := exclude[caser.String(word)]
+		_, found := exclude[text.Casefold(word)]
 		return !found
 	}
 }
