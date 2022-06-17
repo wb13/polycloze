@@ -21,12 +21,10 @@ func TestSchedule(t *testing.T) {
 	items, err := ScheduleReviewNow(s, 100)
 
 	if err != nil {
-		t.Log("expected err to be nil", err)
-		t.Fail()
+		t.Fatal("expected err to be nil", err)
 	}
 	if len(items) > 0 {
-		t.Log("expected items to be empty", items)
-		t.Fail()
+		t.Error("expected items to be empty", items)
 	}
 }
 
@@ -35,27 +33,22 @@ func TestUpdate(t *testing.T) {
 	s := reviewScheduler()
 
 	if err := UpdateReview(s, "foo", false); err != nil {
-		t.Log("expected err to be nil", err)
-		t.Fail()
+		t.Fatal("expected err to be nil", err)
 	}
 	if err := UpdateReview(s, "bar", true); err != nil {
-		t.Log("expected err to be nil", err)
-		t.Fail()
+		t.Fatal("expected err to be nil", err)
 	}
 
 	items, err := ScheduleReviewNow(s, 100)
 	if err != nil {
-		t.Log("expected err to be nil", err)
-		t.Fail()
+		t.Fatal("expected err to be nil", err)
 	}
 
 	if len(items) != 1 {
 		t.Log("expected different number of results", items)
-		t.Fail()
 	}
 	if items[0] != "foo" {
-		t.Log("expected scheduled items to contain \"foo\"", items[0])
-		t.Fail()
+		t.Error("expected scheduled items to contain \"foo\"", items[0])
 	}
 }
 
@@ -119,5 +112,27 @@ func TestUpdateSuccessfulReviewDoesNotDecreaseIntervalSize(t *testing.T) {
 			t.Log("expected sequence of successful reviews to have non-decreasing intervals", intervals)
 			t.Fail()
 		}
+	}
+}
+
+func  TestCase(t *testing.T) {
+	// Items shouldn't be case-folded.
+	s := reviewScheduler()
+
+	if err := UpdateReview(s, "Foo", false); err != nil {
+		t.Fatal("expected nil err", err)
+	}
+
+	items, err := ScheduleReviewNow(s, 100)
+	if err != nil {
+		t.Fatal("expected nil err", err)
+	}
+
+	if len(items) != 1 {
+		t.Fatal("expected different number of results", items)
+	}
+
+	if items[0] != "Foo" {
+		t.Error("expected \"Foo\"")
 	}
 }
