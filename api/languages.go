@@ -26,6 +26,8 @@ type Language struct {
 	Code    string `json:"code"` // ISO 639-3
 	Native  string `json:"native"`
 	English string `json:"english"`
+
+	LanguageStats *LanguageStats `json:"stats,omitempty"`
 }
 
 // Only used for encoding to json
@@ -55,6 +57,10 @@ func getLanguageInfo(path string) (Language, error) {
 	row := db.QueryRow(query)
 	if err := row.Scan(&lang.Code, &lang.Native, &lang.English); err != nil {
 		return lang, err
+	}
+
+	if stats, err := getLanguageStats(lang.Code); err == nil {
+		lang.LanguageStats = stats
 	}
 	return lang, nil
 }
