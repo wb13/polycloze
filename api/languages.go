@@ -33,10 +33,19 @@ type Languages struct {
 	Languages []Language `json:"languages"`
 }
 
+// NOTE Caller has to Close the db.
+func openDb(path string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", path)
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
 func getLanguageInfo(path string) (Language, error) {
 	var lang Language
 
-	db, err := sql.Open("sqlite3", path)
+	db, err := openDb(path)
 	if err != nil {
 		return lang, err
 	}
@@ -53,6 +62,12 @@ func getLanguageInfo(path string) (Language, error) {
 // language: ISO 639-3 code
 func languageDatabasePath(language string) string {
 	return path.Join(basedir.DataDir, "languages", fmt.Sprintf("%v.db", language))
+}
+
+// language: ISO 639-3 code
+// TODO also specify user name
+func reviewDatabasePath(language string) string {
+	return path.Join(basedir.StateDir, "user", fmt.Sprintf("%v.db", language))
 }
 
 func translationDatabasePath(l1, l2 string) string {
