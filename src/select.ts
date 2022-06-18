@@ -1,10 +1,19 @@
 import './select.css'
 import { getL1, getL2, setL1, setL2 } from './data'
 
+export type LanguageStats = {
+  seen?: number
+  total?: number
+  learned?: number
+  reviewed?: number
+};
+
 export type Language = {
   code: string
   native: string
   english: string
+
+  stats?: LanguageStats;
 }
 
 function createLanguageOption (language: Language, selected: boolean = false): HTMLOptionElement {
