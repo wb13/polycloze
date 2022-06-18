@@ -39,3 +39,29 @@ export function createLanguageSelectForm (languages: Language[]): HTMLFormElemen
   form.append('🌐 ', l1, ' > ', l2)
   return form
 }
+
+/* Drop-down language select */
+
+function createLanguageSelect (languages: Language[]): HTMLSelectElement {
+  const select = document.createElement('select')
+  select.id = 'language-select'
+
+  for (const language of languages) {
+    const option = createLanguageOption(language, language.code === getL1())
+    select.appendChild(option)
+  }
+  return select
+}
+
+function createLanguageLabel (): HTMLLabelElement {
+  const label = document.createElement('label')
+  label.htmlFor = 'language-select'
+  label.textContent = '🌐 '
+  return label
+}
+
+export function createLanguageForm (languages: Language[]): HTMLFormElement {
+  const form = document.createElement('form')
+  form.append(createLanguageLabel(), createLanguageSelect(languages))
+  return form
+}
