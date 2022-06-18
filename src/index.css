@@ -1,7 +1,102 @@
+@import './normalize.css';
+
 :root {
 	--monospace: _, monospace;	/* 2nd monospace makes monospace font larger */
+
+	--large: 2em;
+
+	--border-radius: 10px;
+
+	--primary-color-light: lightseagreen;
+	--primary-color: mediumseagreen;
+	--primary-color-dark: seagreen;
+	--primary-color-darker: darkseagreen;
 }
 
 body {
 	font-family: var(--monospace);
+}
+
+main {
+	max-width: 640px;
+	padding: 1em;
+	margin: 0 auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: 500;
+}
+
+
+/* For all navigation related styling */
+
+nav.primary {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+
+	padding: 0.75rem;
+
+	border: 1px solid lightgray;
+	box-shadow: 1px 1px 1px darkgray;
+}
+
+nav.primary > .logo {
+	font-size: var(--large);
+	font-weight: 500;
+}
+
+nav.footer {
+	display: flex;
+	justify-content: center;
+	column-gap: 1.5em;
+
+	margin: 1em;
+}
+
+
+/* Inline element styling */
+
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+button {
+	background-color: var(--primary-color);
+	color: white;
+
+	border: 1px solid var(--primary-color);
+	border-radius: var(--border-radius);
+	box-shadow: 1px 1px 1px darkgray;
+
+	padding: 0.5em 1.5em;
+}
+
+button:hover {
+	background-color: var(--primary-color-dark);
+	border-color: var(--primary-color-dark);
+}
+
+button:active {
+	box-shadow: none;
+}
+
+
+/* Classes */
+
+.card {
+	border: 1px solid lightgray;
+	box-shadow: 1px 1px 1px darkgray;
+	border-radius: var(--border-radius);
+
+	margin-top: 1em;
+	padding: 1em;
+	padding-top: 0;
+
+	background-color: whitesmoke;
 }
