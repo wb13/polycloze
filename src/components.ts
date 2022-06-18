@@ -26,6 +26,7 @@ export class LanguageSelect extends HTMLElement {
 export class Overview extends HTMLElement {
   async connectedCallback () {
     const languages = await supportedLanguages()
+    this.innerHTML = '<h1>Pick a language.</h1>'
     this.appendChild(createOverview(languages))
   }
 }
