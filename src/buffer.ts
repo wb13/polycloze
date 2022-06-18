@@ -54,9 +54,12 @@ export class ItemBuffer {
       this.cleanupTasks = []
     }
 
-    if (this.buffer.length < 20) {
+    if (this.buffer.length === 0) {
+      this.backgroundFetch = fetchItems(2, Array.from(this.keys))
+    } else if (this.buffer.length < 20) {
       this.backgroundFetch = fetchItems(10, Array.from(this.keys))
     }
+
     if (this.buffer.length === 0) {
       return this.take()
     }
