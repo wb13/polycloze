@@ -1,3 +1,7 @@
+:root {
+	--monospace: _, monospace;	/* 2nd monospace makes monospace font larger */
+}
+
 body {
-	font-family: monospace, monospace;	/* 2nd monospace makes monospace font larger */
+	font-family: var(--monospace);
 }
