@@ -37,7 +37,7 @@ function createItemFooter (submitBtn: HTMLButtonElement): HTMLDivElement {
 }
 
 function createSubmitButton (onClick?: (event: Event) => void): [HTMLButtonElement, () => void] {
-  const button = createButton('Submit', onClick)
+  const button = createButton('Check', onClick)
   button.disabled = true
 
   const enable = () => {

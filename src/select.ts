@@ -15,7 +15,7 @@ function createLanguageOption (language: Language, selected: boolean = false): H
   return option
 }
 
-// NOTE Doesn't update config.l1 or l2.
+// NOTE Doesn't update l1 and l2 in localStorage.
 // You have to do it using the onChange callback function.
 function createLanguageSelectInput (languages: Language[], selected: string = 'spa', onChange: () => void = () => {}): HTMLSelectElement {
   const select = document.createElement('select')
