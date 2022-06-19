@@ -115,7 +115,7 @@ func TestUpdateSuccessfulReviewDoesNotDecreaseIntervalSize(t *testing.T) {
 	}
 }
 
-func  TestCase(t *testing.T) {
+func TestCase(t *testing.T) {
 	// Items shouldn't be case-folded.
 	s := reviewScheduler()
 

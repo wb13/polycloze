@@ -21,9 +21,7 @@ test:
 
 .PHONY:	format
 format:
-	@for package in $(packages); do \
-		(cd $$package; gofmt -s -w .); \
-	done
+	gofmt -s -w .
 
 .PHONY:	run
 run:	build

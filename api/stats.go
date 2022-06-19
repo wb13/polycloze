@@ -50,7 +50,6 @@ and item in (select item from review where reviewed < current_date)
 }
 
 func getLanguageStats(lang string) (*LanguageStats, error) {
-
 	seen, err := countSeen(lang)
 	if err != nil {
 		return nil, err

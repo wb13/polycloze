@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	Home string
-	DataDir string
+	Home     string
+	DataDir  string
 	StateDir string
 )
 
