@@ -85,6 +85,16 @@ button:active {
 	box-shadow: none;
 }
 
+input {
+	background-color: lightgray;
+	border: none;
+	border-bottom: 2.5px solid gray;
+}
+
+input:focus {
+	outline: none;
+}
+
 
 /* Classes */
 
