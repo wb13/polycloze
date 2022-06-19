@@ -61,6 +61,11 @@ function createLanguageSelect (languages: Language[]): HTMLSelectElement {
     const option = createLanguageOption(language, language.code === getL1())
     select.appendChild(option)
   }
+
+  select.addEventListener('change', () => {
+    setL1(select.value)
+    location.reload()
+  })
   return select
 }
 
