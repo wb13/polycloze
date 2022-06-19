@@ -5,6 +5,7 @@
   "main": "dist/polycloze.js",
   "scripts": {
     "build": "esbuild --bundle src/index.ts --outdir=dist --minify --sourcemap",
+    "check": "npm run lint:fix && tsc",
     "dev": "esbuild --bundle src/index.ts --outdir=build --watch",
     "lint": "eslint src/*.ts",
     "lint:fix": "eslint src/*.ts --fix",
