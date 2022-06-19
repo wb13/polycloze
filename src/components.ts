@@ -3,14 +3,10 @@ import { ItemBuffer } from './buffer'
 import { createScoreCounter } from './counter'
 import { getL2, supportedLanguages } from './data'
 import { createOverview } from './overview'
-import { createLanguageForm, createLanguageSelectForm } from './select'
+import { createLanguageForm } from './select'
 
 export class ClozeApp extends HTMLElement {
   async connectedCallback () {
-    const languages = await supportedLanguages()
-    const form = createLanguageSelectForm(languages)
-    this.appendChild(form)
-
     const [app, ready] = await createApp(new ItemBuffer())
     this.appendChild(app)
     ready()
