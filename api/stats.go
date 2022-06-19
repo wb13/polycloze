@@ -1,11 +1,17 @@
 package api
 
 type LanguageStats struct {
+	// all-time
 	Seen  int `json:"seen"`
 	Total int `json:"total"`
 
+	// today
 	Learned  int `json:"learned"`
 	Reviewed int `json:"reviewed"`
+
+	// today
+	Correct   int `json:"correct"`
+	Incorrect int `json:"incorrect"`
 }
 
 func queryInt(path, query string) (int, error) {
@@ -49,6 +55,22 @@ and item in (select item from review where reviewed < current_date)
 	return queryInt(reviewDatabasePath(lang), query)
 }
 
+// Number of correct answers today.
+func countCorrectToday(lang string) (int, error) {
+	query := `
+select count(*) from review where reviewed >= current_date and correct = true
+`
+	return queryInt(reviewDatabasePath(lang), query)
+}
+
+// Number of incorrect answers today.
+func countIncorrectToday(lang string) (int, error) {
+	query := `
+select count(*) from review where reviewed >= current_date and correct = false
+`
+	return queryInt(reviewDatabasePath(lang), query)
+}
+
 func getLanguageStats(lang string) (*LanguageStats, error) {
 	seen, err := countSeen(lang)
 	if err != nil {
@@ -70,10 +92,22 @@ func getLanguageStats(lang string) (*LanguageStats, error) {
 		return nil, err
 	}
 
+	correct, err := countCorrectToday(lang)
+	if err != nil {
+		return nil, err
+	}
+
+	incorrect, err := countIncorrectToday(lang)
+	if err != nil {
+		return nil, err
+	}
+
 	return &LanguageStats{
-		Seen:     seen,
-		Total:    total,
-		Learned:  learned,
-		Reviewed: reviewed,
+		Seen:      seen,
+		Total:     total,
+		Learned:   learned,
+		Reviewed:  reviewed,
+		Correct:   correct,
+		Incorrect: incorrect,
 	}, nil
 }
