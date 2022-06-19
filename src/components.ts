@@ -1,6 +1,7 @@
 import { createApp } from './app'
 import { ItemBuffer } from './buffer'
-import { supportedLanguages } from './data'
+import { createScoreCounter } from './counter'
+import { getL2, supportedLanguages } from './data'
 import { createOverview } from './overview'
 import { createLanguageForm, createLanguageSelectForm } from './select'
 
@@ -31,6 +32,16 @@ export class Overview extends HTMLElement {
   }
 }
 
+export class ScoreCounter extends HTMLElement {
+  async connectedCallback () {
+    const languages = await supportedLanguages()
+    const { stats } = languages.find(l => l.code === getL2())!
+
+    this.appendChild(createScoreCounter(stats?.correct || 0, stats?.incorrect || 0))
+  }
+}
+
 customElements.define('cloze-app', ClozeApp)
 customElements.define('language-select', LanguageSelect)
 customElements.define('polycloze-overview', Overview)
+customElements.define('score-counter', ScoreCounter)

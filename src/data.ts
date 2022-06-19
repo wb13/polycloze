@@ -75,7 +75,13 @@ export async function fetchItems (n: number = 10, x: string[] = []): Promise<Ite
 }
 
 // Returns response status (success or not).
+// Also dispatches a custom event on window.
 export async function submitReview (word: string, correct: boolean): Promise<boolean> {
+  const event = new CustomEvent('polycloze-review', {
+    detail: { correct }
+  })
+  window.dispatchEvent(event)
+
   const url = new URL(currentCourse(), src)
   const options = {
     body: JSON.stringify({

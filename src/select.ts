@@ -6,6 +6,8 @@ export type LanguageStats = {
   total?: number
   learned?: number
   reviewed?: number
+  correct?: number
+  incorrect?: number
 };
 
 export type Language = {
