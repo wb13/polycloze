@@ -1,7 +1,7 @@
 /* Defines elements found in overview page (e.g. language stats). */
 
 import { createButton } from './button'
-import { getL1 } from './data'
+import { getL1, setL2 } from './data'
 import { Language, LanguageStats } from './select'
 
 function createButtonGroup (onClick: (event: Event) => void): HTMLParagraphElement {
@@ -85,7 +85,10 @@ function createLanguageOverview (language: Language): HTMLDivElement {
     row.appendChild(stats)
   }
 
-  const start = () => console.log('Start') // TODO start button onClick
+  const start = () => {
+    setL2(language.code)
+    window.location.pathname = '/'
+  }
   row.appendChild(createButtonGroup(start))
   return card
 }
