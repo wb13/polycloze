@@ -3,6 +3,7 @@
 :root {
 	--monospace: _, monospace;	/* 2nd monospace makes monospace font larger */
 
+	--medium: 1.5em;
 	--large: 2em;
 
 	--primary-color-light: lightseagreen;
@@ -103,6 +104,15 @@ button:active {
 	padding: 0 1em;
 
 	background-color: whitesmoke;
+}
+
+.medium {
+	font-size: var(--medium);
+}
+
+.large {
+	font-size: var(--large);
+	font-weight: 500;
 }
 
 .row {
