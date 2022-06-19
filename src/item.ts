@@ -7,11 +7,6 @@ export type Item = {
   translation: string
 }
 
-function createItemHeader (): HTMLDivElement {
-  // TODO add content to header
-  return document.createElement('div')
-}
-
 function createTranslation (translation: string): HTMLDivElement {
   const div = document.createElement('div')
   div.classList.add('translation')
@@ -49,7 +44,6 @@ function createSubmitButton (onClick?: (event: Event) => void): [HTMLButtonEleme
 export function createItem (item: Item, next: (ok: boolean) => void): [HTMLDivElement, () => void] {
   const [submitBtn, enable] = createSubmitButton()
 
-  const header = createItemHeader()
   const [body, check, resize] = createItemBody(item, next, enable)
   const footer = createItemFooter(submitBtn)
 
@@ -57,6 +51,6 @@ export function createItem (item: Item, next: (ok: boolean) => void): [HTMLDivEl
 
   const div = document.createElement('div')
   div.classList.add('item')
-  div.append(header, body, footer)
+  div.append(body, footer)
   return [div, resize]
 }
