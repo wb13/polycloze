@@ -85,6 +85,12 @@ button:active {
 	box-shadow: none;
 }
 
+button:disabled {
+	background-color: var(--primary-color-darker);
+	border-color: var(--primary-color-darker);
+	box-shadow: 1px 1px 1px gray;
+}
+
 input {
 	background-color: lightgray;
 	border: none;
