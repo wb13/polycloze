@@ -66,10 +66,44 @@ export function createSentence (sentence: Sentence, next: (ok: boolean) => void,
     }
   }
 
+  fixPunctuationWrap(div)
+
   const resizeAll = () => {
     for (const fn of resizeFns) {
       fn()
     }
   }
   return [div, check, resizeAll]
+}
+
+// Prevents punctuation symbols from starting a new line.
+// Assumes all child nodes are elements.
+function fixPunctuationWrap (div: HTMLDivElement) {
+  const inputs = div.querySelectorAll('.blank')
+  for (let i = 0; i < inputs.length; i++) {
+    const input = inputs[i]
+    const span = input.nextElementSibling
+
+    if (span == null) {
+      continue
+    }
+
+    // NOTE Does not split by other whitespace characters
+    const words = span!.textContent?.split(' ') || []
+    if (words.length > 0 && words[0] !== '') {
+      const wrapper = document.createElement('span')
+      wrapper.style.whiteSpace = 'nowrap'
+      input.replaceWith(wrapper)
+      wrapper.appendChild(input)
+
+      const after = document.createElement('span')
+      after.textContent = words[0]
+      wrapper.appendChild(after)
+
+      words.shift()
+
+      const tail = words.join(' ')
+      span.textContent = tail.length > 0 ? ' ' + tail : ''
+    }
+  }
 }
