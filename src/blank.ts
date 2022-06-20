@@ -1,6 +1,8 @@
 import './blank.css'
+import { getFont, getWidth } from './font'
+import { substituteDigraphs } from './text'
+
 import { distance } from 'fastest-levenshtein'
-import { getFont, getWidth, substituteDigraphs } from './text'
 
 type Status = 'correct' | 'incorrect' | 'almost';
 
