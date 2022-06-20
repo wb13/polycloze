@@ -1,6 +1,6 @@
 import './blank.css'
+import { substituteDigraphs } from './digraph'
 import { getFont, getWidth } from './font'
-import { substituteDigraphs } from './text'
 
 import { distance } from 'fastest-levenshtein'
 
