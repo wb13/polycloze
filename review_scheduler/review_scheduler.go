@@ -25,7 +25,9 @@ func New(dbPath string) (*sql.DB, error) {
 // Returns items due for review, no more than count.
 // Pass a negative count if you want to get all due items.
 func ScheduleReview(s *database.Session, due time.Time, count int) ([]string, error) {
-	query := `SELECT item FROM most_recent_review WHERE due < ? LIMIT ?`
+	query := `
+select item from most_recent_review where due < ? order by due limit ?
+`
 	rows, err := s.Query(query, due.UTC(), count)
 	if err != nil {
 		return nil, err
@@ -51,7 +53,7 @@ func ScheduleReviewNow(s *database.Session, count int) ([]string, error) {
 // Same as ScheduleReviewNowWith, but takes a predicate argument.
 // Only items that satisfy the predicate are included in the result.
 func ScheduleReviewNowWith(s *database.Session, count int, pred func(item string) bool) ([]string, error) {
-	query := `select item from most_recent_review where due < ?`
+	query := `select item from most_recent_review where due < ? order by due`
 	rows, err := s.Query(query, time.Now().UTC())
 	if err != nil {
 		return nil, err
