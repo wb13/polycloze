@@ -36,7 +36,7 @@ func advancementRate(tx *sql.Tx, level int) (float64, error) {
 			fromLevel[item] = false
 		} else if lv == level {
 			fromLevel[item] = true
-		} else if lv > level+1 {
+		} else if lv > level {
 			increased++
 			fromLevel[item] = false
 		}
