@@ -31,7 +31,7 @@ func advancementRate(tx *sql.Tx, level int) (float64, error) {
 			return math.NaN(), err
 		}
 
-		if lv < level && fromLevel[item] {
+		if (lv == 0 || lv < level) && fromLevel[item] {
 			decreased++
 			fromLevel[item] = false
 		} else if lv == level {
