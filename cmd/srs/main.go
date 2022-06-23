@@ -6,6 +6,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 
+	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
 	ws "github.com/lggruspe/polycloze/word_scheduler"
 )
@@ -17,11 +18,17 @@ func assertNil(value any) {
 }
 
 func main() {
-	db, err := database.New("review.db")
+	assertNil(basedir.Init())
+
+	db, err := database.New(basedir.Language("spa"))
 	assertNil(err)
 
-	// TODO
-	session, err := database.NewSession(db, "eng.db", "spa.db", "")
+	session, err := database.NewSession(
+		db,
+		basedir.Language("eng"),
+		basedir.Language("spa"),
+		"",
+	)
 	assertNil(err)
 
 	words, err := ws.GetWords(session, 10)

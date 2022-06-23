@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/translator"
 )
@@ -20,6 +21,10 @@ func readInput() string {
 }
 
 func main() {
+	if err := basedir.Init(); err != nil {
+		log.Fatal(err)
+	}
+
 	rand.Seed(time.Now().UnixNano())
 
 	db, err := database.New(":memory:")
@@ -27,8 +32,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// TODO
-	session, err := database.NewSession(db, "../eng.db", "../spa.db", "../translations.db")
+	session, err := database.NewSession(
+		db,
+		basedir.Language("eng"),
+		basedir.Language("spa"),
+		basedir.Translation("eng", "spa"),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -5,7 +5,6 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"path"
 	"strconv"
 	"time"
 
@@ -30,16 +29,15 @@ func main() {
 
 	rand.Seed(time.Now().UnixNano())
 
-	reviewDb := path.Join(basedir.StateDir, "user", "spa.db")
-	db, err := database.New(reviewDb)
+	db, err := database.New(basedir.Review("spa"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	ig := flashcards.NewItemGenerator(
 		db,
-		path.Join(basedir.DataDir, "languages", "eng.db"),
-		path.Join(basedir.DataDir, "languages", "spa.db"),
-		path.Join(basedir.DataDir, "translations", "eng-spa.db"),
+		basedir.Language("eng"),
+		basedir.Language("spa"),
+		basedir.Translation("eng", "spa"),
 	)
 
 	start := time.Now()

@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/sentence_picker"
 )
@@ -21,11 +22,17 @@ func main() {
 	}
 	word := os.Args[1]
 
+	assertNil(basedir.Init())
+
 	db, err := database.New(":memory:")
 	assertNil(err)
 
-	// TODO
-	session, err := database.NewSession(db, "../eng.db", "../spa.db", "../translations.db")
+	session, err := database.NewSession(
+		db,
+		basedir.Language("eng"),
+		basedir.Language("spa"),
+		basedir.Translation("eng", "spa"),
+	)
 	assertNil(err)
 
 	sentence, err := sentence_picker.PickSentence(session, word, 8)
