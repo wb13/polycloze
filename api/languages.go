@@ -65,28 +65,6 @@ func getLanguageInfo(path string) (Language, error) {
 	return lang, nil
 }
 
-// language: ISO 639-3 code
-func languageDatabasePath(language string) string {
-	return path.Join(basedir.DataDir, "languages", fmt.Sprintf("%v.db", language))
-}
-
-// language: ISO 639-3 code
-// TODO also specify user name
-func reviewDatabasePath(language string) string {
-	return path.Join(basedir.StateDir, "user", fmt.Sprintf("%v.db", language))
-}
-
-func translationDatabasePath(l1, l2 string) string {
-	if l1 == l2 {
-		panic("invalid language pair")
-	}
-	if l2 < l1 {
-		l1, l2 = l2, l1
-	}
-	pair := fmt.Sprintf("%s-%s.db", l1, l2)
-	return path.Join(basedir.DataDir, "translations", pair)
-}
-
 // Looks for supported languages in data directories (see basedir package).
 func SupportedLanguages() []Language {
 	var languages []Language
@@ -123,9 +101,9 @@ func loadLanguagePair(l1, l2 string) (*flashcards.ItemGenerator, error) {
 
 	ig := flashcards.NewItemGenerator(
 		db,
-		languageDatabasePath(l1),
-		languageDatabasePath(l2),
-		translationDatabasePath(l1, l2),
+		basedir.Language(l1),
+		basedir.Language(l2),
+		basedir.Translation(l1, l2),
 	)
 	return &ig, nil
 }
