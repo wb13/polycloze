@@ -20,7 +20,7 @@ func advancementRate(tx *sql.Tx, level int) (float64, error) {
 
 	increased := 0
 	decreased := 0
-	// NOTE items that stayed at the same level after review (because the student
+	// Items that stayed at the same level after review (because the student
 	// crammed) are not counted
 
 	fromLevel := make(map[string]bool)
@@ -31,13 +31,23 @@ func advancementRate(tx *sql.Tx, level int) (float64, error) {
 			return math.NaN(), err
 		}
 
-		if (lv == 0 || lv < level) && fromLevel[item] {
-			decreased++
-			fromLevel[item] = false
-		} else if lv == level {
+		if level > 0 && fromLevel[item] {
+			if lv < level {
+				decreased++
+			} else if lv > level {
+				increased++
+			}
+		} else if val, ok := fromLevel[item]; level == 0 && (val || !ok) {
+			if lv <= 0 {
+				decreased++
+			} else if lv > level {
+				increased++
+			}
+		}
+
+		if lv == level {
 			fromLevel[item] = true
-		} else if lv > level {
-			increased++
+		} else {
 			fromLevel[item] = false
 		}
 	}
