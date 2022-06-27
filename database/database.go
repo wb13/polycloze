@@ -57,17 +57,6 @@ func Upgrade(db *sql.DB) error {
 	return nil
 }
 
-// Upgrades database (specified by path) to the latest version.
-func UpgradeFile(dbPath string) error {
-	db, err := sql.Open("sqlite3", dbPath)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-
-	return Upgrade(db)
-}
-
 // Attaches database to the connection.
 func attach(con *sql.Conn, name, path string) error {
 	query := `attach database ? as ?`
