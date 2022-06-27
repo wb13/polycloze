@@ -3,7 +3,6 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"path"
@@ -12,7 +11,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/flashcards"
 )
 
@@ -92,18 +90,11 @@ func languageOptions(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
-func loadLanguagePair(l1, l2 string) (*flashcards.ItemGenerator, error) {
-	reviewDb := path.Join(basedir.StateDir, "user", fmt.Sprintf("%v.db", l2))
-	db, err := database.New(reviewDb)
-	if err != nil {
-		return nil, err
-	}
-
-	ig := flashcards.NewItemGenerator(
+func loadLanguagePair(db *sql.DB, l1, l2 string) flashcards.ItemGenerator {
+	return flashcards.NewItemGenerator(
 		db,
 		basedir.Language(l1),
 		basedir.Language(l2),
 		basedir.Translation(l1, l2),
 	)
-	return &ig, nil
 }

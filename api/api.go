@@ -10,6 +10,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
+	"github.com/lggruspe/polycloze/basedir"
+	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/flashcards"
 	"github.com/lggruspe/polycloze/text"
 	"github.com/lggruspe/polycloze/word_scheduler"
@@ -100,16 +102,19 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	l1 := chi.URLParam(r, "l1")
 	l2 := chi.URLParam(r, "l2")
 
-	ig, err := loadLanguagePair(l1, l2)
+	db, err := database.New(basedir.Review(l2))
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close()
+
+	ig := loadLanguagePair(db, l1, l2)
 
 	switch r.Method {
 	case "POST":
-		handleReviewUpdate(ig, w, r)
+		handleReviewUpdate(&ig, w, r)
 	case "GET":
-		generateFlashcards(ig, w, r)
+		generateFlashcards(&ig, w, r)
 	}
 }
 
