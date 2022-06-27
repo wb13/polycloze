@@ -84,7 +84,10 @@ func handleReviewUpdate(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *
 	defer session.Close()
 
 	for _, review := range reviews.Reviews {
-		word_scheduler.UpdateWord(session, review.Word, review.Correct)
+		err := word_scheduler.UpdateWord(session, review.Word, review.Correct)
+		if err != nil {
+			log.Fatalf("failed to update word: '%v'\n\t%v\n", review.Word, err.Error())
+		}
 	}
 	w.Write(success())
 }
