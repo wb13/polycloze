@@ -93,7 +93,9 @@ func autoTune(tx *sql.Tx) error {
 		return err
 	}
 
-	for i := 0; i < max+1; i++ {
+	// Don't update coefficients for 0, because next interval is always 1 day
+	// regardless of advancementRate.
+	for i := 1; i < max+1; i++ {
 		// Target rate is between 90 (to reduce congestion) and 95% (could be higher,
 		// but it would be hard to tell if the spacing between levels is too short).
 
