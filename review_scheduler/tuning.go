@@ -106,7 +106,7 @@ func autoTune(tx *sql.Tx) error {
 		if rate < 0.9 {
 			err = setCoefficient(tx, i, (1+coefficient)/2)
 		} else if rate > 0.95 {
-			err = setCoefficient(tx, i, coefficient*2)
+			err = setCoefficient(tx, i, coefficient+1)
 		}
 		if err != nil {
 			return err
