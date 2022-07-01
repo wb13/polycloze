@@ -13,6 +13,7 @@ import (
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/flashcards"
+	"github.com/lggruspe/polycloze/logger"
 	"github.com/lggruspe/polycloze/text"
 	"github.com/lggruspe/polycloze/word_scheduler"
 )
@@ -62,7 +63,7 @@ func success() []byte {
 	return []byte("{\"success\": true}")
 }
 
-func handleReviewUpdate(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *http.Request) {
+func handleReviewUpdate(ig *flashcards.ItemGenerator, l2 string, w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		panic("expected json body in POST request")
 	}
@@ -88,6 +89,7 @@ func handleReviewUpdate(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *
 		if err != nil {
 			log.Fatalf("failed to update word: '%v'\n\t%v\n", review.Word, err.Error())
 		}
+		logger.LogReview(l2, review.Correct, review.Word)
 	}
 	w.Write(success())
 }
@@ -115,7 +117,7 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "POST":
-		handleReviewUpdate(&ig, w, r)
+		handleReviewUpdate(&ig, l2, w, r)
 	case "GET":
 		generateFlashcards(&ig, w, r)
 	}
