@@ -49,9 +49,14 @@ func initDataDir() error {
 
 func initStateDir() error {
 	StateDir = path.Join(xdgStateHome(), "polycloze")
-	user := path.Join(StateDir, "user")
+	reviews := path.Join(StateDir, "reviews", "user")
+	logs := path.Join(StateDir, "logs", "user")
 
-	if err := os.MkdirAll(user, 0700); err != nil {
+	if err := os.MkdirAll(reviews, 0700); err != nil {
+		StateDir = ""
+		return err
+	}
+	if err := os.MkdirAll(logs, 0700); err != nil {
 		StateDir = ""
 		return err
 	}

@@ -13,9 +13,16 @@ func Language(language string) string {
 
 // Returns path to review database.
 // language: ISO 639-3 code
-// TODO also specify username
+// TODO user param
 func Review(language string) string {
-	return path.Join(StateDir, "user", fmt.Sprintf("%v.db", language))
+	return path.Join(StateDir, "reviews", "user", fmt.Sprintf("%v.db", language))
+}
+
+// Returns path to log file.
+// language: ISO 639-3 code
+// TODO user param
+func Log(language string) string {
+	return path.Join(StateDir, "logs", "user", fmt.Sprintf("%v.log", language))
 }
 
 // Returns path to translation database.
