@@ -69,23 +69,6 @@ func maxLevel(tx *sql.Tx) (int, error) {
 	return level, nil
 }
 
-// Gets level coefficient.
-// Returns the default value (2.0) on error.
-func getCoefficient(tx *sql.Tx, level int) float64 {
-	query := `SELECT coefficient FROM updated_coefficient WHERE level = ?`
-	row := tx.QueryRow(query, level)
-	coefficient := 2.0
-	row.Scan(&coefficient)
-	return coefficient
-}
-
-// Sets new coefficient for level.
-func setCoefficient(tx *sql.Tx, level int, coefficient float64) error {
-	query := `INSERT INTO coefficient (level, coefficient) VALUES (?, ?)`
-	_, err := tx.Exec(query, level, coefficient)
-	return err
-}
-
 // Auto-tunes update coefficients.
 func autoTune(tx *sql.Tx) error {
 	max, err := maxLevel(tx)
@@ -99,20 +82,11 @@ func autoTune(tx *sql.Tx) error {
 		// Target rate is between 90 (to reduce congestion) and 95% (could be higher,
 		// but it would be hard to tell if the spacing between levels is too short).
 
-		coefficient := getCoefficient(tx, i)
-		rate, err := advancementRate(tx, i)
+		_, err := advancementRate(tx, i)
 		if err != nil {
 			return err
 		}
-
-		if rate < 0.9 {
-			err = setCoefficient(tx, i, (1+coefficient)/2)
-		} else if rate > 0.95 {
-			err = setCoefficient(tx, i, coefficient+1)
-		}
-		if err != nil {
-			return err
-		}
+		// TODO auto-tune based on advancement rates
 	}
 	return nil
 }

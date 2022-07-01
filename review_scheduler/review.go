@@ -22,14 +22,6 @@ func (r Review) Level() int {
 	return int(math.Floor(math.Log2(2*r.Interval.Hours()/24 + 1)))
 }
 
-// Returns computed level of review item.
-func getLevel(r *Review) int {
-	if r == nil {
-		return 0
-	}
-	return r.Level()
-}
-
 // Calculates interval for next review.
 func calculateInterval(review *Review, correct bool, coefficient float64) time.Duration {
 	if !correct {
