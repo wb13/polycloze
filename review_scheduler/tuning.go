@@ -82,13 +82,64 @@ func previousInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error)
 	return prev, nil
 }
 
+// Check if interval already exists in db.
+func alreadyExists(tx *sql.Tx, interval time.Duration) (bool, error) {
+	query := `select * from interval where interval = ?`
+	rows, err := tx.Query(query, interval)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		return true, nil
+	}
+	return false, nil
+}
+
+// Assumes replacement isn't already in the interval table.
+func replaceInterval(tx *sql.Tx, interval, replacement time.Duration) error {
+	query := `
+update interval set interval = ?, correct = 0, incorrect = 0
+where interval = ?
+`
+	if _, err := tx.Exec(query, replacement, interval); err != nil {
+		return err
+	}
+
+	query = `update review set interval = ? where interval = ?`
+	_, err := tx.Exec(query, replacement, interval)
+	return err
+}
+
+func replaceWithExistingInterval(tx *sql.Tx, interval, replacement time.Duration) error {
+	query := `delete from interval where interval = ?`
+	if _, err := tx.Exec(query, interval); err != nil {
+		return err
+	}
+
+	query = `update review set interval = ? where interval = ?`
+	_, err := tx.Exec(query, replacement, interval)
+	return err
+}
+
 func decreaseInterval(tx *sql.Tx, interval time.Duration) error {
 	if interval <= 1 {
 		return nil
 	}
 
-	// TODO don't forget to update existing values in review
-	return nil
+	prev, err := previousInterval(tx, interval)
+	if err != nil {
+		return err
+	}
+	mid := (prev + interval) / 2
+
+	if exists, err := alreadyExists(tx, mid); err != nil {
+		return err
+	} else if exists {
+		return replaceWithExistingInterval(tx, interval, mid)
+	}
+	return replaceInterval(tx, interval, mid)
 }
 
 // Returns the largest interval in the database.
@@ -138,6 +189,16 @@ func nextInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error) {
 }
 
 func increaseInterval(tx *sql.Tx, interval time.Duration) error {
-	// TODO don't forget to update existing values in review
-	return nil
+	next, err := nextInterval(tx, interval)
+	if err != nil {
+		return err
+	}
+	mid := (interval + next) / 2
+
+	if exists, err := alreadyExists(tx, mid); err != nil {
+		return err
+	} else if exists {
+		return replaceWithExistingInterval(tx, interval, mid)
+	}
+	return replaceInterval(tx, interval, mid)
 }
