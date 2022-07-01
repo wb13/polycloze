@@ -37,6 +37,20 @@ func calculateInterval(tx *sql.Tx, review *Review, correct bool) (time.Duration,
 	return nextInterval(tx, interval)
 }
 
+func updateIntervalStats(tx *sql.Tx, review *Review, correct bool) error {
+	var interval time.Duration = 0
+	if review != nil {
+		interval = review.Interval
+	}
+
+	query := `update interval set correct = correct + 1 where interval = ?`
+	if !correct {
+		query = `update interval set incorrect = incorrect + 1 where interval = ?`
+	}
+	_, err := tx.Exec(query, interval)
+	return err
+}
+
 // Computes next review schedule.
 // If review is nil, creates Review with default values for initial review.
 func nextReview(tx *sql.Tx, review *Review, correct bool) (Review, error) {

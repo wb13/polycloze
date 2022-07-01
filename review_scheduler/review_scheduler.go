@@ -120,16 +120,19 @@ func UpdateReview(s *database.Session, item string, correct bool) error {
 		return err
 	}
 
-	query := `
-insert into review (item, interval, due) values (?, ?, ?)
-	on conflict (item) do update set interval=excluded.interval, due=excluded.due
-`
+	if err := updateIntervalStats(tx, review, correct); err != nil {
+		return err
+	}
 
 	next, err := nextReview(tx, review, correct)
 	if err != nil {
 		return err
 	}
 
+	query := `
+insert into review (item, interval, due) values (?, ?, ?)
+	on conflict (item) do update set interval=excluded.interval, due=excluded.due
+`
 	_, err = tx.Exec(query, item, next.Interval, next.Due)
 	if err != nil {
 		return err
