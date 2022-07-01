@@ -9,8 +9,8 @@ import (
 
 // Initializes interval table.
 func initTuner(tx *sql.Tx) error {
-	query := `insert or ignore into interval (interval) values (0), (1)`
-	_, err := tx.Exec(query)
+	query := `insert or ignore into interval (interval) values (0), (?)`
+	_, err := tx.Exec(query, day)
 	return err
 }
 
