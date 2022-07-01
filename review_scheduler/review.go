@@ -2,6 +2,7 @@
 package review_scheduler
 
 import (
+	"database/sql"
 	"time"
 )
 
@@ -18,34 +19,35 @@ func (r Review) Correct() bool {
 }
 
 // Calculates interval for next review.
-func calculateInterval(review *Review, correct bool, coefficient float64) time.Duration {
+func calculateInterval(tx *sql.Tx, review *Review, correct bool) (time.Duration, error) {
 	if !correct {
-		return 0
+		return 0, nil
 	}
-	if review == nil {
-		return day
-	}
-	if review.Interval == 0 {
-		return day
+	if review == nil || review.Interval == 0 {
+		return day, nil
 	}
 
 	now := time.Now().UTC()
 	if now.Before(review.Due) {
-		return review.Interval
+		// Don't increase interval if the user crammed
+		return review.Interval, nil
 	}
 
 	interval := now.Sub(review.Reviewed)
-	return time.Duration(coefficient * float64(interval.Nanoseconds()))
+	return nextInterval(tx, interval)
 }
 
 // Computes next review schedule.
 // If review is nil, creates Review with default values for initial review.
-func nextReview(review *Review, correct bool, coefficient float64) Review {
-	interval := calculateInterval(review, correct, coefficient)
-	now := time.Now().UTC()
-	return Review{
-		Reviewed: now,
-		Interval: interval,
-		Due:      now.Add(interval),
+func nextReview(tx *sql.Tx, review *Review, correct bool) (Review, error) {
+	var r Review
+	interval, err := calculateInterval(tx, review, correct)
+	if err != nil {
+		return r, err
 	}
+	now := time.Now().UTC()
+	r.Reviewed = now
+	r.Interval = interval
+	r.Due = now.Add(interval)
+	return r, nil
 }

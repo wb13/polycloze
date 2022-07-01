@@ -3,8 +3,16 @@ package review_scheduler
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 )
+
+// Initializes interval table.
+func initTuner(tx *sql.Tx) error {
+	query := `insert or ignore into interval (interval) values (0), (1)`
+	_, err := tx.Exec(query)
+	return err
+}
 
 // Calculates rate of reviews that reach the next level.
 // May return 0.925 to avoid setting off auto-tune when there's not enough data.
@@ -17,6 +25,10 @@ func advancementRate(correct, incorrect int) float64 {
 
 // Auto-tunes intervals.
 func autoTune(tx *sql.Tx) error {
+	if err := initTuner(tx); err != nil {
+		return err
+	}
+
 	query := `select interval, correct, incorrect from interval order by interval asc`
 	rows, err := tx.Query(query)
 	if err != nil {
@@ -40,10 +52,92 @@ func autoTune(tx *sql.Tx) error {
 		// Target rate is between 90 (to reduce congestion) and 95% (could be higher,
 		// but it would be hard to tell if the spacing between levels is too short).
 		if rate < 0.90 {
-			// TODO decrease interval
+			if err := decreaseInterval(tx, interval); err != nil {
+				return err
+			}
 		} else if rate > 0.95 {
-			// TODO increase interval
+			if err := increaseInterval(tx, interval); err != nil {
+				return err
+			}
 		}
 	}
+	return nil
+}
+
+// Returns biggest interval smaller than the specified value.
+func previousInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error) {
+	if interval <= day {
+		return 0, nil
+	}
+	query := `select max(interval) from interval where interval < ?`
+	row := tx.QueryRow(query, interval)
+
+	var prev time.Duration
+	if err := row.Scan(&prev); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			panic("unreachable")
+		}
+		return 0, err
+	}
+	return prev, nil
+}
+
+func decreaseInterval(tx *sql.Tx, interval time.Duration) error {
+	if interval <= 1 {
+		return nil
+	}
+
+	// TODO don't forget to update existing values in review
+	return nil
+}
+
+// Returns the largest interval in the database.
+func maxInterval(tx *sql.Tx) (time.Duration, error) {
+	query := `select max(interval) from interval`
+	row := tx.QueryRow(query)
+
+	var max time.Duration
+	if err := row.Scan(&max); err != nil {
+		return 0, err
+	}
+	return max, nil
+}
+
+// Inserts double of the largest interval in the database, or twice the specified
+// interval, whichever's larger.
+func insertNextInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error) {
+	max, err := maxInterval(tx)
+	if err != nil {
+		return 0, err
+	}
+
+	if interval > max {
+		max = interval
+	}
+
+	query := `insert or ignore into interval (interval) values ?`
+	if _, err := tx.Exec(query, 2*max); err != nil {
+		return 0, err
+	}
+	return 2 * max, nil
+}
+
+// Returns smallest interval bigger than the specified value.
+func nextInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error) {
+	query := `select min(interval) from interval where interval > ?`
+	row := tx.QueryRow(query, interval)
+
+	var next time.Duration
+	if err := row.Scan(&next); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return insertNextInterval(tx, interval)
+		}
+		return 0, err
+	}
+	return next, nil
+}
+
+func increaseInterval(tx *sql.Tx, interval time.Duration) error {
+	// TODO don't forget to update existing values in review
 	return nil
 }

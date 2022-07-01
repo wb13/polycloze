@@ -121,7 +121,11 @@ insert into review (item, interval, due) values (?, ?, ?)
 	on conflict (item) do update set interval=excluded.interval, due=excluded.due
 `
 
-	next := nextReview(review, correct, 2.0)
+	next, err := nextReview(tx, review, correct)
+	if err != nil {
+		return err
+	}
+
 	_, err = tx.Exec(query, item, next.Interval, next.Due)
 	if err != nil {
 		return err
