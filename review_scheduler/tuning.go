@@ -3,90 +3,47 @@ package review_scheduler
 
 import (
 	"database/sql"
-	"errors"
-	"math"
+	"time"
 )
 
 // Calculates rate of reviews that reach the next level.
-// Returns 0.925 when no review has ever left the level, to avoid setting off
-// auto-tune when there's not enough data.
-func advancementRate(tx *sql.Tx, level int) (float64, error) {
-	query := `SELECT item, level FROM review ORDER BY reviewed ASC`
-	rows, err := tx.Query(query)
-	if err != nil {
-		return math.NaN(), err
+// May return 0.925 to avoid setting off auto-tune when there's not enough data.
+func advancementRate(correct, incorrect int) float64 {
+	if correct+incorrect <= 0 {
+		return 0.925
 	}
-	defer rows.Close()
-
-	increased := 0
-	decreased := 0
-	// Items that stayed at the same level after review (because the student
-	// crammed) are not counted
-
-	fromLevel := make(map[string]bool)
-	for rows.Next() {
-		var item string
-		var lv int
-		if err := rows.Scan(&item, &lv); err != nil {
-			return math.NaN(), err
-		}
-
-		if level > 0 && fromLevel[item] {
-			if lv < level {
-				decreased++
-			} else if lv > level {
-				increased++
-			}
-		} else if val, ok := fromLevel[item]; level == 0 && (val || !ok) {
-			if lv <= 0 {
-				decreased++
-			} else if lv > level {
-				increased++
-			}
-		}
-
-		if lv == level {
-			fromLevel[item] = true
-		} else {
-			fromLevel[item] = false
-		}
-	}
-
-	if decreased == 0 && increased == 0 {
-		return 0.925, nil
-	}
-	return float64(increased) / float64(decreased+increased), nil
+	return float64(correct) / float64(correct+incorrect)
 }
 
-// Returns maximum review level.
-func maxLevel(tx *sql.Tx) (int, error) {
-	query := `SELECT max(level) FROM review`
-	row := tx.QueryRow(query)
-	var level int
-	if err := row.Scan(&level); err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return 0, err
-	}
-	return level, nil
-}
-
-// Auto-tunes update coefficients.
+// Auto-tunes intervals.
 func autoTune(tx *sql.Tx) error {
-	max, err := maxLevel(tx)
+	query := `select interval, correct, incorrect from interval order by interval asc`
+	rows, err := tx.Query(query)
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
 
-	// Don't update coefficients for 0, because next interval is always 1 day
-	// regardless of advancementRate.
-	for i := 1; i < max+1; i++ {
-		// Target rate is between 90 (to reduce congestion) and 95% (could be higher,
-		// but it would be hard to tell if the spacing between levels is too short).
-
-		_, err := advancementRate(tx, i)
-		if err != nil {
+	for rows.Next() {
+		var interval time.Duration
+		var correct, incorrect int
+		if err := rows.Scan(&interval, &correct, &incorrect); err != nil {
 			return err
 		}
-		// TODO auto-tune based on advancement rates
+
+		if interval <= 1 {
+			// Don't change intervals = 0 and 1.
+			continue
+		}
+
+		rate := advancementRate(correct, incorrect)
+		// Target rate is between 90 (to reduce congestion) and 95% (could be higher,
+		// but it would be hard to tell if the spacing between levels is too short).
+		if rate < 0.90 {
+			// TODO decrease interval
+		} else if rate > 0.95 {
+			// TODO increase interval
+		}
 	}
 	return nil
 }

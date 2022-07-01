@@ -2,7 +2,6 @@
 package review_scheduler
 
 import (
-	"math"
 	"time"
 )
 
@@ -16,10 +15,6 @@ type Review struct {
 
 func (r Review) Correct() bool {
 	return r.Interval > 0
-}
-
-func (r Review) Level() int {
-	return int(math.Floor(math.Log2(2*r.Interval.Hours()/24 + 1)))
 }
 
 // Calculates interval for next review.

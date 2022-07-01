@@ -12,12 +12,11 @@ func printReview(review *Review) {
 	}
 
 	fmt.Printf(
-		"Review(due=%v, interval=%v, reviewed=%v, correct=%v, level=%v)\n",
+		"Review(due=%v, interval=%v, reviewed=%v, correct=%v)\n",
 		review.Due,
 		review.Interval,
 		review.Reviewed,
 		review.Correct(),
-		review.Level(),
 	)
 }
 

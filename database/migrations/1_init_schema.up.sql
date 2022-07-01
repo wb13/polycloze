@@ -8,9 +8,5 @@ CREATE TABLE review (
 	reviewed NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	interval INTEGER NOT NULL,	-- Nanoseconds to add to time now to get the next due date
 	due NOT NULL,								-- Date of next review.
-
-	correct BOOLEAN GENERATED ALWAYS AS (interval > 0) VIRTUAL,
-	level INTEGER GENERATED ALWAYS AS (
-		CAST(floor(log2(2 * interval / 86400000000000 + 1)) AS INTEGER)
-	) STORED
+	correct BOOLEAN GENERATED ALWAYS AS (interval > 0) VIRTUAL
 );
