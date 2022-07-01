@@ -25,9 +25,7 @@ func New(dbPath string) (*sql.DB, error) {
 // Returns items due for review, no more than count.
 // Pass a negative count if you want to get all due items.
 func ScheduleReview(s *database.Session, due time.Time, count int) ([]string, error) {
-	query := `
-select item from most_recent_review where due < ? order by due limit ?
-`
+	query := `select item from review where due < ? order by due limit ?`
 	rows, err := s.Query(query, due.UTC(), count)
 	if err != nil {
 		return nil, err
@@ -53,7 +51,7 @@ func ScheduleReviewNow(s *database.Session, count int) ([]string, error) {
 // Same as ScheduleReviewNowWith, but takes a predicate argument.
 // Only items that satisfy the predicate are included in the result.
 func ScheduleReviewNowWith(s *database.Session, count int, pred func(item string) bool) ([]string, error) {
-	query := `select item from most_recent_review where due < ? order by due`
+	query := `select item from review where due < ? order by due`
 	rows, err := s.Query(query, time.Now().UTC())
 	if err != nil {
 		return nil, err
@@ -75,10 +73,7 @@ func ScheduleReviewNowWith(s *database.Session, count int, pred func(item string
 
 // Gets most recent review of item.
 func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
-	query := `
-SELECT due, interval, reviewed FROM most_recent_review
-WHERE item = ?
-`
+	query := `select due, interval, reviewed from review where item = ?`
 	row := tx.QueryRow(query, item)
 	var review Review
 
@@ -122,8 +117,8 @@ func UpdateReview(s *database.Session, item string, correct bool) error {
 	}
 
 	query := `
-INSERT INTO review (item, interval, due)
-VALUES (?, ?, ?)
+insert into review (item, interval, due) values (?, ?, ?)
+	on conflict (item) do update set interval=excluded.interval, due=excluded.due
 `
 
 	coefficient := getCoefficient(tx, getLevel(review))

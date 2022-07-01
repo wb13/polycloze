@@ -11,7 +11,7 @@ import (
 // Returns 0.925 when no review has ever left the level, to avoid setting off
 // auto-tune when there's not enough data.
 func advancementRate(tx *sql.Tx, level int) (float64, error) {
-	query := `SELECT item, level FROM review ORDER BY id ASC`
+	query := `SELECT item, level FROM review ORDER BY reviewed ASC`
 	rows, err := tx.Query(query)
 	if err != nil {
 		return math.NaN(), err

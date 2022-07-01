@@ -89,7 +89,7 @@ func TestUpdateSuccessfulReviewDoesNotDecreaseIntervalSize(t *testing.T) {
 	UpdateReview(s, "foo", true)
 	UpdateReview(s, "foo", true)
 
-	query := `SELECT interval FROM review ORDER BY id ASC`
+	query := `SELECT interval FROM review ORDER BY reviewed ASC`
 	rows, err := s.Query(query)
 	if err != nil {
 		t.Log("expected err to be nil", err)

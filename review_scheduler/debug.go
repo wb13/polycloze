@@ -24,7 +24,7 @@ func printReview(review *Review) {
 // Prints reviews in database for debugging purposes.
 func printReviews[T CanQuery](db T) error {
 	query := `
-SELECT id, item, due, interval, reviewed FROM review`
+SELECT item, due, interval, reviewed FROM review`
 	rows, err := db.Query(query)
 	if err != nil {
 		return err
@@ -32,14 +32,12 @@ SELECT id, item, due, interval, reviewed FROM review`
 	defer rows.Close()
 
 	for rows.Next() {
-		var id int
 		var item string
 		var review Review
 
 		var due string
 		var reviewed string
 		err := rows.Scan(
-			&id,
 			&item,
 			&due,
 			&review.Interval,
@@ -61,7 +59,7 @@ SELECT id, item, due, interval, reviewed FROM review`
 		review.Due = parsedDue
 		review.Reviewed = parsedReviewed
 
-		print(id, " ", item, " ")
+		print(item, " ")
 		printReview(&review)
 	}
 	return nil

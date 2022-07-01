@@ -33,7 +33,7 @@ func queryInt(path, query string) (int, error) {
 }
 
 func countSeen(lang string) (int, error) {
-	return queryInt(basedir.Review(lang), `select count(distinct item) from review`)
+	return queryInt(basedir.Review(lang), `select count(*) from review`)
 }
 
 // Total count of words in lang (given as three-letter code).
@@ -43,35 +43,28 @@ func countTotal(lang string) (int, error) {
 
 // New words learned today.
 func countLearnedToday(lang string) (int, error) {
-	query := `
-select count(distinct item) from review where reviewed >= current_date
-and item not in (select item from review where reviewed < current_date)
-`
+	query := `select count(*) from review where learned >= current_date`
 	return queryInt(basedir.Review(lang), query)
 }
 
 // Number of words reviewed today, excluding new words.
 func countReviewedToday(lang string) (int, error) {
 	query := `
-select count(distinct item) from review where reviewed >= current_date
-and item in (select item from review where reviewed < current_date)
+select count(*) from review where reviewed >= current_date
+and learned < current_date
 `
 	return queryInt(basedir.Review(lang), query)
 }
 
 // Number of correct answers today.
 func countCorrectToday(lang string) (int, error) {
-	query := `
-select count(*) from review where reviewed >= current_date and correct = true
-`
+	query := `select count(*) from review where reviewed >= current_date and correct`
 	return queryInt(basedir.Review(lang), query)
 }
 
 // Number of incorrect answers today.
 func countIncorrectToday(lang string) (int, error) {
-	query := `
-select count(*) from review where reviewed >= current_date and correct = false
-`
+	query := `select count(*) from review where reviewed >= current_date and not(correct)`
 	return queryInt(basedir.Review(lang), query)
 }
 

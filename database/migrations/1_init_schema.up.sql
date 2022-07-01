@@ -13,8 +13,8 @@ CREATE TABLE coefficient (
 -- Table of review sessions.
 -- Unseen items don't appear here.
 CREATE TABLE review (
-	id INTEGER PRIMARY KEY,
-	item TEXT NOT NULL,
+	item TEXT PRIMARY KEY,
+	learned NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	reviewed NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	interval INTEGER NOT NULL,	-- Nanoseconds to add to time now to get the next due date
 	due NOT NULL,								-- Date of next review.
@@ -32,10 +32,6 @@ WHEN NEW.level NOT IN (SELECT level FROM coefficient)
 	END;
 
 -- See https://sqlite.org/lang_select.html#bare_columns_in_an_aggregate_query.
-CREATE VIEW most_recent_review AS
-SELECT review.* FROM review JOIN (SELECT max(id) AS id FROM review GROUP BY item)
-USING (id);
-
 CREATE VIEW updated_coefficient AS
 SELECT coefficient.* FROM coefficient JOIN (SELECT max(id) AS id FROM coefficient GROUP BY level)
 USING (id);
