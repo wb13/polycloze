@@ -26,6 +26,7 @@ pair() {
 }
 
 sql=".read database/migrations/1_init_schema.up.sql
+.read database/migrations/2_add_interval_table.up.sql
 
 attach database '$HOME/.local/share/polycloze/languages/$2.db' as l2;
 attach database '$HOME/.local/share/polycloze/languages/$1.db' as l1;
