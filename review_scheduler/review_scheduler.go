@@ -111,6 +111,10 @@ func UpdateReview(s *database.Session, item string, correct bool) error {
 		return err
 	}
 
+	if err := initTuner(tx); err != nil {
+		return err
+	}
+
 	review, err := mostRecentReview(tx, item)
 	if err != nil {
 		return err

@@ -25,10 +25,6 @@ func advancementRate(correct, incorrect int) float64 {
 
 // Auto-tunes intervals.
 func autoTune(tx *sql.Tx) error {
-	if err := initTuner(tx); err != nil {
-		return err
-	}
-
 	query := `select interval, correct, incorrect from interval order by interval asc`
 	rows, err := tx.Query(query)
 	if err != nil {
