@@ -1,4 +1,3 @@
-packages = api cmd/api
 l1 = eng
 l2 = spa
 
@@ -6,11 +5,8 @@ l2 = spa
 all:
 
 .PHONY:	build
-build:	$(packages)
-
-.PHONY:	$(packages)
-$(packages):	%:
-	cd $@; go build
+build:
+	go build -v -o build/ ./...
 
 .PHONY:	test
 test:
@@ -22,4 +18,4 @@ format:
 
 .PHONY:	run
 run:	build
-	cd cmd/api; ./api $(l1) $(l2)
+	./build/api $(l1) $(l2)

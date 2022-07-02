@@ -1,8 +1,1 @@
-/*.db
-/*.db-journal
-/cmd/api/api
-/cmd/buffer/buffer
-/cmd/flashcards/flashcards
-/cmd/sentence_picker/sentence_picker
-/cmd/srs/srs
-/cmd/translator/translator
+/build
