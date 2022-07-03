@@ -6,13 +6,6 @@ import (
 	"time"
 )
 
-// Initializes interval table.
-func initTuner(tx *sql.Tx) error {
-	query := `insert or ignore into interval (interval) values (0), (?)`
-	_, err := tx.Exec(query, day)
-	return err
-}
-
 // Calculates rate of reviews that reach the next level.
 // May return 0.925 to avoid setting off auto-tune when there's not enough data.
 func advancementRate(correct, incorrect int) float64 {
