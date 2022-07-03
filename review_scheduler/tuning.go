@@ -159,7 +159,7 @@ func insertNextInterval(tx *sql.Tx, interval time.Duration) (time.Duration, erro
 		max = interval
 	}
 
-	query := `insert or ignore into interval (interval) values ?`
+	query := `insert or ignore into interval (interval) values (?)`
 	if _, err := tx.Exec(query, 2*max); err != nil {
 		return 0, err
 	}
