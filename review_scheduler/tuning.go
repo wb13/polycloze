@@ -3,7 +3,6 @@ package review_scheduler
 
 import (
 	"database/sql"
-	"errors"
 	"time"
 )
 
@@ -70,11 +69,9 @@ func previousInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error)
 
 	var prev time.Duration
 	if err := row.Scan(&prev); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			panic("unreachable")
-		}
 		return 0, err
 	}
+	// NOTE Assumes the query never returns null.
 	return prev, nil
 }
 
@@ -174,14 +171,14 @@ func nextInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error) {
 	query := `select min(interval) from interval where interval > ?`
 	row := tx.QueryRow(query, interval)
 
-	var next time.Duration
+	var next sql.NullInt64
 	if err := row.Scan(&next); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return insertNextInterval(tx, interval)
-		}
 		return 0, err
 	}
-	return next, nil
+	if !next.Valid {
+		return insertNextInterval(tx, interval)
+	}
+	return time.Duration(next.Int64), nil
 }
 
 func increaseInterval(tx *sql.Tx, interval time.Duration) error {
