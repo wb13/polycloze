@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-const day time.Duration = 86400000000000 // In nanoseconds
-
 type Review struct {
 	Due      time.Time     // Due date of next review
 	Interval time.Duration // Interval between now and due date

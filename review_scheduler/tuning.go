@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+const day time.Duration = 86400000000000 // In nanoseconds
+
 // Calculates rate of reviews that reach the next level.
 // May return 0.925 to avoid setting off auto-tune when there's not enough data.
 func advancementRate(correct, incorrect int) float64 {
@@ -31,8 +33,8 @@ func autoTune(tx *sql.Tx) error {
 			return err
 		}
 
-		if interval <= 1 {
-			// Don't change intervals = 0 and 1.
+		if interval <= day {
+			// Don't change intervals = 0 and 1 day.
 			continue
 		}
 
