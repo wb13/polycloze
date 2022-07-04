@@ -70,3 +70,33 @@ x 2022-02-02 01:02:03 bar
 		}
 	}
 }
+
+func TestParseWithComment(t *testing.T) {
+	log := `/ 2022-01-01 00:00:00 foo
+# ignore me
+x 2022-01-02 00:00:00 foo
+`
+	events, err := Parse(log)
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	if len(events) != 2 {
+		t.Fatal("expected events to contain two elements:", events)
+	}
+}
+
+func TestParseWithBlank(t *testing.T) {
+	log := `/ 2022-01-01 00:00:00 foo
+
+x 2022-01-02 00:00:00 foo
+`
+	events, err := Parse(log)
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	if len(events) != 2 {
+		t.Fatal("expected events to contain two elements:", events)
+	}
+}

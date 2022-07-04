@@ -47,6 +47,12 @@ func Parse(s string) ([]LogEvent, error) {
 
 	lines := strings.Split(strings.ReplaceAll(strings.TrimSpace(s), "\r\n", "\n"), "\n")
 	for _, line := range lines {
+		line = strings.TrimSpace(line)
+
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
 		event, err := ParseLine(line)
 		if err != nil {
 			return nil, err
