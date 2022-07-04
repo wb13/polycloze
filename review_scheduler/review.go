@@ -23,17 +23,17 @@ func calculateInterval(tx *sql.Tx, review *Review, correct bool) (time.Duration,
 	if !correct {
 		return 0, nil
 	}
-	if review == nil || review.Interval == 0 {
-		return day, nil
-	}
-
 	now := time.Now().UTC()
-	if now.Before(review.Due) {
-		// Don't increase interval if the user crammed
-		return review.Interval, nil
+	reviewed := now
+	if review != nil {
+		if now.Before(review.Due) {
+			// Don't increase interval if the user crammed
+			return review.Interval, nil
+		}
+		reviewed = review.Reviewed
 	}
 
-	interval := now.Sub(review.Reviewed)
+	interval := now.Sub(reviewed) // this is greater than review.Interval
 	return nextInterval(tx, interval)
 }
 
