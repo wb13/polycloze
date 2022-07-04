@@ -105,7 +105,7 @@ func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 }
 
 // Updates review status of item.
-func UpdateReview(s *database.Session, item string, correct bool) error {
+func UpdateReviewAt(s *database.Session, item string, correct bool, now time.Time) error {
 	tx, err := s.Begin()
 	if err != nil {
 		return err
@@ -120,19 +120,19 @@ func UpdateReview(s *database.Session, item string, correct bool) error {
 		return err
 	}
 
-	next, err := nextReview(tx, review, correct)
+	next, err := nextReview(tx, review, correct, now)
 	if err != nil {
 		return err
 	}
 
 	query := `
-insert into review (item, interval, due) values (?, ?, ?)
+insert into review (item, interval, due, learned, reviewed) values (?, ?, ?, ?, ?)
 	on conflict (item) do update set
 		interval=excluded.interval,
 		due=excluded.due,
-		reviewed=current_timestamp
+		reviewed=?
 `
-	_, err = tx.Exec(query, item, next.Interval, next.Due)
+	_, err = tx.Exec(query, item, next.Interval, next.Due, now, now, now)
 	if err != nil {
 		return err
 	}
@@ -140,4 +140,8 @@ insert into review (item, interval, due) values (?, ?, ?)
 		return err
 	}
 	return tx.Commit()
+}
+
+func UpdateReview(s *database.Session, item string, correct bool) error {
+	return UpdateReviewAt(s, item, correct, time.Now().UTC())
 }

@@ -2,6 +2,8 @@
 package word_scheduler
 
 import (
+	"time"
+
 	"github.com/lggruspe/polycloze/database"
 	rs "github.com/lggruspe/polycloze/review_scheduler"
 	"github.com/lggruspe/polycloze/text"
@@ -37,4 +39,9 @@ func GetWordsWith(s *database.Session, n int, pred func(word string) bool) ([]st
 
 func UpdateWord(s *database.Session, word string, correct bool) error {
 	return rs.UpdateReview(s, text.Casefold(word), correct)
+}
+
+// See UpdateReviewAt.
+func UpdateWordAt(s *database.Session, word string, correct bool, at time.Time) error {
+	return rs.UpdateReviewAt(s, text.Casefold(word), correct, at)
 }

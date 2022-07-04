@@ -17,11 +17,10 @@ func (r Review) Correct() bool {
 }
 
 // Calculates interval for next review.
-func calculateInterval(tx *sql.Tx, review *Review, correct bool) (time.Duration, error) {
+func calculateInterval(tx *sql.Tx, review *Review, correct bool, now time.Time) (time.Duration, error) {
 	if !correct {
 		return 0, nil
 	}
-	now := time.Now().UTC()
 	reviewed := now
 	if review != nil {
 		if now.Before(review.Due) {
@@ -51,13 +50,13 @@ func updateIntervalStats(tx *sql.Tx, review *Review, correct bool) error {
 
 // Computes next review schedule.
 // If review is nil, creates Review with default values for initial review.
-func nextReview(tx *sql.Tx, review *Review, correct bool) (Review, error) {
+// now should usually be time.Now.UTC().
+func nextReview(tx *sql.Tx, review *Review, correct bool, now time.Time) (Review, error) {
 	var r Review
-	interval, err := calculateInterval(tx, review, correct)
+	interval, err := calculateInterval(tx, review, correct, now)
 	if err != nil {
 		return r, err
 	}
-	now := time.Now().UTC()
 	r.Reviewed = now
 	r.Interval = interval
 	r.Due = now.Add(interval)
