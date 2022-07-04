@@ -127,7 +127,10 @@ func UpdateReview(s *database.Session, item string, correct bool) error {
 
 	query := `
 insert into review (item, interval, due) values (?, ?, ?)
-	on conflict (item) do update set interval=excluded.interval, due=excluded.due
+	on conflict (item) do update set
+		interval=excluded.interval,
+		due=excluded.due,
+		reviewed=current_timestamp
 `
 	_, err = tx.Exec(query, item, next.Interval, next.Due)
 	if err != nil {
