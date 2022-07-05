@@ -3,6 +3,7 @@ package logger
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 	"time"
@@ -14,6 +15,18 @@ type LogEvent struct {
 	Correct   bool
 	Timestamp time.Time
 	Word      string
+}
+
+func (e LogEvent) String() string {
+	correct := "x"
+	if e.Correct {
+		correct = "/"
+	}
+
+	layout := "2006-01-02 15:04:05"
+	timestamp := e.Timestamp.Format(layout)
+
+	return fmt.Sprintf("%v %v %v", correct, timestamp, e.Word)
 }
 
 func ParseLine(line string) (LogEvent, error) {

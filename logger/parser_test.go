@@ -100,3 +100,21 @@ x 2022-01-02 00:00:00 foo
 		t.Fatal("expected events to contain two elements:", events)
 	}
 }
+
+func TestString(t *testing.T) {
+	line := `/ 2020-01-01 00:00:00 test`
+
+	event, err := ParseLine(line)
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	output := event.String()
+	if line != output {
+		t.Fatal(
+			"expected ParseLine and LogEvent.String to be inverse functions",
+			line,
+			output,
+		)
+	}
+}
