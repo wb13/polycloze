@@ -2,10 +2,14 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
+	"path"
 
+	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/replay"
+	ws "github.com/lggruspe/polycloze/word_scheduler"
 )
 
 type Args struct {
@@ -13,13 +17,13 @@ type Args struct {
 	dbFile  string
 
 	verbose bool
-	steps   int // number of steps to simulate after log file
+	steps   int // number of reviews to schedule after replay
 }
 
 func parseArgs() Args {
 	var args Args
 	flag.BoolVar(&args.verbose, "v", false, "verbose")
-	flag.IntVar(&args.steps, "n", 0, "number of steps to simulate")
+	flag.IntVar(&args.steps, "n", 0, "number of reviews to schedule after replay")
 	flag.Parse()
 
 	nonFlags := flag.Args()
@@ -37,6 +41,10 @@ func parseArgs() Args {
 }
 
 func main() {
+	if err := basedir.Init(); err != nil {
+		log.Fatal(err)
+	}
+
 	args := parseArgs()
 	if args.verbose {
 		replay.SetVerbosity(true)
@@ -47,7 +55,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	session, err := database.NewSession(db, ":memory:", ":memory:", ":memory:")
+	session, err := database.NewSession(
+		db,
+		":memory:",
+		basedir.Language(inferLanguage(args.logFile)),
+		":memory:",
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -55,4 +68,20 @@ func main() {
 	if err := replay.ReplayFile(session, args.logFile); err != nil {
 		log.Fatal(err)
 	}
+
+	words, err := ws.GetWordsAt(session, args.steps, replay.Tomorrow())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if len(words) > 0 {
+		fmt.Println("\n# Scheduled for review:")
+	}
+	for _, word := range words {
+		fmt.Println("#", word)
+	}
+}
+
+func inferLanguage(logFile string) string {
+	return path.Base(logFile)[:3]
 }
