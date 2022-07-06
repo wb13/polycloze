@@ -3,6 +3,7 @@ package replay
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/logger"
@@ -10,9 +11,19 @@ import (
 )
 
 var verbose bool = false
+var today time.Time = time.Now().UTC()
 
 func SetVerbosity(verbosity bool) {
 	verbose = verbosity
+}
+
+func Today() time.Time {
+	return today.UTC()
+}
+
+func Tomorrow() time.Time {
+	day, _ := time.ParseDuration("24h")
+	return Today().Add(day).UTC()
 }
 
 func Replay(s *database.Session, events []logger.LogEvent) error {
@@ -21,6 +32,8 @@ func Replay(s *database.Session, events []logger.LogEvent) error {
 		if err != nil {
 			return err
 		}
+
+		today = event.Timestamp
 
 		if verbose {
 			fmt.Println(event)
