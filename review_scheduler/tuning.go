@@ -95,8 +95,13 @@ where interval = ?
 		return err
 	}
 
-	query = `update review set interval = ? where interval = ?`
-	_, err := tx.Exec(query, replacement, interval)
+	query = `
+update review set
+	interval = ?,
+	due = datetime(unixepoch(due) + (? - interval) / 1e9, 'unixepoch')
+where interval = ?
+`
+	_, err := tx.Exec(query, replacement, replacement, interval)
 	return err
 }
 
