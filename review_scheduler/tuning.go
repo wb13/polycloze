@@ -154,6 +154,39 @@ func maxInterval(tx *sql.Tx) (time.Duration, error) {
 	return max, nil
 }
 
+// Creates record for interval if it doesn't already exist.
+func insertInterval(tx *sql.Tx, interval time.Duration) error {
+	query := `insert or ignore into interval (interval) values (?)`
+	_, err := tx.Exec(query, interval)
+	return err
+}
+
+// Inserts all needed intervals to increase the specified interval.
+func insertMissingIntervals(tx *sql.Tx, interval time.Duration) error {
+	max, err := maxInterval(tx)
+	if err != nil {
+		return err
+	}
+
+	if max > interval {
+		return nil
+	}
+
+	next := 2 * max
+	if next <= 0 {
+		next = day
+	}
+
+	for next <= interval {
+		if err := insertInterval(tx, next); err != nil {
+			return err
+		}
+		next *= 2
+	}
+	// Make sure that a larger interval exists
+	return insertInterval(tx, next)
+}
+
 // Inserts double of the largest interval in the database, or twice the specified
 // interval, whichever's larger.
 func insertNextInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error) {
@@ -166,8 +199,7 @@ func insertNextInterval(tx *sql.Tx, interval time.Duration) (time.Duration, erro
 		max = interval
 	}
 
-	query := `insert or ignore into interval (interval) values (?)`
-	if _, err := tx.Exec(query, 2*max); err != nil {
+	if err := insertInterval(tx, 2*max); err != nil {
 		return 0, err
 	}
 	return 2 * max, nil
