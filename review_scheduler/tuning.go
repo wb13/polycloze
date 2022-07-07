@@ -8,6 +8,23 @@ import (
 
 const day time.Duration = 86400000000000 // In nanoseconds
 
+// Uses recommendations from https://en.wikipedia.org/wiki/Binomial_distribution#Normal_approximation
+func hasEnoughSamples(correct, incorrect int) bool {
+	n := correct + incorrect
+
+	if n <= 0 {
+		return false
+	}
+
+	p := float64(correct) / float64(n)
+	q := 1 - p
+
+	if p > 0 && q > 0 {
+		return float64(n) > 9*q/p && float64(n) > 9*p/q
+	}
+	return n >= 5
+}
+
 func isTooEasy(correct, incorrect int) bool {
 	// Threshold can't be too high or the tuner will be too conservative.
 	// Wilson(4, 0, z) ~0.8485 is too low, because Wilson(3, 1) < Wilson(1, 0).
@@ -45,6 +62,10 @@ func autoTune(tx *sql.Tx) error {
 
 		if interval <= day {
 			// Don't change intervals = 0 and 1 day.
+			continue
+		}
+
+		if !hasEnoughSamples(correct, incorrect) {
 			continue
 		}
 
