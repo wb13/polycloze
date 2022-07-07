@@ -207,17 +207,18 @@ func insertNextInterval(tx *sql.Tx, interval time.Duration) (time.Duration, erro
 
 // Returns smallest interval bigger than the specified value.
 func nextInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error) {
+	if err := insertMissingIntervals(tx, interval); err != nil {
+		return 0, err
+	}
+
 	query := `select min(interval) from interval where interval > ?`
 	row := tx.QueryRow(query, interval)
 
-	var next sql.NullInt64
+	var next time.Duration
 	if err := row.Scan(&next); err != nil {
 		return 0, err
 	}
-	if !next.Valid {
-		return insertNextInterval(tx, interval)
-	}
-	return time.Duration(next.Int64), nil
+	return next, nil
 }
 
 func increaseInterval(tx *sql.Tx, interval time.Duration) error {
