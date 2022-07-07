@@ -8,13 +8,23 @@ import (
 
 const day time.Duration = 86400000000000 // In nanoseconds
 
-// Calculates rate of reviews that reach the next level.
-// May return 0.925 to avoid setting off auto-tune when there's not enough data.
-func advancementRate(correct, incorrect int) float64 {
-	if correct+incorrect <= 0 {
-		return 0.925
-	}
-	return float64(correct) / float64(correct+incorrect)
+func isTooEasy(correct, incorrect int) bool {
+	// Threshold can't be too high or the tuner will be too conservative.
+	// Wilson(4, 0, z) ~0.8485 is too low, because Wilson(3, 1) < Wilson(1, 0).
+	// This would cause the algorithm to auto-tune as soon as the user makes a
+	// mistake, so the sample size is always n <= 4.
+	// Wilson(5, 0, z) allows the user to make a mistake without immediate re-tuning.
+
+	z := -0.845                                             // lower bound z-score for one-sided 80% confidence level
+	return Wilson(correct, incorrect, z) >= Wilson(5, 0, z) // ~0.875
+}
+
+func isTooHard(correct, incorrect int) bool {
+	// The threshold is Wilson(1, 0, z), because the interval shouldn't be made
+	// easier if the user got all reviews right.
+
+	z := -0.845                                            // lower bound z-score for one-sided 80% confidence level
+	return Wilson(correct, incorrect, z) < Wilson(1, 0, z) // ~0.5834
 }
 
 // Auto-tunes intervals.
@@ -38,14 +48,11 @@ func autoTune(tx *sql.Tx) error {
 			continue
 		}
 
-		rate := advancementRate(correct, incorrect)
-		// Target rate is between 90 (to reduce congestion) and 95% (could be higher,
-		// but it would be hard to tell if the spacing between levels is too short).
-		if rate < 0.90 {
+		if isTooHard(correct, incorrect) {
 			if err := decreaseInterval(tx, interval); err != nil {
 				return err
 			}
-		} else if rate > 0.95 {
+		} else if isTooEasy(correct, incorrect) {
 			if err := increaseInterval(tx, interval); err != nil {
 				return err
 			}
