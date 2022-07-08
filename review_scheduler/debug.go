@@ -3,6 +3,7 @@ package review_scheduler
 
 import (
 	"fmt"
+	"time"
 )
 
 func printReview(review *Review) {
@@ -33,13 +34,14 @@ SELECT item, due, interval, reviewed FROM review`
 	for rows.Next() {
 		var item string
 		var review Review
+		var interval time.Duration
 
 		var due string
 		var reviewed string
 		err := rows.Scan(
 			&item,
 			&due,
-			&review.Interval,
+			&interval,
 			&reviewed,
 		)
 		if err != nil {
@@ -57,6 +59,7 @@ SELECT item, due, interval, reviewed FROM review`
 
 		review.Due = parsedDue
 		review.Reviewed = parsedReviewed
+		review.Interval = interval * time.Second
 
 		print(item, " ")
 		printReview(&review)

@@ -1,6 +1,6 @@
 -- Table of intervals.
 create table interval (
-	interval primary key,
+	interval primary key,	-- In seconds
 	correct integer not null default 0,
 	incorrect integer not null default 0
 );

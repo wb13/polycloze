@@ -44,7 +44,7 @@ func updateIntervalStats(tx *sql.Tx, review *Review, correct bool) error {
 	if !correct {
 		query = `update interval set incorrect = incorrect + 1 where interval = ?`
 	}
-	_, err := tx.Exec(query, interval)
+	_, err := tx.Exec(query, seconds(interval))
 	return err
 }
 

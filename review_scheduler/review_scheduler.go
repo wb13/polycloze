@@ -78,10 +78,11 @@ func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 	var review Review
 
 	var due string
+	var interval time.Duration
 	var reviewed string
 	err := row.Scan(
 		&due,
-		&review.Interval,
+		&interval,
 		&reviewed,
 	)
 	if err != nil {
@@ -101,6 +102,7 @@ func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 	}
 	review.Due = parsedDue
 	review.Reviewed = parsedReviewed
+	review.Interval = interval * time.Second
 	return &review, nil
 }
 
@@ -136,7 +138,7 @@ insert into review (item, interval, due, learned, reviewed) values (?, ?, ?, ?, 
 	_, err = tx.Exec(
 		query,
 		item,
-		next.Interval,
+		seconds(next.Interval),
 		formatTime(next.Due),
 		timestamp,
 		timestamp,
