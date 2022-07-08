@@ -104,10 +104,6 @@ func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 	return &review, nil
 }
 
-func formatTime(t time.Time) string {
-	return t.Format("2006-01-02 15:04:05")
-}
-
 // Updates review status of item.
 func UpdateReviewAt(s *database.Session, item string, correct bool, now time.Time) error {
 	tx, err := s.Begin()
