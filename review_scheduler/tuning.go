@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const day time.Duration = 86400000000000 // In nanoseconds
+const day time.Duration = 24 * time.Hour
 
 // Uses recommendations from https://en.wikipedia.org/wiki/Binomial_distribution#Normal_approximation
 func hasEnoughSamples(correct, incorrect int) bool {
