@@ -70,3 +70,10 @@ func detach(con *sql.Conn, name string) error {
 	_, err := con.ExecContext(context.TODO(), query, name)
 	return err
 }
+
+type CanQuery interface {
+	*sql.DB | *sql.Tx
+
+	Query(query string, args ...any) (*sql.Rows, error)
+	QueryRow(query string, args ...any) *sql.Row
+}

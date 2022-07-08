@@ -4,6 +4,8 @@ package review_scheduler
 import (
 	"fmt"
 	"time"
+
+	"github.com/lggruspe/polycloze/database"
 )
 
 func printReview(review *Review) {
@@ -22,7 +24,7 @@ func printReview(review *Review) {
 }
 
 // Prints reviews in database for debugging purposes.
-func printReviews[T CanQuery](db T) error {
+func printReviews[T database.CanQuery](db T) error {
 	query := `
 SELECT item, due, interval, reviewed FROM review`
 	rows, err := db.Query(query)
