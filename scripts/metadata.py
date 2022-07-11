@@ -21,6 +21,7 @@ def parse_args() -> Namespace:
 
 
 metadata = {
+    "cyo": ("Cuyonon", "Cuyonon"),
     "deu": ("German", "Deutsch"),
     "eng": ("English", "English"),
     "spa": ("Spanish", "Español"),

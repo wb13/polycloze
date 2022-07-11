@@ -2,6 +2,11 @@
 
 class LanguageLoader:
     @staticmethod
+    def cyo():
+        from spacy.lang.tl import Tagalog
+        return Tagalog()
+
+    @staticmethod
     def deu():
         from spacy.lang.de import German
         return German()

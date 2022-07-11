@@ -8,6 +8,11 @@ class Language:
 
 
 languages = {
+    "cyo": Language(
+        # source: https://web.archive.org/web/20120403120048/http://www.cuyonon.org/clcp8.html
+        alphabet=set("abdeghiklmnoprstwy'"),
+        # symbols=set("_.'"),
+    ),
     "deu": Language(
         alphabet=set("abcdefghijklmnopqrstuvwxyzäéöüß"),
         symbols=set("-.'"),
