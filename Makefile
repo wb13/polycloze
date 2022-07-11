@@ -52,3 +52,10 @@ $(foreach l1,$(languages),$(foreach l2,$(languages), $(eval $(call add_pair,$(l1
 download:
 	./scripts/download.sh
 	python ./scripts/partition.py ./build/sentences < $(latest_sentences)
+
+.PHONY:	install
+install:
+	mkdir -p "$$HOME/.local/share/polycloze/languages"
+	mkdir -p "$$HOME/.local/share/polycloze/translations"
+	cp build/sqlite/*.db "$$HOME/.local/share/polycloze/languages"
+	cp build/translations/*.db "$$HOME/.local/share/polycloze/translations"
