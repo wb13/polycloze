@@ -43,7 +43,7 @@ build/translations/$(1)-$(2).db:	build/translations/$(1)-$(2).csv
 endef
 
 .PHONY:	all
-all:	$(pairs)
+all:	$(pairs) $(languages)
 
 $(foreach lang,$(languages),$(eval $(call add_language,$(lang))))
 $(foreach l1,$(languages),$(foreach l2,$(languages), $(eval $(call add_pair,$(l1),$(l2)))))
