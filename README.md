@@ -10,5 +10,9 @@ under [CC BY 2.0][cc].
 
 These are also released under [CC BY 2.0][cc].
 
+## How to add languages
+
+Modify `scripts/languages.py`, `scripts/metadata.py` and `python/blacklist/blacklist/alphabet.py`.
+
 
 [cc]: https://creativecommons.org/licenses/by/2.0
