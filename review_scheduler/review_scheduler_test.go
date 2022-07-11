@@ -85,33 +85,33 @@ func TestUpdateIncorrectThenCorrect(t *testing.T) {
 
 func TestUpdateSuccessfulReviewDoesNotDecreaseIntervalSize(t *testing.T) {
 	s := reviewScheduler()
-	UpdateReview(s, "foo", true)
-	UpdateReview(s, "foo", true)
-	UpdateReview(s, "foo", true)
 
-	query := `SELECT interval FROM review ORDER BY reviewed ASC`
-	rows, err := s.Query(query)
-	if err != nil {
-		t.Log("expected err to be nil", err)
-		t.Fail()
-	}
-	defer rows.Close()
-
-	var intervals []time.Duration
-	for rows.Next() {
+	query := func() time.Duration {
+		row := s.QueryRow(`select interval from review`)
 		var interval time.Duration
-		if err := rows.Scan(&interval); err != nil {
-			t.Log("expected err to be nil", err)
-			t.Fail()
+		if err := row.Scan(&interval); err != nil {
+			t.Fatal("expected err to be nil:", err)
 		}
-		intervals = append(intervals, interval)
+		return interval * time.Second
 	}
 
-	for i := 1; i < len(intervals); i++ {
-		if intervals[i-1] > intervals[i] {
-			t.Log("expected sequence of successful reviews to have non-decreasing intervals", intervals)
-			t.Fail()
-		}
+	now := time.Now().UTC()
+
+	if err := UpdateReviewAt(s, "foo", true, now); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	before := query()
+
+	now = now.Add(3 * 24 * time.Hour)
+	if err := UpdateReviewAt(s, "foo", true, now); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	after := query()
+
+	if before > after {
+		t.Fatal("expected sequence of successful reviews to have non-decreasing intervals", before, after)
 	}
 }
 
