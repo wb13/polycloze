@@ -68,3 +68,11 @@ export class ItemBuffer {
     return [item, () => this.cleanupTasks.push(() => this.deleteParts(item))]
   }
 }
+
+export function dispatchUnbuffer (word: string) {
+  const event = new CustomEvent('polycloze-unbuffer', {
+    detail: { word }
+  })
+  window.dispatchEvent(event)
+
+}
