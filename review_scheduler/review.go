@@ -25,6 +25,7 @@ func calculateInterval(tx *sql.Tx, review *Review, correct bool, now time.Time) 
 	if review != nil {
 		if now.Before(review.Due) {
 			// Don't increase interval if the user crammed
+			println("user crammed :(")
 			return review.Interval, nil
 		}
 		reviewed = review.Reviewed
