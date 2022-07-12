@@ -2,6 +2,7 @@
 
 import { src } from "./config";
 import { Item } from "./item";
+import { ItemsSchema, ReviewSchema, SupportedLanguagesSchema } from "./schema";
 import { Language } from "./select";
 
 // Local storage stuff
@@ -51,7 +52,7 @@ function currentCourse (n = 10, x: string[] = []): string {
 
 // Server stuff
 
-async function fetchJson (url: string | URL, options: any): Promise<any> {
+async function fetchJson<T> (url: string | URL, options: RequestInit): Promise<T> {
     if (url instanceof URL) {
         url = url.href;
     }
@@ -62,15 +63,15 @@ async function fetchJson (url: string | URL, options: any): Promise<any> {
 
 export async function supportedLanguages (): Promise<Language[]> {
     const url = new URL("/options", src);
-    const options = { mode: "cors" };
-    const json = await fetchJson(url, options);
+    const options = { mode: "cors" as RequestMode };
+    const json = await fetchJson<SupportedLanguagesSchema>(url, options);
     return json.languages;
 }
 
 export async function fetchItems (n = 10, x: string[] = []): Promise<Item[]> {
     const url = new URL(currentCourse(n, x), src);
-    const options = { mode: "cors" };
-    const json = await fetchJson(url, options);
+    const options = { mode: "cors" as RequestMode };
+    const json = await fetchJson<ItemsSchema>(url, options);
     return json.items;
 }
 
@@ -89,8 +90,8 @@ export async function submitReview (word: string, correct: boolean): Promise<boo
             "Content-Type": "application/json"
         },
         method: "POST",
-        mode: "cors"
+        mode: "cors" as RequestMode
     };
-    const json = await fetchJson(url, options);
+    const json = await fetchJson<ReviewSchema>(url, options);
     return json.success;
 }
