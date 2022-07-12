@@ -17,14 +17,18 @@ export class ItemBuffer {
   keys: Set<string>
   backgroundFetch: Promise<Item[]> | null
 
-  cleanupTasks: Array<() => void>
-
   constructor () {
     this.buffer = []
     this.keys = new Set()
     this.backgroundFetch = null
 
-    this.cleanupTasks = []
+    const listener = (event: Event) => {
+      const word = (event as CustomEvent).detail.word
+      this.keys.delete(word)
+    }
+
+    // NOTE this never gets removed
+    window.addEventListener('polycloze-unbuffer', listener)
   }
 
   // Add item if it's not a duplicate.
@@ -38,20 +42,12 @@ export class ItemBuffer {
     return true
   }
 
-  deleteParts (item: Item) {
-    for (const part of oddParts(item.sentence)) {
-      this.keys.delete(part)
-    }
-  }
-
   // Returns Promise Item and a function should be called after submitReview.
-  async take (): Promise<[Item, () => void]> {
+  async take (): Promise<Item> {
     if (this.backgroundFetch != null) {
       const items = await this.backgroundFetch
       this.backgroundFetch = null
       items.forEach(item => this.add(item))
-      this.cleanupTasks.forEach(task => task())
-      this.cleanupTasks = []
     }
 
     if (this.buffer.length === 0) {
@@ -63,9 +59,7 @@ export class ItemBuffer {
     if (this.buffer.length === 0) {
       return this.take()
     }
-
-    const item = this.buffer.shift()!
-    return [item, () => this.cleanupTasks.push(() => this.deleteParts(item))]
+    return this.buffer.shift()!
   }
 }
 
@@ -74,5 +68,4 @@ export function dispatchUnbuffer (word: string) {
     detail: { word }
   })
   window.dispatchEvent(event)
-
 }
