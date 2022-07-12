@@ -1,6 +1,6 @@
-import './item.css'
-import { createButton } from './button'
-import { Sentence, createSentence } from './sentence'
+import "./item.css";
+import { createButton } from "./button";
+import { Sentence, createSentence } from "./sentence";
 
 export type Item = {
   sentence: Sentence
@@ -8,49 +8,49 @@ export type Item = {
 }
 
 function createTranslation (translation: string): HTMLDivElement {
-  const div = document.createElement('div')
-  div.classList.add('translation')
-  div.textContent = translation
-  return div
+    const div = document.createElement("div");
+    div.classList.add("translation");
+    div.textContent = translation;
+    return div;
 }
 
 function createItemBody (item: Item, next: (ok: boolean) => void, enable: () => void): [HTMLDivElement, () => void, () => void] {
-  const div = document.createElement('div')
-  const [sentence, check, resize] = createSentence(item.sentence, next, enable)
-  div.append(
-    sentence,
-    createTranslation(item.translation)
-  )
-  return [div, check, resize]
+    const div = document.createElement("div");
+    const [sentence, check, resize] = createSentence(item.sentence, next, enable);
+    div.append(
+        sentence,
+        createTranslation(item.translation)
+    );
+    return [div, check, resize];
 }
 
 function createItemFooter (submitBtn: HTMLButtonElement): HTMLDivElement {
-  const div = document.createElement('div')
-  div.classList.add('button-group')
-  div.appendChild(submitBtn)
-  return div
+    const div = document.createElement("div");
+    div.classList.add("button-group");
+    div.appendChild(submitBtn);
+    return div;
 }
 
 function createSubmitButton (onClick?: (event: Event) => void): [HTMLButtonElement, () => void] {
-  const button = createButton('Check', onClick)
-  button.disabled = true
+    const button = createButton("Check", onClick);
+    button.disabled = true;
 
-  const enable = () => {
-    button.disabled = false
-  }
-  return [button, enable]
+    const enable = () => {
+        button.disabled = false;
+    };
+    return [button, enable];
 }
 
 export function createItem (item: Item, next: (ok: boolean) => void): [HTMLDivElement, () => void] {
-  const [submitBtn, enable] = createSubmitButton()
+    const [submitBtn, enable] = createSubmitButton();
 
-  const [body, check, resize] = createItemBody(item, next, enable)
-  const footer = createItemFooter(submitBtn)
+    const [body, check, resize] = createItemBody(item, next, enable);
+    const footer = createItemFooter(submitBtn);
 
-  submitBtn.addEventListener('click', check)
+    submitBtn.addEventListener("click", check);
 
-  const div = document.createElement('div')
-  div.classList.add('item')
-  div.append(body, footer)
-  return [div, resize]
+    const div = document.createElement("div");
+    div.classList.add("item");
+    div.append(body, footer);
+    return [div, resize];
 }

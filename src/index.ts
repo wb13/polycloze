@@ -1,2 +1,2 @@
-import './index.css'
-import './components.ts'
+import "./index.css";
+import "./components.ts";
