@@ -46,8 +46,7 @@ export function createSentence (sentence: Sentence, next: (ok: boolean) => void,
   }
   const done = (answer: string, correct: boolean) => {
     dispatchUpdateCount(correct)
-    submitReview(answer, correct)
-    dispatchUnbuffer(answer)
+    submitReview(answer, correct).then(() => dispatchUnbuffer(answer))
     --remaining
     if (!correct) {
       ok = false
