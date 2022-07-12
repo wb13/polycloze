@@ -7,7 +7,7 @@ export function createScoreCounter (correct: number, incorrect: number): HTMLDiv
   div.innerHTML = `<span class="correct">${correct}</span>/${correct + incorrect}`
 
   const listener = (event: Event) => {
-    window.removeEventListener('polycloze-review', listener)
+    window.removeEventListener('polycloze-count', listener)
     if ((event as CustomEvent).detail.correct) {
       div.replaceWith(createScoreCounter(correct + 1, incorrect))
     } else {
@@ -15,6 +15,13 @@ export function createScoreCounter (correct: number, incorrect: number): HTMLDiv
     }
   }
 
-  window.addEventListener('polycloze-review', listener)
+  window.addEventListener('polycloze-count', listener)
   return div
+}
+
+export function dispatchUpdateCount (correct: boolean) {
+  const event = new CustomEvent('polycloze-count', {
+    detail: { correct }
+  })
+  window.dispatchEvent(event)
 }

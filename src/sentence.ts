@@ -1,5 +1,6 @@
 import './sentence.css'
 import { createBlank } from './blank'
+import { dispatchUpdateCount } from './counter'
 import { submitReview } from './data'
 
 export type Sentence = {
@@ -43,6 +44,7 @@ export function createSentence (sentence: Sentence, next: (ok: boolean) => void,
     }
   }
   const done = (answer: string, correct: boolean) => {
+    dispatchUpdateCount(correct)
     submitReview(answer, correct)
     --remaining
     if (!correct) {
