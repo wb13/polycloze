@@ -3,6 +3,7 @@
 :root {
 	--monospace: _, monospace;	/* 2nd monospace makes monospace font larger */
 
+	--small: 0.75em;
 	--medium: 1.5em;
 	--large: 2em;
 
@@ -120,6 +121,10 @@ input:focus {
 	padding: 0 1em;
 
 	background-color: whitesmoke;
+}
+
+.small {
+	font-size: var(--small);
 }
 
 .medium {
