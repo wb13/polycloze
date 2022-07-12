@@ -128,7 +128,7 @@ func (ig ItemGenerator) GenerateItems(words []string) []Item {
 	ig.GenerateItemsIntoChannel(ch, words)
 	close(ch)
 
-	var items []Item
+	items := make([]Item, 0)
 	for item := range ch {
 		items = append(items, item)
 	}
