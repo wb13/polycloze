@@ -3,6 +3,7 @@ import { createBlank } from "./blank";
 import { dispatchUnbuffer } from "./buffer";
 import { dispatchUpdateCount } from "./counter";
 import { submitReview } from "./data";
+import { edit } from "./unsaved";
 
 export type Sentence = {
   id: number
@@ -46,7 +47,11 @@ export function createSentence (sentence: Sentence, next: (ok: boolean) => void,
     };
     const done = (answer: string, correct: boolean) => {
         dispatchUpdateCount(correct);
-        submitReview(answer, correct).then(() => dispatchUnbuffer(answer));
+        const save = edit();
+        submitReview(answer, correct).then(() => {
+            dispatchUnbuffer(answer);
+            save();
+        });
         --remaining;
         if (!correct) {
             ok = false;
