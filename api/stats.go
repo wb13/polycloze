@@ -14,8 +14,7 @@ type LanguageStats struct {
 	Reviewed int `json:"reviewed"`
 
 	// today
-	Correct   int `json:"correct"`
-	Incorrect int `json:"incorrect"`
+	Correct int `json:"correct"`
 }
 
 func queryInt(path, query string) (int, error) {
@@ -62,12 +61,6 @@ func countCorrectToday(lang string) (int, error) {
 	return queryInt(basedir.Review(lang), query)
 }
 
-// Number of incorrect answers today.
-func countIncorrectToday(lang string) (int, error) {
-	query := `select count(*) from review where reviewed >= current_date and not(correct)`
-	return queryInt(basedir.Review(lang), query)
-}
-
 func getLanguageStats(lang string) (*LanguageStats, error) {
 	seen, err := countSeen(lang)
 	if err != nil {
@@ -94,17 +87,11 @@ func getLanguageStats(lang string) (*LanguageStats, error) {
 		return nil, err
 	}
 
-	incorrect, err := countIncorrectToday(lang)
-	if err != nil {
-		return nil, err
-	}
-
 	return &LanguageStats{
-		Seen:      seen,
-		Total:     total,
-		Learned:   learned,
-		Reviewed:  reviewed,
-		Correct:   correct,
-		Incorrect: incorrect,
+		Seen:     seen,
+		Total:    total,
+		Learned:  learned,
+		Reviewed: reviewed,
+		Correct:  correct,
 	}, nil
 }
