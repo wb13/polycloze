@@ -7,11 +7,11 @@ export type Item = {
   translation: string
 }
 
-function createTranslation (translation: string): HTMLDivElement {
-    const div = document.createElement("div");
-    div.classList.add("translation");
-    div.textContent = translation;
-    return div;
+function createTranslation (translation: string): HTMLParagraphElement {
+    const p = document.createElement("p");
+    p.classList.add("translation");
+    p.textContent = translation;
+    return p;
 }
 
 function createItemBody (item: Item, next: (ok: boolean) => void, enable: () => void): [HTMLDivElement, () => void, () => void] {
@@ -53,4 +53,13 @@ export function createItem (item: Item, next: (ok: boolean) => void): [HTMLDivEl
     div.classList.add("item");
     div.append(body, footer);
     return [div, resize];
+}
+
+export function createEmptyItem(): HTMLDivElement {
+    const text = "You've finished all reviews for now. Check back again later.";
+    const div = document.createElement("div");
+    div.classList.add("item");
+    div.append(p);
+    div.append(createTranslation(text));
+    return div;
 }
