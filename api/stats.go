@@ -57,6 +57,7 @@ and learned < current_date
 
 // Number of correct answers today.
 func countCorrectToday(lang string) (int, error) {
+	// NOTE assumes that 1 day is the smallest non-empty interval
 	query := `select count(*) from review where reviewed >= current_date and correct`
 	return queryInt(basedir.Review(lang), query)
 }
