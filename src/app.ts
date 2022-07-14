@@ -2,7 +2,7 @@ import "./app.css";
 import { ItemBuffer } from "./buffer";
 import { createItem } from "./item";
 
-export async function createApp (buffer: ItemBuffer): Promise<[HTMLDivElement, () => void]> {
+export async function createApp(buffer: ItemBuffer): Promise<[HTMLDivElement, () => void]> {
     const div = document.createElement("div");
     const item = await buffer.take();
     const next = () => {

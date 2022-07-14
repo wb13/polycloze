@@ -1,6 +1,6 @@
 const canvas = document.createElement("canvas");
 
-export function getFont (ele: Element): string {
+export function getFont(ele: Element): string {
     const style = getComputedStyle(ele);
     const weight = style.getPropertyValue("font-weight") || "normal";
     const size = style.getPropertyValue("font-size") || "12px";
@@ -8,7 +8,7 @@ export function getFont (ele: Element): string {
     return `${weight} ${size} ${family}`;
 }
 
-export function getWidth (font: string, text: string): string {
+export function getWidth(font: string, text: string): string {
     const context = canvas.getContext("2d") as CanvasRenderingContext2D;
     context.font = font;
     const metrics = context.measureText(text);

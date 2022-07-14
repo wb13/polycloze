@@ -10,13 +10,13 @@ export type Sentence = {
   parts: string[]
 }
 
-function createPart (part: string): HTMLSpanElement {
+function createPart(part: string): HTMLSpanElement {
     const span = document.createElement("span");
     span.textContent = part;
     return span;
 }
 
-function isBeginning (part: string): boolean {
+function isBeginning(part: string): boolean {
     switch (part) {
     case "":
     case "¿":
@@ -37,7 +37,7 @@ function isBeginning (part: string): boolean {
 // caller.
 // - check: ?
 // - resize: ?
-export function createSentence (sentence: Sentence, next: (ok: boolean) => void, enable: () => void): [HTMLDivElement, () => void, () => void] {
+export function createSentence(sentence: Sentence, next: (ok: boolean) => void, enable: () => void): [HTMLDivElement, () => void, () => void] {
     let ok = true;
     let remaining = Math.floor(sentence.parts.length / 2);
     const check = () => {
@@ -86,7 +86,7 @@ export function createSentence (sentence: Sentence, next: (ok: boolean) => void,
 
 // Prevents punctuation symbols from starting a new line.
 // Assumes all child nodes are elements.
-function fixPunctuationWrap (div: HTMLDivElement) {
+function fixPunctuationWrap(div: HTMLDivElement) {
     const inputs = div.querySelectorAll(".blank");
     for (let i = 0; i < inputs.length; i++) {
         const input = inputs[i];

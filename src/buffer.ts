@@ -4,7 +4,7 @@ import { fetchItems } from "./data";
 import { Item } from "./item";
 import { Sentence } from "./sentence";
 
-function * oddParts (sentence: Sentence): IterableIterator<string> {
+function * oddParts(sentence: Sentence): IterableIterator<string> {
     for (const [i, part] of sentence.parts.entries()) {
         if (i % 2 === 1) {
             yield part;
@@ -17,7 +17,7 @@ export class ItemBuffer {
     keys: Set<string>;
     backgroundFetch: Promise<Item[]> | null;
 
-    constructor () {
+    constructor() {
         this.buffer = [];
         this.keys = new Set();
         this.backgroundFetch = null;
@@ -32,7 +32,7 @@ export class ItemBuffer {
     }
 
     // Add item if it's not a duplicate.
-    add (item: Item): boolean {
+    add(item: Item): boolean {
         const parts = Array.from(oddParts(item.sentence));
         if (parts.some(part => this.keys.has(part))) {
             return false;
@@ -43,7 +43,7 @@ export class ItemBuffer {
     }
 
     // Returns Promise Item and a function should be called after submitReview.
-    async take (): Promise<Item> {
+    async take(): Promise<Item> {
         if (this.backgroundFetch != null) {
             const items = await this.backgroundFetch;
             this.backgroundFetch = null;
@@ -63,7 +63,7 @@ export class ItemBuffer {
     }
 }
 
-export function dispatchUnbuffer (word: string) {
+export function dispatchUnbuffer(word: string) {
     const event = new CustomEvent("polycloze-unbuffer", {
         detail: { word }
     });

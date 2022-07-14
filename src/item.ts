@@ -7,14 +7,14 @@ export type Item = {
   translation: string
 }
 
-function createTranslation (translation: string): HTMLParagraphElement {
+function createTranslation(translation: string): HTMLParagraphElement {
     const p = document.createElement("p");
     p.classList.add("translation");
     p.textContent = translation;
     return p;
 }
 
-function createItemBody (item: Item, next: (ok: boolean) => void, enable: () => void): [HTMLDivElement, () => void, () => void] {
+function createItemBody(item: Item, next: (ok: boolean) => void, enable: () => void): [HTMLDivElement, () => void, () => void] {
     const div = document.createElement("div");
     const [sentence, check, resize] = createSentence(item.sentence, next, enable);
     div.append(
@@ -24,14 +24,14 @@ function createItemBody (item: Item, next: (ok: boolean) => void, enable: () => 
     return [div, check, resize];
 }
 
-function createItemFooter (submitBtn: HTMLButtonElement): HTMLDivElement {
+function createItemFooter(submitBtn: HTMLButtonElement): HTMLDivElement {
     const div = document.createElement("div");
     div.classList.add("button-group");
     div.appendChild(submitBtn);
     return div;
 }
 
-function createSubmitButton (onClick?: (event: Event) => void): [HTMLButtonElement, () => void] {
+function createSubmitButton(onClick?: (event: Event) => void): [HTMLButtonElement, () => void] {
     const button = createButton("Check", onClick);
     button.disabled = true;
 
@@ -41,7 +41,7 @@ function createSubmitButton (onClick?: (event: Event) => void): [HTMLButtonEleme
     return [button, enable];
 }
 
-export function createItem (item: Item, next: (ok: boolean) => void): [HTMLDivElement, () => void] {
+export function createItem(item: Item, next: (ok: boolean) => void): [HTMLDivElement, () => void] {
     const [submitBtn, enable] = createSubmitButton();
 
     const [body, check, resize] = createItemBody(item, next, enable);

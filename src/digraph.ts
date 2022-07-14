@@ -27,11 +27,11 @@ const digraphs = new Map([
     ["ss", "ß"]
 ]);
 
-function reverseString (text: string): string {
+function reverseString(text: string): string {
     return text.split("").reverse().join("");
 }
 
-function substituteDigraph (digraph: string): string {
+function substituteDigraph(digraph: string): string {
     if (!digraph.startsWith("\\")) {
         throw new Error("digraph should start with '\\'");
     }
@@ -44,7 +44,7 @@ function substituteDigraph (digraph: string): string {
     return digraphs.get(reverseString(key)) || digraph;
 }
 
-export function substituteDigraphs (text: string): string {
+export function substituteDigraphs(text: string): string {
     let start = 0;
     while (start < text.length) {
         if (text[start] === "\\") {

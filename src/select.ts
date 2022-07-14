@@ -18,7 +18,7 @@ export type Language = {
   stats?: LanguageStats;
 }
 
-function createLanguageOption (language: Language, selected = false): HTMLOptionElement {
+function createLanguageOption(language: Language, selected = false): HTMLOptionElement {
     const option = document.createElement("option");
     option.value = language.code;
     option.selected = selected;
@@ -26,7 +26,7 @@ function createLanguageOption (language: Language, selected = false): HTMLOption
     return option;
 }
 
-function createLanguageSelect (languages: Language[]): HTMLSelectElement {
+function createLanguageSelect(languages: Language[]): HTMLSelectElement {
     const select = document.createElement("select");
     select.id = "language-select";
 
@@ -42,14 +42,14 @@ function createLanguageSelect (languages: Language[]): HTMLSelectElement {
     return select;
 }
 
-function createLanguageLabel (): HTMLLabelElement {
+function createLanguageLabel(): HTMLLabelElement {
     const label = document.createElement("label");
     label.htmlFor = "language-select";
     label.textContent = "🌐 ";
     return label;
 }
 
-export function createLanguageForm (languages: Language[]): HTMLFormElement {
+export function createLanguageForm(languages: Language[]): HTMLFormElement {
     const form = document.createElement("form");
     form.append(createLanguageLabel(), createLanguageSelect(languages));
     return form;
