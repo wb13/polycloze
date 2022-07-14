@@ -32,8 +32,7 @@ export class ScoreCounter extends HTMLElement {
     async connectedCallback() {
         const languages = await supportedLanguages();
         const { stats } = languages.find(l => l.code === getL2())!;
-
-        this.appendChild(createScoreCounter(stats?.correct || 0, stats?.incorrect || 0));
+        this.appendChild(createScoreCounter(stats?.correct || 0));
     }
 }
 

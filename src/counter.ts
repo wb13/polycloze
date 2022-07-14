@@ -1,17 +1,17 @@
 /* Score counter. */
 
 // Returns a score counter in a div.
-export function createScoreCounter(correct: number, incorrect: number): HTMLDivElement {
+export function createScoreCounter(correct: number): HTMLDivElement {
     const div = document.createElement("div");
     div.classList.add("medium");
-    div.innerHTML = `<span class="correct">${correct}</span>/${correct + incorrect}`;
+    div.innerHTML = `<span class="correct">${correct}</span>`;
 
     const listener = (event: Event) => {
         window.removeEventListener("polycloze-count", listener);
         if ((event as CustomEvent).detail.correct) {
-            div.replaceWith(createScoreCounter(correct + 1, incorrect));
+            div.replaceWith(createScoreCounter(correct + 1));
         } else {
-            div.replaceWith(createScoreCounter(correct, incorrect + 1));
+            div.replaceWith(createScoreCounter(correct));
         }
     };
 
