@@ -15,12 +15,10 @@ function * oddParts(sentence: Sentence): IterableIterator<string> {
 export class ItemBuffer {
     buffer: Item[];
     keys: Set<string>;
-    backgroundFetch: Promise<Item[]> | null;
 
     constructor() {
         this.buffer = [];
         this.keys = new Set();
-        this.backgroundFetch = null;
 
         const listener = (event: Event) => {
             const word = (event as CustomEvent).detail.word;
@@ -42,24 +40,22 @@ export class ItemBuffer {
         return true;
     }
 
-    // Returns Promise Item and a function should be called after submitReview.
-    async take(): Promise<Item> {
-        if (this.backgroundFetch != null) {
-            const items = await this.backgroundFetch;
-            this.backgroundFetch = null;
+    // Returns Promise<Item>.
+    // May return undefined if there are no items left for review and there are
+    // no new items left.
+    async take(): Promise<Item | undefined> {
+        if (this.buffer.length === 0) {
+            const items = await fetchItems(2, Array.from(this.keys));
             items.forEach(item => this.add(item));
+            return this.buffer.shift();
         }
-
-        if (this.buffer.length === 0) {
-            this.backgroundFetch = fetchItems(2, Array.from(this.keys));
-        } else if (this.buffer.length < 20) {
-            this.backgroundFetch = fetchItems(10, Array.from(this.keys));
+        if (this.buffer.length < 20) {
+            setTimeout(async() => {
+                const items = await fetchItems(10, Array.from(this.keys));
+                items.forEach(item => this.add(item));
+            });
         }
-
-        if (this.buffer.length === 0) {
-            return this.take();
-        }
-        return this.buffer.shift()!;
+        return this.buffer.shift();
     }
 }
 

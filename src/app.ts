@@ -1,10 +1,15 @@
 import "./app.css";
 import { ItemBuffer } from "./buffer";
-import { createItem } from "./item";
+import { createEmptyItem, createItem } from "./item";
 
 export async function createApp(buffer: ItemBuffer): Promise<[HTMLDivElement, () => void]> {
     const div = document.createElement("div");
     const item = await buffer.take();
+
+    if (item == null) {
+        return [createEmptyItem(), () => undefined];
+    }
+
     const next = () => {
         createApp(buffer).then(([replacement, ready]) => {
             div.replaceWith(replacement);
