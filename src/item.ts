@@ -59,7 +59,6 @@ export function createEmptyItem(): HTMLDivElement {
     const text = "You've finished all reviews for now. Check back again later.";
     const div = document.createElement("div");
     div.classList.add("item");
-    div.append(p);
     div.append(createTranslation(text));
     return div;
 }
