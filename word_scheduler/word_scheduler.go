@@ -16,7 +16,7 @@ func GetWords(s *database.Session, n int) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	words, err := word_queue.GetNewWords(s, n-len(reviews))
+	words, err := word_queue.GetNewWords(s, n-len(reviews), 0)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func GetWordsAt(s *database.Session, n int, due time.Time) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	words, err := word_queue.GetNewWords(s, n-len(reviews))
+	words, err := word_queue.GetNewWords(s, n-len(reviews), 0)
 	if err != nil {
 		return nil, err
 	}
