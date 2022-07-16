@@ -44,8 +44,33 @@ func isTooHard(correct, incorrect int) bool {
 	return Wilson(correct, incorrect, z) < Wilson(1, 0, z) // ~0.5834
 }
 
-// Auto-tunes intervals.
+func tuneDifficulty(tx *sql.Tx) error {
+	query := `select frequency_class, correct, incorrect from student`
+	row := tx.QueryRow(query)
+
+	var frequency_class, correct, incorrect int
+	if err := row.Scan(&frequency_class, &correct, &incorrect); err != nil {
+		return err
+	}
+
+	if !hasEnoughSamples(correct, incorrect) {
+		return nil
+	}
+
+	if isTooHard(correct, incorrect) {
+		return decreaseDifficulty(tx)
+	} else if isTooEasy(correct, incorrect) {
+		return increaseDifficulty(tx)
+	}
+	return nil
+}
+
+// Auto-tunes intervals and base difficulty (student.frequency_class).
 func autoTune(tx *sql.Tx) error {
+	if err := tuneDifficulty(tx); err != nil {
+		return err
+	}
+
 	query := `select interval, correct, incorrect from interval order by interval asc`
 	rows, err := tx.Query(query)
 	if err != nil {
@@ -272,5 +297,27 @@ func updateStats(tx *sql.Tx, review *Review, correct bool) error {
 		query = `update interval set incorrect = incorrect + 1 where interval = ?`
 	}
 	_, err := tx.Exec(query, seconds(interval))
+	return err
+}
+
+func increaseDifficulty(tx *sql.Tx) error {
+	query := `
+update student set
+	frequency_class = frequency_class + 1,
+	correct = 0,
+	incorrect = 0
+`
+	_, err := tx.Exec(query)
+	return err
+}
+
+func decreaseDifficulty(tx *sql.Tx) error {
+	query := `
+update student set
+	frequency_class = max(0, frequency_class - 1),
+	correct = 0,
+	incorrect = 0
+`
+	_, err := tx.Exec(query)
 	return err
 }
