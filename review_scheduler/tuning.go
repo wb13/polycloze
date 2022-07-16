@@ -45,11 +45,11 @@ func isTooHard(correct, incorrect int) bool {
 }
 
 func tuneDifficulty(tx *sql.Tx) error {
-	query := `select frequency_class, correct, incorrect from student`
+	query := `select correct, incorrect from student`
 	row := tx.QueryRow(query)
 
-	var frequency_class, correct, incorrect int
-	if err := row.Scan(&frequency_class, &correct, &incorrect); err != nil {
+	var correct, incorrect int
+	if err := row.Scan(&correct, &incorrect); err != nil {
 		return err
 	}
 
