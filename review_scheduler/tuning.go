@@ -273,7 +273,7 @@ func increaseInterval(tx *sql.Tx, interval time.Duration) error {
 }
 
 // This should only be called when an item is seen for the first time.
-func updateStudentStats(tx *sql.Tx, correct bool) error {
+func UpdateStudentStats(tx *sql.Tx, correct bool) error {
 	query := `update student set correct = correct + 1`
 	if !correct {
 		query = `update student set incorrect = incorrect + 1`
@@ -283,11 +283,11 @@ func updateStudentStats(tx *sql.Tx, correct bool) error {
 }
 
 // Updates interval and student tables.
-func updateStats(tx *sql.Tx, review *Review, correct bool) error {
+func updateIntervalStats(tx *sql.Tx, review *Review, correct bool) error {
 	var interval time.Duration = 0
 	if review != nil {
 		interval = review.Interval
-	} else if err := updateStudentStats(tx, correct); err != nil {
+	} else if err := UpdateStudentStats(tx, correct); err != nil {
 		return err
 	}
 
