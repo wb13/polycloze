@@ -3,14 +3,30 @@ package word_scheduler
 import (
 	"testing"
 
+	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
 	rs "github.com/lggruspe/polycloze/review_scheduler"
 )
 
+func init() {
+	basedir.Init()
+}
+
 func wordScheduler() *database.Session {
 	db, _ := rs.New(":memory:")
-	s, _ := database.NewSession(db, "", "", "")
+	s, err := database.NewSession(db, "", basedir.Language("spa"), "")
+	if err != nil {
+		panic(err)
+	}
 	return s
+}
+
+func TestFrequencyClass(t *testing.T) {
+	s := wordScheduler()
+	class := frequencyClass(s, "hola")
+	if class <= 0 {
+		t.Fatal("expected frequency class to be > 0")
+	}
 }
 
 func TestCase(t *testing.T) {
