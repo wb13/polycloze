@@ -2,8 +2,25 @@
 package word_queue
 
 import (
+	"database/sql"
+
 	"github.com/lggruspe/polycloze/database"
 )
+
+// NOTE Does not close Rows.
+func getNRows(rows *sql.Rows, n int, pred func(word string) bool) ([]string, error) {
+	var words []string
+	for rows.Next() && len(words) < n {
+		var word string
+		if err := rows.Scan(&word); err != nil {
+			return nil, err
+		}
+		if pred(word) {
+			words = append(words, word)
+		}
+	}
+	return words, nil
+}
 
 // Gets up to n new words from db.
 // Pass a negative n if you don't want a word limit.
@@ -19,16 +36,9 @@ limit ?
 		return nil, err
 	}
 	defer rows.Close()
-
-	var words []string
-	for rows.Next() {
-		var word string
-		if err := rows.Scan(&word); err != nil {
-			return nil, err
-		}
-		words = append(words, word)
-	}
-	return words, nil
+	return getNRows(rows, n, func(_ string) bool {
+		return true
+	})
 }
 
 // Same as GetNewWords, but takes a predicate argument.
@@ -44,16 +54,5 @@ order by frequency desc
 		return nil, err
 	}
 	defer rows.Close()
-
-	var words []string
-	for rows.Next() && len(words) < n {
-		var word string
-		if err := rows.Scan(&word); err != nil {
-			return nil, err
-		}
-		if pred(word) {
-			words = append(words, word)
-		}
-	}
-	return words, nil
+	return getNRows(rows, n, pred)
 }
