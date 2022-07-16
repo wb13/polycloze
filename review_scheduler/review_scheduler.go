@@ -118,7 +118,7 @@ func UpdateReviewAt(s *database.Session, item string, correct bool, now time.Tim
 		return err
 	}
 
-	if err := updateIntervalStats(tx, review, correct); err != nil {
+	if err := updateStats(tx, review, correct); err != nil {
 		return err
 	}
 
