@@ -56,6 +56,34 @@ limit ?
 	})
 }
 
+func getWordsAboveDifficultyWith(s *database.Session, n, preferredDifficulty int, pred func(word string) bool) ([]string, error) {
+	query := `
+select word from l2.word where frequency_class >= ? and word not in
+(select item from review)
+order by frequency desc
+`
+	rows, err := s.Query(query, preferredDifficulty, n)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	return getNRows(rows, n, pred)
+}
+
+func getWordsBelowDifficultyWith(s *database.Session, n, preferredDifficulty int, pred func(word string) bool) ([]string, error) {
+	query := `
+select word from l2.word where frequency_class < ? and word not in
+(select item from review)
+order by frequency asc
+`
+	rows, err := s.Query(query, preferredDifficulty, n)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	return getNRows(rows, n, pred)
+}
+
 // Gets up to n new words from db.
 // Pass a negative n if you don't want a word limit.
 // Uses preferredDifficulty as minimum word frequency class.
@@ -80,16 +108,19 @@ func GetNewWords(s *database.Session, n, preferredDifficulty int) ([]string, err
 
 // Same as GetNewWords, but takes a predicate argument.
 // Only words that satisfy the predicate are included in the result.
-func GetNewWordsWith(s *database.Session, n int, pred func(word string) bool) ([]string, error) {
-	query := `
-select word from l2.word where word not in
-(select item from review)
-order by frequency desc
-`
-	rows, err := s.Query(query)
+func GetNewWordsWith(s *database.Session, n, preferredDifficulty int, pred func(word string) bool) ([]string, error) {
+	words, err := getWordsAboveDifficultyWith(s, n, preferredDifficulty, pred)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	return getNRows(rows, n, pred)
+	if preferredDifficulty <= 0 || len(words) >= n {
+		return words, nil
+	}
+
+	more, err := getWordsBelowDifficultyWith(s, n-len(words), preferredDifficulty, pred)
+	if err != nil {
+		return nil, err
+	}
+	words = append(words, more...)
+	return words, nil
 }

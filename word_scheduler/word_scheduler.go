@@ -43,7 +43,7 @@ func GetWordsWith(s *database.Session, n int, pred func(word string) bool) ([]st
 	if err != nil {
 		return nil, err
 	}
-	words, err := word_queue.GetNewWordsWith(s, n-len(reviews), pred)
+	words, err := word_queue.GetNewWordsWith(s, n-len(reviews), 0, pred)
 	if err != nil {
 		return nil, err
 	}
