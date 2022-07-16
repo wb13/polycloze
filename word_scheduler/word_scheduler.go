@@ -10,13 +10,23 @@ import (
 	"github.com/lggruspe/polycloze/word_queue"
 )
 
+// Gets preferred difficulty/frequency_class.
+func preferredDifficulty(s *database.Session) int {
+	query := `select frequency_class from student`
+
+	var difficulty int
+	row := s.QueryRow(query)
+	row.Scan(&difficulty)
+	return difficulty
+}
+
 // NOTE Only returns new words if words for review < n.
 func GetWords(s *database.Session, n int) ([]string, error) {
 	reviews, err := rs.ScheduleReviewNow(s, n)
 	if err != nil {
 		return nil, err
 	}
-	words, err := word_queue.GetNewWords(s, n-len(reviews), 0)
+	words, err := word_queue.GetNewWords(s, n-len(reviews), preferredDifficulty(s))
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +39,7 @@ func GetWordsAt(s *database.Session, n int, due time.Time) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	words, err := word_queue.GetNewWords(s, n-len(reviews), 0)
+	words, err := word_queue.GetNewWords(s, n-len(reviews), preferredDifficulty(s))
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +53,7 @@ func GetWordsWith(s *database.Session, n int, pred func(word string) bool) ([]st
 	if err != nil {
 		return nil, err
 	}
-	words, err := word_queue.GetNewWordsWith(s, n-len(reviews), 0, pred)
+	words, err := word_queue.GetNewWordsWith(s, n-len(reviews), preferredDifficulty(s), pred)
 	if err != nil {
 		return nil, err
 	}
