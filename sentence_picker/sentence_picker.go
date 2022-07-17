@@ -74,42 +74,6 @@ order by random() limit 1
 	return getSentence(s, sentence)
 }
 
-// Returns first sentence where the predicate value is true.
-func FindSentence(s *database.Session, word string, maxDifficulty int, pred func(sentence *Sentence) bool) (*Sentence, error) {
-	id, err := findWordId(s, word)
-	if err != nil {
-		return nil, err
-	}
-
-	// Select sentence that contains word and isn't too difficult
-	query := `
-select id from l2.contains join l2.sentence on (contains.sentence = id)
-where word = ? and frequency_class <= ? order by random()
-`
-	rows, err := s.Query(query, id, maxDifficulty)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var sentence int
-		if err := rows.Scan(&sentence); err != nil {
-			continue
-		}
-
-		ps, err := getSentence(s, sentence)
-		if err != nil {
-			continue
-		}
-
-		if pred(ps) {
-			return ps, nil
-		}
-	}
-	return nil, ErrNoSentenceFound
-}
-
 func FindTranslatedSentence(s *database.Session, word string, maxDifficulty int) (*Sentence, error) {
 	id, err := findWordId(s, word)
 	if err != nil {
