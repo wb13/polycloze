@@ -27,13 +27,13 @@ func hasEnoughSamples(correct, incorrect int) bool {
 
 func isTooEasy(correct, incorrect int) bool {
 	// Threshold can't be too high or the tuner will be too conservative.
-	// Wilson(4, 0, z) ~0.8485 is too low, because Wilson(3, 1) < Wilson(1, 0).
-	// This would cause the algorithm to auto-tune as soon as the user makes a
-	// mistake, so the sample size is always n <= 4.
-	// Wilson(5, 0, z) allows the user to make a mistake without immediate re-tuning.
+	// Only uses 0.80 confidence, higher values require too many samples.
 
-	z := -0.845                                             // lower bound z-score for one-sided 80% confidence level
-	return Wilson(correct, incorrect, z) >= Wilson(5, 0, z) // ~0.875
+	z := -0.845 // z-score for one-sided confidence interval (80% confidence)
+	lower := Wilson(correct, incorrect, z)
+
+	// 80% likelihood that the true proportion is bounded below by `lower`
+	return lower > 0.9
 }
 
 func isTooHard(correct, incorrect int) bool {
