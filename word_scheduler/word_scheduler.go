@@ -13,7 +13,7 @@ import (
 )
 
 // Gets preferred difficulty/frequency_class.
-func preferredDifficulty(s *database.Session) int {
+func PreferredDifficulty(s *database.Session) int {
 	query := `select frequency_class from student`
 
 	var difficulty int
@@ -28,7 +28,7 @@ func GetWords(s *database.Session, n int) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	words, err := word_queue.GetNewWords(s, n-len(reviews), preferredDifficulty(s))
+	words, err := word_queue.GetNewWords(s, n-len(reviews), PreferredDifficulty(s))
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func GetWordsAt(s *database.Session, n int, due time.Time) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	words, err := word_queue.GetNewWords(s, n-len(reviews), preferredDifficulty(s))
+	words, err := word_queue.GetNewWords(s, n-len(reviews), PreferredDifficulty(s))
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func GetWordsWith(s *database.Session, n int, pred func(word string) bool) ([]st
 	if err != nil {
 		return nil, err
 	}
-	words, err := word_queue.GetNewWordsWith(s, n-len(reviews), preferredDifficulty(s), pred)
+	words, err := word_queue.GetNewWordsWith(s, n-len(reviews), PreferredDifficulty(s), pred)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func updateStudentStats(s *database.Session, correct bool) error {
 }
 
 func UpdateWord(s *database.Session, word string, correct bool) error {
-	if frequencyClass(s, word) >= preferredDifficulty(s) && isNewWord(s, word) {
+	if frequencyClass(s, word) >= PreferredDifficulty(s) && isNewWord(s, word) {
 		if err := updateStudentStats(s, correct); err != nil {
 			return err
 		}
@@ -101,7 +101,7 @@ func UpdateWord(s *database.Session, word string, correct bool) error {
 
 // See UpdateReviewAt.
 func UpdateWordAt(s *database.Session, word string, correct bool, at time.Time) error {
-	if frequencyClass(s, word) >= preferredDifficulty(s) && isNewWord(s, word) {
+	if frequencyClass(s, word) >= PreferredDifficulty(s) && isNewWord(s, word) {
 		if err := updateStudentStats(s, correct); err != nil {
 			return err
 		}
