@@ -15,8 +15,9 @@ func isTooEasy(correct, incorrect int) bool {
 	z := -0.845 // z-score for one-sided confidence interval (80% confidence)
 	lower := Wilson(correct, incorrect, z)
 
-	// 80% likelihood that the true proportion is bounded below by `lower`
-	return lower > 0.9
+	// 80% likelihood that the true proportion is bounded below by `lower`.
+	// > 0.9 test is too slow when incorrect > 0
+	return lower > 0.875
 }
 
 func isTooHard(correct, incorrect int) bool {
