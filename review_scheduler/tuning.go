@@ -37,11 +37,11 @@ func isTooEasy(correct, incorrect int) bool {
 }
 
 func isTooHard(correct, incorrect int) bool {
-	// The threshold is Wilson(1, 0, z), because the interval shouldn't be made
-	// easier if the user got all reviews right.
+	z := 2.325 // z-score for one-sided confidence interval
+	upper := Wilson(correct, incorrect, z)
 
-	z := -0.845                                            // lower bound z-score for one-sided 80% confidence level
-	return Wilson(correct, incorrect, z) < Wilson(1, 0, z) // ~0.5834
+	// 99% confident that the true proportion is bounded above by `upper`
+	return upper < 0.8
 }
 
 func tuneDifficulty(tx *sql.Tx) error {
