@@ -82,7 +82,7 @@ func (ig ItemGenerator) GenerateItem(word string) (Item, error) {
 	}
 	defer session.Close()
 
-	sentence, err := sentence_picker.FindTranslatedSentence(session, word, 8)
+	sentence, err := sentence_picker.FindTranslatedSentence(session, word, word_scheduler.PreferredDifficulty(session))
 	if err != nil {
 		return item, err
 	}

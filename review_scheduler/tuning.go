@@ -37,7 +37,6 @@ func tuneDifficulty(tx *sql.Tx) error {
 		return err
 	}
 
-
 	if isTooHard(correct, incorrect) {
 		return decreaseDifficulty(tx)
 	} else if isTooEasy(correct, incorrect) {
