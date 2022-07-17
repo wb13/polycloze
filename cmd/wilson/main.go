@@ -11,7 +11,10 @@ import (
 
 func experiment(ns, nf int, z float64) {
 	lower := rs.Wilson(ns, nf, z)
-	fmt.Printf("[wilson ns=%v nf=%v z=%v] ≥ %v\n", ns, nf, z, lower)
+	upper := rs.Wilson(ns, nf, -z)
+	fmt.Printf("[wilson ns=%v nf=%v z=%v] >= %v\n", ns, nf, z, lower)
+	fmt.Printf("[wilson ns=%v nf=%v z=%v] <= %v\n", ns, nf, -z, upper)
+	fmt.Println()
 }
 
 func atoi(s string) int {
@@ -35,7 +38,7 @@ func main() {
 
 	for i, z := range zs {
 		a := confidence[i]
-		fmt.Printf("confidence:%v ", a)
+		fmt.Println("confidence:", a)
 		experiment(ns, nf, z)
 	}
 }
