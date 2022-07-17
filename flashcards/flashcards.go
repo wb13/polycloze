@@ -89,7 +89,8 @@ func (ig ItemGenerator) GenerateItem(word string) (Item, error) {
 
 	translation, err := translator.Translate(session, sentence.Text)
 	if err != nil {
-		panic("unexpected error")
+		message := fmt.Sprintf("failed to find translation for sentence: %v, %v\n", sentence.Id, sentence.Text)
+		panic(message)
 	}
 	return Item{
 		Translation: translation,
