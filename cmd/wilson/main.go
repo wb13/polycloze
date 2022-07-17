@@ -12,8 +12,8 @@ import (
 func experiment(ns, nf int, z float64) {
 	lower := rs.Wilson(ns, nf, z)
 	upper := rs.Wilson(ns, nf, -z)
-	fmt.Printf("[wilson ns=%v nf=%v z=%v] >= %v\n", ns, nf, z, lower)
-	fmt.Printf("[wilson ns=%v nf=%v z=%v] <= %v\n", ns, nf, -z, upper)
+	fmt.Printf("%.4f <= p <= 1\n", lower)
+	fmt.Printf("0 <= p <= %.4f\n", upper)
 	fmt.Println()
 }
 
