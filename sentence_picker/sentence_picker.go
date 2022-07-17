@@ -60,12 +60,17 @@ func PickSentence(s *database.Session, word string, maxDifficulty int) (*Sentenc
 	}
 
 	// Select sentence that contains word and isn't too "difficult"
+	// I.e. sentence.frequency_class <= student.frequency_class, or if there's no
+	// such sentence, returns the sentence with the minimum frequency_class instead.
 	query := `
-select id from l2.contains join l2.sentence on (contains.sentence = id)
-where word = ? and frequency_class <= ?
-order by random() limit 1
+select coalesce(
+	(select id from l2.contains join l2.sentence on (contains.sentence = id)
+		where word = ? and frequency_class <= ?
+		order by random() limit 1),
+	(select coalesce(id, min(frequency_class)) from l2.contains join l2.sentence on (contains.sentence = id)
+		where word = ?))
 `
-	row := s.QueryRow(query, id, maxDifficulty)
+	row := s.QueryRow(query, id, maxDifficulty, id)
 
 	var sentence int
 	if err := row.Scan(&sentence); err != nil {
@@ -80,21 +85,27 @@ func FindTranslatedSentence(s *database.Session, word string, maxDifficulty int)
 		return nil, err
 	}
 
-	// Select translatable sentence that contains word and isn't too difficult
+	// Select translatable sentence that contains word and isn't too difficult (see PickSentence for details)
 
 	query := `
-select id from l2.contains join l2.sentence on (id = sentence)
-where tatoeba_id in (select l2 from translation) and word = ? and frequency_class <= ?
-order by random() limit 1
+select coalesce(
+	(select id from l2.contains join l2.sentence on (id = sentence)
+		where tatoeba_id in (select l2 from translation) and word = ? and frequency_class <= ?
+		order by random() limit 1),
+	(select coalesce(id, min(frequency_class)) from l2.contains join l2.sentence on (id = sentence)
+		where tatoeba_id in (select l2 from translation) and word = ?))
 `
 	if reversed, _ := translator.IsReversed(s); reversed {
 		query = `
-select id from l2.contains join l2.sentence on (id = sentence)
-where tatoeba_id in (select l1 from translation) and word = ? and frequency_class <= ?
-order by random() limit 1
+select coalesce(
+	(select id from l2.contains join l2.sentence on (id = sentence)
+		where tatoeba_id in (select l1 from translation) and word = ? and frequency_class <= ?
+		order by random() limit 1),
+	(select coalesce(id, min(frequency_class)) from l2.contains join l2.sentence on (id = sentence)
+		where tatoeba_id in (select l1 from translation) and word = ?))
 `
 	}
-	row := s.QueryRow(query, id, maxDifficulty)
+	row := s.QueryRow(query, id, maxDifficulty, id)
 
 	var sentence int
 	if err := row.Scan(&sentence); err != nil {
