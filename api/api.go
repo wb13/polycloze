@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -59,8 +60,9 @@ func generateFlashcards(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *
 	w.Write(bytes)
 }
 
-func success() []byte {
-	return []byte("{\"success\": true}")
+// frequencyClass is taken from student.frequency_class
+func success(frequencyClass int) []byte {
+	return []byte(fmt.Sprintf("{\"success\": true, \"frequencyClass\": %v}", frequencyClass))
 }
 
 func handleReviewUpdate(ig *flashcards.ItemGenerator, l2 string, w http.ResponseWriter, r *http.Request) {
@@ -84,14 +86,17 @@ func handleReviewUpdate(ig *flashcards.ItemGenerator, l2 string, w http.Response
 	}
 	defer session.Close()
 
+	var frequencyClass int
 	for _, review := range reviews.Reviews {
 		err := word_scheduler.UpdateWord(session, review.Word, review.Correct)
 		if err != nil {
 			log.Fatalf("failed to update word: '%v'\n\t%v\n", review.Word, err.Error())
 		}
+		frequencyClass = word_scheduler.PreferredDifficulty(session)
+
 		logger.LogReview(l2, review.Correct, review.Word)
 	}
-	w.Write(success())
+	w.Write(success(frequencyClass))
 }
 
 // Middleware
