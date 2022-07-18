@@ -49,7 +49,7 @@ export class ItemBuffer {
             items.forEach(item => this.add(item));
             return this.buffer.shift();
         }
-        if (this.buffer.length < 20) {
+        if (this.buffer.length < 10) {
             setTimeout(async() => {
                 const items = await fetchItems(10, Array.from(this.keys));
                 items.forEach(item => this.add(item));
