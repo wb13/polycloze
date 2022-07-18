@@ -9,6 +9,7 @@ export type ItemsSchema = {
 
 export type ReviewSchema = {
     success: boolean;
+    frequencyClass: number;    // describes student's level
 };
 
 export type SupportedLanguagesSchema = {

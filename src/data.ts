@@ -77,7 +77,7 @@ export async function fetchItems(n = 10, x: string[] = []): Promise<Item[]> {
 
 // Returns response status (success or not).
 // Also dispatches a custom event on window.
-export async function submitReview(word: string, correct: boolean): Promise<boolean> {
+export async function submitReview(word: string, correct: boolean): Promise<ReviewSchema> {
     const url = new URL(currentCourse(), src);
     const options = {
         body: JSON.stringify({
@@ -92,6 +92,5 @@ export async function submitReview(word: string, correct: boolean): Promise<bool
         method: "POST",
         mode: "cors" as RequestMode
     };
-    const json = await fetchJson<ReviewSchema>(url, options);
-    return json.success;
+    return await fetchJson<ReviewSchema>(url, options);
 }
