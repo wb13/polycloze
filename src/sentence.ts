@@ -32,12 +32,13 @@ function isBeginning(part: string): boolean {
 // Note: takes two callback functions.
 // - next: ?
 // - enable: Enables submit button (used by createBlank).
+// - clearBuffer: Called when frequencyClass changes to remove stale items in buffer
 //
 // In addition to a div element, also returns two functions to be called by the
 // caller.
 // - check: ?
 // - resize: ?
-export function createSentence(sentence: Sentence, next: (ok: boolean) => void, enable: () => void): [HTMLDivElement, () => void, () => void] {
+export function createSentence(sentence: Sentence, next: (ok: boolean) => void, enable: () => void, clearBuffer: (frequencyClass: number) => void): [HTMLDivElement, () => void, () => void] {
     let ok = true;
     let remaining = Math.floor(sentence.parts.length / 2);
     const check = () => {
@@ -48,9 +49,10 @@ export function createSentence(sentence: Sentence, next: (ok: boolean) => void, 
     const done = (answer: string, correct: boolean) => {
         dispatchUpdateCount(correct);
         const save = edit();
-        submitReview(answer, correct).then(() => {
+        submitReview(answer, correct).then(result => {
             dispatchUnbuffer(answer);
             save();
+            clearBuffer(result.frequencyClass);
         });
         --remaining;
         if (!correct) {

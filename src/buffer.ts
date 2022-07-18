@@ -16,6 +16,8 @@ export class ItemBuffer {
     buffer: Item[];
     keys: Set<string>;
 
+    frequencyClass?: number;
+
     constructor() {
         this.buffer = [];
         this.keys = new Set();
@@ -56,6 +58,14 @@ export class ItemBuffer {
             });
         }
         return this.buffer.shift();
+    }
+
+    clearIfStale(frequencyClass: number) {
+        if (this.frequencyClass != undefined && this.frequencyClass != frequencyClass) {
+            // Leaves some items in the buffer so flashcards come continuously.
+            this.buffer.splice(3);
+        }
+        this.frequencyClass = frequencyClass;
     }
 }
 

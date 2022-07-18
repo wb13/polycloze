@@ -14,9 +14,9 @@ function createTranslation(translation: string): HTMLParagraphElement {
     return p;
 }
 
-function createItemBody(item: Item, next: (ok: boolean) => void, enable: () => void): [HTMLDivElement, () => void, () => void] {
+function createItemBody(item: Item, next: (ok: boolean) => void, enable: () => void, clearBuffer: (frequencyClass: number) => void): [HTMLDivElement, () => void, () => void] {
     const div = document.createElement("div");
-    const [sentence, check, resize] = createSentence(item.sentence, next, enable);
+    const [sentence, check, resize] = createSentence(item.sentence, next, enable, clearBuffer);
     div.append(
         sentence,
         createTranslation(item.translation)
@@ -41,10 +41,10 @@ function createSubmitButton(onClick?: (event: Event) => void): [HTMLButtonElemen
     return [button, enable];
 }
 
-export function createItem(item: Item, next: (ok: boolean) => void): [HTMLDivElement, () => void] {
+export function createItem(item: Item, next: (ok: boolean) => void, clearBuffer: (frequencyClass: number) => void): [HTMLDivElement, () => void] {
     const [submitBtn, enable] = createSubmitButton();
 
-    const [body, check, resize] = createItemBody(item, next, enable);
+    const [body, check, resize] = createItemBody(item, next, enable, clearBuffer);
     const footer = createItemFooter(submitBtn);
 
     submitBtn.addEventListener("click", check);
