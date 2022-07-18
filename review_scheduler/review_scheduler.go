@@ -118,8 +118,11 @@ func UpdateReviewAt(s *database.Session, item string, correct bool, now time.Tim
 		return err
 	}
 
-	if err := updateIntervalStats(tx, review, correct); err != nil {
-		return err
+	if review == nil || !now.Before(review.Due) {
+		// Only update interval stats if the student didn't cram
+		if err := updateIntervalStats(tx, review, correct); err != nil {
+			return err
+		}
 	}
 
 	next, err := nextReview(tx, review, correct, now)
