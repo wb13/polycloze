@@ -3,12 +3,9 @@ package sentence_picker
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 
 	"github.com/lggruspe/polycloze/database"
 )
-
-var ErrNoSentenceFound error = errors.New("no sentence found")
 
 type Sentence struct {
 	Id        int
