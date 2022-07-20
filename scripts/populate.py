@@ -25,7 +25,7 @@ def parse_args() -> Namespace:
     return parser.parse_args()
 
 
-def sources(translations: Path, reverse: bool = False) -> set[int]
+def sources(translations: Path, reverse: bool = False) -> set[int]:
     result = set()
     with open(translations) as file:
         reader = csv.reader(file)
@@ -70,7 +70,7 @@ def populate_sentence(con: Connection, language: Path, translations: Path, rever
     return words
 
 
-def populate_word(con: Connection, language: Path, words: set[string]) -> None:
+def populate_word(con: Connection, language: Path, words: set[str]) -> None:
     query = "insert into word (word, frequency_class) values (?, ?)"
 
     with open(language/"words.csv") as file:
