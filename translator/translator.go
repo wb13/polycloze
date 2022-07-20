@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	"math/rand"
 
 	"github.com/lggruspe/polycloze/database"
 )
@@ -20,8 +19,7 @@ type Sentence struct {
 
 func findSentence(s *database.Session, text string) (Sentence, error) {
 	query := `
-select id, tatoeba_id, tokens from l2.sentence where text = ?
-collate nocase
+select id, tatoeba_id, tokens from sentence where text = ? collate nocase
 `
 	row := s.QueryRow(query, text)
 
@@ -45,68 +43,18 @@ collate nocase
 	return sentence, nil
 }
 
-func IsReversed(s *database.Session) (bool, error) {
-	var l1, l2 string
-
-	query := `select code from l1.info`
-	row := s.QueryRow(query)
-	if err := row.Scan(&l1); err != nil {
-		return false, err
-	}
-
-	query = `select code from l2.info`
-	row = s.QueryRow(query)
-	if err := row.Scan(&l2); err != nil {
-		return false, err
-	}
-
-	if l1 == l2 {
-		panic("invalid language pair")
-	}
-
-	return l2 < l1, nil
-}
-
-// Returns tatoeba translations.
-func tatoebaTranslate(s *database.Session, text string) []string {
+func Translate(s *database.Session, text string) (string, error) {
 	sentence, err := findSentence(s, text)
 	if err != nil || sentence.TatoebaId < 0 {
-		return nil
+		return "", nil
 	}
 	query := `
-select text from l1.sentence where tatoeba_id in
-	(select l1 from translation where l2 = ?)
+select text from translation where tatoeba_id in
+	(select target from translates where source = ?)
+	order by random() limit 1
 `
-	if reversed, _ := IsReversed(s); reversed {
-		query = `
-select text from l1.sentence where tatoeba_id in
-	(select l2 from translation where l1 = ?)
-`
-	}
-
-	rows, err := s.Query(query, sentence.TatoebaId)
-	if err != nil {
-		return nil
-	}
-	defer rows.Close()
-
-	var translations []string
-	for rows.Next() {
-		var translation string
-		if err := rows.Scan(&translation); err == nil {
-			translations = append(translations, translation)
-		}
-	}
-	return translations
-}
-
-func Translate(s *database.Session, sentence string) (string, error) {
-	translations := tatoebaTranslate(s, sentence)
-	// TODO use backup translation service if no translations found
-	n := len(translations)
-	if n == 0 {
-		return "", ErrNoTranslationsFound
-	}
-	choice := rand.Intn(n)
-	return translations[choice], nil
+	row := s.QueryRow(query, sentence.TatoebaId)
+	var translation string
+	err = row.Scan(&translation)
+	return translation, err
 }

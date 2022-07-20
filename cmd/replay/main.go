@@ -55,12 +55,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	session, err := database.NewSession(
-		db,
-		":memory:",
-		basedir.Language(inferLanguage(args.logFile)),
-		":memory:",
-	)
+	session, err := database.NewSession(db, basedir.Course("eng", inferLanguage(args.logFile)))
 	if err != nil {
 		log.Fatal(err)
 	}

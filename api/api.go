@@ -118,7 +118,7 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	ig := loadLanguagePair(db, l1, l2)
+	ig := flashcards.NewItemGenerator(db, basedir.Course(l1, l2))
 
 	switch r.Method {
 	case "POST":

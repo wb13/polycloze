@@ -63,7 +63,7 @@ func GetWordsWith(s *database.Session, n int, pred func(word string) bool) ([]st
 }
 
 func frequencyClass(s *database.Session, word string) int {
-	query := `select frequency_class from l2.word where word = ?`
+	query := `select frequency_class from word where word = ?`
 	row := s.QueryRow(query, text.Casefold(word))
 
 	var frequency_class int

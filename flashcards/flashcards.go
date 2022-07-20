@@ -25,30 +25,19 @@ type Item struct {
 }
 
 type ItemGenerator struct {
-	db *sql.DB
-
-	// databases to be attached
-	l1db          string
-	l2db          string
-	translationDb string
+	db       *sql.DB
+	courseDb string // to be attached
 }
 
 func (ig ItemGenerator) Session() (*database.Session, error) {
-	return database.NewSession(
-		ig.db,
-		ig.l1db,
-		ig.l2db,
-		ig.translationDb,
-	)
+	return database.NewSession(ig.db, ig.courseDb)
 }
 
 // Creates an ItemGenerator.
-func NewItemGenerator(db *sql.DB, lang1Db, lang2Db, translationDb string) ItemGenerator {
+func NewItemGenerator(db *sql.DB, courseDb string) ItemGenerator {
 	return ItemGenerator{
-		db:            db,
-		l1db:          lang1Db,
-		l2db:          lang2Db,
-		translationDb: translationDb,
+		db:       db,
+		courseDb: courseDb,
 	}
 }
 
@@ -82,7 +71,7 @@ func (ig ItemGenerator) GenerateItem(word string) (Item, error) {
 	}
 	defer session.Close()
 
-	sentence, err := sentence_picker.FindTranslatedSentence(session, word, word_scheduler.PreferredDifficulty(session))
+	sentence, err := sentence_picker.PickSentence(session, word, word_scheduler.PreferredDifficulty(session))
 	if err != nil {
 		return item, err
 	}

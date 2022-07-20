@@ -24,10 +24,9 @@ func getNRows(rows *sql.Rows, n int, pred func(word string) bool) ([]string, err
 
 func getWordsAboveDifficulty(s *database.Session, n, preferredDifficulty int) ([]string, error) {
 	query := `
-select word from l2.word where frequency_class >= ? and word not in
+select word from word where frequency_class >= ? and word not in
 (select item from review)
-order by frequency desc
-limit ?
+order by id asc limit ?
 `
 	rows, err := s.Query(query, preferredDifficulty, n)
 	if err != nil {
@@ -41,10 +40,9 @@ limit ?
 
 func getWordsBelowDifficulty(s *database.Session, n, preferredDifficulty int) ([]string, error) {
 	query := `
-select word from l2.word where frequency_class < ? and word not in
+select word from word where frequency_class < ? and word not in
 (select item from review)
-order by frequency asc
-limit ?
+order by id desc limit ?
 `
 	rows, err := s.Query(query, preferredDifficulty, n)
 	if err != nil {
@@ -58,9 +56,9 @@ limit ?
 
 func getWordsAboveDifficultyWith(s *database.Session, n, preferredDifficulty int, pred func(word string) bool) ([]string, error) {
 	query := `
-select word from l2.word where frequency_class >= ? and word not in
+select word from word where frequency_class >= ? and word not in
 (select item from review)
-order by frequency desc
+order by id asc
 `
 	rows, err := s.Query(query, preferredDifficulty, n)
 	if err != nil {
@@ -72,9 +70,9 @@ order by frequency desc
 
 func getWordsBelowDifficultyWith(s *database.Session, n, preferredDifficulty int, pred func(word string) bool) ([]string, error) {
 	query := `
-select word from l2.word where frequency_class < ? and word not in
+select word from word where frequency_class < ? and word not in
 (select item from review)
-order by frequency asc
+order by id desc
 `
 	rows, err := s.Query(query, preferredDifficulty, n)
 	if err != nil {

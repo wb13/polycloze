@@ -33,12 +33,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	ig := flashcards.NewItemGenerator(
-		db,
-		basedir.Language("eng"),
-		basedir.Language("spa"),
-		basedir.Translation("eng", "spa"),
-	)
+	ig := flashcards.NewItemGenerator(db, basedir.Course("eng", "spa"))
 
 	start := time.Now()
 	words, err := ig.GenerateWords(n)

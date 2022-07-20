@@ -1,6 +1,10 @@
 package api
 
 import (
+	"fmt"
+	"path"
+	"path/filepath"
+
 	"github.com/lggruspe/polycloze/basedir"
 )
 
@@ -37,7 +41,20 @@ func countSeen(lang string) (int, error) {
 
 // Total count of words in lang (given as three-letter code).
 func countTotal(lang string) (int, error) {
-	return queryInt(basedir.Language(lang), `select count(*) from word`)
+	pattern := fmt.Sprintf("[a-z][a-z][a-z]-%s.db", lang)
+	matches, _ := filepath.Glob(path.Join(basedir.DataDir, pattern))
+
+	var max int
+	for _, match := range matches {
+		count, err := queryInt(match, `select count(*) from word`)
+		if err != nil {
+			return max, err
+		}
+		if count > max {
+			max = count
+		}
+	}
+	return max, nil
 }
 
 // New words learned today.

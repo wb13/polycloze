@@ -19,12 +19,7 @@ func newSession(l1, l2 string) *database.Session {
 		panic(err)
 	}
 
-	session, err := database.NewSession(
-		db,
-		basedir.Language(l1),
-		basedir.Language(l2),
-		basedir.Translation(l1, l2),
-	)
+	session, err := database.NewSession(db, basedir.Course(l1, l2))
 	if err != nil {
 		panic(err)
 	}

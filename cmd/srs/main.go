@@ -20,15 +20,10 @@ func assertNil(value any) {
 func main() {
 	assertNil(basedir.Init())
 
-	db, err := database.New(basedir.Language("spa"))
+	db, err := database.New(basedir.Review("spa"))
 	assertNil(err)
 
-	session, err := database.NewSession(
-		db,
-		basedir.Language("eng"),
-		basedir.Language("spa"),
-		"",
-	)
+	session, err := database.NewSession(db, basedir.Course("eng", "spa"))
 	assertNil(err)
 
 	words, err := ws.GetWords(session, 10)

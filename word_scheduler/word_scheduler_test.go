@@ -14,7 +14,7 @@ func init() {
 
 func wordScheduler() *database.Session {
 	db, _ := rs.New(":memory:")
-	s, err := database.NewSession(db, "", basedir.Language("spa"), "")
+	s, err := database.NewSession(db, basedir.Course("eng", "spa"))
 	if err != nil {
 		panic(err)
 	}

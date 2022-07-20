@@ -18,12 +18,7 @@ func createIg() ItemGenerator {
 	if err != nil {
 		panic(err)
 	}
-	return NewItemGenerator(
-		db,
-		basedir.Language("eng"),
-		basedir.Language("spa"),
-		basedir.Translation("eng", "spa"),
-	)
+	return NewItemGenerator(db, basedir.Course("eng", "spa"))
 }
 
 func TestProfiler(t *testing.T) {

@@ -27,12 +27,7 @@ func main() {
 	db, err := database.New(":memory:")
 	assertNil(err)
 
-	session, err := database.NewSession(
-		db,
-		basedir.Language("eng"),
-		basedir.Language("spa"),
-		basedir.Translation("eng", "spa"),
-	)
+	session, err := database.NewSession(db, basedir.Course("eng", "spa"))
 	assertNil(err)
 
 	sentence, err := sentence_picker.PickSentence(session, word, 8)

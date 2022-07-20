@@ -10,7 +10,7 @@ import (
 // Returns ReviewScheduler for testing.
 func reviewScheduler() *database.Session {
 	db, _ := New(":memory:")
-	s, _ := database.NewSession(db, "", "", "")
+	s, _ := database.NewSession(db, "")
 	return s
 }
 
