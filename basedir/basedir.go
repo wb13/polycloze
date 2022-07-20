@@ -36,17 +36,6 @@ func xdgStateHome() string {
 	return path.Join(Home, ".local", "state")
 }
 
-func initDataDir() error {
-	DataDir = path.Join(xdgDataHome(), "polycloze")
-	languages := path.Join(DataDir, "languages")
-
-	if err := os.MkdirAll(languages, 0700); err != nil {
-		DataDir = ""
-		return err
-	}
-	return nil
-}
-
 func initStateDir() error {
 	StateDir = path.Join(xdgStateHome(), "polycloze")
 	reviews := path.Join(StateDir, "reviews", "user")
@@ -65,9 +54,7 @@ func initStateDir() error {
 
 // NOTE This function is different from init.
 func Init() error {
-	if err := initDataDir(); err != nil {
-		return err
-	}
+	DataDir = path.Join(xdgDataHome(), "polycloze")
 	if err := initStateDir(); err != nil {
 		return err
 	}
