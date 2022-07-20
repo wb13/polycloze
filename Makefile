@@ -11,7 +11,7 @@ build/languages/$(1)/sentences.csv build/languages/$(1)/words.csv	&:	build/sente
 	python -m scripts.tokenizer $(1) -o build/languages/$(1) < $$<
 
 build/languages/$(1)/words.txt build/languages/$(1)/non-words.txt	&:	build/languages/$(1)/words.csv
-	python -m scripts.uncsv $$< | PYTHONPATH=python/blacklist python -m blacklist $(1) \
+	python -m scripts.uncsv $$< | PYTHONPATH=scripts python -m blacklist $(1) \
 		-b build/languages/$(1)/non-words.txt \
 		-w build/languages/$(1)/words.txt
 
