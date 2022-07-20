@@ -49,7 +49,5 @@ download:
 
 .PHONY:	install
 install:
-	mkdir -p "$$HOME/.local/share/polycloze/languages"
-	mkdir -p "$$HOME/.local/share/polycloze/translations"
-	cp build/sqlite/*.db "$$HOME/.local/share/polycloze/languages"
-	cp build/translations/*.db "$$HOME/.local/share/polycloze/translations"
+	mkdir -p "$$HOME/.local/share/polycloze"
+	cp build/courses/*.db "$$HOME/.local/share/polycloze"
