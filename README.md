@@ -27,7 +27,7 @@ python -m scripts.blacklist spa < words.txt > blacklist.txt
 
 ## How to add languages
 
-Modify `scripts/languages.py`, `scripts/metadata.py` and `scripts/blacklist/alphabet.py`.
+Modify `scripts/languages.py`, `scripts/populate.py`, and `scripts/alphabet.py`.
 
 
 [cc]: https://creativecommons.org/licenses/by/2.0
