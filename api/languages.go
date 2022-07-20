@@ -20,10 +20,8 @@ func init() {
 }
 
 type Language struct {
-	Code    string `json:"code"` // ISO 639-3
-	Native  string `json:"native"`
-	English string `json:"english"`
-
+	Code          string         `json:"code"` // ISO 639-3
+	Name          string         `json:"name"` // in english
 	LanguageStats *LanguageStats `json:"stats,omitempty"`
 }
 
@@ -41,37 +39,46 @@ func openDb(path string) (*sql.DB, error) {
 	return db, nil
 }
 
-func getLanguageInfo(path string) (Language, error) {
-	var lang Language
-
+func getLanguageName(path string) (string, error) {
 	db, err := openDb(path)
 	if err != nil {
-		return lang, err
+		return "", err
 	}
 	defer db.Close()
 
-	query := `select code, native, english from info`
+	query := `select name from language where id = 'l2'`
 	row := db.QueryRow(query)
-	if err := row.Scan(&lang.Code, &lang.Native, &lang.English); err != nil {
-		return lang, err
-	}
 
-	if stats, err := getLanguageStats(lang.Code); err == nil {
-		lang.LanguageStats = stats
-	}
-	return lang, nil
+	var name string
+	err = row.Scan(&name)
+	return name, err
 }
 
 // Looks for supported languages in data directories (see basedir package).
 func SupportedLanguages() []Language {
 	var languages []Language
-	dir := path.Join(basedir.DataDir, "languages")
 
-	matches, _ := filepath.Glob(path.Join(dir, "[a-z][a-z][a-z].db"))
+	targets := make(map[string]string)
+	matches, _ := filepath.Glob(path.Join(basedir.DataDir, "[a-z][a-z][a-z]-[a-z][a-z][a-z].db"))
 	for _, match := range matches {
-		lang, err := getLanguageInfo(match)
-		if err != nil {
+		lang := match[len(match)-6 : len(match)-3]
+		if _, ok := targets[lang]; ok {
 			continue
+		}
+		name, err := getLanguageName(match)
+		targets[lang] = name
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	for code, name := range targets {
+		var lang Language
+		lang.Code = code
+		lang.Name = name
+
+		if stats, err := getLanguageStats(code); err == nil {
+			lang.LanguageStats = stats
 		}
 		languages = append(languages, lang)
 	}
