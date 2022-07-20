@@ -24,8 +24,10 @@ build/translations/$(1)-$(2).csv:	build/sentences/$(1).tsv build/sentences/$(2).
 build/courses/$(1)-$(2).db:	build/translations/$(1)-$(2).csv $(1) $(2)
 	mkdir -p build/courses
 	rm -f $$@
-	./scripts/check-migrations.sh migrations/courses/
-	./scripts/migrate.sh $$@ migrations/courses/
+	if [[ "$(1)" != "$(2)" ]]; then \
+		./scripts/check-migrations.sh migrations/courses/; \
+		./scripts/migrate.sh $$@ migrations/courses/; \
+	fi
 	if [[ "$(1)" < "$(2)" ]]; then \
 		python -m scripts.populate $$@ build/languages/$(1) build/languages/$(2) $$<; \
 	fi
