@@ -12,6 +12,7 @@ import typing as t
 
 from spacy.language import Language
 
+from .alphabet import is_word, load_alphabet
 from .languages import load_language
 
 
@@ -74,20 +75,6 @@ def parse_args() -> Namespace:
     return parser.parse_args()
 
 
-def write_csv(
-    path: Path | str,
-    rows: t.Iterable[t.Sequence[t.Any]],
-    *,
-    header: t.Optional[t.Sequence[str]] = None,
-) -> None:
-    with open(path, "w", newline="") as csvfile:
-        writer = csv.writer(csvfile)
-        if header:
-            writer.writerow(header)
-        for row in rows:
-            writer.writerow(row)
-
-
 def main() -> None:
     args = parse_args()
 
@@ -119,11 +106,13 @@ def main() -> None:
         except EOFError:
             pass
 
-    write_csv(
-        output/"words.csv",
-        word_counter.count(),
-        header=["word", "frequency"],
-    )
+    alphabet = load_alphabet(args.language)
+    with open(output/"words.csv", "w", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["word", "frequency"])
+        for row in word_counter.count():
+            if is_word(alphabet, row[0]):
+                writer.writerow(row)
 
 
 if __name__ == "__main__":

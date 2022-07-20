@@ -1,3 +1,5 @@
+"""Rule-based classifiers for blacklisting "non-words"."""
+
 from dataclasses import dataclass, field
 
 
@@ -45,7 +47,7 @@ def is_word(language: Language, word: str) -> bool:
     return all(a in language.alphabet or a in language.symbols for a in word)
 
 
-def load(language: str) -> Language:
+def load_alphabet(language: str) -> Language:
     try:
         return languages[language]
     except KeyError:
