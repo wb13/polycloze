@@ -5,20 +5,10 @@ latest_links = $(shell find build/tatoeba/links.*.csv | sort -r | head -n 1)
 
 define add_language
 .PHONY:	$(1)
-$(1):	build/sqlite/$(1).db
+$(1):	build/languages/$(1)/sentences.csv build/languages/$(1)/words.csv
 
 build/languages/$(1)/sentences.csv build/languages/$(1)/words.csv	&:	build/sentences/$(1).tsv
 	python -m scripts.tokenizer $(1) -o build/languages/$(1) < $$<
-
-build/sqlite/$(1).db:	build/languages/$(1)/non-words.txt build/languages/$(1)/sentences.csv build/languages/$(1)/words.csv
-	mkdir -p build/sqlite
-	rm -f $$@
-	./scripts/check-migrations.sh migrations/languages/
-	./scripts/migrate.sh $$@ migrations/languages/
-	./scripts/importer.py $$@ -i $$< \
-		-s build/languages/$(1)/sentences.csv \
-		-w build/languages/$(1)/words.csv
-	python -m scripts.metadata $$@
 endef
 
 define add_pair
