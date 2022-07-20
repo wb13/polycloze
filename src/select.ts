@@ -11,8 +11,7 @@ export type LanguageStats = {
 
 export type Language = {
   code: string
-  native: string
-  english: string
+  name: string
 
   stats?: LanguageStats;
 }
@@ -21,7 +20,7 @@ function createLanguageOption(language: Language, selected = false): HTMLOptionE
     const option = document.createElement("option");
     option.value = language.code;
     option.selected = selected;
-    option.textContent = language.native;
+    option.textContent = language.name;
     return option;
 }
 

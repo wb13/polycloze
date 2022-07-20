@@ -74,7 +74,7 @@ function createLanguageStats(language: Language): HTMLDivElement | null {
 function createLanguageOverview(language: Language): HTMLDivElement {
     const card = document.createElement("div");
     card.classList.add("card");
-    card.innerHTML = `<h2>${language.native}</h2>`;
+    card.innerHTML = `<h2>${language.name}</h2>`;
 
     const row = document.createElement("div");
     row.classList.add("row");
