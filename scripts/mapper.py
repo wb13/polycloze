@@ -35,8 +35,6 @@ def main() -> None:
             source, target = line.split()
             if source in l1_ids and target in l2_ids:
                 print(f"{source},{target}")
-            elif source in l2_ids and target in l1_ids:
-                print(f"{target},{source}")
 
 
 if __name__ == "__main__":
