@@ -21,7 +21,7 @@ build/translations/$(1)-$(2).csv:	build/sentences/$(1).tsv build/sentences/$(2).
 		python -m scripts.mapper $$^ > $$@; \
 	fi
 
-build/courses/$(1)-$(2).db:	build/translations/$(1)-$(2).csv
+build/courses/$(1)-$(2).db:	build/translations/$(1)-$(2).csv $(1) $(2)
 	mkdir -p build/courses
 	rm -f $$@
 	./scripts/check-migrations.sh migrations/courses/
