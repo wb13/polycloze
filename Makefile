@@ -29,10 +29,10 @@ build/courses/$(1)-$(2).db:	build/translations/$(1)-$(2).csv $(1) $(2)
 		./scripts/migrate.sh $$@ migrations/courses/; \
 	fi
 	if [[ "$(1)" < "$(2)" ]]; then \
-		python -m scripts.populate $$@ build/languages/$(1) build/languages/$(2) $$<; \
+		python -m scripts.populate -r $$@ build/languages/$(1) build/languages/$(2) $$<; \
 	fi
 	if [[ "$(2)" < "$(1)" ]]; then \
-		python -m scripts.populate $$@ build/languages/$(1) build/languages/$(2) -r build/translations/$(2)-$(1).csv; \
+		python -m scripts.populate $$@ build/languages/$(1) build/languages/$(2) build/translations/$(2)-$(1).csv; \
 	fi
 endef
 
