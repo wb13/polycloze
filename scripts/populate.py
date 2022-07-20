@@ -78,13 +78,15 @@ def populate_word(con: Connection, language: Path, words: set[str]) -> None:
         next(reader)
         row = next(reader)  # first row (highest-frequency word)
         max_frequency = int(row[1])
-        con.execute(query, (row[0], 0))
+        if row[0] in words:
+            con.execute(query, (row[0], 0))
 
         for row in reader:
             word = row[0]
             frequency = int(row[1])
             frequency_class = int(floor(0.5 - log2(frequency / max_frequency)))
-            con.execute(query, (word.casefold(), frequency_class))
+            if word in words:
+                con.execute(query, (word.casefold(), frequency_class))
         con.commit()
 
 
