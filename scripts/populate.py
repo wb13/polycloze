@@ -6,7 +6,7 @@ import json
 from math import floor, log2
 from pathlib import Path
 from sqlite3 import Connection, connect
-from sys import exit
+import sys
 import typing as t
 
 
@@ -175,7 +175,7 @@ def infer_language(path: Path) -> tuple[str, str]:
         name = language_names[code]
         return (code, name)
     except KeyError:
-        exit(f"unknown language code: {path.name}")
+        sys.exit(f"unknown language code: {path.name}")
 
 
 def populate_language(con: Connection, l1: Path, l2: Path) -> None:

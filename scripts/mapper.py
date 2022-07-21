@@ -2,7 +2,7 @@
 
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from sys import exit
+import sys
 
 
 def parse_args() -> Namespace:
@@ -21,11 +21,11 @@ def get_ids(path: Path) -> set[str]:
 def main() -> None:
     args = parse_args()
     if not args.l1.is_file():
-        exit(f"{args.l1!s} does not exist")
+        sys.exit(f"{args.l1!s} does not exist")
     if not args.l2.is_file():
-        exit(f"{args.l2!s} does not exist")
+        sys.exit(f"{args.l2!s} does not exist")
     if not args.links.is_file():
-        exit(f"{args.links!s} does not exist")
+        sys.exit(f"{args.links!s} does not exist")
 
     l1_ids = get_ids(args.l1)
     l2_ids = get_ids(args.l2)

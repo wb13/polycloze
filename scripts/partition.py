@@ -5,7 +5,7 @@
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from shutil import copytree
-from sys import exit
+import sys
 from tempfile import TemporaryDirectory
 
 
@@ -34,7 +34,7 @@ def main() -> None:
     args = parse_args()
     out = Path(args.out)
     if out.is_file():
-        exit("output file already exists and is not a directory")
+        sys.exit("output file already exists and is not a directory")
 
     with TemporaryDirectory() as tmpname:
         tmp = Path(tmpname)
