@@ -13,8 +13,6 @@ begin transaction;
 		frequency_class integer not null
 		);
 
-	-- create index if not exists index_contains_word on contains (word);
-
 	create table if not exists sentence (
 		id integer primary key,
 		tatoeba_id integer unique,	-- null for non-tatoeba sentences
@@ -38,7 +36,5 @@ begin transaction;
 		source integer not null,	-- references sentence.tatoeba_id
 		target integer not null		-- references translation.tatoeba_id
 		);
-
-	-- create index if not exists index_translates_source on translates (source);
 
 	commit;
