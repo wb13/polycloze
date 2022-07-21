@@ -1,0 +1,4 @@
+-r install.requirements.txt
+flake8==4.0.1
+mypy==0.971
+pylint==2.14.5
