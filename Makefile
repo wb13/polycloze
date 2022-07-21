@@ -51,3 +51,11 @@ download:
 install:
 	mkdir -p "$$HOME/.local/share/polycloze"
 	cp build/courses/*.db "$$HOME/.local/share/polycloze"
+
+# For applying migrations to existing build files
+.PHONY:	migrate
+migrate:
+	./scripts/check-migrations.sh migrations/
+	for course in ./build/courses/*.db; do \
+		./scripts/migrate.sh "$$course" migrations/; \
+	done
