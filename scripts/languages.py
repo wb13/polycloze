@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+from sys import exit
+
+
 class LanguageLoader:
     @staticmethod
     def cyo():
@@ -33,7 +36,7 @@ languages = [name for name in dir(LanguageLoader) if not name.startswith("_")]
 def load_language(code: str):
     language = getattr(LanguageLoader, code, None)
     if not language:
-        sys.exit("unknown language code")
+        exit("unknown language code")
     return language()
 
 

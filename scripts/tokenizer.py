@@ -4,7 +4,6 @@ from argparse import ArgumentParser, Namespace
 from collections import Counter
 import csv
 from dataclasses import dataclass
-from functools import reduce
 import json
 from pathlib import Path
 import sys

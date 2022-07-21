@@ -59,3 +59,7 @@ migrate:
 	for course in ./build/courses/*.db; do \
 		./scripts/migrate.sh "$$course" migrations/; \
 	done
+
+.PHONY:	check
+check:
+	flake8 --max-complexity 8 scripts

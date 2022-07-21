@@ -9,9 +9,11 @@ class Language:
     symbols: set[str] = field(default_factory=set)
 
 
+# source for cyo:
+# https://web.archive.org/web/20120403120048/http://www.cuyonon.org/clcp8.html
+
 languages = {
     "cyo": Language(
-        # source: https://web.archive.org/web/20120403120048/http://www.cuyonon.org/clcp8.html
         alphabet=set("abdeghiklmnoprstwy'"),
         # symbols=set("_.'"),
     ),

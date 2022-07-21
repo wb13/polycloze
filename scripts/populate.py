@@ -38,7 +38,11 @@ def targets(translations: Path, reverse: bool = False) -> set[int]:
     return sources(translations, not reverse)
 
 
-def populate_translates(con: Connection, path: Path | str, reverse: bool = False) -> None:
+def populate_translates(
+    con: Connection,
+    path: Path | str,
+    reverse: bool = False,
+) -> None:
     query = "insert into translates (source, target) values (?, ?)"
     with open(path) as file:
         reader = csv.reader(file)
@@ -52,9 +56,17 @@ def populate_translates(con: Connection, path: Path | str, reverse: bool = False
         con.commit()
 
 
-def populate_sentence(con: Connection, language: Path, translations: Path, reverse: bool = False) -> set[str]:
+def populate_sentence(
+    con: Connection,
+    language: Path,
+    translations: Path,
+    reverse: bool = False,
+) -> set[str]:
     _sources = sources(translations, reverse)
-    query = "insert into sentence (tatoeba_id, text, tokens, frequency_class) values (?, ?, ?, 0)"
+    query = """
+insert into sentence (tatoeba_id, text, tokens, frequency_class)
+values (?, ?, ?, 0)
+"""
     words = set()
     with open(language/"sentences.csv") as file:
         reader = csv.reader(file)
@@ -90,7 +102,12 @@ def populate_word(con: Connection, language: Path, words: set[str]) -> None:
         con.commit()
 
 
-def populate_translation(con: Connection, language: Path, translations: Path, reverse: bool = False) -> None:
+def populate_translation(
+    con: Connection,
+    language: Path,
+    translations: Path,
+    reverse: bool = False,
+) -> None:
     _targets = targets(translations, reverse)
     query = "insert into translation (tatoeba_id, text) values (?, ?)"
 
@@ -120,7 +137,10 @@ def populate_contains(con: Connection) -> None:
     query = "select id, tokens from sentence"
     for id_, tokens in con.execute(query):
         query = "insert into contains (sentence, word) values (?, ?)"
-        values = ((id_, word_id) for word_id in query_words(con, json.loads(tokens)))
+        values = (
+            (id_, word_id)
+            for word_id in query_words(con, json.loads(tokens))
+        )
         con.executemany(query, values)
     con.commit()
 
@@ -158,7 +178,6 @@ def infer_language(path: Path) -> tuple[str, str]:
         exit(f"unknown language code: {path.name}")
 
 
-
 def populate_language(con: Connection, l1: Path, l2: Path) -> None:
     query = "insert into language (id, code, name) values (?, ?, ?)"
     con.execute(query, ("l1", *infer_language(l1)))
@@ -174,7 +193,12 @@ def main() -> None:
 
         create_temp_trigger(con)
         populate_translates(con, args.translations, args.reversed)
-        words = populate_sentence(con, args.l2, args.translations, args.reversed)
+        words = populate_sentence(
+            con,
+            args.l2,
+            args.translations,
+            args.reversed,
+        )
         populate_word(con, args.l2, words)
         populate_translation(con, args.l1, args.translations, args.reversed)
         populate_contains(con)
