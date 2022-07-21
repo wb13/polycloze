@@ -10,14 +10,6 @@ under [CC BY 2.0][cc].
 
 These are also released under [CC BY 2.0][cc].
 
-## Usage
-
-### blacklist
-
-```bash
-python -m scripts.blacklist spa < words.txt > blacklist.txt
-```
-
 ## Supported languages
 
 - deu (German)
