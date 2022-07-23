@@ -16,18 +16,10 @@ def parse_args() -> Namespace:
 
 
 def partition(basedir: Path):
-    files = {}
-    try:
-        while line := input():
-            [id_, language, sentence] = line.split("\t")
-            if language not in files:
-                files[language] = open(basedir/f"{language}.tsv", "a")
-            print(f"{id_}\t{sentence}", file=files[language])
-    except EOFError:
-        pass
-    finally:
-        for file in files.values():
-            file.close()
+    while line := input():
+        [id_, language, sentence] = line.split("\t")
+        with open(basedir/f"{language}.tsv", "a", encoding="utf-8") as file:
+            print(f"{id_}\t{sentence}", file=file)
 
 
 def main() -> None:
