@@ -93,7 +93,6 @@ def main() -> None:
             while line := input():
                 id_ = None
                 if args.has_ids:
-                    # TODO handle exception
                     id_, line = line.split("\t", maxsplit=1)
                 sentence = Sentence(
                     id=id_,

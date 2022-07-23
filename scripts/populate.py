@@ -124,12 +124,13 @@ def populate_translation(
 
 def escape(value: str) -> str:
     """Escape sqlite string."""
-    return "'{}'".format(value.replace("'", "''"))
+    replaced = value.replace("'", "''")
+    return f"'{replaced}'"
 
 
 def query_words(con: Connection, words: t.Sequence[str]) -> t.Iterable[int]:
     value = ", ".join(escape(word.casefold()) for word in words)
-    query = "select id from word where word in ({})".format(value)
+    query = f"select id from word where word in ({value})"
     return (id_ for id_, in con.execute(query))
 
 
@@ -178,10 +179,10 @@ def infer_language(path: Path) -> tuple[str, str]:
         sys.exit(f"unknown language code: {path.name}")
 
 
-def populate_language(con: Connection, l1: Path, l2: Path) -> None:
+def populate_language(con: Connection, lang1: Path, lang2: Path) -> None:
     query = "insert into language (id, code, name) values (?, ?, ?)"
-    con.execute(query, ("l1", *infer_language(l1)))
-    con.execute(query, ("l2", *infer_language(l2)))
+    con.execute(query, ("l1", *infer_language(lang1)))
+    con.execute(query, ("l2", *infer_language(lang2)))
     con.commit()
 
 

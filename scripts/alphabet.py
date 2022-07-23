@@ -52,5 +52,5 @@ def is_word(language: Language, word: str) -> bool:
 def load_alphabet(language: str) -> Language:
     try:
         return languages[language]
-    except KeyError:
-        raise UnsupportedLanguage(language)
+    except KeyError as exc:
+        raise UnsupportedLanguage(language) from exc
