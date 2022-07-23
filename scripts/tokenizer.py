@@ -90,6 +90,8 @@ def parse_args() -> Namespace:
 def main() -> None:
     args = parse_args()
     log = Path(args.log) if args.log is not None else None
+    if log:
+        log.write_text("", encoding="utf-8")
 
     output = Path(args.output)
     if output.is_file():
