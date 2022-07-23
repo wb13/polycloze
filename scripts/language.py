@@ -1,3 +1,5 @@
+"""Language definitions with heuristic word classifier."""
+
 from dataclasses import dataclass, field
 
 
@@ -12,9 +14,17 @@ class Language:
     alphabet: set[str]
     symbols: set[str] = field(default_factory=set)
 
+    def is_word(self, word: str) -> bool:
+        word = word.casefold()
+        if word[0] not in self.alphabet:
+            return False
+        return all(a in self.alphabet or a in self.symbols for a in word)
+
 
 languages = {}
 
+# source for cyo:
+# https://web.archive.org/web/20120403120048/http://www.cuyonon.org/clcp8.html
 languages["cyo"] = Language(
     code="cyo",
     name="Cuyonon",

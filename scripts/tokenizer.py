@@ -11,7 +11,7 @@ import typing as t
 
 from spacy.language import Language
 
-from .alphabet import is_word, load_alphabet
+from .language import languages
 from .languages import load_language
 
 
@@ -106,12 +106,15 @@ def main() -> None:
         except EOFError:
             pass
 
-    alphabet = load_alphabet(args.language)
+    try:
+        language = languages[args.language]
+    except KeyError:
+        sys.exit(f"unsupported language: {args.language}")
     with open(output/"words.csv", "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         writer.writerow(["word", "frequency"])
         for row in word_counter.count():
-            if is_word(alphabet, row[0]):
+            if language.is_word(row[0]):
                 writer.writerow(row)
 
 
