@@ -17,18 +17,19 @@ define add_pair
 $(1)-$(2):	build/courses/$(1)-$(2).db
 
 build/translations/$(1)-$(2).csv:	build/sentences/$(1).tsv build/sentences/$(2).tsv $$(latest_links)
+	if [[ "$(1)" -ge "$(2)" ]]; then \
+		touch $$@; \
+	fi
 	if [[ "$(1)" < "$(2)" ]]; then \
 		mkdir -p build/translations; \
 		python -m scripts.mapper $$^ > $$@; \
 	fi
 
-build/courses/$(1)-$(2).db:	build/translations/$(1)-$(2).csv $(1) $(2)
+build/courses/$(1)-$(2).db:	build/translations/$(1)-$(2).csv build/languages/$(1)/sentences.csv build/languages/$(1)/words.csv build/languages/$(2)/sentences.csv build/languages/$(2)/words.csv
 	mkdir -p build/courses
 	rm -f $$@
-	if [[ "$(1)" != "$(2)" ]]; then \
-		./scripts/check-migrations.sh migrations/; \
-		./scripts/migrate.sh $$@ migrations/; \
-	fi
+	./scripts/check-migrations.sh migrations/; \
+	./scripts/migrate.sh $$@ migrations/; \
 	if [[ "$(1)" < "$(2)" ]]; then \
 		python -m scripts.populate -r $$@ build/languages/$(1) build/languages/$(2) $$<; \
 	fi
