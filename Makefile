@@ -8,7 +8,8 @@ define add_language
 $(1):	build/languages/$(1)/sentences.csv build/languages/$(1)/words.csv
 
 build/languages/$(1)/sentences.csv build/languages/$(1)/words.csv	&:	build/sentences/$(1).tsv
-	python -m scripts.tokenizer $(1) -o build/languages/$(1) < $$<
+	mkdir -p build/logs/nonwords
+	python -m scripts.tokenizer $(1) -o build/languages/$(1) -l build/logs/nonwords/$(1).txt < $$<
 endef
 
 define add_pair
@@ -63,5 +64,5 @@ migrate:
 .PHONY:	check
 check:
 	pylint scripts -d C0115,C0116
-	flake8 --max-complexity 10 scripts
+	flake8 --max-complexity 11 scripts
 	mypy --strict scripts

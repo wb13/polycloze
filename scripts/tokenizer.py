@@ -74,6 +74,11 @@ def parse_args() -> Namespace:
         required=True,
     )
     parser.add_argument(
+        "-l",
+        dest="log",
+        help="log non-words",
+    )
+    parser.add_argument(
         "--no-ids",
         dest="has_ids",
         help="input has no IDs",
@@ -84,6 +89,7 @@ def parse_args() -> Namespace:
 
 def main() -> None:
     args = parse_args()
+    log = Path(args.log) if args.log is not None else None
 
     output = Path(args.output)
     if output.is_file():
@@ -124,6 +130,9 @@ def main() -> None:
         for row in word_counter.count():
             if language.is_word(row[0]):
                 writer.writerow(row)
+            elif log:
+                with open(log, "a", encoding="utf-8") as logfile:
+                    print(row[0], file=logfile)
 
 
 if __name__ == "__main__":
