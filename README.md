@@ -1,14 +1,18 @@
 # polycloze-data
 
-All the sentences are from [Tatoeba](https://tatoeba.org), which are released
-under [CC BY 2.0][cc].
+Scripts for generating course files used by polycloze.
 
-## Changes
+## Usage
 
-- `sentences.csv`: list of tokenized sentences
-- `words.csv`: list of "words" sorted by frequency
+```bash
+# install requirements
+python -m venv env
+. env/bin/activate
+pip install -r requirements/install.requirements.txt
 
-These are also released under [CC BY 2.0][cc].
+make					# builds course files
+make install	# install files into data directory
+```
 
 ## Supported languages
 
@@ -17,9 +21,11 @@ These are also released under [CC BY 2.0][cc].
 - spa (Spanish)
 - tgl (Tagalog)
 
-## How to add languages
+You can add more by making the appropriate changes in `scripts/language.py`.
 
-Modify `scripts/language.py`.
+## Licenses
 
+All scripts in this repository are available under the [MIT license](./LICENSE).
 
-[cc]: https://creativecommons.org/licenses/by/2.0
+Sentences and translation data are taken from [Tatoeba](https://tatoeba.org),
+which are released under [CC BY 2.0 FR](https://creativecommons.org/licenses/by/2.0/fr).
