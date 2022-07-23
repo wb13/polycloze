@@ -17,6 +17,7 @@ define add_pair
 $(1)-$(2):	build/courses/$(1)-$(2).db
 
 build/translations/$(1)-$(2).csv:	build/sentences/$(1).tsv build/sentences/$(2).tsv $$(latest_links)
+	mkdir -p build/translations
 	if [[ "$(1)" -ge "$(2)" ]]; then \
 		touch $$@; \
 	fi
