@@ -62,5 +62,6 @@ migrate:
 
 .PHONY:	check
 check:
+	pylint scripts -d C0115,C0116
 	flake8 --max-complexity 10 scripts
 	mypy --strict scripts
