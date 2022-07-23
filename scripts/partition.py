@@ -15,7 +15,7 @@ def parse_args() -> Namespace:
     return parser.parse_args()
 
 
-def partition(basedir: Path):
+def partition(basedir: Path) -> None:
     while line := input():
         [id_, language, sentence] = line.split("\t")
         with open(basedir/f"{language}.tsv", "a", encoding="utf-8") as file:

@@ -4,28 +4,30 @@ import sys
 
 
 class LanguageLoader:
+    from spacy.language import Language
+
     @staticmethod
-    def cyo():
+    def cyo() -> Language:
         from spacy.lang.tl import Tagalog
         return Tagalog()
 
     @staticmethod
-    def deu():
+    def deu() -> Language:
         from spacy.lang.de import German
         return German()
 
     @staticmethod
-    def eng():
+    def eng() -> Language:
         from spacy.lang.en import English
         return English()
 
     @staticmethod
-    def spa():
+    def spa() -> Language:
         from spacy.lang.es import Spanish
         return Spanish()
 
     @staticmethod
-    def tgl():
+    def tgl() -> Language:
         from spacy.lang.tl import Tagalog
         return Tagalog()
 

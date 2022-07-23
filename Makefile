@@ -63,3 +63,4 @@ migrate:
 .PHONY:	check
 check:
 	flake8 --max-complexity 8 scripts
+	mypy scripts

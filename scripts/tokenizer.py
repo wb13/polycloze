@@ -36,15 +36,15 @@ class Sentence(t.NamedTuple):
     def __hash__(self) -> int:
         return hash(self.text)
 
-    def row(self) -> tuple[str, str]:
+    def row(self) -> tuple[str, str] | tuple[int, str, str]:
         if self.id is None:
             return (self.text, json.dumps(self.tokens))
         return (self.id, self.text, json.dumps(self.tokens))
 
 
 class WordCounter:
-    def __init__(self):
-        self.counter = Counter()
+    def __init__(self) -> None:
+        self.counter: Counter[str] = Counter()
 
     def add(self, tokens: t.Iterable[str]) -> None:
         self.counter.update(token.casefold() for token in tokens)
@@ -94,8 +94,10 @@ def main() -> None:
                 id_ = None
                 if args.has_ids:
                     id_, line = line.split("\t", maxsplit=1)
+
+                assert id_
                 sentence = Sentence(
-                    id=id_,
+                    id=int(id_),
                     text=line,
                     tokens=tokenizer.tokenize(line),
                 )
