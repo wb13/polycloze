@@ -20,7 +20,7 @@ def load_spacy_language(code: str) -> Language:
         sys.exit("unknown language code")
     parent, name = languages[code].spacy_path
     mod = import_module(f"spacy.lang.{parent}")
-    return getattr(mod, name)()
+    return t.cast(Language, getattr(mod, name)())
 
 
 @dataclass
