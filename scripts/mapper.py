@@ -14,7 +14,7 @@ def parse_args() -> Namespace:
 
 
 def get_ids(path: Path) -> set[str]:
-    with open(path, "r") as file:
+    with open(path, "r", encoding="utf-8") as file:
         return {line.split()[0] for line in file}
 
 
@@ -30,7 +30,7 @@ def main() -> None:
     l1_ids = get_ids(args.l1)
     l2_ids = get_ids(args.l2)
 
-    with open(args.links, "r") as file:
+    with open(args.links, "r", encoding="utf-8") as file:
         for line in file:
             source, target = line.split()
             if source in l1_ids and target in l2_ids:

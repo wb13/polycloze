@@ -27,7 +27,7 @@ def parse_args() -> Namespace:
 
 def sources(translations: Path, reverse: bool = False) -> set[int]:
     result = set()
-    with open(translations) as file:
+    with open(translations, encoding="utf-8") as file:
         reader = csv.reader(file)
         for row in reader:
             result.add(int(row[0] if not reverse else row[1]))
@@ -44,7 +44,7 @@ def populate_translates(
     reverse: bool = False,
 ) -> None:
     query = "insert into translates (source, target) values (?, ?)"
-    with open(path) as file:
+    with open(path, encoding="utf-8") as file:
         reader = csv.reader(file)
         for row in reader:
             source = int(row[0])
@@ -68,7 +68,7 @@ insert into sentence (tatoeba_id, text, tokens, frequency_class)
 values (?, ?, ?, 0)
 """
     words = set()
-    with open(language/"sentences.csv") as file:
+    with open(language/"sentences.csv", encoding="utf-8") as file:
         reader = csv.reader(file)
         next(reader)
         for row in reader:
@@ -85,7 +85,7 @@ values (?, ?, ?, 0)
 def populate_word(con: Connection, language: Path, words: set[str]) -> None:
     query = "insert into word (word, frequency_class) values (?, ?)"
 
-    with open(language/"words.csv") as file:
+    with open(language/"words.csv", encoding="utf-8") as file:
         reader = csv.reader(file)
         next(reader)
         row = next(reader)  # first row (highest-frequency word)
@@ -111,7 +111,7 @@ def populate_translation(
     _targets = targets(translations, reverse)
     query = "insert into translation (tatoeba_id, text) values (?, ?)"
 
-    with open(language/"sentences.csv") as file:
+    with open(language/"sentences.csv", encoding="utf-8") as file:
         reader = csv.reader(file)
         next(reader)
         for row in reader:

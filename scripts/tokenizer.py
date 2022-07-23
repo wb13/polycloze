@@ -85,7 +85,7 @@ def main() -> None:
     tokenizer = Tokenizer(load_language(args.language))
     word_counter = WordCounter()
 
-    with open(output/"sentences.csv", "w") as csvfile:
+    with open(output/"sentences.csv", "w", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["tatoeba_id", "text", "tokens"])
 
@@ -106,8 +106,8 @@ def main() -> None:
             pass
 
     alphabet = load_alphabet(args.language)
-    with open(output/"words.csv", "w", newline="") as csvfile:
-        writer = csv.writer(csvfile)
+    with open(output/"words.csv", "w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
         writer.writerow(["word", "frequency"])
         for row in word_counter.count():
             if is_word(alphabet, row[0]):
