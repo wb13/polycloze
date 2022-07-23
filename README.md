@@ -19,7 +19,7 @@ These are also released under [CC BY 2.0][cc].
 
 ## How to add languages
 
-Modify `scripts/languages.py` and `scripts/alphabet.py`.
+Modify `scripts/language.py`.
 
 
 [cc]: https://creativecommons.org/licenses/by/2.0

@@ -4,6 +4,7 @@ from argparse import ArgumentParser, Namespace
 from collections import Counter
 import csv
 from dataclasses import dataclass
+from importlib import import_module
 import json
 from pathlib import Path
 import sys
@@ -12,7 +13,14 @@ import typing as t
 from spacy.language import Language
 
 from .language import languages
-from .languages import load_language
+
+
+def load_spacy_language(code: str) -> Language:
+    if code not in languages:
+        sys.exit("unknown language code")
+    parent, name = languages[code].spacy_path
+    mod = import_module(f"spacy.lang.{parent}")
+    return getattr(mod, name)()
 
 
 @dataclass
@@ -82,7 +90,7 @@ def main() -> None:
         sys.exit(f"{args.output} is a file")
     output.mkdir(parents=True, exist_ok=True)
 
-    tokenizer = Tokenizer(load_language(args.language))
+    tokenizer = Tokenizer(load_spacy_language(args.language))
     word_counter = WordCounter()
 
     with open(output/"sentences.csv", "w", encoding="utf-8") as csvfile:

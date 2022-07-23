@@ -1,4 +1,4 @@
-languages = $(shell python -m scripts.languages)
+languages = $(shell python -m scripts.language)
 pairs = $(foreach l1,$(languages), $(foreach l2,$(languages), $(l1)-$(l2)))
 latest_sentences = $(shell find build/tatoeba/sentences.*.csv | sort -r | head -n 1)
 latest_links = $(shell find build/tatoeba/links.*.csv | sort -r | head -n 1)
