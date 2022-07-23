@@ -52,7 +52,12 @@ download:
 .PHONY:	install
 install:
 	mkdir -p "$$HOME/.local/share/polycloze"
-	cp build/courses/*.db "$$HOME/.local/share/polycloze"
+	for course in ./build/courses/*.db; do \
+		if $$(python -m scripts.course "$$course"); then \
+			echo "Installing $$course"; \
+			cp "$$course" "$$HOME/.local/share/polycloze"; \
+		fi \
+	done
 
 # For applying migrations to existing build files
 .PHONY:	migrate
