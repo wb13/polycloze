@@ -9,6 +9,8 @@ from sqlite3 import Connection, connect
 import sys
 import typing as t
 
+from .language import languages
+
 
 def parse_args() -> Namespace:
     parser = ArgumentParser()
@@ -161,20 +163,10 @@ end;
     con.commit()
 
 
-language_names = {
-    "cyo": "Cuyonon",
-    "deu": "German",
-    "eng": "English",
-    "spa": "Spanish",
-    "tgl": "Tagalog",
-}
-
-
 def infer_language(path: Path) -> tuple[str, str]:
     try:
         code = path.name
-        name = language_names[code]
-        return (code, name)
+        return (code, languages[code].name)
     except KeyError:
         sys.exit(f"unknown language code: {path.name}")
 
