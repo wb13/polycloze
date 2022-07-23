@@ -10,8 +10,11 @@ python -m venv env
 . env/bin/activate
 pip install -r requirements/install.requirements.txt
 
-make					# builds course files
-make install	# install files into data directory
+# build course files
+make
+
+# install files into data directory
+make install
 ```
 
 ## Supported languages
