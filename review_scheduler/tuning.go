@@ -59,13 +59,13 @@ func autoTune(tx *sql.Tx) error {
 	defer rows.Close()
 
 	for rows.Next() {
-		var interval_s time.Duration
+		var intervalS time.Duration
 		var correct, incorrect int
-		if err := rows.Scan(&interval_s, &correct, &incorrect); err != nil {
+		if err := rows.Scan(&intervalS, &correct, &incorrect); err != nil {
 			return err
 		}
 
-		interval := interval_s * time.Second
+		interval := intervalS * time.Second
 
 		if interval <= day {
 			// Don't change intervals = 0 and 1 day.
@@ -118,14 +118,14 @@ func alreadyExists(tx *sql.Tx, interval time.Duration) (bool, error) {
 
 // Assumes replacement isn't already in the interval table.
 func replaceInterval(tx *sql.Tx, interval, replacement time.Duration) error {
-	interval_s := seconds(interval)
-	replacement_s := seconds(replacement)
+	intervalSecs := seconds(interval)
+	replacementSecs := seconds(replacement)
 
 	query := `
 update interval set interval = ?, correct = 0, incorrect = 0
 where interval = ?
 `
-	if _, err := tx.Exec(query, replacement_s, interval_s); err != nil {
+	if _, err := tx.Exec(query, replacementSecs, intervalSecs); err != nil {
 		return err
 	}
 
@@ -135,21 +135,21 @@ update review set
 	due = datetime(unixepoch(due) + (? - interval) / 1e9, 'unixepoch')
 where interval = ?
 `
-	_, err := tx.Exec(query, replacement_s, replacement_s, interval_s)
+	_, err := tx.Exec(query, replacementSecs, replacementSecs, intervalSecs)
 	return err
 }
 
 func replaceWithExistingInterval(tx *sql.Tx, interval, replacement time.Duration) error {
-	interval_s := seconds(interval)
-	replacement_s := seconds(interval)
+	intervalSecs := seconds(interval)
+	replacementSecs := seconds(interval)
 
 	query := `delete from interval where interval = ?`
-	if _, err := tx.Exec(query, interval_s); err != nil {
+	if _, err := tx.Exec(query, intervalSecs); err != nil {
 		return err
 	}
 
 	query = `update review set interval = ? where interval = ?`
-	_, err := tx.Exec(query, replacement_s, interval_s)
+	_, err := tx.Exec(query, replacementSecs, intervalSecs)
 	return err
 }
 

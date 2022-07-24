@@ -8,13 +8,13 @@ import (
 )
 
 type Sentence struct {
-	Id        int
-	TatoebaId int64
+	ID        int
+	TatoebaID int64
 	Text      string
 	Tokens    []string
 }
 
-func findWordId(s *database.Session, word string) (int, error) {
+func findWordID(s *database.Session, word string) (int, error) {
 	query := `select id from word where word = ?`
 	row := s.QueryRow(query, word)
 
@@ -28,11 +28,11 @@ func getSentence(s *database.Session, id int) (*Sentence, error) {
 	row := s.QueryRow(query, id)
 
 	var sentence Sentence
-	sentence.Id = id
-	var tatoebaId sql.NullInt64
+	sentence.ID = id
+	var tatoebaID sql.NullInt64
 	var jsonStr string
 
-	err := row.Scan(&tatoebaId, &sentence.Text, &jsonStr)
+	err := row.Scan(&tatoebaID, &sentence.Text, &jsonStr)
 	if err != nil {
 		return nil, err
 	}
@@ -41,16 +41,16 @@ func getSentence(s *database.Session, id int) (*Sentence, error) {
 		return nil, err
 	}
 
-	if tatoebaId.Valid {
-		sentence.TatoebaId = tatoebaId.Int64
+	if tatoebaID.Valid {
+		sentence.TatoebaID = tatoebaID.Int64
 	} else {
-		sentence.TatoebaId = -1
+		sentence.TatoebaID = -1
 	}
 	return &sentence, nil
 }
 
 func PickSentence(s *database.Session, word string, maxDifficulty int) (*Sentence, error) {
-	id, err := findWordId(s, word)
+	id, err := findWordID(s, word)
 	if err != nil {
 		return nil, err
 	}

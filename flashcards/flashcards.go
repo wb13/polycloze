@@ -15,7 +15,7 @@ import (
 )
 
 type Sentence struct {
-	Id    int      `json:"id"`    // id in database
+	ID    int      `json:"id"`    // id in database
 	Parts []string `json:"parts"` // Odd-numbered parts are blanks
 }
 
@@ -78,13 +78,13 @@ func (ig ItemGenerator) GenerateItem(word string) (Item, error) {
 
 	translation, err := translator.Translate(session, sentence.Text)
 	if err != nil {
-		message := fmt.Sprintf("failed to find translation for sentence: %v, %v\n", sentence.Id, sentence.Text)
+		message := fmt.Sprintf("failed to find translation for sentence: %v, %v\n", sentence.ID, sentence.Text)
 		panic(message)
 	}
 	return Item{
 		Translation: translation,
 		Sentence: Sentence{
-			Id:    sentence.Id,
+			ID:    sentence.ID,
 			Parts: getParts(sentence.Tokens, word),
 		},
 	}, nil

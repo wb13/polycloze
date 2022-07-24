@@ -66,9 +66,9 @@ func frequencyClass(s *database.Session, word string) int {
 	query := `select frequency_class from word where word = ?`
 	row := s.QueryRow(query, text.Casefold(word))
 
-	var frequency_class int
-	_ = row.Scan(&frequency_class)
-	return frequency_class
+	var result int
+	_ = row.Scan(&result)
+	return result
 }
 
 func isNewWord(s *database.Session, word string) bool {
