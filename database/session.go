@@ -42,13 +42,13 @@ func (s *Session) Close() error {
 // Returns a connection with the necessary attached databases.
 //
 // NOTE Caller is expected to close the connection after use.
-func NewSession(db *sql.DB, courseDb string) (*Session, error) {
+func NewSession(db *sql.DB, courseDB string) (*Session, error) {
 	ctx := context.TODO()
 	con, err := db.Conn(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if err := attach(con, "course", courseDb); err != nil {
+	if err := attach(con, "course", courseDB); err != nil {
 		return nil, err
 	}
 	return &Session{con: con}, nil

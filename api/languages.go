@@ -25,7 +25,7 @@ type Languages struct {
 }
 
 // NOTE Caller has to Close the db.
-func openDb(path string) (*sql.DB, error) {
+func openDB(path string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", path)
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func openDb(path string) (*sql.DB, error) {
 }
 
 func getLanguageName(path string) (string, error) {
-	db, err := openDb(path)
+	db, err := openDB(path)
 	if err != nil {
 		return "", err
 	}

@@ -24,7 +24,7 @@ type LanguageStats struct {
 func queryInt(path, query string) (int, error) {
 	var result int
 
-	db, err := openDb(path)
+	db, err := openDB(path)
 	if err != nil {
 		return result, err
 	}
