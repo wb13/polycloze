@@ -23,7 +23,6 @@ func (e LogEvent) String() string {
 		correct = "/"
 	}
 
-	layout := "2006-01-02 15:04:05"
 	timestamp := e.Timestamp.Format(layout)
 
 	return fmt.Sprintf("%v %v %v", correct, timestamp, e.Word)
@@ -43,7 +42,6 @@ func ParseLine(line string) (LogEvent, error) {
 		return event, ErrParseError
 	}
 
-	layout := "2006-01-02 15:04:05"
 	timestamp, err := time.Parse(layout, line[:len(layout)])
 	if err != nil {
 		return event, err

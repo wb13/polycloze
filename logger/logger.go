@@ -9,8 +9,9 @@ import (
 	"github.com/lggruspe/polycloze/basedir"
 )
 
+const layout string = "2006-01-02 15:04:05"
+
 func timestamp() string {
-	layout := "2006-01-02 15:04:05"
 	return time.Now().UTC().Format(layout)
 }
 
