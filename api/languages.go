@@ -8,9 +8,8 @@ import (
 	"path"
 	"path/filepath"
 
-	_ "github.com/mattn/go-sqlite3"
-
 	"github.com/lggruspe/polycloze/basedir"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type Language struct {

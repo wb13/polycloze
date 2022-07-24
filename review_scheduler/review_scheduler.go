@@ -5,9 +5,8 @@ import (
 	"errors"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
-
 	"github.com/lggruspe/polycloze/database"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // Returns sql.DB with review_scheduler schema.

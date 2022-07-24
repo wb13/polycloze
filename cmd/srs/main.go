@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"log"
 
-	_ "github.com/mattn/go-sqlite3"
-
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
 	ws "github.com/lggruspe/polycloze/word_scheduler"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func assertNil(value any) {
