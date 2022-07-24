@@ -13,12 +13,6 @@ import (
 	"github.com/lggruspe/polycloze/basedir"
 )
 
-func init() {
-	if err := basedir.Init(); err != nil {
-		log.Fatal(err)
-	}
-}
-
 type Language struct {
 	Code          string         `json:"code"` // ISO 639-3
 	Name          string         `json:"name"` // in english

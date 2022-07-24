@@ -18,8 +18,6 @@ func assertNil(value any) {
 }
 
 func main() {
-	assertNil(basedir.Init())
-
 	db, err := database.New(basedir.Review("spa"))
 	assertNil(err)
 

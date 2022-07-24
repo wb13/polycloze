@@ -18,6 +18,11 @@ func init() {
 		log.Fatal(err)
 	}
 	Home = home
+
+	DataDir = path.Join(xdgDataHome(), "polycloze")
+	if err := initStateDir(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func xdgDataHome() string {
@@ -47,15 +52,6 @@ func initStateDir() error {
 	}
 	if err := os.MkdirAll(logs, 0700); err != nil {
 		StateDir = ""
-		return err
-	}
-	return nil
-}
-
-// NOTE This function is different from init.
-func Init() error {
-	DataDir = path.Join(xdgDataHome(), "polycloze")
-	if err := initStateDir(); err != nil {
 		return err
 	}
 	return nil

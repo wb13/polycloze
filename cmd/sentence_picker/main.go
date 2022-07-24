@@ -22,8 +22,6 @@ func main() {
 	}
 	word := os.Args[1]
 
-	assertNil(basedir.Init())
-
 	db, err := database.New(":memory:")
 	assertNil(err)
 

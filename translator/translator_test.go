@@ -7,12 +7,6 @@ import (
 	"github.com/lggruspe/polycloze/database"
 )
 
-func init() {
-	if err := basedir.Init(); err != nil {
-		panic(err)
-	}
-}
-
 func newSession(l1, l2 string) *database.Session {
 	db, err := database.New(":memory:")
 	if err != nil {

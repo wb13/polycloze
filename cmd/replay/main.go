@@ -41,10 +41,6 @@ func parseArgs() Args {
 }
 
 func main() {
-	if err := basedir.Init(); err != nil {
-		log.Fatal(err)
-	}
-
 	args := parseArgs()
 	if args.verbose {
 		replay.SetVerbosity(true)

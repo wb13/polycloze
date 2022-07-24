@@ -8,10 +8,6 @@ import (
 	rs "github.com/lggruspe/polycloze/review_scheduler"
 )
 
-func init() {
-	basedir.Init()
-}
-
 func wordScheduler() *database.Session {
 	db, _ := rs.New(":memory:")
 	s, err := database.NewSession(db, basedir.Course("eng", "spa"))

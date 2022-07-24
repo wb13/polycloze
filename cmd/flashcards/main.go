@@ -14,10 +14,6 @@ import (
 )
 
 func main() {
-	if err := basedir.Init(); err != nil {
-		log.Fatal(err)
-	}
-
 	n := 10
 	var err error
 	if len(os.Args) >= 2 {
