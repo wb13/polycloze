@@ -141,7 +141,7 @@ where interval = ?
 
 func replaceWithExistingInterval(tx *sql.Tx, interval, replacement time.Duration) error {
 	intervalSecs := seconds(interval)
-	replacementSecs := seconds(interval)
+	replacementSecs := seconds(replacement)
 
 	query := `delete from interval where interval = ?`
 	if _, err := tx.Exec(query, intervalSecs); err != nil {
