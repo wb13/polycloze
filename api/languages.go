@@ -87,5 +87,7 @@ func languageOptions(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	w.Write(bytes)
+	if _, err := w.Write(bytes); err != nil {
+		log.Println(err)
+	}
 }

@@ -57,7 +57,9 @@ func generateFlashcards(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *
 	if err != nil {
 		log.Fatal(err)
 	}
-	w.Write(bytes)
+	if _, err := w.Write(bytes); err != nil {
+		log.Println(err)
+	}
 }
 
 // frequencyClass is taken from student.frequency_class
@@ -95,7 +97,10 @@ func handleReviewUpdate(ig *flashcards.ItemGenerator, l2 string, w http.Response
 		frequencyClass = word_scheduler.PreferredDifficulty(session)
 		_ = logger.LogReview(l2, review.Correct, review.Word)
 	}
-	w.Write(success(frequencyClass))
+
+	if _, err := w.Write(success(frequencyClass)); err != nil {
+		log.Println(err)
+	}
 }
 
 // Middleware
