@@ -16,6 +16,8 @@ func reviewScheduler() *database.Session {
 
 func TestSchedule(t *testing.T) {
 	// Result should be empty with no errors.
+	t.Parallel()
+
 	s := reviewScheduler()
 
 	items, err := ScheduleReviewNow(s, 100)
@@ -30,6 +32,8 @@ func TestSchedule(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	// Only incorrect review needs to be reviewed.
+	t.Parallel()
+
 	s := reviewScheduler()
 
 	if err := UpdateReview(s, "foo", false); err != nil {
@@ -53,6 +57,8 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestUpdateRecentlyAnsweredItemDoesntGetScheduled(t *testing.T) {
+	t.Parallel()
+
 	s := reviewScheduler()
 	items := []string{"foo", "bar", "baz"}
 	for _, item := range items {
@@ -72,6 +78,8 @@ func TestUpdateRecentlyAnsweredItemDoesntGetScheduled(t *testing.T) {
 
 func TestUpdateIncorrectThenCorrect(t *testing.T) {
 	// Scheduled items should be empty.
+	t.Parallel()
+
 	s := reviewScheduler()
 	if err := UpdateReview(s, "foo", false); err != nil {
 		t.Fatal("expected err to be nil:", err)
@@ -88,6 +96,8 @@ func TestUpdateIncorrectThenCorrect(t *testing.T) {
 }
 
 func TestUpdateSuccessfulReviewDoesNotDecreaseIntervalSize(t *testing.T) {
+	t.Parallel()
+
 	s := reviewScheduler()
 
 	query := func() time.Duration {
@@ -121,6 +131,8 @@ func TestUpdateSuccessfulReviewDoesNotDecreaseIntervalSize(t *testing.T) {
 
 func TestCase(t *testing.T) {
 	// Items shouldn't be case-folded.
+	t.Parallel()
+
 	s := reviewScheduler()
 
 	if err := UpdateReview(s, "Foo", false); err != nil {

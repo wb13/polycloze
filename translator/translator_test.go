@@ -21,6 +21,8 @@ func newSession(l1, l2 string) *database.Session {
 }
 
 func TestTranslate(t *testing.T) {
+	t.Parallel()
+
 	session := newSession("eng", "spa")
 	translation, err := Translate(session, "Hola.")
 	if err != nil {
@@ -32,6 +34,8 @@ func TestTranslate(t *testing.T) {
 }
 
 func TestReverseTranslate(t *testing.T) {
+	t.Parallel()
+
 	session := newSession("spa", "eng")
 	translation, err := Translate(session, "Hello.")
 	if err != nil {

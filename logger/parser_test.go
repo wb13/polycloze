@@ -6,6 +6,8 @@ import (
 )
 
 func TestParseLineCorrect(t *testing.T) {
+	t.Parallel()
+
 	event, err := ParseLine("/ 2020-01-01 00:00:00 test")
 	if err != nil {
 		t.Fatal("expected err to be nil:", err)
@@ -17,6 +19,8 @@ func TestParseLineCorrect(t *testing.T) {
 }
 
 func TestParseLineIncorrect(t *testing.T) {
+	t.Parallel()
+
 	event, err := ParseLine("x 2020-01-01 00:00:00 test")
 	if err != nil {
 		t.Fatal("expected err to be nil:", err)
@@ -28,6 +32,8 @@ func TestParseLineIncorrect(t *testing.T) {
 }
 
 func TestParseLineWord(t *testing.T) {
+	t.Parallel()
+
 	event, err := ParseLine("/ 2020-01-01 00:00:00 Foo bar")
 	if err != nil {
 		t.Fatal("expected err to be nil:", err)
@@ -39,6 +45,8 @@ func TestParseLineWord(t *testing.T) {
 }
 
 func TestParse(t *testing.T) {
+	t.Parallel()
+
 	log := `/ 2021-01-01 01:02:03 foo
 x 2022-02-02 01:02:03 bar
 `
@@ -72,6 +80,8 @@ x 2022-02-02 01:02:03 bar
 }
 
 func TestParseWithComment(t *testing.T) {
+	t.Parallel()
+
 	log := `/ 2022-01-01 00:00:00 foo
 # ignore me
 x 2022-01-02 00:00:00 foo
@@ -87,6 +97,8 @@ x 2022-01-02 00:00:00 foo
 }
 
 func TestParseWithBlank(t *testing.T) {
+	t.Parallel()
+
 	log := `/ 2022-01-01 00:00:00 foo
 
 x 2022-01-02 00:00:00 foo
@@ -102,6 +114,8 @@ x 2022-01-02 00:00:00 foo
 }
 
 func TestString(t *testing.T) {
+	t.Parallel()
+
 	line := `/ 2020-01-01 00:00:00 test`
 
 	event, err := ParseLine(line)

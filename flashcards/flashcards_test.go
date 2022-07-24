@@ -16,6 +16,8 @@ func createIg() ItemGenerator {
 }
 
 func TestProfiler(t *testing.T) {
+	t.Parallel()
+
 	ig := createIg()
 	words, err := ig.GenerateWords(10)
 	if err != nil {

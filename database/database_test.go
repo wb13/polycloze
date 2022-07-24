@@ -8,6 +8,8 @@ import (
 )
 
 func TestUpgrade(t *testing.T) {
+	t.Parallel()
+
 	db, _ := sql.Open("sqlite3", ":memory:")
 	if err := Upgrade(db); err != nil {
 		t.Log("expected err to be nil", err)
@@ -17,6 +19,8 @@ func TestUpgrade(t *testing.T) {
 
 func TestUpgradeTwice(t *testing.T) {
 	// Migration should go smoothly both times, even if there are no changes.
+	t.Parallel()
+
 	db, _ := sql.Open("sqlite3", ":memory:")
 	if err := Upgrade(db); err != nil {
 		t.Log("expected err to be nil on first upgrade", err)

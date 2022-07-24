@@ -18,6 +18,8 @@ func wordScheduler() *database.Session {
 }
 
 func TestFrequencyClass(t *testing.T) {
+	t.Parallel()
+
 	s := wordScheduler()
 	class := frequencyClass(s, "hola")
 	if class <= 0 {
@@ -27,6 +29,8 @@ func TestFrequencyClass(t *testing.T) {
 
 func TestCase(t *testing.T) {
 	// Reviewed items should be auto-case-folded.
+	t.Parallel()
+
 	s := wordScheduler()
 
 	if err := UpdateWord(s, "Foo", false); err != nil {
