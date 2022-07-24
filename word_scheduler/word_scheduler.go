@@ -18,7 +18,7 @@ func PreferredDifficulty(s *database.Session) int {
 
 	var difficulty int
 	row := s.QueryRow(query)
-	row.Scan(&difficulty)
+	_ = row.Scan(&difficulty)
 	return difficulty
 }
 
@@ -67,7 +67,7 @@ func frequencyClass(s *database.Session, word string) int {
 	row := s.QueryRow(query, text.Casefold(word))
 
 	var frequency_class int
-	row.Scan(&frequency_class)
+	_ = row.Scan(&frequency_class)
 	return frequency_class
 }
 

@@ -93,8 +93,7 @@ func handleReviewUpdate(ig *flashcards.ItemGenerator, l2 string, w http.Response
 			log.Fatalf("failed to update word: '%v'\n\t%v\n", review.Word, err.Error())
 		}
 		frequencyClass = word_scheduler.PreferredDifficulty(session)
-
-		logger.LogReview(l2, review.Correct, review.Word)
+		_ = logger.LogReview(l2, review.Correct, review.Word)
 	}
 	w.Write(success(frequencyClass))
 }

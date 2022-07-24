@@ -56,25 +56,29 @@ func TestUpdateRecentlyAnsweredItemDoesntGetScheduled(t *testing.T) {
 	s := reviewScheduler()
 	items := []string{"foo", "bar", "baz"}
 	for _, item := range items {
-		UpdateReview(s, item, true)
+		if err := UpdateReview(s, item, true); err != nil {
+			t.Fatal("expected err to be nil:", err)
+		}
 	}
 
 	items, err := ScheduleReviewNow(s, -1)
 	if err != nil {
-		t.Log("expected err to be nil", err)
-		t.Fail()
+		t.Fatal("expected err to be nil:", err)
 	}
 	if len(items) > 0 {
-		t.Log("expected items to be empty", items)
-		t.Fail()
+		t.Fatal("expected items to be empty", items)
 	}
 }
 
 func TestUpdateIncorrectThenCorrect(t *testing.T) {
 	// Scheduled items should be empty.
 	s := reviewScheduler()
-	UpdateReview(s, "foo", false)
-	UpdateReview(s, "foo", true)
+	if err := UpdateReview(s, "foo", false); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+	if err := UpdateReview(s, "foo", true); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
 
 	items, _ := ScheduleReviewNow(s, -1)
 	if len(items) > 0 {
