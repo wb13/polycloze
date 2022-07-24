@@ -2,8 +2,6 @@ module github.com/lggruspe/polycloze
 
 go 1.18
 
-replace github.com/mattn/go-sqlite3 => ../go-sqlite3
-
 require (
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/golang-migrate/migrate/v4 v4.15.2
