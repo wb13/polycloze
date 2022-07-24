@@ -92,7 +92,7 @@ func handleReviewUpdate(ig *flashcards.ItemGenerator, l2 string, w http.Response
 	for _, review := range reviews.Reviews {
 		err := word_scheduler.UpdateWord(session, review.Word, review.Correct)
 		if err != nil {
-			log.Fatalf("failed to update word: '%v'\n\t%v\n", review.Word, err.Error())
+			log.Printf("failed to update word: '%v'\n\t%v\n", review.Word, err.Error())
 		}
 		frequencyClass = word_scheduler.PreferredDifficulty(session)
 		_ = logger.LogReview(l2, review.Correct, review.Word)

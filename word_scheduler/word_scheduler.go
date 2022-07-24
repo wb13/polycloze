@@ -32,7 +32,7 @@ func GetWords(s *database.Session, n int) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	return append(reviews, words[:]...), nil
+	return append(reviews, words...), nil
 }
 
 // Same as GetWords, but takes an additional time.Time argument.
@@ -45,7 +45,7 @@ func GetWordsAt(s *database.Session, n int, due time.Time) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	return append(reviews, words[:]...), nil
+	return append(reviews, words...), nil
 }
 
 // Same as GetWords, but takes an additional predicate argument.
@@ -59,7 +59,7 @@ func GetWordsWith(s *database.Session, n int, pred func(word string) bool) ([]st
 	if err != nil {
 		return nil, err
 	}
-	return append(reviews, words[:]...), nil
+	return append(reviews, words...), nil
 }
 
 func frequencyClass(s *database.Session, word string) int {
