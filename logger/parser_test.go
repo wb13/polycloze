@@ -58,12 +58,12 @@ x 2022-02-02 01:02:03 bar
 	expected := []LogEvent{
 		{
 			Correct:   true,
-			Timestamp: time.Date(2021, 01, 01, 1, 2, 3, 0, time.UTC),
+			Timestamp: time.Date(2021, 0o1, 0o1, 1, 2, 3, 0, time.UTC),
 			Word:      "foo",
 		},
 		{
 			Correct:   false,
-			Timestamp: time.Date(2022, 02, 02, 1, 2, 3, 0, time.UTC),
+			Timestamp: time.Date(2022, 0o2, 0o2, 1, 2, 3, 0, time.UTC),
 			Word:      "bar",
 		},
 	}

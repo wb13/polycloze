@@ -25,7 +25,7 @@ func prefix(correct bool) string {
 
 func LogReview(l2 string, correct bool, word string) error {
 	logFile := basedir.Log(l2)
-	f, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		return err
 	}

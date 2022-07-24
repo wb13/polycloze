@@ -10,8 +10,10 @@ import (
 	ws "github.com/lggruspe/polycloze/word_scheduler"
 )
 
-var verbose bool = false
-var today time.Time = time.Now().UTC()
+var (
+	verbose bool      = false
+	today   time.Time = time.Now().UTC()
+)
 
 func SetVerbosity(verbosity bool) {
 	verbose = verbosity

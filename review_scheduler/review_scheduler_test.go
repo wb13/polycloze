@@ -21,7 +21,6 @@ func TestSchedule(t *testing.T) {
 	s := reviewScheduler()
 
 	items, err := ScheduleReviewNow(s, 100)
-
 	if err != nil {
 		t.Fatal("expected err to be nil", err)
 	}
