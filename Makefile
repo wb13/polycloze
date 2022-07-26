@@ -1,6 +1,3 @@
-l1 = eng
-l2 = spa
-
 .PHONY:	all
 all:
 
@@ -27,4 +24,4 @@ lint:
 
 .PHONY:	run
 run:	build
-	./build/api $(l1) $(l2)
+	./build/api
