@@ -1,6 +1,6 @@
 # polycloze-data
 
-Scripts for generating course files used by polycloze.
+Scripts for generating course files used by [polycloze](https://github.com/lggruspe/polycloze).
 
 ## Usage
 
