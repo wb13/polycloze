@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Copyright (c) 2022 Levi Gruspe
+# License: MIT, or AGPLv3 or later
+
 lang="spa"
 
 if [[ "$1" != "" ]]; then

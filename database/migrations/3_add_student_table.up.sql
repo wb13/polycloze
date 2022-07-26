@@ -1,3 +1,6 @@
+-- Copyright (c) 2022 Levi Gruspe
+-- License: MIT, or AGPLv3 or later
+
 create table student (
 	key primary key check (key = 'me'),
 	frequency_class integer not null default 0,
