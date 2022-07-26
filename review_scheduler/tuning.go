@@ -1,3 +1,6 @@
+// Copyright (c) 2022 Levi Gruspe
+// License: GNU AGPLv3 or later
+
 // Auto-tuning stuff (of spacing algorithm parameters).
 package review_scheduler
 

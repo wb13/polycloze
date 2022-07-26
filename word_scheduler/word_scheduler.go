@@ -1,3 +1,6 @@
+// Copyright (c) 2022 Levi Gruspe
+// License: GNU AGPLv3 or later
+
 // Combines word_queue and review_scheduler to schedule words.
 package word_scheduler
 

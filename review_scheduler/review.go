@@ -1,3 +1,6 @@
+// Copyright (c) 2022 Levi Gruspe
+// License: GNU AGPLv3 or later
+
 // Defines the Review struct for storing rows from the Review table.
 package review_scheduler
 
