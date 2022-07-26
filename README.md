@@ -2,6 +2,11 @@
 
 A tool for studying foreign language vocabulary using cloze tests.
 
+## Related projects
+
+- <https://github.com/lggruspe/polycloze-data>
+- <https://github.com/lggruspe/polycloze.js>
+
 ## Licenses
 
 Copyright (C) 2022 Levi Gruspe
