@@ -1,7 +1,7 @@
 /* Defines elements found in overview page (e.g. language stats). */
 
 import { createButton } from "./button";
-import { getL1, getL2, setL2 } from "./data";
+import { getL1, setL2 } from "./data";
 import { Course, CourseStats } from "./schema";
 
 function createButtonGroup(onClick: (event: Event) => void): HTMLParagraphElement {
