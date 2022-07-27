@@ -22,9 +22,10 @@ export class LanguageSelect extends HTMLElement {
 
 export class Overview extends HTMLElement {
     async connectedCallback() {
+        const target = this.getAttribute("target") || "/study";
         const languages = await supportedLanguages();
         this.innerHTML = "<h1>Pick a language.</h1>";
-        this.appendChild(createOverview(languages));
+        this.appendChild(createOverview(languages, target));
     }
 }
 

@@ -71,7 +71,7 @@ function createLanguageStats(language: Language): HTMLDivElement | null {
     return div;
 }
 
-function createLanguageOverview(language: Language): HTMLDivElement {
+function createLanguageOverview(language: Language, target: string): HTMLDivElement {
     const card = document.createElement("div");
     card.classList.add("card");
     card.innerHTML = `<h2>${language.name}</h2>`;
@@ -87,17 +87,17 @@ function createLanguageOverview(language: Language): HTMLDivElement {
 
     const start = () => {
         setL2(language.code);
-        window.location.pathname = "/";
+        window.location.pathname = target;
     };
     row.appendChild(createButtonGroup(start));
     return card;
 }
 
-export function createOverview(languages: Language[]): HTMLDivElement {
+export function createOverview(languages: Language[], target = "/study"): HTMLDivElement {
     const div = document.createElement("div");
     for (const language of languages) {
         if (language.code !== getL1()) {
-            div.appendChild(createLanguageOverview(language));
+            div.appendChild(createLanguageOverview(language, target));
         }
     }
     return div;
