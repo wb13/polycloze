@@ -62,10 +62,10 @@ func SupportedLanguages() []Language {
 			continue
 		}
 		name, err := getLanguageName(match)
-		targets[lang] = name
 		if err != nil {
-			panic(err)
+			log.Println(err)
 		}
+		targets[lang] = name
 	}
 
 	for code, name := range targets {
