@@ -1,8 +1,8 @@
 /* Defines elements found in overview page (e.g. language stats). */
 
 import { createButton } from "./button";
-import { getL1, setL2 } from "./data";
-import { Language, LanguageStats } from "./select";
+import { getL1, getL2, setL2 } from "./data";
+import { Course, CourseStats } from "./schema";
 
 function createButtonGroup(onClick: (event: Event) => void): HTMLParagraphElement {
     const p = document.createElement("p");
@@ -11,7 +11,7 @@ function createButtonGroup(onClick: (event: Event) => void): HTMLParagraphElemen
     return p;
 }
 
-function createSeenParagraph(stats: LanguageStats): HTMLParagraphElement | null {
+function createSeenParagraph(stats: CourseStats): HTMLParagraphElement | null {
     const { seen, total } = stats;
     if (seen == null || seen < 0) {
         return null;
@@ -28,7 +28,7 @@ function createSeenParagraph(stats: LanguageStats): HTMLParagraphElement | null 
     return p;
 }
 
-function createTodayParagraph(stats: LanguageStats): HTMLParagraphElement | null {
+function createTodayParagraph(stats: CourseStats): HTMLParagraphElement | null {
     const { learned, reviewed } = stats;
     const texts = [];
     if (learned != null && learned > 0) {
@@ -47,14 +47,14 @@ function createTodayParagraph(stats: LanguageStats): HTMLParagraphElement | null
     return p;
 }
 
-function createLanguageStats(language: Language): HTMLDivElement | null {
-    if (!language.stats) {
+function createCourseStats(course: Course): HTMLDivElement | null {
+    if (!course.stats) {
         return null;
     }
 
     const children = [];
-    const seenParagraph = createSeenParagraph(language.stats);
-    const todayParagraph = createTodayParagraph(language.stats);
+    const seenParagraph = createSeenParagraph(course.stats);
+    const todayParagraph = createTodayParagraph(course.stats);
     if (seenParagraph != null) {
         children.push(seenParagraph);
     }
@@ -71,33 +71,33 @@ function createLanguageStats(language: Language): HTMLDivElement | null {
     return div;
 }
 
-function createLanguageOverview(language: Language, target: string): HTMLDivElement {
+function createCourseOverview(course: Course, target: string): HTMLDivElement {
     const card = document.createElement("div");
     card.classList.add("card");
-    card.innerHTML = `<h2>${language.name}</h2>`;
+    card.innerHTML = `<h2>${course.l2.name}</h2>`;
 
     const row = document.createElement("div");
     row.classList.add("row");
     card.appendChild(row);
 
-    const stats = createLanguageStats(language);
+    const stats = createCourseStats(course);
     if (stats != null) {
         row.appendChild(stats);
     }
 
     const start = () => {
-        setL2(language.code);
+        setL2(course.l2.code);
         window.location.pathname = target;
     };
     row.appendChild(createButtonGroup(start));
     return card;
 }
 
-export function createOverview(languages: Language[], target = "/study"): HTMLDivElement {
+export function createOverview(courses: Course[], target = "/study"): HTMLDivElement {
     const div = document.createElement("div");
-    for (const language of languages) {
-        if (language.code !== getL1()) {
-            div.appendChild(createLanguageOverview(language, target));
+    for (const course of courses) {
+        if (course.l1.code === getL1() && course.l2.code !== getL2()) {
+            div.appendChild(createCourseOverview(course, target));
         }
     }
     return div;

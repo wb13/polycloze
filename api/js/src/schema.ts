@@ -12,6 +12,20 @@ export type ReviewSchema = {
     frequencyClass: number;    // describes student's level
 };
 
-export type SupportedLanguagesSchema = {
-    languages: Language[];
+export type CourseStats = {
+  seen?: number
+  total?: number
+  learned?: number
+  reviewed?: number
+  correct?: number
+};
+
+export type Course = {
+    l1: Language;
+    l2: Language;
+    stats?: CourseStats;
+};
+
+export type CoursesSchema = {
+    courses: Course[];
 };

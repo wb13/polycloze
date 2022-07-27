@@ -2,8 +2,7 @@
 
 import { src } from "./config";
 import { Item } from "./item";
-import { ItemsSchema, ReviewSchema, SupportedLanguagesSchema } from "./schema";
-import { Language } from "./select";
+import { Course, ItemsSchema, ReviewSchema, CoursesSchema } from "./schema";
 
 // Local storage stuff
 
@@ -61,11 +60,11 @@ async function fetchJson<T>(url: string | URL, options: RequestInit): Promise<T>
     return await response.json();
 }
 
-export async function supportedLanguages(): Promise<Language[]> {
+export async function availableCourses(): Promise<Course[]> {
     const url = new URL("/options", src);
     const options = { mode: "cors" as RequestMode };
-    const json = await fetchJson<SupportedLanguagesSchema>(url, options);
-    return json.languages;
+    const json = await fetchJson<CoursesSchema>(url, options);
+    return json.courses;
 }
 
 export async function fetchItems(n = 10, x: string[] = []): Promise<Item[]> {
