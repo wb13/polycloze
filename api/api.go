@@ -144,7 +144,7 @@ func Router(config Config) (chi.Router, error) {
 	r.HandleFunc("/study", showStudyPage)
 
 	r.HandleFunc("/dist/{filename}", serveDist)
-	r.HandleFunc("/options", languageOptions)
+	r.HandleFunc("/options", courseOptions)
 	r.HandleFunc("/{l1}/{l2}", createHandler)
 	return r, nil
 }

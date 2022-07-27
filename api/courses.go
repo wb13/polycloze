@@ -4,6 +4,7 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,7 +12,19 @@ import (
 	"path/filepath"
 
 	"github.com/lggruspe/polycloze/basedir"
+	_ "github.com/mattn/go-sqlite3"
 )
+
+type Language struct {
+	Code          string         `json:"code"` // ISO 639-3
+	Name          string         `json:"name"` // in english
+	LanguageStats *LanguageStats `json:"stats,omitempty"`
+}
+
+// Only used for encoding to json
+type Languages struct {
+	Languages []Language `json:"languages"`
+}
 
 type Course struct {
 	L1 Language `json:"l1"`
@@ -23,7 +36,16 @@ type Courses struct {
 	Courses []Course `json:"courses"`
 }
 
-func AvailableCourses() []Course {
+// NOTE Caller has to Close the db.
+func openDB(path string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", path)
+	if err != nil {
+		return nil, err
+	}
+	return db, nil
+}
+
+func availableCourses() []Course {
 	var courses []Course
 
 	glob := "[a-z][a-z][a-z]-[a-z][a-z][a-z].db"
@@ -73,13 +95,15 @@ func getCourseInfo(path string) (Course, error) {
 	if course.L1.Code == "" || course.L2.Code == "" {
 		return course, fmt.Errorf("invalid course database: %s\n", path)
 	}
+
+	// TODO getCourseStats
 	return course, nil
 }
 
 func courseOptions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	courses := Courses{Courses: AvailableCourses()}
+	courses := Courses{Courses: availableCourses()}
 	bytes, err := json.Marshal(courses)
 	if err != nil {
 		log.Fatal(err)
