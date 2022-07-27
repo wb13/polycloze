@@ -18,7 +18,12 @@ function createLanguageSelect(languages: Language[]): HTMLSelectElement {
     const select = document.createElement("select");
     select.id = "language-select";
 
+    const visited = new Set();
     for (const language of languages) {
+        if (visited.has(language.code)) {
+            continue;
+        }
+        visited.add(language.code);
         const option = createLanguageOption(language, language.code === getL1());
         select.appendChild(option);
     }
