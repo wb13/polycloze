@@ -5,6 +5,7 @@ package api
 
 import (
 	"embed"
+	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -12,8 +13,20 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-//go:embed js/dist/index.*
+//go:embed js/dist/index.* templates/*.html
 var fs embed.FS
+
+var templates *template.Template = template.Must(template.ParseFS(fs, "templates/*.html"))
+
+func init() {
+	// Check templates.
+	names := []string{"home.html", "study.html"}
+	for _, name := range names {
+		if t := templates.Lookup(name); t == nil {
+			log.Fatal("missing template:", name)
+		}
+	}
+}
 
 func serveDist(w http.ResponseWriter, r *http.Request) {
 	filename := chi.URLParam(r, "filename")
