@@ -35,7 +35,21 @@ func serveDist(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+
+	switch filename {
+	case "index.js":
+		w.Header().Set("Content-Type", "application/javascript")
+	case "index.css":
+		w.Header().Set("Content-Type", "text/css")
+	}
+
 	if _, err := w.Write(bytes); err != nil {
+		log.Println(err)
+	}
+}
+
+func showHome(w http.ResponseWriter, r *http.Request) {
+	if err := templates.ExecuteTemplate(w, "home.html", nil); err != nil {
 		log.Println(err)
 	}
 }
