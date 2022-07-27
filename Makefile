@@ -1,9 +1,13 @@
 .PHONY:	all
 all:
 
-.PHONY:	build
-build:
+.PHONY:	build-js
+build-js:
 	cd api/js; npm run build
+
+.PHONY:	build
+build:	build-js
+	go build .
 	go build -v -o build/ ./...
 
 .PHONY:	test
@@ -24,7 +28,8 @@ lint:
 	golangci-lint run
 
 .PHONY:	run
-run:	build
+run:	build-js
+	go build .
 	./polycloze
 
 .PHONY:	init
