@@ -69,7 +69,7 @@ func success(frequencyClass int) []byte {
 	return []byte(fmt.Sprintf("{\"success\": true, \"frequencyClass\": %v}", frequencyClass))
 }
 
-func handleReviewUpdate(ig *flashcards.ItemGenerator, l2 string, w http.ResponseWriter, r *http.Request) {
+func handleReviewUpdate(ig *flashcards.ItemGenerator, l1, l2 string, w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		panic("expected json body in POST request")
 	}
@@ -97,7 +97,7 @@ func handleReviewUpdate(ig *flashcards.ItemGenerator, l2 string, w http.Response
 			log.Printf("failed to update word: '%v'\n\t%v\n", review.Word, err.Error())
 		}
 		frequencyClass = word_scheduler.PreferredDifficulty(session)
-		_ = logger.LogReview(l2, review.Correct, review.Word)
+		_ = logger.LogReview(basedir.Log(l1, l2), review.Correct, review.Word)
 	}
 
 	if _, err := w.Write(success(frequencyClass)); err != nil {
@@ -118,7 +118,7 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	l1 := chi.URLParam(r, "l1")
 	l2 := chi.URLParam(r, "l2")
 
-	db, err := database.New(basedir.Review(l2))
+	db, err := database.New(basedir.Review(l1, l2))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -128,7 +128,7 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "POST":
-		handleReviewUpdate(&ig, l2, w, r)
+		handleReviewUpdate(&ig, l1, l2, w, r)
 	case "GET":
 		generateFlashcards(&ig, w, r)
 	}

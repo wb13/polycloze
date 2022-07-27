@@ -28,7 +28,7 @@ func main() {
 
 	rand.Seed(time.Now().UnixNano())
 
-	db, err := database.New(basedir.Review("spa"))
+	db, err := database.New(basedir.Review("eng", "spa"))
 	if err != nil {
 		log.Fatal(err)
 	}

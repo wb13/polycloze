@@ -8,8 +8,6 @@ import (
 	"log"
 	"os"
 	"time"
-
-	"github.com/lggruspe/polycloze/basedir"
 )
 
 const layout string = "2006-01-02 15:04:05"
@@ -26,9 +24,8 @@ func prefix(correct bool) string {
 	return fmt.Sprintf("%v %v ", result, timestamp())
 }
 
-func LogReview(l2 string, correct bool, word string) error {
-	logFile := basedir.Log(l2)
-	f, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+func LogReview(file string, correct bool, word string) error {
+	f, err := os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		return err
 	}

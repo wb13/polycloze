@@ -9,17 +9,17 @@ import (
 )
 
 // Returns path to review database.
-// language: ISO 639-3 code
+// l1 and l2: ISO 639-3 code
 // TODO user param
-func Review(language string) string {
-	return path.Join(StateDir, "reviews", "user", fmt.Sprintf("%v.db", language))
+func Review(l1, l2 string) string {
+	return path.Join(StateDir, "reviews", "user", fmt.Sprintf("%s-%s.db", l1, l2))
 }
 
 // Returns path to log file.
-// language: ISO 639-3 code
+// l1 and l2: ISO 639-3 code
 // TODO user param
-func Log(language string) string {
-	return path.Join(StateDir, "logs", "user", fmt.Sprintf("%v.log", language))
+func Log(l1, l2 string) string {
+	return path.Join(StateDir, "logs", "user", fmt.Sprintf("%s-%s.log", l1, l2))
 }
 
 // Returns path to database for course.
