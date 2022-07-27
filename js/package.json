@@ -2,11 +2,11 @@
   "name": "polycloze",
   "version": "1.0.0",
   "description": "polycloze front-end",
-  "main": "dist/polycloze.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "esbuild --bundle src/index.ts --outdir=dist --minify --sourcemap",
+    "build:watch": "esbuild --bundle src/index.ts --outdir=dist --minify --sourcemap --watch",
     "check": "npm run lint:fix && tsc",
-    "dev": "esbuild --bundle src/index.ts --outdir=build --watch",
     "lint": "eslint src/*.ts",
     "lint:fix": "eslint src/*.ts --fix",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lggruspe/polycloze.js.git"
+    "url": "git+https://github.com/lggruspe/polycloze.git"
   },
   "keywords": [
     "cloze",
@@ -25,9 +25,9 @@
   "author": "Levi Gruspe",
   "license": "AGPLv3",
   "bugs": {
-    "url": "https://github.com/lggruspe/polycloze.js/issues"
+    "url": "https://github.com/lggruspe/polycloze/issues"
   },
-  "homepage": "https://github.com/lggruspe/polycloze.js#readme",
+  "homepage": "https://github.com/lggruspe/polycloze#readme",
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
