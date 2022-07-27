@@ -1,0 +1,16 @@
+.blank {
+	font-family: inherit;
+	font-size: inherit;
+}
+
+.correct {
+	color: green;
+}
+
+.almost {
+	color: orange;
+}
+
+.incorrect {
+	color: red;
+}
