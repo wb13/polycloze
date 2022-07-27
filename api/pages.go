@@ -53,3 +53,9 @@ func showHome(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 }
+
+func showStudyPage(w http.ResponseWriter, r *http.Request) {
+	if err := templates.ExecuteTemplate(w, "study.html", nil); err != nil {
+		log.Println(err)
+	}
+}
