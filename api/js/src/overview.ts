@@ -96,7 +96,7 @@ function createCourseOverview(course: Course, target: string): HTMLDivElement {
 export function createOverview(courses: Course[], target = "/study"): HTMLDivElement {
     const div = document.createElement("div");
     for (const course of courses) {
-        if (course.l1.code === getL1() && course.l2.code !== getL2()) {
+        if (course.l1.code === getL1()) {
             div.appendChild(createCourseOverview(course, target));
         }
     }
