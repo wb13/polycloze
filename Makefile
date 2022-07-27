@@ -3,7 +3,7 @@ all:
 
 .PHONY:	build
 build:
-	cd js; npm run build
+	cd api/js; npm run build
 	go build -v -o build/ ./...
 
 .PHONY:	test
@@ -29,4 +29,4 @@ run:	build
 
 .PHONY:	init
 init:
-	cd js; npm ci
+	cd api/js; npm ci
