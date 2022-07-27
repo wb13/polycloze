@@ -4,14 +4,23 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 	"path/filepath"
 
 	"github.com/lggruspe/polycloze/basedir"
 )
 
 type Course struct {
-	l1, l2 Language
+	L1 Language `json:"l1"`
+	L2 Language `json:"l2"`
+}
+
+// Only used for encoding to json
+type Courses struct {
+	Courses []Course `json:"courses"`
 }
 
 func AvailableCourses() []Course {
@@ -53,16 +62,30 @@ func getCourseInfo(path string) (Course, error) {
 
 		switch id {
 		case "l1":
-			course.l1.Code = code
-			course.l1.Name = name
+			course.L1.Code = code
+			course.L1.Name = name
 		case "l2":
-			course.l2.Code = code
-			course.l2.Name = name
+			course.L2.Code = code
+			course.L2.Name = name
 		}
 	}
 
-	if course.l1.Code == "" || course.l2.Code == "" {
+	if course.L1.Code == "" || course.L2.Code == "" {
 		return course, fmt.Errorf("invalid course database: %s\n", path)
 	}
 	return course, nil
+}
+
+func courseOptions(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	courses := Courses{Courses: AvailableCourses()}
+	bytes, err := json.Marshal(courses)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if _, err := w.Write(bytes); err != nil {
+		log.Println(err)
+	}
 }
