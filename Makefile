@@ -25,6 +25,7 @@ bench:
 
 .PHONY:	lint
 lint:
+	cd api/js; npm run check
 	golangci-lint run
 
 .PHONY:	run
