@@ -4,6 +4,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,13 +12,28 @@ import (
 	"github.com/lggruspe/polycloze/api"
 )
 
+type Args struct {
+	cors bool
+	port int
+}
+
+func parseArgs() Args {
+	var args Args
+
+	flag.BoolVar(&args.cors, "c", false, "allow CORS")
+	flag.IntVar(&args.port, "p", 3000, "port number")
+	flag.Parse()
+	return args
+}
+
 func main() {
-	config := api.Config{AllowCORS: true}
+	args := parseArgs()
+
+	config := api.Config{AllowCORS: args.cors}
 	r, err := api.Router(config)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println("Listening on port 3000")
-	log.Fatal(http.ListenAndServe(":3000", r))
+	log.Printf("Listening on port %v\n", args.port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", args.port), r))
 }
