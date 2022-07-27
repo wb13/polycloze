@@ -5,6 +5,7 @@ package api
 
 import (
 	"github.com/lggruspe/polycloze/basedir"
+	"github.com/lggruspe/polycloze/database"
 )
 
 type CourseStats struct {
@@ -18,7 +19,8 @@ type CourseStats struct {
 	Correct  int `json:"correct"`
 }
 
-func queryInt(path, query string) (int, error) {
+// If upgrade is non-empty, upgrades the database.
+func queryInt(path, query string, upgrade ...bool) (int, error) {
 	var result int
 
 	db, err := openDB(path)
@@ -27,13 +29,19 @@ func queryInt(path, query string) (int, error) {
 	}
 	defer db.Close()
 
+	if len(upgrade) > 0 {
+		if err := database.Upgrade(db); err != nil {
+			return result, err
+		}
+	}
+
 	row := db.QueryRow(query)
 	err = row.Scan(&result)
 	return result, err
 }
 
 func countSeen(l1, l2 string) (int, error) {
-	return queryInt(basedir.Review(l1, l2), `select count(*) from review`)
+	return queryInt(basedir.Review(l1, l2), `select count(*) from review`, true)
 }
 
 // Total count of words in course.
@@ -44,7 +52,7 @@ func countTotal(l1, l2 string) (int, error) {
 // New words learned today.
 func countLearnedToday(l1, l2 string) (int, error) {
 	query := `select count(*) from review where learned >= current_date`
-	return queryInt(basedir.Review(l1, l2), query)
+	return queryInt(basedir.Review(l1, l2), query, true)
 }
 
 // Number of words reviewed today, excluding new words.
@@ -53,14 +61,14 @@ func countReviewedToday(l1, l2 string) (int, error) {
 select count(*) from review where reviewed >= current_date
 and learned < current_date
 `
-	return queryInt(basedir.Review(l1, l2), query)
+	return queryInt(basedir.Review(l1, l2), query, true)
 }
 
 // Number of correct answers today.
 func countCorrectToday(l1, l2 string) (int, error) {
 	// NOTE assumes that 1 day is the smallest non-empty interval
 	query := `select count(*) from review where reviewed >= current_date and correct`
-	return queryInt(basedir.Review(l1, l2), query)
+	return queryInt(basedir.Review(l1, l2), query, true)
 }
 
 func getCourseStats(l1, l2 string) (*CourseStats, error) {
