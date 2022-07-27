@@ -25,7 +25,7 @@ lint:
 
 .PHONY:	run
 run:	build
-	./build/api
+	./polycloze
 
 .PHONY:	init
 init:
