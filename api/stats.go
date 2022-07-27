@@ -4,14 +4,10 @@
 package api
 
 import (
-	"fmt"
-	"path"
-	"path/filepath"
-
 	"github.com/lggruspe/polycloze/basedir"
 )
 
-type LanguageStats struct {
+type CourseStats struct {
 	// all-time
 	Seen  int `json:"seen"`
 	Total int `json:"total"`
@@ -19,9 +15,7 @@ type LanguageStats struct {
 	// today
 	Learned  int `json:"learned"`
 	Reviewed int `json:"reviewed"`
-
-	// today
-	Correct int `json:"correct"`
+	Correct  int `json:"correct"`
 }
 
 func queryInt(path, query string) (int, error) {
@@ -38,77 +32,64 @@ func queryInt(path, query string) (int, error) {
 	return result, err
 }
 
-func countSeen(lang string) (int, error) {
-	return queryInt(basedir.Review(lang), `select count(*) from review`)
+func countSeen(l1, l2 string) (int, error) {
+	return queryInt(basedir.Review(l1, l2), `select count(*) from review`)
 }
 
-// Total count of words in lang (given as three-letter code).
-func countTotal(lang string) (int, error) {
-	pattern := fmt.Sprintf("[a-z][a-z][a-z]-%s.db", lang)
-	matches, _ := filepath.Glob(path.Join(basedir.DataDir, pattern))
-
-	var max int
-	for _, match := range matches {
-		count, err := queryInt(match, `select count(*) from word`)
-		if err != nil {
-			return max, err
-		}
-		if count > max {
-			max = count
-		}
-	}
-	return max, nil
+// Total count of words in course.
+func countTotal(l1, l2 string) (int, error) {
+	return queryInt(basedir.Course(l1, l2), `select count(*) from word`)
 }
 
 // New words learned today.
-func countLearnedToday(lang string) (int, error) {
+func countLearnedToday(l1, l2 string) (int, error) {
 	query := `select count(*) from review where learned >= current_date`
-	return queryInt(basedir.Review(lang), query)
+	return queryInt(basedir.Review(l1, l2), query)
 }
 
 // Number of words reviewed today, excluding new words.
-func countReviewedToday(lang string) (int, error) {
+func countReviewedToday(l1, l2 string) (int, error) {
 	query := `
 select count(*) from review where reviewed >= current_date
 and learned < current_date
 `
-	return queryInt(basedir.Review(lang), query)
+	return queryInt(basedir.Review(l1, l2), query)
 }
 
 // Number of correct answers today.
-func countCorrectToday(lang string) (int, error) {
+func countCorrectToday(l1, l2 string) (int, error) {
 	// NOTE assumes that 1 day is the smallest non-empty interval
 	query := `select count(*) from review where reviewed >= current_date and correct`
-	return queryInt(basedir.Review(lang), query)
+	return queryInt(basedir.Review(l1, l2), query)
 }
 
-func getLanguageStats(lang string) (*LanguageStats, error) {
-	seen, err := countSeen(lang)
+func getCourseStats(l1, l2 string) (*CourseStats, error) {
+	seen, err := countSeen(l1, l2)
 	if err != nil {
 		return nil, err
 	}
 
-	total, err := countTotal(lang)
+	total, err := countTotal(l1, l2)
 	if err != nil {
 		return nil, err
 	}
 
-	learned, err := countLearnedToday(lang)
+	learned, err := countLearnedToday(l1, l2)
 	if err != nil {
 		return nil, err
 	}
 
-	reviewed, err := countReviewedToday(lang)
+	reviewed, err := countReviewedToday(l1, l2)
 	if err != nil {
 		return nil, err
 	}
 
-	correct, err := countCorrectToday(lang)
+	correct, err := countCorrectToday(l1, l2)
 	if err != nil {
 		return nil, err
 	}
 
-	return &LanguageStats{
+	return &CourseStats{
 		Seen:     seen,
 		Total:    total,
 		Learned:  learned,

@@ -16,9 +16,8 @@ import (
 )
 
 type Language struct {
-	Code          string         `json:"code"` // ISO 639-3
-	Name          string         `json:"name"` // in english
-	LanguageStats *LanguageStats `json:"stats,omitempty"`
+	Code string `json:"code"` // ISO 639-3
+	Name string `json:"name"` // in english
 }
 
 // Only used for encoding to json
@@ -27,8 +26,9 @@ type Languages struct {
 }
 
 type Course struct {
-	L1 Language `json:"l1"`
-	L2 Language `json:"l2"`
+	L1    Language     `json:"l1"`
+	L2    Language     `json:"l2"`
+	Stats *CourseStats `json:"stats,omitempty"`
 }
 
 // Only used for encoding to json
@@ -96,7 +96,12 @@ func getCourseInfo(path string) (Course, error) {
 		return course, fmt.Errorf("invalid course database: %s\n", path)
 	}
 
-	// TODO getCourseStats
+	stats, err := getCourseStats(course.L1.Code, course.L2.Code)
+	if err != nil {
+		return course, err
+	}
+
+	course.Stats = stats
 	return course, nil
 }
 
