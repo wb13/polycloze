@@ -48,14 +48,18 @@ func serveDist(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func showHome(w http.ResponseWriter, r *http.Request) {
-	if err := templates.ExecuteTemplate(w, "home.html", nil); err != nil {
-		log.Println(err)
+func showHome(config Config) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := templates.ExecuteTemplate(w, "home.html", config); err != nil {
+			log.Println(err)
+		}
 	}
 }
 
-func showStudyPage(w http.ResponseWriter, r *http.Request) {
-	if err := templates.ExecuteTemplate(w, "study.html", nil); err != nil {
-		log.Println(err)
+func showStudyPage(config Config) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := templates.ExecuteTemplate(w, "study.html", config); err != nil {
+			log.Println(err)
+		}
 	}
 }

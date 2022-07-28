@@ -29,7 +29,7 @@ func parseArgs() Args {
 func main() {
 	args := parseArgs()
 
-	config := api.Config{AllowCORS: args.cors}
+	config := api.Config{AllowCORS: args.cors, Port: args.port}
 	r, err := api.Router(config)
 	if err != nil {
 		log.Fatal(err)

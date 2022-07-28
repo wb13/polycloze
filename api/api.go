@@ -140,8 +140,8 @@ func Router(config Config) (chi.Router, error) {
 		r.Use(cors)
 	}
 	r.Use(middleware.Logger)
-	r.HandleFunc("/", showHome)
-	r.HandleFunc("/study", showStudyPage)
+	r.HandleFunc("/", showHome(config))
+	r.HandleFunc("/study", showStudyPage(config))
 
 	r.HandleFunc("/dist/{filename}", serveDist)
 	r.HandleFunc("/options", courseOptions)
