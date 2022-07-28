@@ -1,8 +1,10 @@
 // Contains functions for getting data from the server and from localStorage.
 
-import { src } from "./config";
 import { Item } from "./item";
 import { Course, ItemsSchema, ReviewSchema, CoursesSchema } from "./schema";
+
+// Location of server
+const src = findServer();
 
 // Local storage stuff
 
@@ -92,4 +94,20 @@ export async function submitReview(word: string, correct: boolean): Promise<Revi
         mode: "cors" as RequestMode
     };
     return await fetchJson<ReviewSchema>(url, options);
+}
+
+function findServer(): string {
+    const url = new URL(location.href);
+    if (document.currentScript == null) {
+        return url.origin;
+    }
+
+    const { origin, port } = document.currentScript.dataset;
+    if (origin != null) {
+        return origin;
+    }
+    if (port != null) {
+        url.port = port;
+    }
+    return url.origin;
 }
