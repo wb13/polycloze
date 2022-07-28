@@ -27,8 +27,9 @@ func parseArgs() Args {
 }
 
 func main() {
-	args := parseArgs()
+	prerunChecks()
 
+	args := parseArgs()
 	config := api.Config{AllowCORS: args.cors, Port: args.port}
 	r, err := api.Router(config)
 	if err != nil {
@@ -37,4 +38,11 @@ func main() {
 	log.Printf("Listening on port %v\n", args.port)
 	log.Printf("Start learning: http://127.0.0.1:%v\n", args.port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", args.port), r))
+}
+
+func prerunChecks() {
+	courses := api.AvailableCourses()
+	if len(courses) == 0 {
+		log.Fatal("Couldn't find installed courses. Please visit https://github.com/lggruspe/polycloze-data")
+	}
 }

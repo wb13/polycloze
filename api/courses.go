@@ -45,7 +45,7 @@ func openDB(path string) (*sql.DB, error) {
 	return db, nil
 }
 
-func availableCourses() []Course {
+func AvailableCourses() []Course {
 	var courses []Course
 
 	glob := "[a-z][a-z][a-z]-[a-z][a-z][a-z].db"
@@ -108,7 +108,7 @@ func getCourseInfo(path string) (Course, error) {
 func courseOptions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	courses := Courses{Courses: availableCourses()}
+	courses := Courses{Courses: AvailableCourses()}
 	bytes, err := json.Marshal(courses)
 	if err != nil {
 		log.Fatal(err)
