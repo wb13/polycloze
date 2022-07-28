@@ -5,16 +5,26 @@ Scripts for generating course files used by [polycloze](https://github.com/lggru
 ## Usage
 
 ```bash
-# install requirements
+# Install requirements in a virtual environment.
 python -m venv env
 . env/bin/activate
 pip install -r requirements/install.requirements.txt
 
-# build course files
+# Build course files.
 make
 
-# install files into data directory
+# Copy files into data directory (~/.local/share/polycloze).
 make install
+```
+
+If you only want to build a specific course, then you can use the course name as the `make` target.
+
+```bash
+# Instead of
+make
+
+# You can do
+make eng-spa	# build English -> Spanish course only
 ```
 
 ## Supported languages
