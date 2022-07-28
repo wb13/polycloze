@@ -30,8 +30,7 @@ lint:
 
 .PHONY:	run
 run:	build-js
-	go build .
-	./polycloze -c
+	go run .
 
 .PHONY:	init
 init:

@@ -35,5 +35,6 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Printf("Listening on port %v\n", args.port)
+	log.Printf("Start learning: http://127.0.0.1:%v\n", args.port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", args.port), r))
 }

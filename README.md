@@ -2,6 +2,19 @@
 
 A tool for studying foreign language vocabulary using cloze tests.
 
+## Usage
+
+```bash
+# Install everything needed to build front-end.
+make init
+
+# Run server.
+make run
+
+# Open in browser.
+xdg-open http://localhost:3000
+```
+
 ## Related projects
 
 - <https://github.com/lggruspe/polycloze-data>
