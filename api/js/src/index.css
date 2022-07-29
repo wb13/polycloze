@@ -59,7 +59,6 @@ nav.footer {
 
 a {
 	text-decoration: none;
-	color: inherit;
 }
 
 a:hover {
@@ -139,4 +138,8 @@ input:focus {
 .row {
 	display: flex;
 	justify-content: space-between;
+}
+
+.colorless {
+	color: inherit;
 }
