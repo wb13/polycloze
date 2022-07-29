@@ -141,6 +141,7 @@ func Router(config Config) (chi.Router, error) {
 	}
 	r.Use(middleware.Logger)
 	r.HandleFunc("/", showHome(config))
+	r.HandleFunc("/about", showAboutPage)
 	r.HandleFunc("/study", showStudyPage(config))
 
 	r.HandleFunc("/dist/{filename}", serveDist)
