@@ -26,7 +26,7 @@ export function createBlank(answer: string, autocapitalize: boolean, done: (answ
         input.value = substituteDigraphs(input.value);
     });
     input.addEventListener("change", () => {
-        switch (distance(input.value, answer)) {
+        switch (distance(input.value.trim(), answer.trim())) {
         case 0:
             changeStatus(input, "correct");
             return done(answer, correct);
