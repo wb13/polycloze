@@ -2,7 +2,7 @@
 
 A tool for studying foreign language vocabulary using cloze tests.
 
-[Screenshots](./screenshots)
+[Screenshots](./screenshots) [Demo](https://polycloze-demo.herokuapp.com/)
 
 ## Usage
 
