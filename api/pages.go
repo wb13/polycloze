@@ -13,7 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-//go:embed js/dist/index.* templates/*.html
+//go:embed js/dist/index.* templates/*.html js/public/*
 var fs embed.FS
 
 var templates *template.Template = template.Must(template.ParseFS(fs, "templates/*.html"))
