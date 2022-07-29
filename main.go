@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 
 	"github.com/lggruspe/polycloze/api"
 )
@@ -17,11 +19,22 @@ type Args struct {
 	port int
 }
 
+func defaultPortNumber() int {
+	port := os.Getenv("PORT")
+	if port != "" {
+		v, err := strconv.Atoi(port)
+		if err == nil {
+			return v
+		}
+	}
+	return 3000
+}
+
 func parseArgs() Args {
 	var args Args
 
 	flag.BoolVar(&args.cors, "c", false, "allow CORS")
-	flag.IntVar(&args.port, "p", 3000, "port number")
+	flag.IntVar(&args.port, "p", defaultPortNumber(), "port number")
 	flag.Parse()
 	return args
 }
