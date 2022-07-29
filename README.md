@@ -2,6 +2,8 @@
 
 A tool for studying foreign language vocabulary using cloze tests.
 
+[Screenshots](./screenshots)
+
 ## Usage
 
 ```bash
