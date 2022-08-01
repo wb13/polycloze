@@ -8,6 +8,7 @@ import { edit } from "./unsaved";
 export type Sentence = {
   id: number
   parts: string[]
+  tatoebaID?: number
 }
 
 function createPart(part: string): HTMLSpanElement {

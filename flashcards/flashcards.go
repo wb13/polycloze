@@ -17,9 +17,11 @@ import (
 	"github.com/lggruspe/polycloze/word_scheduler"
 )
 
+// Different from sentence_picker.Sentence
 type Sentence struct {
-	ID    int      `json:"id"`    // id in database
-	Parts []string `json:"parts"` // Odd-numbered parts are blanks
+	ID        int      `json:"id"`    // id in database
+	Parts     []string `json:"parts"` // Odd-numbered parts are blanks
+	TatoebaID int64    `json:"tatoebaID,omitempty"`
 }
 
 type Item struct {
@@ -87,8 +89,9 @@ func (ig ItemGenerator) GenerateItem(word string) (Item, error) {
 	return Item{
 		Translation: translation,
 		Sentence: Sentence{
-			ID:    sentence.ID,
-			Parts: getParts(sentence.Tokens, word),
+			ID:        sentence.ID,
+			Parts:     getParts(sentence.Tokens, word),
+			TatoebaID: sentence.TatoebaID,
 		},
 	}, nil
 }
