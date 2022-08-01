@@ -7,9 +7,19 @@ import { createLanguageForm } from "./select";
 
 export class ClozeApp extends HTMLElement {
     async connectedCallback() {
+        const l2 = this.getL2Name();
+
         const [app, ready] = await createApp(new ItemBuffer());
         this.appendChild(app);
         ready();
+        document.title = `polycloze | ${await l2}`;
+    }
+
+    async getL2Name(): Promise<string> {
+        const code = getL2();
+        const courses = await availableCourses();
+        const course = courses.find(c => c.l2.code === code);
+        return course ? course.l2.name : code;
     }
 }
 
