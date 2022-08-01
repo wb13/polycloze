@@ -79,6 +79,11 @@ export function createSentence(sentence: Sentence, next: (ok: boolean) => void, 
 
     fixPunctuationWrap(div);
 
+    const link = createSentenceLink(sentence);
+    if (link != null) {
+        div.prepend(link);
+    }
+
     const resizeAll = () => {
         for (const fn of resizeFns) {
             fn();
@@ -117,4 +122,14 @@ function fixPunctuationWrap(div: HTMLDivElement) {
             span.textContent = tail.length > 0 ? " " + tail : "";
         }
     }
+}
+
+function createSentenceLink(sentence: Sentence): HTMLDivElement | undefined {
+    if (sentence.tatoebaID == null || sentence.tatoebaID <= 0) {
+        return undefined;
+    }
+    const div = document.createElement("div");
+    div.classList.add("sentence-link");
+    div.innerHTML = `<a href="#">#${sentence.tatoebaID}</a>`;
+    return div;
 }
