@@ -42,20 +42,25 @@ export class ItemBuffer {
         return true;
     }
 
+    backgroundFetch(count: number) {
+        setTimeout(async() => {
+            const items = await fetchItems(count, Array.from(this.keys));
+            items.forEach(item => this.add(item));
+        });
+    }
+
     // Returns Promise<Item>.
     // May return undefined if there are no items left for review and there are
     // no new items left.
     async take(): Promise<Item | undefined> {
         if (this.buffer.length === 0) {
             const items = await fetchItems(2, Array.from(this.keys));
+            this.backgroundFetch(2);
             items.forEach(item => this.add(item));
             return this.buffer.shift();
         }
         if (this.buffer.length < 10) {
-            setTimeout(async() => {
-                const items = await fetchItems(10, Array.from(this.keys));
-                items.forEach(item => this.add(item));
-            });
+            this.backgroundFetch(10);
         }
         return this.buffer.shift();
     }
