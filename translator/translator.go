@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/lggruspe/polycloze/database"
 )
@@ -49,7 +50,7 @@ select id, tatoeba_id, tokens from sentence where text = ? collate nocase
 func Translate(s *database.Session, text string) (string, error) {
 	sentence, err := findSentence(s, text)
 	if err != nil || sentence.TatoebaID < 0 {
-		return "", nil
+		return "", fmt.Errorf("sentence not found: %v", text)
 	}
 	query := `
 select text from translation where tatoeba_id in
