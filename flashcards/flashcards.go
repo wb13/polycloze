@@ -25,8 +25,8 @@ type Sentence struct {
 }
 
 type Item struct {
-	Sentence    Sentence `json:"sentence"`
-	Translation string   `json:"translation"`
+	Sentence    Sentence               `json:"sentence"`
+	Translation translator.Translation `json:"translation"`
 }
 
 type ItemGenerator struct {

@@ -16,9 +16,14 @@ var ErrNoTranslationsFound = errors.New("no translations found")
 
 type Sentence struct {
 	ID        int
-	TatoebaID int64 // negative if none
+	TatoebaID int64 // non-positive if none
 	Text      string
 	Tokens    []string
+}
+
+type Translation struct {
+	TatoebaID int64  `json:"tatoebaID,omitempty"` // non-positive if none
+	Text      string `json:"text"`
 }
 
 func findSentence(s *database.Session, text string) (Sentence, error) {
@@ -47,18 +52,19 @@ select id, tatoeba_id, tokens from sentence where text = ? collate nocase
 	return sentence, nil
 }
 
-func Translate(s *database.Session, text string) (string, error) {
+func Translate(s *database.Session, text string) (Translation, error) {
+	var translation Translation
+
 	sentence, err := findSentence(s, text)
 	if err != nil || sentence.TatoebaID < 0 {
-		return "", fmt.Errorf("sentence not found: %v", text)
+		return translation, fmt.Errorf("sentence not found: %v", text)
 	}
 	query := `
-select text from translation where tatoeba_id in
+select tatoeba_id, text from translation where tatoeba_id in
 	(select target from translates where source = ?)
 	order by random() limit 1
 `
 	row := s.QueryRow(query, sentence.TatoebaID)
-	var translation string
-	err = row.Scan(&translation)
+	err = row.Scan(&translation.TatoebaID, &translation.Text)
 	return translation, err
 }

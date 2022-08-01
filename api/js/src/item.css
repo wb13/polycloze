@@ -7,3 +7,8 @@
 	font-size: 1.5rem;
 	margin: 1.5rem 0;
 }
+
+.translation a {
+	color: gray;
+	text-decoration: none;
+}

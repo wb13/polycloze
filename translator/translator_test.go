@@ -31,8 +31,8 @@ func TestTranslate(t *testing.T) {
 	if err != nil {
 		t.Fatal("translation failed:", err)
 	}
-	if len(translation) == 0 {
-		t.Fatal("expected translation to be a non-empty string:", translation)
+	if len(translation.Text) == 0 {
+		t.Fatal("expected translation to be a non-empty string:", translation.Text)
 	}
 }
 
@@ -44,7 +44,7 @@ func TestReverseTranslate(t *testing.T) {
 	if err != nil {
 		t.Fatal("translation failed:", err)
 	}
-	if len(translation) == 0 {
-		t.Fatal("expected translation to be a non-empty string:", translation)
+	if len(translation.Text) == 0 {
+		t.Fatal("expected translation to be a non-empty string:", translation.Text)
 	}
 }

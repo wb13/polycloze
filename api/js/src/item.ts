@@ -2,15 +2,28 @@ import "./item.css";
 import { createButton } from "./button";
 import { Sentence, createSentence } from "./sentence";
 
-export type Item = {
-  sentence: Sentence
-  translation: string
+export type Translation = {
+    tatoebaID?: number
+    text: string
 }
 
-function createTranslation(translation: string): HTMLParagraphElement {
+export type Item = {
+  sentence: Sentence
+  translation: Translation
+}
+
+function createTranslation(translation: Translation): HTMLParagraphElement {
     const p = document.createElement("p");
     p.classList.add("translation");
-    p.textContent = translation;
+    p.textContent = translation.text;
+
+    if (translation.tatoebaID != null && translation.tatoebaID > 0) {
+        p.textContent += " ";
+        const a = document.createElement("a");
+        a.href = "#";
+        a.textContent = `#${translation.tatoebaID}`;
+        p.appendChild(a);
+    }
     return p;
 }
 
@@ -59,6 +72,6 @@ export function createEmptyItem(): HTMLDivElement {
     const text = "You've finished all reviews for now. Check back again later.";
     const div = document.createElement("div");
     div.classList.add("item");
-    div.append(createTranslation(text));
+    div.append(createTranslation({text}));
     return div;
 }
