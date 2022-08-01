@@ -64,14 +64,23 @@ export function createSentence(sentence: Sentence, next: (ok: boolean) => void, 
 
     const resizeFns: Array<() => void> = [];
 
+    // TODO see if remaining and remaining2 are the same
+    let remaining2 = Math.floor(sentence.parts.length / 2);
+
     const div = document.createElement("div");
     div.classList.add("sentence");
     for (const [i, part] of sentence.parts.entries()) {
         if (i % 2 === 0) {
             div.appendChild(createPart(part));
         } else {
+            const modify = () => {
+                --remaining2;
+                if (remaining2 <= 0) {
+                    enable();
+                }
+            };
             const autocapitalize = (i === 1) && isBeginning(sentence.parts[0]);
-            const [blank, resize] = createBlank(part, autocapitalize, done, enable);
+            const [blank, resize] = createBlank(part, autocapitalize, done, modify);
             div.appendChild(blank);
             resizeFns.push(resize);
         }

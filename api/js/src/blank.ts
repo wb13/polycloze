@@ -10,18 +10,20 @@ function changeStatus(input: HTMLInputElement, status: Status) {
     input.classList.add(status);
 }
 
-// enable: Enable submit button
+// modify: Invoked the first time input gets modified.
 // Also returns a resize function, which should be called when the element is
 // connected to the DOM.
-export function createBlank(answer: string, autocapitalize: boolean, done: (answer: string, correct: boolean) => void, enable: () => void): [HTMLInputElement, () => void] {
+export function createBlank(answer: string, autocapitalize: boolean, done: (answer: string, correct: boolean) => void, modify: () => void): [HTMLInputElement, () => void] {
     let correct = true;
     const input = document.createElement("input");
     input.autocapitalize = autocapitalize ? "on" : "none";
     input.classList.add("blank");
 
+    let modified = false;
     input.addEventListener("input", () => {
-        if (input.value !== "") {
-            enable();
+        if (!modified) {
+            modify();
+            modified = true;
         }
         input.value = substituteDigraphs(input.value);
     });
