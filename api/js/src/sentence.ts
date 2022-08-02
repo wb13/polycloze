@@ -1,5 +1,5 @@
 import "./sentence.css";
-import { createBlank } from "./blank";
+import { createBlank, evaluateInput } from "./blank";
 import { dispatchUnbuffer } from "./buffer";
 import { dispatchUpdateCount } from "./counter";
 import { submitReview } from "./data";
@@ -39,33 +39,9 @@ function isBeginning(part: string): boolean {
 // caller.
 // - check: ?
 // - resize: ?
-export function createSentence(sentence: Sentence, next: (ok: boolean) => void, enable: () => void, clearBuffer: (frequencyClass: number) => void): [HTMLDivElement, () => void, () => void] {
-    let ok = true;
-    let remaining = Math.floor(sentence.parts.length / 2);
-    const check = () => {
-        if (remaining <= 0) {
-            next(ok);
-        }
-    };
-    const done = (answer: string, correct: boolean) => {
-        dispatchUpdateCount(correct);
-        const save = edit();
-        submitReview(answer, correct).then(result => {
-            dispatchUnbuffer(answer);
-            save();
-            clearBuffer(result.frequencyClass);
-        });
-        --remaining;
-        if (!correct) {
-            ok = false;
-        }
-        check();
-    };
-
+export function createSentence(sentence: Sentence, next: () => void, enable: () => void, clearBuffer: (frequencyClass: number) => void): [HTMLDivElement, () => void, () => void] {
     const resizeFns: Array<() => void> = [];
-
-    // TODO see if remaining and remaining2 are the same
-    let remaining2 = Math.floor(sentence.parts.length / 2);
+    let remaining = Math.floor(sentence.parts.length / 2);
 
     const div = document.createElement("div");
     div.classList.add("sentence");
@@ -74,19 +50,63 @@ export function createSentence(sentence: Sentence, next: (ok: boolean) => void, 
             div.appendChild(createPart(part));
         } else {
             const modify = () => {
-                --remaining2;
-                if (remaining2 <= 0) {
+                --remaining;
+                if (remaining <= 0) {
                     enable();
                 }
             };
             const autocapitalize = (i === 1) && isBeginning(sentence.parts[0]);
-            const [blank, resize] = createBlank(part, autocapitalize, done, modify);
+            const [blank, resize] = createBlank(part, autocapitalize, modify);
             div.appendChild(blank);
             resizeFns.push(resize);
         }
     }
 
     fixPunctuationWrap(div);
+
+    const check = () => {
+        // Make sure everything has been filled.
+        const inputs = div.querySelectorAll(".blank");
+        for (let i = 0; i < inputs.length; i++) {
+            const input = inputs[i] as HTMLInputElement;
+            if (input.value === "") {
+                return;
+            }
+        }
+
+        // Time to check.
+        for (let i = 0; i < inputs.length; i++) {
+            const input = inputs[i];
+            const answer = sentence.parts[2 * i + 1];
+            evaluateInput(input as HTMLInputElement, answer);
+        }
+
+        // Check if everything is correct.
+        for (let i = 0; i < inputs.length; i++) {
+            const input = inputs[i];
+            if (!input.classList.contains("correct")) {
+                return;
+            }
+        }
+
+        // Upload results.
+        for (let i = 0; i < inputs.length; i++) {
+            const input = inputs[i];
+            const answer = sentence.parts[2 * i + 1];
+
+            const correct = !input.classList.contains("incorrect");
+            dispatchUpdateCount(correct);
+            const save = edit();
+            submitReview(answer, correct).then(result => {
+                dispatchUnbuffer(answer);
+                save();
+                clearBuffer(result.frequencyClass);
+            });
+        }
+        next();
+    };
+
+    div.addEventListener("change", check);
 
     const link = createSentenceLink(sentence);
     if (link != null) {
