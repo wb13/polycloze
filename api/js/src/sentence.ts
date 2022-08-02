@@ -36,31 +36,23 @@ function isBeginning(part: string): boolean {
 // TODO document params
 // Note: takes two callback functions.
 // - done: ?
-// - enable: Enables submit button (used by createBlank).
+// - enable: Enables submit button.
 // - clearBuffer: Called when frequencyClass changes to remove stale items in buffer
 //
 // In addition to a div element, also returns two functions to be called by the
 // caller.
 // - check: ?
 // - resize: ?
-export function createSentence(sentence: Sentence, done: () => void, enable: () => void, clearBuffer: (frequencyClass: number) => void): [HTMLDivElement, () => void, () => void] {
+export function createSentence(sentence: Sentence, done: () => void, enable: (ok: boolean) => void, clearBuffer: (frequencyClass: number) => void): [HTMLDivElement, () => void, () => void] {
     const resizeFns: Array<() => void> = [];
-    let remaining = Math.floor(sentence.parts.length / 2);
-
     const div = document.createElement("div");
     div.classList.add("sentence");
     for (const [i, part] of sentence.parts.entries()) {
         if (i % 2 === 0) {
             div.appendChild(createPart(part));
         } else {
-            const modify = () => {
-                --remaining;
-                if (remaining <= 0) {
-                    enable();
-                }
-            };
             const autocapitalize = (i === 1) && isBeginning(sentence.parts[0]);
-            const [blank, resize] = createBlank(part, autocapitalize, modify);
+            const [blank, resize] = createBlank(part, autocapitalize);
             div.appendChild(blank);
             resizeFns.push(resize);
         }
@@ -116,6 +108,14 @@ export function createSentence(sentence: Sentence, done: () => void, enable: () 
         done();
     };
     div.addEventListener("change", check);
+
+    div.addEventListener("input", (event: Event) => {
+        if (event.target == null) {
+            return;
+        }
+        const input = event.target as HTMLInputElement;
+        enable(input.value !== "");
+    });
 
     const resizeAll = () => {
         for (const fn of resizeFns) {
