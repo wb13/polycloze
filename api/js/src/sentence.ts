@@ -31,7 +31,7 @@ function isBeginning(part: string): boolean {
 
 // TODO document params
 // Note: takes two callback functions.
-// - next: ?
+// - done: ?
 // - enable: Enables submit button (used by createBlank).
 // - clearBuffer: Called when frequencyClass changes to remove stale items in buffer
 //
@@ -39,7 +39,7 @@ function isBeginning(part: string): boolean {
 // caller.
 // - check: ?
 // - resize: ?
-export function createSentence(sentence: Sentence, next: () => void, enable: () => void, clearBuffer: (frequencyClass: number) => void): [HTMLDivElement, () => void, () => void] {
+export function createSentence(sentence: Sentence, done: () => void, enable: () => void, clearBuffer: (frequencyClass: number) => void): [HTMLDivElement, () => void, () => void] {
     const resizeFns: Array<() => void> = [];
     let remaining = Math.floor(sentence.parts.length / 2);
 
@@ -103,7 +103,7 @@ export function createSentence(sentence: Sentence, next: () => void, enable: () 
                 clearBuffer(result.frequencyClass);
             });
         }
-        next();
+        done();
     };
 
     div.addEventListener("change", check);
