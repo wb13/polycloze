@@ -12,18 +12,26 @@ export type Item = {
   translation: Translation
 }
 
+function showTranslationLink(translation: Translation, body: HTMLDivElement) {
+    if (translation.tatoebaID == null || translation.tatoebaID <= 0) {
+        return;
+    }
+
+    const a = document.createElement("a");
+    a.href = "#";
+    a.textContent = `#${translation.tatoebaID}`;
+
+    const p = body.querySelector("p.translation");
+    if (p != null) {
+        p.textContent += " ";
+        p.appendChild(a);
+    }
+}
+
 function createTranslation(translation: Translation): HTMLParagraphElement {
     const p = document.createElement("p");
     p.classList.add("translation");
     p.textContent = translation.text;
-
-    if (translation.tatoebaID != null && translation.tatoebaID > 0) {
-        p.textContent += " ";
-        const a = document.createElement("a");
-        a.href = "#";
-        a.textContent = `#${translation.tatoebaID}`;
-        p.appendChild(a);
-    }
     return p;
 }
 
@@ -58,6 +66,7 @@ export function createItem(item: Item, next: () => void, clearBuffer: (frequency
     const [submitBtn, enable] = createSubmitButton();
 
     const done = () => {
+        showTranslationLink(item.translation, getBody());
         const btn = createButton("Next", next);
         submitBtn.replaceWith(btn);
         btn.focus();
@@ -70,6 +79,10 @@ export function createItem(item: Item, next: () => void, clearBuffer: (frequency
     const div = document.createElement("div");
     div.classList.add("item");
     div.append(body, footer);
+
+    function getBody(): HTMLDivElement {
+        return body;
+    }
     return [div, resize];
 }
 
