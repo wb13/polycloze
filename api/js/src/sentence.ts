@@ -18,10 +18,14 @@ function createPart(part: string): HTMLSpanElement {
 }
 
 function isBeginning(part: string): boolean {
-    switch (part) {
+    switch (part.trim()) {
     case "":
     case "¿":
     case "¡":
+    case "„":
+    case "(":
+    case "\"":
+    case "'":
         return true;
 
     default:
