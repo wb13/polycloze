@@ -64,6 +64,9 @@ export function createSentence(sentence: Sentence, done: () => void, enable: () 
 
     fixPunctuationWrap(div);
 
+    const [link, render] = createSentenceLink(sentence);
+    div.prepend(link);
+
     const check = () => {
         // Make sure everything has been filled.
         const inputs = div.querySelectorAll(".blank");
@@ -89,6 +92,9 @@ export function createSentence(sentence: Sentence, done: () => void, enable: () 
             }
         }
 
+        // Show sentence link.
+        render();
+
         // Upload results.
         for (let i = 0; i < inputs.length; i++) {
             const input = inputs[i];
@@ -105,13 +111,7 @@ export function createSentence(sentence: Sentence, done: () => void, enable: () 
         }
         done();
     };
-
     div.addEventListener("change", check);
-
-    const link = createSentenceLink(sentence);
-    if (link != null) {
-        div.prepend(link);
-    }
 
     const resizeAll = () => {
         for (const fn of resizeFns) {
@@ -153,12 +153,18 @@ function fixPunctuationWrap(div: HTMLDivElement) {
     }
 }
 
-function createSentenceLink(sentence: Sentence): HTMLDivElement | undefined {
-    if (sentence.tatoebaID == null || sentence.tatoebaID <= 0) {
-        return undefined;
-    }
+function createSentenceLink(sentence: Sentence): [HTMLDivElement, () => void] {
     const div = document.createElement("div");
     div.classList.add("sentence-link");
-    div.innerHTML = `<a href="#">#${sentence.tatoebaID}</a>`;
-    return div;
+    div.classList.add("transparent");
+    div.innerHTML = "<a href=\"#\">#</a>";
+
+    const render = () => {
+        if (sentence.tatoebaID == null || sentence.tatoebaID <= 0) {
+            return;
+        }
+        div.innerHTML = `<a href="#">#${sentence.tatoebaID}</a>`;
+        div.classList.remove("transparent");
+    };
+    return [div, render];
 }
