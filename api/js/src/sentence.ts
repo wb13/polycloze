@@ -105,6 +105,7 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
                 clearBuffer(result.frequencyClass);
             });
         }
+        div.removeEventListener("change", check);
         done();
     };
     div.addEventListener("change", check);
