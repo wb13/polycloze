@@ -10,6 +10,15 @@ function changeStatus(input: HTMLInputElement, status: Status) {
     input.classList.add(status);
 }
 
+// Resize input element to fit text.
+function resizeInput(input: HTMLInputElement, text: string) {
+    if (!input.isConnected) {
+        console.error("should only be called on connected elements");
+    }
+    const width = getWidth(getFont(input), text);
+    input.style.setProperty("width", width);
+}
+
 // modify: Invoked the first time input gets modified.
 // Also returns a resize function, which should be called when the element is
 // connected to the DOM.
@@ -46,10 +55,5 @@ export function createBlank(answer: string, autocapitalize: boolean, done: (answ
             break;
         }
     });
-
-    const resize = () => {
-        const width = getWidth(getFont(input), answer);
-        input.style.setProperty("width", width);
-    };
-    return [input, resize];
+    return [input, () => resizeInput(input, answer)];
 }
