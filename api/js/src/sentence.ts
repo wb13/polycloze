@@ -168,7 +168,8 @@ function createSentenceLink(sentence: Sentence): [HTMLDivElement, () => void] {
         if (sentence.tatoebaID == null || sentence.tatoebaID <= 0) {
             return;
         }
-        div.innerHTML = `<a href="#">#${sentence.tatoebaID}</a>`;
+        const url = `https://tatoeba.org/en/sentences/show/${sentence.tatoebaID}`;
+        div.innerHTML = `<a href="${url}" target="_blank">#${sentence.tatoebaID}</a>`;
         div.classList.remove("transparent");
     };
     return [div, render];

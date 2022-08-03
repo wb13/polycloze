@@ -18,7 +18,8 @@ function showTranslationLink(translation: Translation, body: HTMLDivElement) {
     }
 
     const a = document.createElement("a");
-    a.href = "#";
+    a.href = `https://tatoeba.org/en/sentences/show/${translation.tatoebaID}`;
+    a.target = "_blank";
     a.textContent = `#${translation.tatoebaID}`;
 
     const p = body.querySelector("p.translation");
