@@ -1,12 +1,12 @@
 .PHONY:	all
-all:
+all:	build lint test
 
 .PHONY:	build-js
 build-js:
 	cd api/js; npm run build
 
 .PHONY:	build
-build:	build-js
+build:	build-js format
 	go build .
 	go build -v -o build/ ./...
 
@@ -24,7 +24,7 @@ bench:
 	go tool pprof build/cpu.prof
 
 .PHONY:	lint
-lint:
+lint:	format
 	cd api/js; npm run check
 	golangci-lint run
 
