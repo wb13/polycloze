@@ -43,8 +43,9 @@ export class Overview extends HTMLElement {
 export class ScoreCounter extends HTMLElement {
     async connectedCallback() {
         const courses = await availableCourses();
-        const { stats } = courses.find(c => c.l1.code === getL1() && c.l2.code === getL2())!;
-        this.appendChild(createScoreCounter(stats?.correct || 0));
+        const course = courses.find(c => c.l1.code === getL1() && c.l2.code === getL2());
+        const score = course?.stats?.correct || 0;
+        this.appendChild(createScoreCounter(score));
     }
 }
 

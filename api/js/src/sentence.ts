@@ -139,7 +139,7 @@ function fixPunctuationWrap(div: HTMLDivElement) {
         }
 
         // NOTE Does not split by other whitespace characters
-        const words = span!.textContent?.split(" ") || [];
+        const words = span.textContent?.split(" ") || [];
         if (words.length > 0 && words[0] !== "") {
             const wrapper = document.createElement("span");
             wrapper.style.whiteSpace = "nowrap";
