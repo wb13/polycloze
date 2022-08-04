@@ -163,16 +163,17 @@ end;
     con.commit()
 
 
-def infer_language(path: Path) -> tuple[str, str]:
+def infer_language(path: Path) -> tuple[str, str, str]:
     try:
         code = path.name
-        return (code, languages[code].name)
+        language = languages[code]
+        return (code, language.name, language.bcp47)
     except KeyError:
         sys.exit(f"unknown language code: {path.name}")
 
 
 def populate_language(con: Connection, lang1: Path, lang2: Path) -> None:
-    query = "insert into language (id, code, name) values (?, ?, ?)"
+    query = "insert into language (id, code, name, bcp47) values (?, ?, ?, ?)"
     con.execute(query, ("l1", *infer_language(lang1)))
     con.execute(query, ("l2", *infer_language(lang2)))
     con.commit()
