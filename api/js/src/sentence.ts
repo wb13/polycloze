@@ -162,7 +162,7 @@ function createSentenceLink(sentence: Sentence): [HTMLDivElement, () => void] {
     const div = document.createElement("div");
     div.classList.add("sentence-link");
     div.classList.add("transparent");
-    div.innerHTML = "<a href=\"#\">#</a>";
+    div.textContent = "#";
 
     const render = () => {
         if (sentence.tatoebaID == null || sentence.tatoebaID <= 0) {
