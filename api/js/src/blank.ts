@@ -46,6 +46,7 @@ export function evaluateInput(input: HTMLInputElement, answer: string): Status {
 export function createBlank(answer: string, autocapitalize: boolean): [HTMLInputElement, () => void] {
     const input = document.createElement("input");
     input.autocapitalize = autocapitalize ? "on" : "none";
+    input.ariaLabel = "Blank";
     input.classList.add("blank");
 
     input.addEventListener("input", () => {
