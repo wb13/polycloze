@@ -144,6 +144,8 @@ func Router(config Config) (chi.Router, error) {
 	r.HandleFunc("/about", showPage("about.html"))
 	r.HandleFunc("/study", showPage("study.html"))
 
+	r.HandleFunc("/serviceworker.js", serveServiceWorker())
+	r.HandleFunc("/serviceworker.js.map", serveServiceWorkerSourceMap())
 	r.HandleFunc("/dist/{filename}", serveDist)
 	r.HandleFunc("/options", courseOptions)
 

@@ -13,7 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-//go:embed js/dist/index.* templates/*.html js/public/*
+//go:embed js/dist/index.* templates/*.html js/public/* js/dist/serviceworker.*
 var fs embed.FS
 
 var templates *template.Template = template.Must(template.ParseFS(fs, "templates/*.html"))
@@ -26,6 +26,27 @@ func init() {
 			log.Fatal("missing template:", name)
 		}
 	}
+}
+
+func serveFile(path string, contentType string) func(http.ResponseWriter, *http.Request) {
+	bytes, err := fs.ReadFile(path)
+	if err != nil {
+		log.Fatal("file not found:", path)
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", contentType)
+		if _, err := w.Write(bytes); err != nil {
+			log.Println(err)
+		}
+	}
+}
+
+func serveServiceWorker() func(http.ResponseWriter, *http.Request) {
+	return serveFile(filepath.Join("js", "dist", "serviceworker.js"), "application/javascript")
+}
+
+func serveServiceWorkerSourceMap() func(http.ResponseWriter, *http.Request) {
+	return serveFile(filepath.Join("js", "dist", "serviceworker.js.map"), "application/json")
 }
 
 func serveDist(w http.ResponseWriter, r *http.Request) {
