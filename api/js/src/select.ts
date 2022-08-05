@@ -4,6 +4,7 @@ import { getL1, setL1 } from "./data";
 export type Language = {
   code: string
   name: string
+  bcp47: string
 }
 
 function createLanguageOption(language: Language, selected = false): HTMLOptionElement {

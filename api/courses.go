@@ -16,8 +16,9 @@ import (
 )
 
 type Language struct {
-	Code string `json:"code"` // ISO 639-3
-	Name string `json:"name"` // in english
+	Code  string `json:"code"` // ISO 639-3
+	Name  string `json:"name"` // in english
+	BCP47 string `json:"bcp47"`
 }
 
 // Only used for encoding to json
@@ -69,7 +70,7 @@ func getCourseInfo(path string) (Course, error) {
 	}
 	defer db.Close()
 
-	query := `select id, code, name from language`
+	query := `select id, code, name, bcp47 from language`
 	rows, err := db.Query(query)
 	if err != nil {
 		return course, err
@@ -77,8 +78,8 @@ func getCourseInfo(path string) (Course, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var id, code, name string
-		if err := rows.Scan(&id, &code, &name); err != nil {
+		var id, code, name, bcp47 string
+		if err := rows.Scan(&id, &code, &name, &bcp47); err != nil {
 			return course, err
 		}
 
@@ -86,9 +87,11 @@ func getCourseInfo(path string) (Course, error) {
 		case "l1":
 			course.L1.Code = code
 			course.L1.Name = name
+			course.L1.BCP47 = bcp47
 		case "l2":
 			course.L2.Code = code
 			course.L2.Name = name
+			course.L2.BCP47 = bcp47
 		}
 	}
 
