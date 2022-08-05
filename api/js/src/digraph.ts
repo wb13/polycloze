@@ -1,3 +1,4 @@
+// If you make changes here, remember to update /docs/digraphs.md
 const digraphs = new Map([
     ["'a", "á"],
     ["'e", "é"],

@@ -10,7 +10,7 @@ A tool for studying foreign language vocabulary using cloze tests.
 :	Polycloze's flashcards scheduler adjusts the spacing between reviews based on the student's performance.
 It also estimates the student's vocabulary level, so advanced learners don't have to see words they already know.
 
-**Digraphs**
+**[Digraphs](./docs/digraphs.md)**
 : Even if your keyboard doesn't have all the needed keys, you can use digraphs to enter any symbol in your target language.
 For example, `\:a` automatically gets turned into `ä`.
 
