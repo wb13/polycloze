@@ -1,7 +1,7 @@
 // JSON schemas used by server.
 
 import { Item } from "./item";
-import { Language } from "./select";
+import { Language } from "./language";
 
 export type ItemsSchema = {
     items: Item[];

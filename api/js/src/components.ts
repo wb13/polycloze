@@ -1,25 +1,18 @@
 import { createApp } from "./app";
 import { ItemBuffer } from "./buffer";
 import { createScoreCounter } from "./counter";
-import { getL1, getL2, availableCourses } from "./data";
+import { availableCourses } from "./data";
+import { getL1, getL2 } from "./language";
 import { createOverview } from "./overview";
 import { createLanguageForm } from "./select";
 
 export class ClozeApp extends HTMLElement {
     async connectedCallback() {
-        const l2 = this.getL2Name();
-
+        const l2 = getL2().name;
         const [app, ready] = await createApp(new ItemBuffer());
         this.appendChild(app);
         ready();
         document.title = `polycloze | ${await l2}`;
-    }
-
-    async getL2Name(): Promise<string> {
-        const code = getL2();
-        const courses = await availableCourses();
-        const course = courses.find(c => c.l2.code === code);
-        return course ? course.l2.name : code;
     }
 }
 
@@ -43,7 +36,11 @@ export class Overview extends HTMLElement {
 export class ScoreCounter extends HTMLElement {
     async connectedCallback() {
         const courses = await availableCourses();
-        const course = courses.find(c => c.l1.code === getL1() && c.l2.code === getL2());
+
+        const l1 = getL1().code;
+        const l2 = getL2().code;
+
+        const course = courses.find(c => c.l1.code === l1 && c.l2.code === l2);
         const score = course?.stats?.correct || 0;
         this.appendChild(createScoreCounter(score));
     }

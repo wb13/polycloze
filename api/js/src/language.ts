@@ -1,6 +1,10 @@
 // Language info in localStorage.
 
-import { Language } from "./select";
+export type Language = {
+  code: string
+  name: string
+  bcp47: string
+}
 
 export function getL1(): Language {
     return {

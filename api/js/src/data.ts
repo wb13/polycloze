@@ -1,50 +1,16 @@
 // Contains functions for getting data from the server and from localStorage.
 
 import { Item } from "./item";
+import { getL1, getL2 } from "./language";
 import { Course, ItemsSchema, ReviewSchema, CoursesSchema } from "./schema";
 
 // Location of server
 const src = findServer();
 
-// Local storage stuff
-
-export function getL1(): string {
-    return localStorage.getItem("l1") || "eng";
-}
-
-export function getL2(): string {
-    return localStorage.getItem("l2") || "spa";
-}
-
-function swapL1L2() {
-    const l1 = getL1();
-    const l2 = getL2();
-    localStorage.setItem("l1", l2);
-    localStorage.setItem("l2", l1);
-}
-
-// NOTE Swaps L1 and L2 if code = L2.
-// This is needed to make sure the language select form is consistent with
-// what's in localStorage.
-export function setL1(code: string) {
-    if (code !== getL2()) {
-        localStorage.setItem("l1", code);
-    } else {
-        swapL1L2();
-    }
-}
-
-// NOTE Swaps L1 and L2 if code = L1.
-export function setL2(code: string) {
-    if (code !== getL1()) {
-        localStorage.setItem("l2", code);
-    } else {
-        swapL1L2();
-    }
-}
-
 function currentCourse(n = 10, x: string[] = []): string {
-    let url = `/${getL1()}/${getL2()}?n=${n}`;
+    const l1 = getL1().code;
+    const l2 = getL2().code;
+    let url = `/${l1}/${l2}?n=${n}`;
     for (const word of x) {
         url += `&x=${word}`;
     }

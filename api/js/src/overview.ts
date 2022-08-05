@@ -1,7 +1,7 @@
 /* Defines elements found in overview page (e.g. language stats). */
 
 import { createButton } from "./button";
-import { getL1, setL2 } from "./data";
+import { getL1, setL2 } from "./language";
 import { Course, CourseStats } from "./schema";
 
 function createButtonGroup(onClick: (event: Event) => void): HTMLParagraphElement {
@@ -86,7 +86,7 @@ function createCourseOverview(course: Course, target: string): HTMLDivElement {
     }
 
     const start = () => {
-        setL2(course.l2.code);
+        setL2(course.l2);
         window.location.pathname = target;
     };
     row.appendChild(createButtonGroup(start));
@@ -94,9 +94,10 @@ function createCourseOverview(course: Course, target: string): HTMLDivElement {
 }
 
 export function createOverview(courses: Course[], target = "/study"): HTMLDivElement {
+    const l1 = getL1().code;
     const div = document.createElement("div");
     for (const course of courses) {
-        if (course.l1.code === getL1()) {
+        if (course.l1.code === l1) {
             div.appendChild(createCourseOverview(course, target));
         }
     }

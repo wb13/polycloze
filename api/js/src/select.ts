@@ -1,11 +1,5 @@
 import "./select.css";
-import { getL1, setL1 } from "./data";
-
-export type Language = {
-  code: string
-  name: string
-  bcp47: string
-}
+import { Language, getL1, setL1 } from "./language";
 
 function createLanguageOption(language: Language, selected = false): HTMLOptionElement {
     const option = document.createElement("option");
@@ -19,18 +13,18 @@ function createLanguageSelect(languages: Language[]): HTMLSelectElement {
     const select = document.createElement("select");
     select.id = "language-select";
 
-    const visited = new Set();
+    const visited = new Map();
     for (const language of languages) {
         if (visited.has(language.code)) {
             continue;
         }
-        visited.add(language.code);
-        const option = createLanguageOption(language, language.code === getL1());
+        visited.set(language.code, language);
+        const option = createLanguageOption(language, language.code === getL1().code);
         select.appendChild(option);
     }
 
     select.addEventListener("change", () => {
-        setL1(select.value);
+        setL1(visited.get(select.value) as Language);
         location.reload();
     });
     return select;
