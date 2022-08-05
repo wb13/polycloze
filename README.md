@@ -1,8 +1,22 @@
-# polycloze
+# poly<u>cloze</u>
 
 A tool for studying foreign language vocabulary using cloze tests.
 
 [Screenshots](./screenshots) [Demo](https://polycloze-demo.herokuapp.com/)
+
+## Features
+
+**Adaptive flashcards scheduler**
+:	Polycloze's flashcards scheduler adjusts the spacing between reviews based on the student's performance.
+It also estimates the student's vocabulary level, so advanced learners don't have to see words they already know.
+
+**Digraphs**
+: Even if your keyboard doesn't have all the needed keys, you can use digraphs to enter any symbol in your target language.
+For example, `\:a` automatically gets turned into `ä`.
+
+**Uses SQLite**
+: This makes it easy to [add new courses][1] and to track your vocabulary.
+By default, course files are saved in `~/.local/share/polycloze` and review data are saved in `~/.local/state/polycloze`.
 
 ## Usage
 
@@ -19,7 +33,7 @@ xdg-open http://localhost:3000
 
 ## Related projects
 
-- <https://github.com/lggruspe/polycloze-data>
+- [https://github.com/lggruspe/polycloze-data][1]
 
 ## Licenses
 
@@ -43,3 +57,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 The scripts in [./scripts](./scripts) and
 [./database/migrations](./database/migrations) are also available under the
 terms of the MIT license.
+
+
+[1]: https://github.com/lggruspe/polycloze-data
