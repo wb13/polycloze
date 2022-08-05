@@ -1,5 +1,6 @@
 import "./item.css";
 import { createButton } from "./button";
+import { getL1 } from "./language";
 import { Sentence, createSentence } from "./sentence";
 
 export type Translation = {
@@ -32,6 +33,7 @@ function showTranslationLink(translation: Translation, body: HTMLDivElement) {
 function createTranslation(translation: Translation): HTMLParagraphElement {
     const p = document.createElement("p");
     p.classList.add("translation");
+    p.lang = getL1().bcp47;
     p.textContent = translation.text;
     return p;
 }

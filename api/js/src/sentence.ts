@@ -3,6 +3,7 @@ import { createBlank, evaluateInput } from "./blank";
 import { dispatchUnbuffer } from "./buffer";
 import { dispatchUpdateCount } from "./counter";
 import { submitReview } from "./data";
+import { getL2 } from "./language";
 import { edit } from "./unsaved";
 
 export type Sentence = {
@@ -47,6 +48,8 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
     const resizeFns: Array<() => void> = [];
     const div = document.createElement("div");
     div.classList.add("sentence");
+    div.lang = getL2().bcp47;
+
     for (const [i, part] of sentence.parts.entries()) {
         if (i % 2 === 0) {
             div.appendChild(createPart(part));
