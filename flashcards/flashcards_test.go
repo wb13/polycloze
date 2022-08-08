@@ -8,6 +8,7 @@ import (
 
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
+	"github.com/lggruspe/polycloze/word_scheduler"
 )
 
 func createIg() ItemGenerator {
@@ -22,7 +23,16 @@ func TestProfiler(t *testing.T) {
 	t.Parallel()
 
 	ig := createIg()
-	words, err := ig.GenerateWords(10)
+
+	session, err := ig.Session()
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+	defer session.Close()
+
+	words, err := word_scheduler.GetWordsWith(session, 10, func(_ string) bool {
+		return true
+	})
 	if err != nil {
 		t.Fatal("expected err to be nil:", err)
 	}
