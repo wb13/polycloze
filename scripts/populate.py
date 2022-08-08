@@ -69,7 +69,7 @@ def populate_sentence(
 insert into sentence (tatoeba_id, text, tokens, frequency_class)
 values (?, ?, ?, 0)
 """
-    words = set()
+    words: set[str] = set()
     with open(language/"sentences.csv", encoding="utf-8") as file:
         reader = csv.reader(file)
         next(reader)
