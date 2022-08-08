@@ -45,11 +45,8 @@ select id, tatoeba_id, tokens from sentence where text = ? collate nocase
 	} else {
 		sentence.TatoebaID = -1
 	}
-
-	if err := json.Unmarshal([]byte(jsonStr), &sentence.Tokens); err != nil {
-		return sentence, err
-	}
-	return sentence, nil
+	err = json.Unmarshal([]byte(jsonStr), &sentence.Tokens)
+	return sentence, err
 }
 
 func Translate(s *database.Session, text string) (Translation, error) {
