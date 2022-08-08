@@ -59,3 +59,20 @@ func TestReverseTranslate(t *testing.T) {
 		t.Fatal("expected translation to be a non-empty string:", translation.Text)
 	}
 }
+
+func TestTranslateNonTatoebaSentence(t *testing.T) {
+	t.Parallel()
+	session := newSession("eng", "spa")
+
+	sentence := sentences.Sentence{
+		ID:        100,
+		TatoebaID: 0, // non-tatoeba sentence <= 0
+		Text:      "¿Dónde está la biblioteca?",
+		Tokens:    []string{"¿", "Dónde", " ", "está", " ", "la", " ", "biblioteca", "?"},
+	}
+
+	_, err := Translate(session, sentence)
+	if err == nil {
+		t.Fatal("expected translation to fail")
+	}
+}
