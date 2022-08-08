@@ -91,9 +91,10 @@ def populate_word(con: Connection, language: Path, words: set[str]) -> None:
         reader = csv.reader(file)
         next(reader)
         row = next(reader)  # first row (highest-frequency word)
+        word = row[0].casefold()
         max_frequency = int(row[1])
-        if row[0] in words:
-            con.execute(query, (row[0], 0))
+        if word in words:
+            con.execute(query, (word, 0))
 
         for row in reader:
             word = row[0]
