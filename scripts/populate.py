@@ -79,7 +79,7 @@ values (?, ?, ?, 0)
             tokens = row[2]
             if tatoeba_id in _sources:
                 con.execute(query, (tatoeba_id, text, tokens))
-                words.update(json.loads(tokens))
+                words.update(token.casefold() for token in json.loads(tokens))
         con.commit()
     return words
 
@@ -97,11 +97,11 @@ def populate_word(con: Connection, language: Path, words: set[str]) -> None:
             con.execute(query, (word, 0))
 
         for row in reader:
-            word = row[0]
+            word = row[0].casefold()
             frequency = int(row[1])
             frequency_class = int(floor(0.5 - log2(frequency / max_frequency)))
             if word in words:
-                con.execute(query, (word.casefold(), frequency_class))
+                con.execute(query, (word, frequency_class))
         con.commit()
 
 
