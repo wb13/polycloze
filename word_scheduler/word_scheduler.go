@@ -1,7 +1,6 @@
 // Copyright (c) 2022 Levi Gruspe
 // License: GNU AGPLv3 or later
 
-// Combines word_queue and review_scheduler to schedule words.
 package word_scheduler
 
 import (
@@ -12,7 +11,6 @@ import (
 	"github.com/lggruspe/polycloze/database"
 	rs "github.com/lggruspe/polycloze/review_scheduler"
 	"github.com/lggruspe/polycloze/text"
-	"github.com/lggruspe/polycloze/word_queue"
 )
 
 // Gets preferred difficulty/frequency_class.
@@ -31,7 +29,7 @@ func GetWordsAt(s *database.Session, n int, due time.Time) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	words, err := word_queue.GetNewWordsWith(s, n-len(reviews), PreferredDifficulty(s), func(_ string) bool {
+	words, err := GetNewWordsWith(s, n-len(reviews), PreferredDifficulty(s), func(_ string) bool {
 		return true
 	})
 	if err != nil {
@@ -47,7 +45,7 @@ func GetWordsWith(s *database.Session, n int, pred func(word string) bool) ([]st
 	if err != nil {
 		return nil, err
 	}
-	words, err := word_queue.GetNewWordsWith(s, n-len(reviews), PreferredDifficulty(s), pred)
+	words, err := GetNewWordsWith(s, n-len(reviews), PreferredDifficulty(s), pred)
 	if err != nil {
 		return nil, err
 	}

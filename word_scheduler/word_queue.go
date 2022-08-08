@@ -2,7 +2,7 @@
 // License: GNU AGPLv3 or later
 
 // Returns words that the user hasn't learned.
-package word_queue
+package word_scheduler
 
 import (
 	"database/sql"
