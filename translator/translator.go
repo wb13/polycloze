@@ -4,7 +4,7 @@
 package translator
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/sentences"
@@ -19,7 +19,7 @@ func Translate(s *database.Session, sentence sentences.Sentence) (Translation, e
 	var translation Translation
 
 	if sentence.TatoebaID <= 0 {
-		return translation, fmt.Errorf("could not translate sentence (%v)", sentence)
+		return translation, errors.New("sentence has no TatoebaID")
 	}
 
 	query := `
@@ -28,8 +28,6 @@ select tatoeba_id, text from translation where tatoeba_id in
 	order by random() limit 1
 `
 	row := s.QueryRow(query, sentence.TatoebaID)
-	if err := row.Scan(&translation.TatoebaID, &translation.Text); err != nil {
-		return translation, fmt.Errorf("could not translate sentence (%v): %v", sentence, err.Error())
-	}
-	return translation, nil
+	err := row.Scan(&translation.TatoebaID, &translation.Text)
+	return translation, err
 }
