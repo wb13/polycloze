@@ -13,7 +13,7 @@ import (
 
 type Sentence struct {
 	ID        int
-	TatoebaID int64
+	TatoebaID int64 // non-positive if none
 	Text      string
 	Tokens    []string
 }

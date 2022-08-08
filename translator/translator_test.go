@@ -8,6 +8,7 @@ import (
 
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
+	"github.com/lggruspe/polycloze/sentences"
 )
 
 func newSession(l1, l2 string) *database.Session {
@@ -25,9 +26,14 @@ func newSession(l1, l2 string) *database.Session {
 
 func TestTranslate(t *testing.T) {
 	t.Parallel()
-
 	session := newSession("eng", "spa")
-	translation, err := Translate(session, "Hola.")
+
+	sentence, err := sentences.Search(session, "Hola.")
+	if err != nil {
+		t.Fatal("sentence not found:", err)
+	}
+
+	translation, err := Translate(session, sentence)
 	if err != nil {
 		t.Fatal("translation failed:", err)
 	}
@@ -38,9 +44,14 @@ func TestTranslate(t *testing.T) {
 
 func TestReverseTranslate(t *testing.T) {
 	t.Parallel()
-
 	session := newSession("spa", "eng")
-	translation, err := Translate(session, "Hello.")
+
+	sentence, err := sentences.Search(session, "Hello.")
+	if err != nil {
+		t.Fatal("sentence not found:", err)
+	}
+
+	translation, err := Translate(session, sentence)
 	if err != nil {
 		t.Fatal("translation failed:", err)
 	}
