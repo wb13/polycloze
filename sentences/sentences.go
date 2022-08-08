@@ -77,3 +77,26 @@ select coalesce(
 	}
 	return getSentence(s, sentence)
 }
+
+func Search(s *database.Session, text string) (Sentence, error) {
+	query := `
+select id, tatoeba_id, tokens from sentence where text = ? collate nocase
+`
+	row := s.QueryRow(query, text)
+
+	var sentence Sentence
+	sentence.Text = text
+	var tatoebaID sql.NullInt64
+	var jsonStr string
+	err := row.Scan(&sentence.ID, &tatoebaID, &jsonStr)
+	if err != nil {
+		return sentence, err
+	}
+	if tatoebaID.Valid {
+		sentence.TatoebaID = tatoebaID.Int64
+	} else {
+		sentence.TatoebaID = -1
+	}
+	err = json.Unmarshal([]byte(jsonStr), &sentence.Tokens)
+	return sentence, err
+}

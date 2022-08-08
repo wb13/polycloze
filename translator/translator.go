@@ -4,12 +4,11 @@
 package translator
 
 import (
-	"database/sql"
-	"encoding/json"
 	"errors"
 	"fmt"
 
 	"github.com/lggruspe/polycloze/database"
+	"github.com/lggruspe/polycloze/sentences"
 )
 
 var ErrNoTranslationsFound = errors.New("no translations found")
@@ -26,33 +25,10 @@ type Translation struct {
 	Text      string `json:"text"`
 }
 
-func findSentence(s *database.Session, text string) (Sentence, error) {
-	query := `
-select id, tatoeba_id, tokens from sentence where text = ? collate nocase
-`
-	row := s.QueryRow(query, text)
-
-	var sentence Sentence
-	sentence.Text = text
-	var tatoebaID sql.NullInt64
-	var jsonStr string
-	err := row.Scan(&sentence.ID, &tatoebaID, &jsonStr)
-	if err != nil {
-		return sentence, err
-	}
-	if tatoebaID.Valid {
-		sentence.TatoebaID = tatoebaID.Int64
-	} else {
-		sentence.TatoebaID = -1
-	}
-	err = json.Unmarshal([]byte(jsonStr), &sentence.Tokens)
-	return sentence, err
-}
-
 func Translate(s *database.Session, text string) (Translation, error) {
 	var translation Translation
 
-	sentence, err := findSentence(s, text)
+	sentence, err := sentences.Search(s, text)
 	if err != nil || sentence.TatoebaID < 0 {
 		return translation, fmt.Errorf("sentence not found: %v", text)
 	}
