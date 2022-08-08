@@ -4,14 +4,11 @@
 package translator
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/sentences"
 )
-
-var ErrNoTranslationsFound = errors.New("no translations found")
 
 type Translation struct {
 	TatoebaID int64  `json:"tatoebaID,omitempty"` // non-positive if none
