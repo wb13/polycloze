@@ -6,6 +6,7 @@ package sentences
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 
 	"github.com/lggruspe/polycloze/database"
 )
@@ -90,13 +91,15 @@ select id, tatoeba_id, tokens from sentence where text = ? collate nocase
 	var jsonStr string
 	err := row.Scan(&sentence.ID, &tatoebaID, &jsonStr)
 	if err != nil {
-		return sentence, err
+		return sentence, fmt.Errorf("sentence not found (%v): %v", text, err.Error())
 	}
 	if tatoebaID.Valid {
 		sentence.TatoebaID = tatoebaID.Int64
 	} else {
 		sentence.TatoebaID = -1
 	}
-	err = json.Unmarshal([]byte(jsonStr), &sentence.Tokens)
-	return sentence, err
+	if err := json.Unmarshal([]byte(jsonStr), &sentence.Tokens); err != nil {
+		return sentence, fmt.Errorf("sentence not found (%v): %v", text, err.Error())
+	}
+	return sentence, nil
 }
