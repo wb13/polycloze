@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Levi Gruspe
 // License: GNU AGPLv3 or later
 
-package sentence_picker
+package sentences
 
 import (
 	"database/sql"

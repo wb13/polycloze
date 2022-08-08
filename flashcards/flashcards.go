@@ -11,13 +11,13 @@ import (
 	"sync"
 
 	"github.com/lggruspe/polycloze/database"
-	"github.com/lggruspe/polycloze/sentence_picker"
+	"github.com/lggruspe/polycloze/sentences"
 	"github.com/lggruspe/polycloze/text"
 	"github.com/lggruspe/polycloze/translator"
 	"github.com/lggruspe/polycloze/word_scheduler"
 )
 
-// Different from sentence_picker.Sentence
+// Different from sentences.Sentence
 type Sentence struct {
 	ID        int      `json:"id"`    // id in database
 	Parts     []string `json:"parts"` // Odd-numbered parts are blanks
@@ -76,7 +76,7 @@ func (ig ItemGenerator) GenerateItem(word string) (Item, error) {
 	}
 	defer session.Close()
 
-	sentence, err := sentence_picker.PickSentence(session, word, word_scheduler.PreferredDifficulty(session))
+	sentence, err := sentences.PickSentence(session, word, word_scheduler.PreferredDifficulty(session))
 	if err != nil {
 		return item, err
 	}
