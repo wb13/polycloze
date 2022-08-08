@@ -14,7 +14,6 @@ import (
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/flashcards"
-	"github.com/lggruspe/polycloze/word_scheduler"
 )
 
 func main() {
@@ -37,13 +36,7 @@ func main() {
 
 	start := time.Now()
 
-	session, err := ig.Session()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer session.Close()
-
-	words, err := word_scheduler.GetWordsWith(session, n, func(_ string) bool {
+	words, err := ig.GenerateWords(n, func(_ string) bool {
 		return true
 	})
 	if err != nil {

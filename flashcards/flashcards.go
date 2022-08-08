@@ -67,9 +67,20 @@ func getParts(tokens []string, word string) []string {
 	}
 }
 
+func (ig ItemGenerator) GenerateWords(n int, pred func(word string) bool) ([]string, error) {
+	// NOTE Can't goroutines share this object?
+	session, err := ig.Session()
+	if err != nil {
+		return nil, err
+	}
+	defer session.Close()
+	return word_scheduler.GetWordsWith(session, n, pred)
+}
+
 func (ig ItemGenerator) GenerateItem(word string) (Item, error) {
 	var item Item
 
+	// NOTE Can't goroutines share this object?
 	session, err := ig.Session()
 	if err != nil {
 		return item, err

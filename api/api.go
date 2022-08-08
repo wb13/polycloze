@@ -49,13 +49,7 @@ func excludeWords(r *http.Request) func(string) bool {
 func generateFlashcards(ig *flashcards.ItemGenerator, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	session, err := ig.Session()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer session.Close()
-
-	words, err := word_scheduler.GetWordsWith(session, getN(r), excludeWords(r))
+	words, err := ig.GenerateWords(getN(r), excludeWords(r))
 	if err != nil {
 		log.Fatal(err)
 	}
