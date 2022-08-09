@@ -91,7 +91,7 @@ select id, tatoeba_id, tokens from sentence where text = ? collate nocase
 	var jsonStr string
 	err := row.Scan(&sentence.ID, &tatoebaID, &jsonStr)
 	if err != nil {
-		return sentence, fmt.Errorf("sentence not found (%v): %v", text, err.Error())
+		return sentence, fmt.Errorf("sentence not found (%v): %v", text, err)
 	}
 	if tatoebaID.Valid {
 		sentence.TatoebaID = tatoebaID.Int64
@@ -99,7 +99,7 @@ select id, tatoeba_id, tokens from sentence where text = ? collate nocase
 		sentence.TatoebaID = -1
 	}
 	if err := json.Unmarshal([]byte(jsonStr), &sentence.Tokens); err != nil {
-		return sentence, fmt.Errorf("sentence not found (%v): %v", text, err.Error())
+		return sentence, fmt.Errorf("sentence not found (%v): %v", text, err)
 	}
 	return sentence, nil
 }

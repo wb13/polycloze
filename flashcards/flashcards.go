@@ -95,7 +95,7 @@ func (ig ItemGenerator) GenerateItem(word string) (Item, error) {
 
 	translation, err := translator.Translate(session, *sentence)
 	if err != nil {
-		panic(fmt.Errorf("could not translate sentence (%v): %v", sentence, err.Error()))
+		panic(fmt.Errorf("could not translate sentence (%v): %v", sentence, err))
 	}
 	return Item{
 		Translation: translation,
