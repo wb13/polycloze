@@ -19,9 +19,14 @@ import (
 //go:embed migrations/*.sql
 var fs embed.FS
 
+// NOTE Caller has to Close the db.
+func Open(path string) (*sql.DB, error) {
+	return sql.Open("sqlite3", path)
+}
+
 // Convenience function for creating upgraded sqlite DB.
 func New(path string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", path)
+	db, err := Open(path)
 	if err != nil {
 		return nil, err
 	}

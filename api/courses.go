@@ -4,7 +4,6 @@
 package api
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -12,7 +11,7 @@ import (
 	"path/filepath"
 
 	"github.com/lggruspe/polycloze/basedir"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/lggruspe/polycloze/database"
 )
 
 type Language struct {
@@ -37,15 +36,6 @@ type Courses struct {
 	Courses []Course `json:"courses"`
 }
 
-// NOTE Caller has to Close the db.
-func openDB(path string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", path)
-	if err != nil {
-		return nil, err
-	}
-	return db, nil
-}
-
 func AvailableCourses() []Course {
 	var courses []Course
 
@@ -64,7 +54,7 @@ func AvailableCourses() []Course {
 func getCourseInfo(path string) (Course, error) {
 	var course Course
 
-	db, err := openDB(path)
+	db, err := database.Open(path)
 	if err != nil {
 		return course, err
 	}

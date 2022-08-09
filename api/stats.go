@@ -23,7 +23,7 @@ type CourseStats struct {
 func queryInt(path, query string, upgrade ...bool) (int, error) {
 	var result int
 
-	db, err := openDB(path)
+	db, err := database.Open(path)
 	if err != nil {
 		return result, err
 	}

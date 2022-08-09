@@ -12,18 +12,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// Returns sql.DB with review_scheduler schema.
-func New(dbPath string) (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", dbPath)
-	if err != nil {
-		return nil, err
-	}
-	if err := database.Upgrade(db); err != nil {
-		return nil, err
-	}
-	return db, nil
-}
-
 // Returns items due for review, no more than count.
 // Pass a negative count if you want to get all due items.
 func ScheduleReview(s *database.Session, due time.Time, count int) ([]string, error) {

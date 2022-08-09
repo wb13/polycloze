@@ -12,7 +12,7 @@ import (
 )
 
 func wordScheduler() *database.Session {
-	db, _ := rs.New(":memory:")
+	db, _ := database.New(":memory:")
 	s, err := database.NewSession(db, basedir.Course("eng", "spa"))
 	if err != nil {
 		panic(err)
