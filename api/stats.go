@@ -4,6 +4,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
 )
@@ -25,7 +27,7 @@ func queryInt(path, query string, upgrade ...bool) (int, error) {
 
 	db, err := database.Open(path)
 	if err != nil {
-		return result, err
+		return 0, fmt.Errorf("could not open db (%v) for query (%v): %v", path, query, err)
 	}
 	defer db.Close()
 

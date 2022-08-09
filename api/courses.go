@@ -56,7 +56,7 @@ func getCourseInfo(path string) (Course, error) {
 
 	db, err := database.Open(path)
 	if err != nil {
-		return course, err
+		return course, fmt.Errorf("could not open db to get course info: %v", err)
 	}
 	defer db.Close()
 

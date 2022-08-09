@@ -120,7 +120,7 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 
 	db, err := database.New(basedir.Review(l1, l2))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(fmt.Errorf("could not open review database (%v-%v): %v", l1, l2, err))
 	}
 	defer db.Close()
 
