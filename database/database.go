@@ -32,6 +32,7 @@ func New(path string) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to open database: %v", err)
 	}
 	if err := Upgrade(db); err != nil {
+		db.Close()
 		return nil, fmt.Errorf("failed to upgrade database: %v", err)
 	}
 	return db, nil
