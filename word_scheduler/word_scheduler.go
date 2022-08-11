@@ -86,7 +86,10 @@ func UpdateWord(s *database.Session, word string, correct bool) error {
 			return err
 		}
 	}
-	return rs.UpdateReview(s, text.Casefold(word), correct)
+	if err := rs.UpdateReview(s, text.Casefold(word), correct); err != nil {
+		return err
+	}
+	return postTune(s)
 }
 
 // See UpdateReviewAt.
@@ -96,5 +99,8 @@ func UpdateWordAt(s *database.Session, word string, correct bool, at time.Time) 
 			return err
 		}
 	}
-	return rs.UpdateReviewAt(s, text.Casefold(word), correct, at)
+	if err := rs.UpdateReviewAt(s, text.Casefold(word), correct, at); err != nil {
+		return err
+	}
+	return postTune(s)
 }
