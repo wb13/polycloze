@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"embed"
 	"errors"
+	"fmt"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite3"
@@ -28,10 +29,10 @@ func Open(path string) (*sql.DB, error) {
 func New(path string) (*sql.DB, error) {
 	db, err := Open(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open database: %v", err)
 	}
 	if err := Upgrade(db); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to upgrade database: %v", err)
 	}
 	return db, nil
 }
