@@ -71,7 +71,8 @@ func success(frequencyClass int) []byte {
 
 func handleReviewUpdate(ig *flashcards.ItemGenerator, l1, l2 string, w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
-		log.Fatal("expected json body in POST request")
+		http.Error(w, "expected json body in POST request", 400)
+		return
 	}
 
 	body, err := io.ReadAll(r.Body)
@@ -81,7 +82,8 @@ func handleReviewUpdate(ig *flashcards.ItemGenerator, l1, l2 string, w http.Resp
 
 	var reviews Reviews
 	if err := json.Unmarshal(body, &reviews); err != nil {
-		log.Fatal("could not parse json:", err)
+		http.Error(w, "could not parse json", 400)
+		return
 	}
 
 	session, err := ig.Session()
