@@ -31,13 +31,7 @@ func (s *Session) Begin() (*sql.Tx, error) {
 }
 
 func (s *Session) Close() error {
-	if err := detach(s.con, "translation"); err != nil {
-		return err
-	}
-	if err := detach(s.con, "l1"); err != nil {
-		return err
-	}
-	if err := detach(s.con, "l2"); err != nil {
+	if err := detach(s.con, "course"); err != nil {
 		return err
 	}
 	return s.con.Close()
