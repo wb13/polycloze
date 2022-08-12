@@ -30,16 +30,15 @@ pair() {
 
 sql=".read database/migrations/1_init_schema.up.sql
 .read database/migrations/2_add_interval_table.up.sql
+.read database/migrations/3_add_student_table.up.sql
 
-attach database '$HOME/.local/share/polycloze/languages/$2.db' as l2;
-attach database '$HOME/.local/share/polycloze/languages/$1.db' as l1;
-attach database '$HOME/.local/share/polycloze/translations/$(pair "$1" "$2").db' as translation;
+attach database '$HOME/.local/share/polycloze/$(pair "$1" "$2").db' as course;
 
 .timer on
 "
 
 tmpfile="$(mktemp)"
-trap "rm -f '$tmpfile'" EXIT
+trap 'rm -f "$tmpfile"' EXIT
 
 echo "$sql" > "$tmpfile"
 sqlite3 -init "$tmpfile"
