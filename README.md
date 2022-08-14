@@ -12,7 +12,7 @@ It also estimates the student's vocabulary level, so advanced learners don't hav
 
 **[Digraphs](./docs/digraphs.md)**
 : Even if your keyboard doesn't have all the needed keys, you can use digraphs to enter any symbol in your target language.
-For example, `\:a` automatically gets turned into `ä`.
+For example, `\a:` automatically gets turned into `ä`.
 
 **Uses SQLite**
 : This makes it easy to [add new courses][1] and to track your vocabulary.
