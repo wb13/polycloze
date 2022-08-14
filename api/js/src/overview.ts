@@ -7,7 +7,7 @@ import { Course, CourseStats } from "./schema";
 function createButtonGroup(onClick: (event: Event) => void): HTMLParagraphElement {
     const p = document.createElement("p");
     p.classList.add("button-group");
-    p.appendChild(createButton("Start", onClick));
+    p.appendChild(createButton("Study", onClick));
     return p;
 }
 
