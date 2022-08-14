@@ -36,13 +36,23 @@ type Courses struct {
 	Courses []Course `json:"courses"`
 }
 
-func AvailableCourses() []Course {
+func courseGlobPattern(l1, l2 string) string {
+	if len(l1) != 3 {
+		l1 = "[a-z][a-z][a-z]"
+	}
+	if len(l2) != 3 {
+		l2 = "[a-z][a-z][a-z]"
+	}
+	return fmt.Sprintf("%s-%s.db", l1, l2)
+}
+
+func AvailableCourses(l1, l2 string, includeStats bool) []Course {
 	var courses []Course
 
-	glob := "[a-z][a-z][a-z]-[a-z][a-z][a-z].db"
+	glob := courseGlobPattern(l1, l2)
 	matches, _ := filepath.Glob(filepath.Join(basedir.DataDir, glob))
 	for _, match := range matches {
-		course, err := getCourseInfo(match)
+		course, err := getCourseInfo(match, includeStats)
 		if err == nil {
 			courses = append(courses, course)
 		}
@@ -51,7 +61,7 @@ func AvailableCourses() []Course {
 }
 
 // Input: path to course db file.
-func getCourseInfo(path string) (Course, error) {
+func getCourseInfo(path string, includeStats bool) (Course, error) {
 	var course Course
 
 	db, err := database.Open(path)
@@ -89,19 +99,28 @@ func getCourseInfo(path string) (Course, error) {
 		return course, fmt.Errorf("invalid course database: %s\n", path)
 	}
 
-	stats, err := getCourseStats(course.L1.Code, course.L2.Code)
-	if err != nil {
-		return course, err
+	if includeStats {
+		stats, err := getCourseStats(course.L1.Code, course.L2.Code)
+		if err != nil {
+			return course, err
+		}
+		course.Stats = stats
 	}
 
-	course.Stats = stats
 	return course, nil
 }
 
 func courseOptions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	courses := Courses{Courses: AvailableCourses()}
+	q := r.URL.Query()
+	courses := Courses{
+		Courses: AvailableCourses(
+			q.Get("l1"),
+			q.Get("l2"),
+			q.Get("stats") == "true",
+		),
+	}
 	bytes, err := json.Marshal(courses)
 	if err != nil {
 		log.Fatal(err)
