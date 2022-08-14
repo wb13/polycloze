@@ -28,8 +28,25 @@ async function fetchJson<T>(url: string | URL, options: RequestInit): Promise<T>
     return await response.json();
 }
 
-export async function availableCourses(): Promise<Course[]> {
+export type AvailableCoursesOptions = {
+    l1?: string;
+    l2?: string;
+    stats?: boolean;
+};
+
+export async function availableCourses(params: AvailableCoursesOptions = {}): Promise<Course[]> {
     const url = new URL("/courses", src);
+
+    if (params.l1 != null && params.l1.length > 0) {
+        url.searchParams.set("l1", params.l1);
+    }
+    if (params.l2 != null && params.l2.length > 0) {
+        url.searchParams.set("l2", params.l2);
+    }
+    if (params.stats) {
+        url.searchParams.set("stats", "true");
+    }
+
     const options = { mode: "cors" as RequestMode };
     const json = await fetchJson<CoursesSchema>(url, options);
     return json.courses;

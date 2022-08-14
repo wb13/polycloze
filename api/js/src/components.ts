@@ -27,7 +27,10 @@ export class LanguageSelect extends HTMLElement {
 export class Overview extends HTMLElement {
     async connectedCallback() {
         const target = this.getAttribute("target") || "/study";
-        const courses = await availableCourses();
+        const courses = await availableCourses({
+            l1: getL1().code,
+            stats: true,
+        });
         this.innerHTML = "<h1>Pick a language.</h1>";
         this.appendChild(createOverview(courses, target));
     }
@@ -35,7 +38,11 @@ export class Overview extends HTMLElement {
 
 export class ScoreCounter extends HTMLElement {
     async connectedCallback() {
-        const courses = await availableCourses();
+        const courses = await availableCourses({
+            l1: getL1().code,
+            l2: getL2().code,
+            stats: true,
+        });
 
         const l1 = getL1().code;
         const l2 = getL2().code;
