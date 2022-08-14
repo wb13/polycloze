@@ -29,7 +29,7 @@ async function fetchJson<T>(url: string | URL, options: RequestInit): Promise<T>
 }
 
 export async function availableCourses(): Promise<Course[]> {
-    const url = new URL("/options", src);
+    const url = new URL("/courses", src);
     const options = { mode: "cors" as RequestMode };
     const json = await fetchJson<CoursesSchema>(url, options);
     return json.courses;

@@ -149,7 +149,7 @@ func Router(config Config) (chi.Router, error) {
 	r.HandleFunc("/serviceworker.js", serveServiceWorker())
 	r.HandleFunc("/serviceworker.js.map", serveServiceWorkerSourceMap())
 	r.HandleFunc("/dist/{filename}", serveDist)
-	r.HandleFunc("/options", courseOptions)
+	r.HandleFunc("/courses", courseOptions)
 
 	r.HandleFunc("/{filename}", serveFavicons)
 	r.HandleFunc("/{l1}/{l2}", createHandler)
