@@ -108,7 +108,7 @@ languages["nld"] = Language(
     name="Dutch",
     bcp47="nl",
     spacy_path=("nl", "Dutch"),
-    alphabet=set("abcdefghijklmnopqrstuvwxyz"),
+    alphabet=set("abcdefghijklmnopqrstuvwxyzĳäëïöüáéíóú"),
 )
 
 languages["nob"] = Language(
