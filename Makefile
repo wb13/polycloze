@@ -6,12 +6,12 @@ build-js:
 	cd api/js; npm run build
 
 .PHONY:	build
-build:	build-js format
+build:	build-js
 	go build .
 	go build -v -o build/ ./...
 
 .PHONY:	test
-test:
+test:	build-js
 	go test -cover ./...
 
 .PHONY:	format
