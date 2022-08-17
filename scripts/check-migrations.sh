@@ -9,7 +9,7 @@ file_version() {
 }
 
 script_version() {
-	rg -Noir '$1' 'pragma.*user_version.*=.*(\d+)' "$1"
+	rg -Noir "\$1" 'pragma.*user_version.*=.*(\d+)' "$1"
 }
 
 check() {
