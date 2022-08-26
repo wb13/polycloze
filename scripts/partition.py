@@ -29,8 +29,11 @@ def output_parsed_line(line: str, basedir: Path) -> None:
 
 def partition(inputfile: Path | None, basedir: Path) -> None:
     if inputfile is None:
-        while line := input():
-            output_parsed_line(line, basedir)
+        try:
+            while line := input():
+                output_parsed_line(line, basedir)
+        except EOFError:
+            pass
     else:
         with open(inputfile, encoding="utf-8") as infile:
             for line in infile:
