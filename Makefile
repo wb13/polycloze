@@ -1,7 +1,5 @@
 languages = $(shell python -m scripts.language)
 pairs = $(foreach l1,$(languages), $(foreach l2,$(languages), $(l1)-$(l2)))
-latest_sentences = $(shell find build/tatoeba/sentences.*.csv | sort -r | head -n 1)
-latest_links = $(shell find build/tatoeba/links.*.csv | sort -r | head -n 1)
 
 define add_language
 .PHONY:	$(1)
@@ -16,7 +14,7 @@ define add_pair
 .PHONY:	$(1)-$(2)
 $(1)-$(2):	build/courses/$(1)-$(2).db
 
-build/translations/$(1)-$(2).csv:	build/sentences/$(1).tsv build/sentences/$(2).tsv $$(latest_links)
+build/translations/$(1)-$(2).csv:	build/sentences/$(1).tsv build/sentences/$(2).tsv build/tatoeba/links.csv
 	mkdir -p build/translations
 	if [[ "$(1)" -ge "$(2)" ]]; then \
 		touch $$@; \
@@ -45,10 +43,12 @@ all:	$(pairs) $(languages)
 $(foreach lang,$(languages),$(eval $(call add_language,$(lang))))
 $(foreach l1,$(languages),$(foreach l2,$(languages), $(eval $(call add_pair,$(l1),$(l2)))))
 
-.PHONY:	download
-download:
-	./scripts/download.sh
-	python ./scripts/partition.py ./build/sentences < $(latest_sentences)
+build/tatoeba/links.csv build/tatoeba/sentences.csv:
+	python -m scripts.download
+	python -m scripts.untar
+
+build/sentences/:	build/tatoeba/sentences.csv build/tatoeba/links.csv
+	python -m scripts.partition $@ < $<
 
 .PHONY:	install
 install:
