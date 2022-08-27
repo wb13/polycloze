@@ -5,6 +5,11 @@ from pathlib import Path
 import sys
 
 
+def get_ids(path: Path) -> set[str]:
+    with open(path, "r", encoding="utf-8") as file:
+        return {line.split()[0] for line in file}
+
+
 def parse_args() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument("l1", type=Path, help="L1 sentences TSV file")
@@ -13,13 +18,7 @@ def parse_args() -> Namespace:
     return parser.parse_args()
 
 
-def get_ids(path: Path) -> set[str]:
-    with open(path, "r", encoding="utf-8") as file:
-        return {line.split()[0] for line in file}
-
-
-def main() -> None:
-    args = parse_args()
+def main(args: Namespace) -> None:
     if not args.l1.is_file():
         sys.exit(f"{args.l1!s} does not exist")
     if not args.l2.is_file():
@@ -38,4 +37,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(parse_args())
