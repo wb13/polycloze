@@ -4,6 +4,7 @@ from argparse import ArgumentParser, Namespace
 from collections import Counter
 import csv
 from dataclasses import dataclass
+import fileinput
 from importlib import import_module
 import json
 from pathlib import Path
@@ -68,6 +69,12 @@ def parse_args() -> Namespace:
         help="ISO 639-3 language code",
     )
     parser.add_argument(
+        "-f",
+        dest="file",
+        type=Path,
+        help="input file (default: stdin)",
+    )
+    parser.add_argument(
         "-o",
         dest="output",
         help="output directory",
@@ -87,8 +94,7 @@ def parse_args() -> Namespace:
     return parser.parse_args()
 
 
-def main() -> None:
-    args = parse_args()
+def main(args: Namespace) -> None:
     log = Path(args.log) if args.log is not None else None
     if log:
         log.write_text("", encoding="utf-8")
@@ -106,19 +112,20 @@ def main() -> None:
         writer.writerow(["tatoeba_id", "text", "tokens"])
 
         try:
-            while line := input():
-                id_ = None
-                if args.has_ids:
-                    id_, line = line.split("\t", maxsplit=1)
+            with fileinput.input(files=args.file or "-") as file:
+                for line in file:
+                    id_ = None
+                    if args.has_ids:
+                        id_, line = line.split("\t", maxsplit=1)
 
-                assert id_
-                sentence = Sentence(
-                    id=int(id_),
-                    text=line,
-                    tokens=tokenizer.tokenize(line),
-                )
-                word_counter.add(sentence.tokens)
-                writer.writerow(sentence.row())
+                    assert id_
+                    sentence = Sentence(
+                        id=int(id_),
+                        text=line,
+                        tokens=tokenizer.tokenize(line),
+                    )
+                    word_counter.add(sentence.tokens)
+                    writer.writerow(sentence.row())
         except EOFError:
             pass
 
@@ -138,4 +145,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(parse_args())
