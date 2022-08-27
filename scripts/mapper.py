@@ -15,6 +15,12 @@ def parse_args() -> Namespace:
     parser.add_argument("l1", type=Path, help="L1 sentences TSV file")
     parser.add_argument("l2", type=Path, help="L2 sentences TSV file")
     parser.add_argument("links", type=Path, help="Tatoeba links file")
+    parser.add_argument(
+        "-o",
+        dest="output",
+        type=Path,
+        help="output file (default: stdout)",
+    )
     return parser.parse_args()
 
 
@@ -33,7 +39,7 @@ def main(args: Namespace) -> None:
         for line in file:
             source, target = line.split()
             if source in l1_ids and target in l2_ids:
-                print(f"{source},{target}")
+                print(f"{source},{target}", file=args.output)
 
 
 if __name__ == "__main__":
