@@ -11,6 +11,7 @@ import typing as t
 
 from requests import get, head
 from requests.exceptions import HTTPError
+from tqdm import tqdm   # type: ignore
 
 
 LINKS = "https://downloads.tatoeba.org/exports/links.tar.bz2"
@@ -95,14 +96,15 @@ def fetch_headers(url: str) -> dict[str, str]:
     return t.cast(dict[str, str], response.headers)
 
 
-def download(url: str) -> bytes:
-    """Download file.
+def stream(url: str, chunk_size: int = 1024) -> t.Iterable[bytes]:
+    """Download content in stream.
 
     May raise requests.exceptions.HTTPError.
     """
-    response = get(url)
+    response = get(url, stream=True)
     response.raise_for_status()
-    return bytes(response.content)
+    for chunk in response.iter_content(chunk_size):
+        yield chunk
 
 
 def save_missing(url: str, downloads: Path, kind: Kind) -> None:
@@ -115,7 +117,12 @@ def save_missing(url: str, downloads: Path, kind: Kind) -> None:
         print(f"Cached: {url} ({dest!s})", file=sys.stderr)
     else:
         print(f"Downloading: {url}", file=sys.stderr)
-        dest.write_bytes(download(url))
+        progress_bar = tqdm(total=record.content_length)
+        content = bytearray()
+        for chunk in stream(url):
+            progress_bar.update(len(chunk))
+            content.extend(chunk)
+        dest.write_bytes(content)
 
 
 def parse_args() -> Namespace:
