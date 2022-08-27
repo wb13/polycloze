@@ -27,19 +27,6 @@ make
 make eng-spa	# build English -> Spanish course only
 ```
 
-## Building course files inside Docker
-
-Alternatively, you can build course files in a Docker container.
-The only requirements are bash and docker.
-
-```bash
-# Download tatoeba data.
-./scripts/download.sh
-
-# Build all courses.
-./scripts/build-in-docker.sh
-```
-
 ## Supported languages
 
 - deu (German)
