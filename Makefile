@@ -27,8 +27,7 @@ build/translations/$(1)-$(2).csv:	build/sentences/$(1).tsv build/sentences/$(2).
 build/courses/$(1)-$(2).db:	build/translations/$(1)-$(2).csv build/languages/$(1)/sentences.csv build/languages/$(1)/words.csv build/languages/$(2)/sentences.csv build/languages/$(2)/words.csv
 	mkdir -p build/courses
 	rm -f $$@
-	./scripts/check-migrations.sh migrations/; \
-	./scripts/migrate.sh $$@ migrations/; \
+	python -m scripts.migrate $$@ migrations/; \
 	if [[ "$(1)" < "$(2)" ]]; then \
 		python -m scripts.populate -r $$@ build/languages/$(1) build/languages/$(2) $$<; \
 	fi
@@ -63,9 +62,8 @@ install:
 # For applying migrations to existing build files
 .PHONY:	migrate
 migrate:
-	./scripts/check-migrations.sh migrations/
 	for course in ./build/courses/*.db; do \
-		./scripts/migrate.sh "$$course" migrations/; \
+		python -m scripts.migrate "$$course" migrations/; \
 	done
 
 .PHONY:	check
