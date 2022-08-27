@@ -36,9 +36,7 @@ def parse_args() -> Namespace:
     return parser.parse_args()
 
 
-def main() -> None:
-    args = parse_args()
-
+def main(args: Namespace) -> None:
     downloads = Path("build")/"tatoeba"
     if not args.links or not args.sentences:
         try:
@@ -67,4 +65,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(parse_args())

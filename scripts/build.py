@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 
-from . import download, mapper, migrate, partition, populate, tokenizer
+from . import download, mapper, migrate, partition, populate, tokenizer, untar
 from .language import languages as supported_languages
 
 
@@ -163,7 +163,15 @@ def main(args: Namespace) -> None:
     build = Path("build")
 
     # Download latest data.
-    download.main(Namespace(downloads=build/"tatoeba"))
+    download.main(
+        Namespace(
+            ls=False,
+            downloads=build/"tatoeba",
+        ),
+    )
+
+    # Unarchive downloaded data.
+    untar.main(Namespace(links=None, sentences=None))
 
     # Partition build/tatoeba/sentences.csv, output in build/sentences/*
     partition.main(
