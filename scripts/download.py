@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime
 from os import remove
 from pathlib import Path
+import re
 import sys
 import typing as t
 
@@ -27,14 +28,14 @@ def parse_date(time: str) -> date:
 class DownloadRecord(t.NamedTuple):
     content_length: int
     last_modified: date
-    etag: str
     kind: Kind
 
     @property
     def filename(self) -> str:
-        kind = "s" if self.kind == "sentences" else "l"
-        date_ = self.last_modified.isoformat()
-        return f"{kind}_{date_}_{self.etag}.tar.bz2"
+        return "{}_{}.tar.bz2".format(  # noqa; pylint: disable=consider-using-f-string
+            self.kind,
+            self.last_modified.isoformat(),
+        )
 
     def destination(self, downloads: Path) -> Path:
         """Return destination in downloads directory."""
@@ -48,18 +49,21 @@ class DownloadRecord(t.NamedTuple):
         return dest
 
     @staticmethod
-    def from_path(path: Path) -> "DownloadRecord":
-        stem = path.with_name(path.stem).stem
+    def from_path(path: Path) -> t.Optional["DownloadRecord"]:
+        pattern = "(links|sentences)_([0-9]+-[0-9]+-[0-9]+).tar.bz2"
 
-        kind: Kind = "links" if stem.startswith("l") else "sentences"
-        date_ = len("2020-01-01")
-        timestamp = stem[2:2 + date_]
-        etag = stem[date_+3:]
+        result = re.match(pattern, path.name)
+        if not result:
+            return None
+
+        groups = result.groups()
+        if len(groups) < 2:
+            return None
+        kind, date_ = groups
         return DownloadRecord(
             content_length=path.stat().st_size,
-            last_modified=date.fromisoformat(timestamp),
-            etag=etag,
-            kind=kind,
+            last_modified=date.fromisoformat(date_),
+            kind=t.cast(Kind, kind),
         )
 
     @staticmethod
@@ -67,14 +71,18 @@ class DownloadRecord(t.NamedTuple):
         return DownloadRecord(
             content_length=int(headers["Content-Length"]),
             last_modified=parse_date(headers["Last-Modified"]),
-            etag=headers["ETag"][1:-1],
             kind=kind,
         )
 
 
 def list_downloads(downloads: Path) -> list[DownloadRecord]:
     """List recorded files in downloads directory."""
-    return list(map(DownloadRecord.from_path, downloads.glob("*.tar.bz2")))
+    records = []
+    for path in downloads.glob("*.tar.bz2"):
+        record = DownloadRecord.from_path(path)
+        if record is not None:
+            records.append(record)
+    return records
 
 
 def fetch_headers(url: str) -> dict[str, str]:
@@ -166,7 +174,6 @@ def main() -> None:
     if args.ls:
         for record in list_downloads(args.downloads):
             print(record.kind, str(args.downloads/record.filename))
-            print("ETag:", record.etag)
             print("Last-Modified:", record.last_modified)
             print("Content-Length:", record.content_length)
             print()
