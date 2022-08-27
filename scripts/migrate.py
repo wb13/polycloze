@@ -88,8 +88,7 @@ def parse_args() -> Namespace:
     return parser.parse_args()
 
 
-def main() -> None:
-    args = parse_args()
+def main(args: Namespace) -> None:
     try:
         with connect(args.database) as con:
             migrate(con, args.migrations)
@@ -100,4 +99,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(parse_args())

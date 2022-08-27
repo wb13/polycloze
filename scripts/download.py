@@ -125,25 +125,6 @@ def save_missing(url: str, downloads: Path, kind: Kind) -> None:
         dest.write_bytes(content)
 
 
-def parse_args() -> Namespace:
-    parser = ArgumentParser(
-        description="Tatoeba data download manager.",
-    )
-    parser.add_argument(
-        "--ls",
-        action="store_true",
-        help="list downloaded data",
-    )
-    parser.add_argument(
-        "downloads",
-        type=Path,
-        default=Path("build")/"tatoeba",
-        nargs="?",
-        help="downloads directory (default: build/tatoeba)",
-    )
-    return parser.parse_args()
-
-
 def latest_data(downloads: Path) -> tuple[DownloadRecord, DownloadRecord]:
     """Find latest matching data in downloads directory.
 
@@ -175,9 +156,26 @@ def latest_data(downloads: Path) -> tuple[DownloadRecord, DownloadRecord]:
     raise Exception("no matching data found")
 
 
-def main() -> None:
-    args = parse_args()
+def parse_args() -> Namespace:
+    parser = ArgumentParser(
+        description="Tatoeba data download manager.",
+    )
+    parser.add_argument(
+        "--ls",
+        action="store_true",
+        help="list downloaded data",
+    )
+    parser.add_argument(
+        "downloads",
+        type=Path,
+        default=Path("build")/"tatoeba",
+        nargs="?",
+        help="downloads directory (default: build/tatoeba)",
+    )
+    return parser.parse_args()
 
+
+def main(args: Namespace) -> None:
     if args.ls:
         for record in list_downloads(args.downloads):
             print(record.kind, str(args.downloads/record.filename))
@@ -205,4 +203,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(parse_args())

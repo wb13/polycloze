@@ -12,21 +12,6 @@ import typing as t
 from .language import languages
 
 
-def parse_args() -> Namespace:
-    parser = ArgumentParser()
-    parser.add_argument(
-        "-r",
-        dest="reversed",
-        help="reverse translation",
-        action="store_true",
-    )
-    parser.add_argument("database", help="sqlite database")
-    parser.add_argument("l1", type=Path, help="path to L1 directory")
-    parser.add_argument("l2", type=Path, help="path to L2 directory")
-    parser.add_argument("translations", type=Path, help="translation CSV file")
-    return parser.parse_args()
-
-
 def sources(translations: Path, reverse: bool = False) -> set[int]:
     result = set()
     with open(translations, encoding="utf-8") as file:
@@ -180,9 +165,22 @@ def populate_language(con: Connection, lang1: Path, lang2: Path) -> None:
     con.commit()
 
 
-def main() -> None:
-    args = parse_args()
+def parse_args() -> Namespace:
+    parser = ArgumentParser()
+    parser.add_argument(
+        "-r",
+        dest="reversed",
+        help="reverse translation",
+        action="store_true",
+    )
+    parser.add_argument("database", help="sqlite database")
+    parser.add_argument("l1", type=Path, help="path to L1 directory")
+    parser.add_argument("l2", type=Path, help="path to L2 directory")
+    parser.add_argument("translations", type=Path, help="translation CSV file")
+    return parser.parse_args()
 
+
+def main(args: Namespace) -> None:
     with connect(args.database) as con:
         populate_language(con, args.l1, args.l2)
 
@@ -200,4 +198,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(parse_args())
