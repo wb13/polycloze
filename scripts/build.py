@@ -109,6 +109,19 @@ def build_course(lang1: str, lang2: str) -> None:
     courses = build/"courses"
     courses.mkdir(parents=True, exist_ok=True)
 
+    course = build/"courses"/f"{lang1}-{lang2}.db"
+    translations = (
+        build/"translations"/f"{lang1}-{lang2}.csv"
+        if lang1 < lang2
+        else build/"translations"/f"{lang2}-{lang1}.csv"
+    )
+
+    if not is_outdated(
+        [course],
+        [build/"languages"/lang1, build/"languages"/lang2, translations],
+    ):
+        return
+
     with TemporaryDirectory() as tmpname:
         tmp = Path(tmpname)
         database = tmp/"scratch.db"
@@ -122,31 +135,20 @@ def build_course(lang1: str, lang2: str) -> None:
         )
 
         # Populate database
-        if lang1 < lang2:
-            populate.main(
-                Namespace(
-                    reversed=True,
-                    database=database,
-                    l1=build/"languages"/lang1,
-                    l2=build/"languages"/lang2,
-                    translations=build/"translations"/f"{lang1}-{lang2}.csv",
-                ),
-            )
-        else:
-            populate.main(
-                Namespace(
-                    reversed=False,
-                    database=database,
-                    l1=build/"languages"/lang1,
-                    l2=build/"languages"/lang2,
-                    translations=build/"translations"/f"{lang2}-{lang1}.csv",
-                ),
-            )
+        populate.main(
+            Namespace(
+                reversed=lang1 < lang2,
+                database=database,
+                l1=build/"languages"/lang1,
+                l2=build/"languages"/lang2,
+                translations=translations,
+            ),
+        )
 
         # Replace existing course with new one.
         # shutil.move is used instead of Path.replace, because Path.replace
         # might raise OSError: Invalid cross-device link
-        move(database, build/"courses"/f"{lang1}-{lang2}.db")
+        move(database, course)
 
 
 def parse_args() -> Namespace:
