@@ -97,6 +97,7 @@ def parse_args() -> Namespace:
 def main(args: Namespace) -> None:
     log = Path(args.log) if args.log is not None else None
     if log:
+        log.parent.mkdir(parents=True, exist_ok=True)
         log.write_text("", encoding="utf-8")
 
     output = Path(args.output)

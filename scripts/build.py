@@ -46,6 +46,7 @@ def build_language(lang: str) -> None:
             output=lang_dir,
             log=build/"logs"/"nonwords"/f"{lang}.txt",
             file=build/"sentences"/f"{lang}.tsv",
+            has_ids=True,
         ),
     )
 
