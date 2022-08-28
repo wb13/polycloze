@@ -3,6 +3,7 @@
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+from shutil import move
 import sys
 from tempfile import TemporaryDirectory
 
@@ -143,7 +144,9 @@ def build_course(lang1: str, lang2: str) -> None:
             )
 
         # Replace existing course with new one.
-        database.replace(build/"courses"/f"{lang1}-{lang2}.db")
+        # shutil.move is used instead of Path.replace, because Path.replace
+        # might raise OSError: Invalid cross-device link
+        move(database, build/"courses"/f"{lang1}-{lang2}.db")
 
 
 def parse_args() -> Namespace:
