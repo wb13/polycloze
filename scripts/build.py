@@ -114,7 +114,7 @@ def build_course(lang1: str, lang2: str) -> None:
         migrate.main(
             Namespace(
                 database=database,
-                migrations=Path(__file__).parent/"migrations",
+                migrations=Path(__file__).parent.parent/"migrations",
             ),
         )
 
