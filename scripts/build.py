@@ -174,6 +174,7 @@ def main(args: Namespace) -> None:
     untar.main(Namespace(links=None, sentences=None))
 
     # Partition build/tatoeba/sentences.csv, output in build/sentences/*
+    print("Processing sentences...")
     partition.main(
         Namespace(
             out=build/"sentences",
@@ -182,12 +183,14 @@ def main(args: Namespace) -> None:
     )
 
     # Build languages, sentences, etc.
+    print("Tokenizing words...")
     with ProcessPoolExecutor() as executor:
         futures = [executor.submit(build_language, lang) for lang in l1s + l2s]
         for future in futures:
             future.result()
 
     # Build translations.
+    print("Processing translations...")
     with ProcessPoolExecutor() as executor:
         futures = [
             executor.submit(build_translations, lang1, lang2)
@@ -199,6 +202,7 @@ def main(args: Namespace) -> None:
             future.result()
 
     # Build courses
+    print("Building courses...")
     with ProcessPoolExecutor() as executor:
         futures = [
             executor.submit(build_course, lang1, lang2)
