@@ -2,12 +2,14 @@
 
 from argparse import ArgumentParser, Namespace
 from concurrent.futures import ProcessPoolExecutor
+from os import utime
 from pathlib import Path
 from shutil import copytree
 import sys
 import tarfile
 from tempfile import TemporaryDirectory
 
+from .dependency import is_outdated
 from .download import latest_data
 
 
@@ -49,6 +51,12 @@ def main(args: Namespace) -> None:
         except AssertionError:
             sys.exit("no data found")
 
+    if not is_outdated(
+        [downloads/"links.csv", downloads/"sentences.csv"],
+        [args.links, args.sentences],
+    ):
+        return
+
     print("Extracting data...")
     with (
         ProcessPoolExecutor() as executor,
@@ -62,6 +70,11 @@ def main(args: Namespace) -> None:
         for future in futures:
             future.result()
         copytree(tmp, downloads, dirs_exist_ok=True)
+
+    # Update mtime, because original mtime < mtime of tar archive.
+    utime(downloads/"links.csv")
+    utime(downloads/"sentences.csv")
+    print("Done extracting data")
 
 
 if __name__ == "__main__":
