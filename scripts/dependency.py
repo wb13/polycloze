@@ -26,9 +26,14 @@ Task = t.Callable[[], t.Any]
 
 def execute(sorter: "TopologicalSorter[Task]") -> None:
     """Execute topologically sorted tasks."""
+    futures = []
+
     sorter.prepare()
     with ProcessPoolExecutor() as executor:
         while sorter.is_active():
             for task in sorter.get_ready():
                 future = executor.submit(task)
                 future.add_done_callback(partial(sorter.done, task))
+                futures.append(future)
+    for future in futures:
+        future.result()
