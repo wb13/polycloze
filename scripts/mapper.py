@@ -36,10 +36,17 @@ def main(args: Namespace) -> None:
     l2_ids = get_ids(args.l2)
 
     with open(args.links, "r", encoding="utf-8") as file:
-        for line in file:
-            source, target = line.split()
-            if source in l1_ids and target in l2_ids:
-                print(f"{source},{target}", file=args.output)
+        if not args.output:
+            for line in file:
+                source, target = line.split()
+                if source in l1_ids and target in l2_ids:
+                    print(f"{source},{target}")
+        else:
+            with open(args.output, "w", encoding="utf-8") as outfile:
+                for line in file:
+                    source, target = line.split()
+                    if source in l1_ids and target in l2_ids:
+                        print(f"{source},{target}", file=outfile)
 
 
 if __name__ == "__main__":
