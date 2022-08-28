@@ -105,6 +105,8 @@ def build_course(lang1: str, lang2: str) -> None:
     """
     assert lang1 != lang2
     build = Path("build")
+    courses = build/"courses"
+    courses.mkdir(parents=True, exist_ok=True)
 
     with TemporaryDirectory() as tmpname:
         tmp = Path(tmpname)
