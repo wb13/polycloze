@@ -7,6 +7,7 @@ import sys
 from tempfile import TemporaryDirectory
 
 from . import download, mapper, migrate, partition, populate, tokenizer, untar
+from .dependency import is_outdated
 from .language import languages as supported_languages
 
 
@@ -40,12 +41,21 @@ def build_language(lang: str) -> None:
     lang_dir = build/"languages"/lang
     lang_dir.mkdir(parents=True, exist_ok=True)
 
+    log = build/"logs"/"nonwords"/f"{lang}.txt"
+    file = build/"sentences"/f"{lang}.tsv"
+
+    if not is_outdated(
+        [log, lang_dir/"sentences.csv", lang_dir/"words.csv"],
+        [file],
+    ):
+        return
+
     tokenizer.main(
         Namespace(
             language=lang,
             output=lang_dir,
-            log=build/"logs"/"nonwords"/f"{lang}.txt",
-            file=build/"sentences"/f"{lang}.tsv",
+            log=log,
+            file=file,
             has_ids=True,
         ),
     )
@@ -62,12 +72,25 @@ def build_translations(lang1: str, lang2: str) -> None:
     build = Path("build")
     translations = build/"translations"
     translations.mkdir(parents=True, exist_ok=True)
+
+    l1_sentences = build/"sentences"/f"{lang1}.tsv"
+    l2_sentences = build/"sentences"/f"{lang2}.tsv"
+    links = build/"tatoeba"/"links.csv"
+
+    output = translations/f"{lang1}-{lang2}.csv"
+
+    if not is_outdated(
+        [output],
+        [l1_sentences, l2_sentences, links],
+    ):
+        return
+
     mapper.main(
         Namespace(
-            l1=build/"sentences"/f"{lang1}.tsv",
-            l2=build/"sentences"/f"{lang2}.tsv",
-            links=build/"tatoeba"/"links.csv",
-            output=build/"translations"/f"{lang1}-{lang2}.csv",
+            l1=l1_sentences,
+            l2=l2_sentences,
+            links=links,
+            output=output,
         ),
     )
 
