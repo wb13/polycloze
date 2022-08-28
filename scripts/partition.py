@@ -8,6 +8,8 @@ from shutil import copytree
 import sys
 from tempfile import TemporaryDirectory
 
+from .dependency import is_outdated
+
 
 def output_parsed_line(line: str, basedir: Path) -> None:
     [id_, language, sentence] = line.strip().split("\t")
@@ -44,6 +46,9 @@ def main(args: Namespace) -> None:
     out = Path(args.out)
     if out.is_file():
         sys.exit("output file already exists and is not a directory")
+
+    if not is_outdated([args.out], [args.file]):
+        return
 
     with TemporaryDirectory() as tmpname:
         tmp = Path(tmpname)
