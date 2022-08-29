@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 from sqlite3 import Connection, connect
 import sys
+import typing as t
 
 
 def user_version(con: Connection) -> int:
@@ -41,44 +42,51 @@ def script_version(script: Path) -> int | None:
     return int(groups[0])
 
 
-def check_script(script: Path) -> bool:
-    """Check if file and script versions match."""
-    return file_version(script) == script_version(script)
+class MigrationScriptError(Exception):
+    """E.g. bad or missing script version number."""
+    def __init__(
+        self,
+        path: Path,
+        file_ver: int | None,
+        script_ver: int | None,
+    ) -> None:
+        super().__init__(path, file_ver, script_ver)
+        self.path = path
+        self.file_version = file_ver
+        self.script_version = script_ver
 
 
-class InvalidScriptVersion(Exception):
-    """E.g. version in filename and body don't match."""
+class MigrationScript(t.NamedTuple):
+    version: int
+    text: str
+
+    @staticmethod
+    def from_path(path: Path) -> "MigrationScript":
+        file_ver = file_version(path)
+        script_ver = script_version(path)
+
+        if file_ver is None or script_ver is None or file_ver != script_ver:
+            raise MigrationScriptError(path, file_ver, script_ver)
+        return MigrationScript(version=file_ver, text=path.read_text())
 
 
-def check_scripts(migrations: Path) -> list[tuple[int, Path]]:
+def check_scripts(migrations: Path) -> list[MigrationScript]:
     """Check scripts in migrations directory.
 
-    Returns list of scripts sorted by version number.
-    Raises InvalidScriptVersion if there's an invalid script.
+    Returns list of scripts (possibly not sorted).
+    Raises an exception if there's an invalid script.
     """
-    scripts = []
-    for script in migrations.glob("*.sql"):
-        file_ver = file_version(script)
-        script_ver = script_version(script)
-        if file_ver is None or script_ver is None:
-            print("Not a migration script:", str(script))
-            continue
-
-        if file_ver != script_ver:
-            raise InvalidScriptVersion(script)
-
-        scripts.append((file_ver, script))
-    return sorted(scripts)
+    return [MigrationScript.from_path(p) for p in migrations.glob("*.sql")]
 
 
-def migrate(con: Connection, migrations: Path) -> None:
+def migrate(con: Connection, scripts: t.Iterable[MigrationScript]) -> None:
     """Apply migration scripts."""
-    for version, script in check_scripts(migrations):
-        if version <= user_version(con):
+    for script in sorted(scripts, key=lambda script: script.version):
+        if script.version <= user_version(con):
             print("Skipping:", str(script))
         else:
             print("Applying:", str(script))
-            con.executescript(script.read_text())
+            con.executescript(script.text)
 
 
 def parse_args() -> Namespace:
@@ -90,12 +98,19 @@ def parse_args() -> Namespace:
 
 def main(args: Namespace) -> None:
     try:
-        with connect(args.database) as con:
-            migrate(con, args.migrations)
-    except InvalidScriptVersion as exc:
-        name = str(exc.args[0])
-        message = f"Filename and script version numbers don't match: {name}"
+        scripts = check_scripts(args.migrations)
+    except MigrationScriptError as exc:
+        path = exc.path
+        file_ver = exc.file_version
+        script_ver = exc.script_version
+        message = (
+            "Invalid migration script version number: "
+            f"{path!s} file_version={file_ver} script_version={script_ver}"
+        )
         sys.exit(message)
+
+    with connect(args.database) as con:
+        migrate(con, scripts)
 
 
 if __name__ == "__main__":
