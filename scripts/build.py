@@ -2,10 +2,9 @@
 
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from concurrent.futures import ProcessPoolExecutor
-from pathlib import Path
 import sys
 
-from . import download, task
+from . import task
 from .language import languages as supported_languages
 
 
@@ -69,15 +68,7 @@ def main(args: Namespace) -> None:
     except UnknownLanguage as exc:
         sys.exit(f"unknown language: {exc.args[0]}")
 
-    build = Path("build")
-
-    # Download latest data.
-    download.main(
-        Namespace(
-            ls=False,
-            downloads=build/"tatoeba",
-        ),
-    )
+    task.download_latest()
 
     with ProcessPoolExecutor() as executor:
         futures = [

@@ -175,6 +175,30 @@ def parse_args() -> Namespace:
     return parser.parse_args()
 
 
+def download(downloads: Path) -> None:
+    """Download data from Tatoeba.
+
+    Catches HTTPError, because there might still be an older version of the
+    data in the cache.
+    """
+    downloads.mkdir(parents=True, exist_ok=True)
+    try:
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            futures = [
+                executor.submit(save_missing, LINKS, downloads, "links"),
+                executor.submit(
+                    save_missing,
+                    SENTENCES,
+                    downloads,
+                    "sentences",
+                ),
+            ]
+            for future in futures:
+                future.result()
+    except HTTPError:
+        print("download failed", file=sys.stderr)
+
+
 def main(args: Namespace) -> None:
     if args.ls:
         for record in list_downloads(args.downloads):
@@ -183,23 +207,7 @@ def main(args: Namespace) -> None:
             print("Content-Length:", record.content_length)
             print()
         return
-
-    args.downloads.mkdir(parents=True, exist_ok=True)
-    try:
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            futures = [
-                executor.submit(save_missing, LINKS, args.downloads, "links"),
-                executor.submit(
-                    save_missing,
-                    SENTENCES,
-                    args.downloads,
-                    "sentences",
-                ),
-            ]
-            for future in futures:
-                future.result()
-    except HTTPError:
-        print("download failed", file=sys.stderr)
+    download(args.downloads)
 
 
 if __name__ == "__main__":

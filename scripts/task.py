@@ -12,7 +12,7 @@ from tempfile import TemporaryDirectory
 import typing as t
 
 from .dependency import is_outdated
-from .download import latest_data
+from .download import download, latest_data
 from .mapper import map_translations
 from .migrate import check_scripts, migrate
 from .partition import partition
@@ -24,11 +24,22 @@ from .untar import untar
 Task = t.Callable[[], t.Any]
 
 build = Path("build")
-downloads = build/"tatoeba"
+
+
+def download_latest() -> None:
+    """Download latest tatoeba data.
+
+    Link and sentence download is one task instead of two, because subsequent
+    tasks depend on both of them.
+    Hence they are considered one item.
+    """
+    print("Downloading latest data from Tatoeba")
+    download(build/"tatoeba")
 
 
 def decompress_links() -> None:
     """Decompress links.tar.bz2."""
+    downloads = build/"tatoeba"
     source = latest_data(downloads)[0].destination(downloads)
     target = downloads/"links.csv"
 
@@ -41,6 +52,7 @@ def decompress_links() -> None:
 
 def decompress_sentences() -> None:
     """Decompress sentences.tar.bz2."""
+    downloads = build/"tatoeba"
     source = latest_data(downloads)[1].destination(downloads)
     target = downloads/"sentences.csv"
 
