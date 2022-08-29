@@ -148,7 +148,6 @@ def main(args: Namespace) -> None:
     task.prepare_sentences()
 
     # Build languages, sentences, etc.
-    print("Tokenizing words...")
     with ProcessPoolExecutor() as executor:
         futures = [
             executor.submit(task.language_tokenizer(lang))
@@ -158,7 +157,6 @@ def main(args: Namespace) -> None:
             future.result()
 
     # Build translations.
-    print("Processing translations...")
     with ProcessPoolExecutor() as executor:
         futures = [
             executor.submit(task.translation_mapper(lang1, lang2))
