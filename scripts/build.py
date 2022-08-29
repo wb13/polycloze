@@ -7,7 +7,7 @@ from shutil import move
 import sys
 from tempfile import TemporaryDirectory
 
-from . import download, mapper, migrate, populate, task
+from . import download, migrate, populate, task
 from .dependency import is_outdated
 from .language import languages as supported_languages
 
@@ -30,40 +30,6 @@ def parse_languages(languages: str) -> list[str]:
         else:
             raise UnknownLanguage(lang)
     return result
-
-
-def build_translations(lang1: str, lang2: str) -> None:
-    """Build build/translations/{lang1}-{lang2}.csv.
-
-    L1-L2 and L2-L1 use the same translation file, so only L1-L2 where L1 < L2
-    is built.
-    """
-    assert lang1 < lang2
-
-    build = Path("build")
-    translations = build/"translations"
-    translations.mkdir(parents=True, exist_ok=True)
-
-    l1_sentences = build/"sentences"/f"{lang1}.tsv"
-    l2_sentences = build/"sentences"/f"{lang2}.tsv"
-    links = build/"tatoeba"/"links.csv"
-
-    output = translations/f"{lang1}-{lang2}.csv"
-
-    if not is_outdated(
-        [output],
-        [l1_sentences, l2_sentences, links],
-    ):
-        return
-
-    mapper.main(
-        Namespace(
-            l1=l1_sentences,
-            l2=l2_sentences,
-            links=links,
-            output=output,
-        ),
-    )
 
 
 def build_course(lang1: str, lang2: str) -> None:
@@ -195,7 +161,7 @@ def main(args: Namespace) -> None:
     print("Processing translations...")
     with ProcessPoolExecutor() as executor:
         futures = [
-            executor.submit(build_translations, lang1, lang2)
+            executor.submit(task.translation_mapper(lang1, lang2))
             for lang1 in l1s
             for lang2 in l2s
             if lang1 < lang2

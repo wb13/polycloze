@@ -10,6 +10,7 @@ import typing as t
 
 from .dependency import is_outdated
 from .download import latest_data
+from .mapper import map_translations
 from .partition import partition
 from .tokenizer import process_language
 from .untar import untar
@@ -84,3 +85,30 @@ def language_tokenizer(lang: str) -> Task:
                 log=log,
             )
     return tokenize_language
+
+
+@cache
+def translation_mapper(lang1: str, lang2: str) -> Task:
+    """Creating task for mapping translations between lang1 and lang2.
+
+    @cache'd for the same reason as language_tokenizer.
+    Asserts lang1 < lang2, because lang1->lang2 and lang2->lang1 use the same
+    translation file.
+    """
+    assert lang1 < lang2
+
+    def task() -> None:
+        l1_sentences = build/"sentences"/f"{lang1}.tsv"
+        l2_sentences = build/"sentences"/f"{lang2}.tsv"
+        links = build/"tatoeba"/"links.csv"
+
+        sources = [l1_sentences, l2_sentences, links]
+        target = build/"translations"/f"{lang1}-{lang2}.csv"
+
+        for source in sources:
+            assert source.is_file()
+        print(f"Mapping translations between {lang1} and {lang2}")
+
+        if is_outdated([target], sources):
+            map_translations(l1_sentences, l2_sentences, links, output=target)
+    return task
