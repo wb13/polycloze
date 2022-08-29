@@ -23,7 +23,7 @@ def partition(inputfile: Path | None, out: Path) -> None:
 
     Sentences are partitioned by language.
     These are first written in a temp directory before being copied to the
-    output directory, so that output files are never half-finishsed.
+    output directory, so that output files are never half-finished.
     """
     with (
         fileinput.input(files=inputfile or "-", encoding="utf-8") as file,
