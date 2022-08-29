@@ -173,7 +173,7 @@ class CourseBuilderTask:
         assert l1_dir.is_dir()
         assert l2_dir.is_dir()
         assert translations.is_file()
-        print("Building {lang1}->{lang2} course")
+        print(f"Building {lang1}->{lang2} course")
 
         if is_outdated([target], sources):
             with TemporaryDirectory() as tmpname:
