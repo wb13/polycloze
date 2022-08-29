@@ -1,7 +1,6 @@
 """Provides functions for checking if a target has to be rebuilt."""
 
-from concurrent.futures import ProcessPoolExecutor
-from functools import partial
+from concurrent.futures import Future, ProcessPoolExecutor
 from graphlib import TopologicalSorter  # pylint: disable=unused-import
 from pathlib import Path
 import typing as t
@@ -32,8 +31,13 @@ def execute(sorter: "TopologicalSorter[Task]") -> None:
     with ProcessPoolExecutor() as executor:
         while sorter.is_active():
             for task in sorter.get_ready():
+                def callback(
+                    task: Task = task
+                ) -> t.Callable[[Future[Task]], None]:
+                    return lambda _: sorter.done(task)
+
                 future = executor.submit(task)
-                future.add_done_callback(partial(sorter.done, task))
+                future.add_done_callback(callback())
                 futures.append(future)
     for future in futures:
         future.result()
