@@ -7,7 +7,7 @@ from shutil import move
 import sys
 from tempfile import TemporaryDirectory
 
-from . import download, mapper, migrate, partition, populate, tokenizer, untar
+from . import download, mapper, migrate, populate, task, tokenizer, untar
 from .dependency import is_outdated
 from .language import languages as supported_languages
 
@@ -204,14 +204,7 @@ def main(args: Namespace) -> None:
     # Unarchive downloaded data.
     untar.main(Namespace(links=None, sentences=None))
 
-    # Partition build/tatoeba/sentences.csv, output in build/sentences/*
-    print("Processing sentences...")
-    partition.main(
-        Namespace(
-            out=build/"sentences",
-            file=build/"tatoeba"/"sentences.csv",
-        ),
-    )
+    task.prepare_sentences()
 
     # Build languages, sentences, etc.
     print("Tokenizing words...")
