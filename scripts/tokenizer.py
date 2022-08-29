@@ -111,24 +111,20 @@ def main(args: Namespace) -> None:
     with open(output/"sentences.csv", "w", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(["tatoeba_id", "text", "tokens"])
+        with fileinput.input(files=args.file or "-") as file:
+            for line in file:
+                id_ = None
+                if args.has_ids:
+                    id_, line = line.split("\t", maxsplit=1)
 
-        try:
-            with fileinput.input(files=args.file or "-") as file:
-                for line in file:
-                    id_ = None
-                    if args.has_ids:
-                        id_, line = line.split("\t", maxsplit=1)
-
-                    assert id_
-                    sentence = Sentence(
-                        id=int(id_),
-                        text=line,
-                        tokens=tokenizer.tokenize(line),
-                    )
-                    word_counter.add(sentence.tokens)
-                    writer.writerow(sentence.row())
-        except EOFError:
-            pass
+                assert id_
+                sentence = Sentence(
+                    id=int(id_),
+                    text=line,
+                    tokens=tokenizer.tokenize(line),
+                )
+                word_counter.add(sentence.tokens)
+                writer.writerow(sentence.row())
 
     try:
         language = languages[args.language]
