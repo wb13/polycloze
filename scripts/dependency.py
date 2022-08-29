@@ -6,12 +6,20 @@ from pathlib import Path
 import typing as t
 
 
+BUILD_ALWAYS = False
+
+
 def is_outdated(targets: list[Path], sources: list[Path]) -> bool:
     """Build is outdated if sources timestamp > targets timestamp.
 
     I.e. inputs are younger than outputs.
     Assumes all inputs exist.
+
+    Behavior can be overridden by setting build_always to True.
     """
+    if BUILD_ALWAYS:
+        return True
+
     source_time = max(source.stat().st_mtime_ns for source in sources)
     try:
         target_time = min(target.stat().st_mtime_ns for target in targets)

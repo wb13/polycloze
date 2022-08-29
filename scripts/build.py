@@ -4,7 +4,7 @@ from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from graphlib import TopologicalSorter  # pylint: disable=unused-import
 import sys
 
-from . import task
+from . import dependency, task
 from .dependency import execute, Task  # pylint: disable=unused-import
 from .language import languages as supported_languages
 
@@ -48,6 +48,12 @@ examples:
         formatter_class=RawDescriptionHelpFormatter,
     )
     parser.add_argument(
+        "-B",
+        dest="build_always",
+        action="store_true",
+        help="build all targets unconditionally",
+    )
+    parser.add_argument(
         "l1",
         default="_",
         nargs="?",
@@ -68,6 +74,9 @@ def main(args: Namespace) -> None:
         l2s = parse_languages(args.l2)
     except UnknownLanguage as exc:
         sys.exit(f"unknown language: {exc.args[0]}")
+
+    if args.build_always:
+        dependency.BUILD_ALWAYS = True
 
     # Build dependency graph
     deps: "TopologicalSorter[Task]" = TopologicalSorter()
