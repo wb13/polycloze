@@ -37,6 +37,7 @@ def map_translations(
                 if source in l1_ids and target in l2_ids:
                     print(f"{source},{target}")
         else:
+            output.parent.mkdir(parents=True, exist_ok=True)
             with open(output, "w", encoding="utf-8") as outfile:
                 for line in file:
                     source, target = line.split()
