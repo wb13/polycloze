@@ -214,7 +214,10 @@ def main(args: Namespace) -> None:
     # Build languages, sentences, etc.
     print("Tokenizing words...")
     with ProcessPoolExecutor() as executor:
-        futures = [executor.submit(build_language, lang) for lang in l1s + l2s]
+        futures = [
+            executor.submit(build_language, lang)
+            for lang in sorted(set(l1s + l2s))
+        ]
         for future in futures:
             future.result()
 
