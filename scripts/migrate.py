@@ -79,13 +79,19 @@ def check_scripts(migrations: Path) -> list[MigrationScript]:
     return [MigrationScript.from_path(p) for p in migrations.glob("*.sql")]
 
 
-def migrate(con: Connection, scripts: t.Iterable[MigrationScript]) -> None:
+def migrate(
+    con: Connection,
+    scripts: t.Iterable[MigrationScript],
+    verbose: bool = False,
+) -> None:
     """Apply migration scripts."""
     for script in sorted(scripts, key=lambda script: script.version):
         if script.version <= user_version(con):
-            print("Skipping:", str(script))
+            if verbose:
+                print("Skipping:", str(script))
         else:
-            print("Applying:", str(script))
+            if verbose:
+                print("Applying:", str(script))
             con.executescript(script.text)
 
 
@@ -110,7 +116,7 @@ def main(args: Namespace) -> None:
         sys.exit(message)
 
     with connect(args.database) as con:
-        migrate(con, scripts)
+        migrate(con, scripts, verbose=True)
 
 
 if __name__ == "__main__":
