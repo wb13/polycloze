@@ -7,7 +7,7 @@ from shutil import move
 import sys
 from tempfile import TemporaryDirectory
 
-from . import download, mapper, migrate, populate, task, tokenizer, untar
+from . import download, mapper, migrate, populate, task, tokenizer
 from .dependency import is_outdated
 from .language import languages as supported_languages
 
@@ -201,8 +201,13 @@ def main(args: Namespace) -> None:
         ),
     )
 
-    # Unarchive downloaded data.
-    untar.main(Namespace(links=None, sentences=None))
+    with ProcessPoolExecutor() as executor:
+        futures = [
+            executor.submit(task.decompress_links),
+            executor.submit(task.decompress_sentences),
+        ]
+        for future in futures:
+            future.result()
 
     task.prepare_sentences()
 
