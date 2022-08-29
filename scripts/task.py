@@ -9,6 +9,7 @@ from pathlib import Path
 from shutil import move
 from sqlite3 import connect
 from tempfile import TemporaryDirectory
+import typing as t
 
 from .dependency import is_outdated, Task
 from .download import download, latest_data
@@ -72,15 +73,12 @@ def prepare_sentences() -> None:
         partition(source, target)
 
 
-@cache
-def language_tokenizer(lang: str) -> Task:
-    """Create tokenization task for language.
+class LanguageTokenizerTask(t.NamedTuple):
+    lang: str
 
-    Cached so that language_tokenizer can be called repeatedly and still refer
-    to the same task.
-    lang should be a valid language code.
-    """
-    def tokenize_language() -> None:
+    def __call__(self) -> None:
+        """Run this task."""
+        lang = self.lang
         source = build/"sentences"/f"{lang}.tsv"
 
         log = build/"logs"/"nonwords"/f"{lang}.txt"
@@ -98,20 +96,30 @@ def language_tokenizer(lang: str) -> Task:
                 file=source,
                 log=log,
             )
-    return tokenize_language
 
 
 @cache
-def translation_mapper(lang1: str, lang2: str) -> Task:
-    """Creating task for mapping translations between lang1 and lang2.
+def language_tokenizer(lang: str) -> Task:
+    """Create tokenization task for language.
 
-    @cache'd for the same reason as language_tokenizer.
-    Asserts lang1 < lang2, because lang1->lang2 and lang2->lang1 use the same
-    translation file.
+    Cached so that language_tokenizer can be called repeatedly and still refer
+    to the same task.
+    lang should be a valid language code.
+
+    Returns a class instance, because closures are unpicklable (needed by
+    multiprocessing).
     """
-    assert lang1 < lang2
+    return t.cast(Task, LanguageTokenizerTask(lang))
 
-    def task() -> None:
+
+class TranslationMapperTask(t.NamedTuple):
+    lang1: str
+    lang2: str
+
+    def __call__(self) -> None:
+        lang1 = self.lang1
+        lang2 = self.lang2
+
         l1_sentences = build/"sentences"/f"{lang1}.tsv"
         l2_sentences = build/"sentences"/f"{lang2}.tsv"
         links = build/"tatoeba"/"links.csv"
@@ -125,15 +133,28 @@ def translation_mapper(lang1: str, lang2: str) -> Task:
 
         if is_outdated([target], sources):
             map_translations(l1_sentences, l2_sentences, links, output=target)
-    return task
 
 
 @cache
-def course_builder(lang1: str, lang2: str) -> Task:
-    """Create task for building lang1 -> lang2 course."""
-    assert lang1 != lang2
+def translation_mapper(lang1: str, lang2: str) -> Task:
+    """Create task for mapping translations between lang1 and lang2.
 
-    def task() -> None:
+    @cache'd for the same reason as language_tokenizer.
+    Asserts lang1 < lang2, because lang1->lang2 and lang2->lang1 use the same
+    translation file.
+    """
+    assert lang1 < lang2
+    return t.cast(Task, TranslationMapperTask(lang1, lang2))
+
+
+class CourseBuilderTask(t.NamedTuple):
+    lang1: str
+    lang2: str
+
+    def __call__(self) -> None:
+        lang1 = self.lang1
+        lang2 = self.lang2
+
         l1_dir = build/"languages"/lang1
         l2_dir = build/"languages"/lang2
         translations = (
@@ -173,4 +194,10 @@ def course_builder(lang1: str, lang2: str) -> Task:
                 # Path.replace might raise OSError: Invalid cross-device link
                 target.parent.mkdir(parents=True, exist_ok=True)
                 move(database, target)
-    return task
+
+
+@cache
+def course_builder(lang1: str, lang2: str) -> Task:
+    """Create task for building lang1 -> lang2 course."""
+    assert lang1 != lang2
+    return t.cast(Task, CourseBuilderTask(lang1, lang2))
