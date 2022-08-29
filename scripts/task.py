@@ -43,9 +43,9 @@ def decompress_links() -> None:
     target = downloads/"links.csv"
 
     assert source.is_file()
-    print("Decompressing Tatoeba links")
 
     if is_outdated([target], [source]):
+        print("Decompressing Tatoeba links")
         untar(downloads, source)
 
 
@@ -56,9 +56,9 @@ def decompress_sentences() -> None:
     target = downloads/"sentences.csv"
 
     assert source.is_file()
-    print("Decompressing Tatoeba sentences")
 
     if is_outdated([target], [source]):
+        print("Decompressing Tatoeba sentences")
         untar(downloads, source)
 
 
@@ -68,9 +68,9 @@ def prepare_sentences() -> None:
     target = build/"sentences"
 
     assert source.is_file()
-    print("Preparing sentences")
 
     if is_outdated([target], [source]):
+        print("Preparing sentences")
         partition(source, target)
 
 
@@ -89,9 +89,9 @@ class LanguageTokenizerTask:
         targets = [log, sentences, words]
 
         assert source.is_file()
-        print(f"Tokenizing words in {lang}")
 
         if is_outdated(targets, [source]):
+            print(f"Tokenizing words in {lang}")
             process_language(
                 lang,
                 output=build/"languages"/lang,
@@ -132,9 +132,9 @@ class TranslationMapperTask:
 
         for source in sources:
             assert source.is_file()
-        print(f"Mapping translations between {lang1} and {lang2}")
 
         if is_outdated([target], sources):
+            print(f"Mapping translations between {lang1} and {lang2}")
             map_translations(l1_sentences, l2_sentences, links, output=target)
 
 
@@ -173,9 +173,9 @@ class CourseBuilderTask:
         assert l1_dir.is_dir()
         assert l2_dir.is_dir()
         assert translations.is_file()
-        print(f"Building {lang1}->{lang2} course")
 
         if is_outdated([target], sources):
+            print(f"Building {lang1}->{lang2} course")
             with TemporaryDirectory() as tmpname:
                 tmp = Path(tmpname)
                 database = tmp/"scratch.db"
