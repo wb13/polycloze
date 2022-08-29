@@ -93,7 +93,10 @@ def main(args: Namespace) -> None:
             if lang1 != lang2:
                 deps.add(
                     task.course_builder(lang1, lang2),
-                    task.translation_mapper(lang1, lang2),
+                    task.translation_mapper(
+                        min(lang1, lang2),
+                        max(lang1, lang2),
+                    ),
                     task.language_tokenizer(lang1),
                     task.language_tokenizer(lang2),
                 )
