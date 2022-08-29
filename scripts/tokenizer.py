@@ -17,8 +17,8 @@ from .language import languages
 
 
 def load_spacy_language(code: str) -> Language:
-    if code not in languages:
-        sys.exit("unknown language code")
+    assert code in languages
+
     parent, name = languages[code].spacy_path
     mod = import_module(f"spacy.lang.{parent}")
     return t.cast(Language, getattr(mod, name)())
@@ -95,6 +95,9 @@ def parse_args() -> Namespace:
 
 
 def main(args: Namespace) -> None:
+    if args.language not in languages:
+        sys.exit(f"unsupported language: {args.language}")
+
     log = Path(args.log) if args.log is not None else None
     if log:
         log.parent.mkdir(parents=True, exist_ok=True)
@@ -126,10 +129,7 @@ def main(args: Namespace) -> None:
                 word_counter.add(sentence.tokens)
                 writer.writerow(sentence.row())
 
-    try:
-        language = languages[args.language]
-    except KeyError:
-        sys.exit(f"unsupported language: {args.language}")
+    language = languages[args.language]
     with open(output/"words.csv", "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         writer.writerow(["word", "frequency"])
