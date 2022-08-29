@@ -4,6 +4,7 @@ These are written to be executed in parallel, and so that targets are built
 only when sources are modified.
 """
 
+from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 from shutil import move
@@ -73,7 +74,8 @@ def prepare_sentences() -> None:
         partition(source, target)
 
 
-class LanguageTokenizerTask(t.NamedTuple):
+@dataclass(unsafe_hash=True)
+class LanguageTokenizerTask:
     lang: str
 
     def __call__(self) -> None:
@@ -112,7 +114,8 @@ def language_tokenizer(lang: str) -> Task:
     return t.cast(Task, LanguageTokenizerTask(lang))
 
 
-class TranslationMapperTask(t.NamedTuple):
+@dataclass(unsafe_hash=True)
+class TranslationMapperTask:
     lang1: str
     lang2: str
 
@@ -147,7 +150,8 @@ def translation_mapper(lang1: str, lang2: str) -> Task:
     return t.cast(Task, TranslationMapperTask(lang1, lang2))
 
 
-class CourseBuilderTask(t.NamedTuple):
+@dataclass(unsafe_hash=True)
+class CourseBuilderTask:
     lang1: str
     lang2: str
 
