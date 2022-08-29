@@ -53,10 +53,8 @@ build/sentences/:	build/tatoeba/sentences.csv build/tatoeba/links.csv
 install:
 	mkdir -p "$$HOME/.local/share/polycloze"
 	for course in ./build/courses/*.db; do \
-		if $$(python -m scripts.course "$$course"); then \
-			echo "Installing $$course"; \
-			cp "$$course" "$$HOME/.local/share/polycloze"; \
-		fi \
+		echo "Installing $$course"; \
+		cp "$$course" "$$HOME/.local/share/polycloze"; \
 	done
 
 # For applying migrations to existing build files
