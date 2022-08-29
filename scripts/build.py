@@ -7,7 +7,7 @@ from shutil import move
 import sys
 from tempfile import TemporaryDirectory
 
-from . import download, mapper, migrate, populate, task, tokenizer
+from . import download, mapper, migrate, populate, task
 from .dependency import is_outdated
 from .language import languages as supported_languages
 
@@ -30,36 +30,6 @@ def parse_languages(languages: str) -> list[str]:
         else:
             raise UnknownLanguage(lang)
     return result
-
-
-def build_language(lang: str) -> None:
-    """Build files needed for language.
-
-    - build/languages/{lang}/sentences.csv
-    - build/languages/{lang}/words.csv
-    """
-    build = Path("build")
-    lang_dir = build/"languages"/lang
-    lang_dir.mkdir(parents=True, exist_ok=True)
-
-    log = build/"logs"/"nonwords"/f"{lang}.txt"
-    file = build/"sentences"/f"{lang}.tsv"
-
-    if not is_outdated(
-        [log, lang_dir/"sentences.csv", lang_dir/"words.csv"],
-        [file],
-    ):
-        return
-
-    tokenizer.main(
-        Namespace(
-            language=lang,
-            output=lang_dir,
-            log=log,
-            file=file,
-            has_ids=True,
-        ),
-    )
 
 
 def build_translations(lang1: str, lang2: str) -> None:
@@ -215,7 +185,7 @@ def main(args: Namespace) -> None:
     print("Tokenizing words...")
     with ProcessPoolExecutor() as executor:
         futures = [
-            executor.submit(build_language, lang)
+            executor.submit(task.language_tokenizer(lang))
             for lang in sorted(set(l1s + l2s))
         ]
         for future in futures:

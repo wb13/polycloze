@@ -11,22 +11,22 @@ from pathlib import Path
 import sys
 import typing as t
 
-from spacy.language import Language
+from spacy.language import Language as SpacyLanguage
 
-from .language import languages
+from .language import languages, Language
 
 
-def load_spacy_language(code: str) -> Language:
+def load_spacy_language(code: str) -> SpacyLanguage:
     assert code in languages
 
     parent, name = languages[code].spacy_path
     mod = import_module(f"spacy.lang.{parent}")
-    return t.cast(Language, getattr(mod, name)())
+    return t.cast(SpacyLanguage, getattr(mod, name)())
 
 
 @dataclass
 class Tokenizer:
-    nlp: Language
+    nlp: SpacyLanguage
 
     def tokenize(self, sentence: str) -> list[str]:
         tokens = []
@@ -62,6 +62,80 @@ class WordCounter:
         return self.counter.most_common()
 
 
+def write_sentences(
+    outfile: Path,
+    infile: Path | None,
+    tokenizer: Tokenizer,
+    word_counter: WordCounter,
+) -> None:
+    """Write tokenized sentences to output file.
+
+    infile: file containing list of sentences.
+    Pass None to get sentences from stdin.
+    """
+    with (
+        open(outfile, "w", encoding="utf-8") as csvfile,
+        fileinput.input(files=infile or "-") as file,
+    ):
+        writer = csv.writer(csvfile)
+        writer.writerow(["tatoeba_id", "text", "tokens"])
+        for line in file:
+            id_, line = line.split("\t", maxsplit=1)
+            sentence = Sentence(
+                id=int(id_),
+                text=line,
+                tokens=tokenizer.tokenize(line),
+            )
+            word_counter.add(sentence.tokens)
+            writer.writerow(sentence.row())
+
+
+def write_words(
+    output: Path,
+    word_counter: WordCounter,
+    language: Language,
+    log: Path | None,
+) -> None:
+    if log:
+        log.parent.mkdir(parents=True, exist_ok=True)
+        log.write_text("", encoding="utf-8")
+
+    with open(output, "w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow(["word", "frequency"])
+        for row in word_counter.count():
+            if language.is_word(row[0]):
+                writer.writerow(row)
+            elif log:
+                with open(log, "a", encoding="utf-8") as logfile:
+                    print(row[0], file=logfile)
+
+
+def process_language(
+    language_code: str,
+    output: Path,
+    file: Path | None = None,
+    log: Path | None = None,
+) -> None:
+    """Tokenize sentences in file and write all necessary outputs.
+
+    output: where to write files
+    file: input file of sentences, or stdin if value is None
+    log: optional log file for non-words
+    """
+    output.mkdir(parents=True, exist_ok=True)
+
+    tokenizer = Tokenizer(load_spacy_language(language_code))
+    word_counter = WordCounter()
+    write_sentences(output/"sentences.csv", file, tokenizer, word_counter)
+    write_words(
+        output/"words.csv",
+        word_counter,
+        languages[language_code],
+        log,
+    )
+
+
 def parse_args() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument(
@@ -78,18 +152,14 @@ def parse_args() -> Namespace:
         "-o",
         dest="output",
         help="output directory",
+        type=Path,
         required=True,
     )
     parser.add_argument(
         "-l",
         dest="log",
+        type=Path,
         help="log non-words",
-    )
-    parser.add_argument(
-        "--no-ids",
-        dest="has_ids",
-        help="input has no IDs",
-        action="store_false",
     )
     return parser.parse_args()
 
@@ -97,48 +167,10 @@ def parse_args() -> Namespace:
 def main(args: Namespace) -> None:
     if args.language not in languages:
         sys.exit(f"unsupported language: {args.language}")
-
-    log = Path(args.log) if args.log is not None else None
-    if log:
-        log.parent.mkdir(parents=True, exist_ok=True)
-        log.write_text("", encoding="utf-8")
-
-    output = Path(args.output)
-    if output.is_file():
+    if args.output.is_file():
         sys.exit(f"{args.output} is a file")
-    output.mkdir(parents=True, exist_ok=True)
 
-    tokenizer = Tokenizer(load_spacy_language(args.language))
-    word_counter = WordCounter()
-
-    with open(output/"sentences.csv", "w", encoding="utf-8") as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(["tatoeba_id", "text", "tokens"])
-        with fileinput.input(files=args.file or "-") as file:
-            for line in file:
-                id_ = None
-                if args.has_ids:
-                    id_, line = line.split("\t", maxsplit=1)
-
-                assert id_
-                sentence = Sentence(
-                    id=int(id_),
-                    text=line,
-                    tokens=tokenizer.tokenize(line),
-                )
-                word_counter.add(sentence.tokens)
-                writer.writerow(sentence.row())
-
-    language = languages[args.language]
-    with open(output/"words.csv", "w", newline="", encoding="utf-8") as file:
-        writer = csv.writer(file)
-        writer.writerow(["word", "frequency"])
-        for row in word_counter.count():
-            if language.is_word(row[0]):
-                writer.writerow(row)
-            elif log:
-                with open(log, "a", encoding="utf-8") as logfile:
-                    print(row[0], file=logfile)
+    process_language(args.language, args.output, args.file, args.log)
 
 
 if __name__ == "__main__":
