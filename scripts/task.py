@@ -13,7 +13,7 @@ from tempfile import TemporaryDirectory
 import typing as t
 
 from .dependency import is_outdated, Task
-from .download import download, latest_data
+from .download import download, has_been_a_week, latest_data
 from .mapper import map_translations
 from .migrate import check_scripts, migrate
 from .partition import partition
@@ -32,8 +32,10 @@ def download_latest() -> None:
     tasks depend on both of them.
     Hence they are considered one item.
     """
-    print("Downloading latest data from Tatoeba")
-    download(build/"tatoeba")
+    downloads = build/"tatoeba"
+    if has_been_a_week(downloads):
+        print("Downloading latest data from Tatoeba")
+        download(downloads)
 
 
 def decompress_links() -> None:

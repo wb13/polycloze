@@ -2,7 +2,7 @@
 
 from argparse import ArgumentParser, Namespace
 from concurrent.futures import ThreadPoolExecutor
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from os import remove
 from pathlib import Path
 import re
@@ -125,6 +125,10 @@ def save_missing(url: str, downloads: Path, kind: Kind) -> None:
         dest.write_bytes(content)
 
 
+class DataError(Exception):
+    """Raised by latest_data (e.g. when it finds no matching data)."""
+
+
 def latest_data(downloads: Path) -> tuple[DownloadRecord, DownloadRecord]:
     """Find latest matching data in downloads directory.
 
@@ -153,7 +157,7 @@ def latest_data(downloads: Path) -> tuple[DownloadRecord, DownloadRecord]:
             links.pop()
         else:
             return link, sentence
-    raise Exception("no matching data found")
+    raise DataError("no matching data found")
 
 
 def parse_args() -> Namespace:
@@ -197,6 +201,22 @@ def download(downloads: Path) -> None:
                 future.result()
     except HTTPError:
         print("download failed", file=sys.stderr)
+
+
+def has_been_a_week(downloads: Path) -> bool:
+    """Because Tatoeba uploads new data weekly.
+
+    Returns True if no data is found.
+    It means new data can be downloaded.
+    """
+    try:
+        links, sentences = latest_data(downloads)
+    except DataError:
+        return True
+
+    assert links.last_modified == sentences.last_modified
+    week = timedelta(weeks=1)
+    return links.last_modified + week < date.today()
 
 
 def main(args: Namespace) -> None:
