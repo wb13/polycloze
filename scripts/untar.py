@@ -14,9 +14,24 @@ from .download import latest_data
 
 
 def untar(destination: Path, infile: Path) -> None:
-    """Unarchive single file into destination."""
-    with tarfile.open(infile, "r:bz2") as tar:
-        tar.extractall(destination)
+    """Unarchive single file into destination.
+
+    The operation is first done in a temp directory to avoid half-finished
+    outputs.
+    Does not preserve modification time of files.
+    """
+    with (
+        tarfile.open(infile, "r:bz2") as tar,
+        TemporaryDirectory() as tmpname,
+    ):
+        tmp = Path(tmpname)
+        tar.extractall(tmp)
+
+        # Update mtime, because original mtime < mtime of tar archive.
+        for path in tmp.iterdir():
+            utime(path)
+
+        copytree(tmp, destination, dirs_exist_ok=True)
 
 
 def parse_args() -> Namespace:
@@ -58,22 +73,13 @@ def main(args: Namespace) -> None:
         return
 
     print("Extracting data...")
-    with (
-        ProcessPoolExecutor() as executor,
-        TemporaryDirectory() as tmpname,
-    ):
-        tmp = Path(tmpname)
+    with ProcessPoolExecutor() as executor:
         futures = [
-            executor.submit(untar, tmp, args.links),
-            executor.submit(untar, tmp, args.sentences),
+            executor.submit(untar, downloads, args.links),
+            executor.submit(untar, downloads, args.sentences),
         ]
         for future in futures:
             future.result()
-        copytree(tmp, downloads, dirs_exist_ok=True)
-
-    # Update mtime, because original mtime < mtime of tar archive.
-    utime(downloads/"links.csv")
-    utime(downloads/"sentences.csv")
     print("Done extracting data")
 
 
