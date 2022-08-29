@@ -9,9 +9,8 @@ from pathlib import Path
 from shutil import move
 from sqlite3 import connect
 from tempfile import TemporaryDirectory
-import typing as t
 
-from .dependency import is_outdated
+from .dependency import is_outdated, Task
 from .download import download, latest_data
 from .mapper import map_translations
 from .migrate import check_scripts, migrate
@@ -20,8 +19,6 @@ from .populate import populate
 from .tokenizer import process_language
 from .untar import untar
 
-
-Task = t.Callable[[], t.Any]
 
 build = Path("build")
 

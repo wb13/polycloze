@@ -1,10 +1,11 @@
 """Course builder."""
 
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
-from concurrent.futures import ProcessPoolExecutor
+from graphlib import TopologicalSorter  # pylint: disable=unused-import
 import sys
 
 from . import task
+from .dependency import execute, Task  # pylint: disable=unused-import
 from .language import languages as supported_languages
 
 
@@ -68,48 +69,36 @@ def main(args: Namespace) -> None:
     except UnknownLanguage as exc:
         sys.exit(f"unknown language: {exc.args[0]}")
 
-    task.download_latest()
+    # Build dependency graph
+    deps: "TopologicalSorter[Task]" = TopologicalSorter()
+    deps.add(task.decompress_links, task.download_latest)
+    deps.add(task.decompress_sentences, task.download_latest)
+    deps.add(task.prepare_sentences, task.decompress_sentences)
 
-    with ProcessPoolExecutor() as executor:
-        futures = [
-            executor.submit(task.decompress_links),
-            executor.submit(task.decompress_sentences),
-        ]
-        for future in futures:
-            future.result()
+    for lang in sorted(set(l1s + l2s)):
+        deps.add(task.language_tokenizer(lang), task.prepare_sentences)
 
-    task.prepare_sentences()
+    for lang1 in l1s:
+        for lang2 in l2s:
+            if lang1 < lang2:
+                deps.add(
+                    task.translation_mapper(lang1, lang2),
+                    task.language_tokenizer(lang1),
+                    task.language_tokenizer(lang2),
+                    task.decompress_links,
+                )
 
-    # Build languages, sentences, etc.
-    with ProcessPoolExecutor() as executor:
-        futures = [
-            executor.submit(task.language_tokenizer(lang))
-            for lang in sorted(set(l1s + l2s))
-        ]
-        for future in futures:
-            future.result()
+    for lang1 in l1s:
+        for lang2 in l2s:
+            if lang1 != lang2:
+                deps.add(
+                    task.course_builder(lang1, lang2),
+                    task.translation_mapper(lang1, lang2),
+                    task.language_tokenizer(lang1),
+                    task.language_tokenizer(lang2),
+                )
 
-    # Build translations.
-    with ProcessPoolExecutor() as executor:
-        futures = [
-            executor.submit(task.translation_mapper(lang1, lang2))
-            for lang1 in l1s
-            for lang2 in l2s
-            if lang1 < lang2
-        ]
-        for future in futures:
-            future.result()
-
-    # Build courses
-    with ProcessPoolExecutor() as executor:
-        futures = [
-            executor.submit(task.course_builder(lang1, lang2))
-            for lang1 in l1s
-            for lang2 in l2s
-            if lang1 != lang2
-        ]
-        for future in futures:
-            future.result()
+    execute(deps)
 
 
 if __name__ == "__main__":
