@@ -3,6 +3,7 @@
 """Partitions tatoeba sentences.tsv into multiple files (one per language)."""
 
 from argparse import ArgumentParser, Namespace
+import fileinput
 from pathlib import Path
 from shutil import copytree
 import sys
@@ -18,16 +19,9 @@ def output_parsed_line(line: str, basedir: Path) -> None:
 
 
 def partition(inputfile: Path | None, basedir: Path) -> None:
-    if inputfile is None:
-        try:
-            while line := input():
-                output_parsed_line(line, basedir)
-        except EOFError:
-            pass
-    else:
-        with open(inputfile, encoding="utf-8") as infile:
-            for line in infile:
-                output_parsed_line(line, basedir)
+    with fileinput.input(files=inputfile or "-", encoding="utf-8") as file:
+        for line in file:
+            output_parsed_line(line, basedir)
 
 
 def parse_args() -> Namespace:
