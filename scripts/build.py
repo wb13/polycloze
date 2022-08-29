@@ -3,12 +3,9 @@
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
-from shutil import move
 import sys
-from tempfile import TemporaryDirectory
 
-from . import download, migrate, populate, task
-from .dependency import is_outdated
+from . import download, task
 from .language import languages as supported_languages
 
 
@@ -30,61 +27,6 @@ def parse_languages(languages: str) -> list[str]:
         else:
             raise UnknownLanguage(lang)
     return result
-
-
-def build_course(lang1: str, lang2: str) -> None:
-    """Build lang1 -> lang2 course.
-
-    Assumes the following requirements have been built:
-    - build/languages/{lang1}
-    - build/languages/{lang2}
-    - build/translations/{lang1}-{lang2}.csv (or {lang2}-{lang1}.csv)
-    """
-    assert lang1 != lang2
-    build = Path("build")
-    courses = build/"courses"
-    courses.mkdir(parents=True, exist_ok=True)
-
-    course = build/"courses"/f"{lang1}-{lang2}.db"
-    translations = (
-        build/"translations"/f"{lang1}-{lang2}.csv"
-        if lang1 < lang2
-        else build/"translations"/f"{lang2}-{lang1}.csv"
-    )
-
-    if not is_outdated(
-        [course],
-        [build/"languages"/lang1, build/"languages"/lang2, translations],
-    ):
-        return
-
-    with TemporaryDirectory() as tmpname:
-        tmp = Path(tmpname)
-        database = tmp/"scratch.db"
-
-        # Apply migrations in empty database file.
-        migrate.main(
-            Namespace(
-                database=database,
-                migrations=Path(__file__).parent.parent/"migrations",
-            ),
-        )
-
-        # Populate database
-        populate.main(
-            Namespace(
-                reversed=lang1 < lang2,
-                database=database,
-                l1=build/"languages"/lang1,
-                l2=build/"languages"/lang2,
-                translations=translations,
-            ),
-        )
-
-        # Replace existing course with new one.
-        # shutil.move is used instead of Path.replace, because Path.replace
-        # might raise OSError: Invalid cross-device link
-        move(database, course)
 
 
 def parse_args() -> Namespace:
@@ -168,10 +110,9 @@ def main(args: Namespace) -> None:
             future.result()
 
     # Build courses
-    print("Building courses...")
     with ProcessPoolExecutor() as executor:
         futures = [
-            executor.submit(build_course, lang1, lang2)
+            executor.submit(task.course_builder(lang1, lang2))
             for lang1 in l1s
             for lang2 in l2s
             if lang1 != lang2

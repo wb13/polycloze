@@ -180,21 +180,40 @@ def parse_args() -> Namespace:
     return parser.parse_args()
 
 
-def main(args: Namespace) -> None:
-    with connect(args.database) as con:
-        populate_language(con, args.l1, args.l2)
+def populate(
+    database: Path,
+    l1_dir: Path,
+    l2_dir: Path,
+    translations: Path,
+    reversed_: bool,
+) -> None:
+    """Populate course database.
 
+    reversed: whether or not translation table columns are swapped
+    """
+    with connect(database) as con:
+        populate_language(con, l1_dir, l2_dir)
         create_temp_trigger(con)
-        populate_translates(con, args.translations, args.reversed)
+        populate_translates(con, translations, reversed_)
         words = populate_sentence(
             con,
-            args.l2,
-            args.translations,
-            args.reversed,
+            l2_dir,
+            translations,
+            reversed_,
         )
-        populate_word(con, args.l2, words)
-        populate_translation(con, args.l1, args.translations, args.reversed)
+        populate_word(con, l2_dir, words)
+        populate_translation(con, l1_dir, translations, reversed_)
         populate_contains(con)
+
+
+def main(args: Namespace) -> None:
+    populate(
+        args.database,
+        args.l1,
+        args.l2,
+        args.translations,
+        args.reversed,
+    )
 
 
 if __name__ == "__main__":
