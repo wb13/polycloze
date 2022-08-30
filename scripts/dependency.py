@@ -9,6 +9,18 @@ import typing as t
 BUILD_ALWAYS = False
 
 
+def mtime(path: Path, aggregate: t.Literal["max", "min"] = "max") -> int:
+    assert path.exists()
+
+    if path.is_file():
+        return path.stat().st_mtime_ns
+
+    agg_fn = max if aggregate == "max" else min
+
+    child_mtime = agg_fn(mtime(child, aggregate) for child in path.iterdir())
+    return agg_fn(child_mtime, path.stat().st_mtime_ns)
+
+
 def is_outdated(targets: list[Path], sources: list[Path]) -> bool:
     """Build is outdated if sources timestamp > targets timestamp.
 
@@ -20,9 +32,9 @@ def is_outdated(targets: list[Path], sources: list[Path]) -> bool:
     if BUILD_ALWAYS:
         return True
 
-    source_time = max(source.stat().st_mtime_ns for source in sources)
+    source_time = max(mtime(source, "max") for source in sources)
     try:
-        target_time = min(target.stat().st_mtime_ns for target in targets)
+        target_time = min(mtime(target, "min") for target in targets)
         return source_time > target_time
     except FileNotFoundError:
         return True
