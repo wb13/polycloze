@@ -169,12 +169,17 @@ class CourseBuilderTask:
             else build/"translations"/f"{lang2}-{lang1}.csv"
         )
 
-        sources = [l1_dir, l2_dir, translations]
+        sources = [
+            l1_dir/"sentences.csv",
+            l1_dir/"words.csv",
+            l2_dir/"sentences.csv",
+            l2_dir/"words.csv",
+            translations,
+        ]
         target = build/"courses"/f"{lang1}-{lang2}.db"
 
-        assert l1_dir.is_dir()
-        assert l2_dir.is_dir()
-        assert translations.is_file()
+        for source in sources:
+            assert source.is_file()
 
         if is_outdated([target], sources):
             print(f"Building {lang1}->{lang2} course")
