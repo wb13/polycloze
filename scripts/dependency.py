@@ -46,21 +46,35 @@ def is_outdated(targets: list[Path], sources: list[Path]) -> bool:
 Task = t.Callable[[], t.Any]
 
 
-def execute(sorter: "TopologicalSorter[Task]") -> None:
-    """Execute topologically sorted tasks."""
-    futures = []
+class DependencyGraph:
+    def __init__(self) -> None:
+        self.sorter: "TopologicalSorter[Task]" = TopologicalSorter()
+        self.tasks: set[Task] = set()
 
-    sorter.prepare()
-    with ProcessPoolExecutor() as executor:
-        while sorter.is_active():
-            for task in sorter.get_ready():
-                def callback(
-                    task: Task = task
-                ) -> t.Callable[[Future[Task]], None]:
-                    return lambda _: sorter.done(task)
+    def add(self, task: Task, *dependencies: Task) -> None:
+        self.sorter.add(task, *dependencies)
+        self.tasks.add(task)
+        self.tasks.update(dependencies)
 
-                future = executor.submit(task)
-                future.add_done_callback(callback())
-                futures.append(future)
-    for future in futures:
-        future.result()
+    def execute(self) -> None:
+        """Execute topologically sorted tasks."""
+        futures = []
+
+        sorter = self.sorter
+        sorter.prepare()
+        with ProcessPoolExecutor() as executor:
+            while sorter.is_active():
+                if not self.sorter.is_active():
+                    continue
+                for task in sorter.get_ready():
+                    def callback(
+                        task: Task = task
+                    ) -> t.Callable[[Future[Task]], None]:
+                        self.tasks.remove(task)
+                        return lambda _: sorter.done(task)
+
+                    future = executor.submit(task)
+                    future.add_done_callback(callback())
+                    futures.append(future)
+        for future in futures:
+            future.result()

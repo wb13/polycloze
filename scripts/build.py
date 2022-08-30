@@ -1,11 +1,10 @@
 """Course builder."""
 
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
-from graphlib import TopologicalSorter  # pylint: disable=unused-import
 import sys
 
 from . import dependency, task
-from .dependency import execute, Task  # pylint: disable=unused-import
+from .dependency import DependencyGraph
 from .language import languages as supported_languages
 
 
@@ -79,7 +78,7 @@ def main(args: Namespace) -> None:
         dependency.BUILD_ALWAYS = True
 
     # Build dependency graph
-    deps: "TopologicalSorter[Task]" = TopologicalSorter()
+    deps = DependencyGraph()
     deps.add(task.decompress_links, task.download_latest)
     deps.add(task.decompress_sentences, task.download_latest)
     deps.add(task.prepare_sentences, task.decompress_sentences)
@@ -110,7 +109,7 @@ def main(args: Namespace) -> None:
                     task.language_tokenizer(lang2),
                 )
 
-    execute(deps)
+    deps.execute()
 
 
 if __name__ == "__main__":
