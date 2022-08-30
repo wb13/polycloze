@@ -10,7 +10,10 @@ BUILD_ALWAYS = False
 
 
 def mtime(path: Path, aggregate: t.Literal["max", "min"] = "max") -> int:
-    assert path.exists()
+    if not path.exists():
+        exc = FileNotFoundError(2, "No such file or directory")
+        exc.filename = str(path)
+        raise exc
 
     if path.is_file():
         return path.stat().st_mtime_ns
