@@ -27,16 +27,6 @@ languages = {}
 # source for bcp47 codes:
 # https://www.iana.org/assignments/language-subtag-registry/
 
-# source for cyo:
-# https://web.archive.org/web/20120403120048/http://www.cuyonon.org/clcp8.html
-languages["cyo"] = Language(
-    code="cyo",
-    name="Cuyonon",
-    bcp47="cyo",
-    spacy_path=("tl", "Tagalog"),
-    alphabet=set("abdeghiklmnoprstwy'"),
-)
-
 languages["dan"] = Language(
     code="dan",
     name="Danish",
