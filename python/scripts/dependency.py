@@ -1,7 +1,7 @@
 """Provides functions for checking if a target has to be rebuilt."""
 
 from concurrent.futures import as_completed, Future, ProcessPoolExecutor
-from graphlib import TopologicalSorter  # pylint: disable=unused-import
+from graphlib import TopologicalSorter
 from pathlib import Path
 from time import sleep
 import typing as t
