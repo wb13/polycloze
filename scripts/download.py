@@ -117,7 +117,11 @@ def save_missing(url: str, downloads: Path, kind: Kind) -> None:
         print(f"Cached: {url} ({dest!s})", file=sys.stderr)
     else:
         print(f"Downloading: {url}", file=sys.stderr)
-        progress_bar = tqdm(total=record.content_length)
+        progress_bar = tqdm(
+            total=record.content_length,
+            unit="B",
+            unit_scale=True,
+        )
         content = bytearray()
         for chunk in stream(url):
             progress_bar.update(len(chunk))
