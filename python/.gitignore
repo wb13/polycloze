@@ -1,0 +1,8 @@
+*.egg-info/
+*.swp
+__pycache__/
+build/
+dist/
+env/
+links.tar.bz2
+sentences.tar.bz2
