@@ -1,68 +1,11 @@
-languages = $(shell python -m scripts.language)
-pairs = $(foreach l1,$(languages), $(foreach l2,$(languages), $(l1)-$(l2)))
-
-define add_language
-.PHONY:	$(1)
-$(1):	build/languages/$(1)/sentences.csv build/languages/$(1)/words.csv
-
-build/languages/$(1)/sentences.csv build/languages/$(1)/words.csv	&:	build/sentences/$(1).tsv
-	mkdir -p build/logs/nonwords
-	python -m scripts.tokenizer $(1) -o build/languages/$(1) -l build/logs/nonwords/$(1).txt < $$<
-endef
-
-define add_pair
-.PHONY:	$(1)-$(2)
-$(1)-$(2):	build/courses/$(1)-$(2).db
-
-build/translations/$(1)-$(2).csv:	build/sentences/$(1).tsv build/sentences/$(2).tsv build/tatoeba/links.csv
-	mkdir -p build/translations
-	if [[ "$(1)" -ge "$(2)" ]]; then \
-		touch $$@; \
-	fi
-	if [[ "$(1)" < "$(2)" ]]; then \
-		mkdir -p build/translations; \
-		python -m scripts.mapper $$^ > $$@; \
-	fi
-
-build/courses/$(1)-$(2).db:	build/translations/$(1)-$(2).csv build/languages/$(1)/sentences.csv build/languages/$(1)/words.csv build/languages/$(2)/sentences.csv build/languages/$(2)/words.csv
-	mkdir -p build/courses
-	rm -f $$@
-	python -m scripts.migrate $$@ migrations/; \
-	if [[ "$(1)" < "$(2)" ]]; then \
-		python -m scripts.populate -r $$@ build/languages/$(1) build/languages/$(2) $$<; \
-	fi
-	if [[ "$(2)" < "$(1)" ]]; then \
-		python -m scripts.populate $$@ build/languages/$(1) build/languages/$(2) build/translations/$(2)-$(1).csv; \
-	fi
-endef
-
 .PHONY:	all
-all:	$(pairs) $(languages)
-
-$(foreach lang,$(languages),$(eval $(call add_language,$(lang))))
-$(foreach l1,$(languages),$(foreach l2,$(languages), $(eval $(call add_pair,$(l1),$(l2)))))
-
-build/tatoeba/links.csv build/tatoeba/sentences.csv:
-	python -m scripts.download
-	python -m scripts.untar
-
-build/sentences/:	build/tatoeba/sentences.csv build/tatoeba/links.csv
-	python -m scripts.partition $@ < $<
+all:
+	@echo 'Try: python -m scripts.build -h'
 
 .PHONY:	install
 install:
 	mkdir -p "$$HOME/.local/share/polycloze"
-	for course in ./build/courses/*.db; do \
-		echo "Installing $$course"; \
-		cp "$$course" "$$HOME/.local/share/polycloze"; \
-	done
-
-# For applying migrations to existing build files
-.PHONY:	migrate
-migrate:
-	for course in ./build/courses/*.db; do \
-		python -m scripts.migrate "$$course" migrations/; \
-	done
+	cp ./build/courses/*.db "$$HOME/.local/share/polycloze"
 
 .PHONY:	check
 check:
