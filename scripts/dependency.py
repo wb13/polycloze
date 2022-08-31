@@ -1,8 +1,9 @@
 """Provides functions for checking if a target has to be rebuilt."""
 
-from concurrent.futures import Future, ProcessPoolExecutor
+from concurrent.futures import as_completed, Future, ProcessPoolExecutor
 from graphlib import TopologicalSorter  # pylint: disable=unused-import
 from pathlib import Path
+from time import sleep
 import typing as t
 
 
@@ -56,25 +57,30 @@ class DependencyGraph:
         self.tasks.add(task)
         self.tasks.update(dependencies)
 
-    def execute(self) -> None:
-        """Execute topologically sorted tasks."""
+    def _execute_some_tasks(self, executor: ProcessPoolExecutor) -> None:
+        """Execute tasks until no progress can be made."""
         futures = []
+        while self.sorter.is_active():
+            sleep(0)   # Be nice to others
 
-        sorter = self.sorter
-        sorter.prepare()
-        with ProcessPoolExecutor() as executor:
-            while sorter.is_active():
-                if not self.sorter.is_active():
-                    continue
-                for task in sorter.get_ready():
-                    def callback(
-                        task: Task = task
-                    ) -> t.Callable[[Future[Task]], None]:
-                        self.tasks.remove(task)
-                        return lambda _: sorter.done(task)
+            for task in self.sorter.get_ready():
+                def callback(
+                    task: Task = task
+                ) -> t.Callable[[Future[Task]], None]:
+                    self.tasks.remove(task)
+                    return lambda _: self.sorter.done(task)
 
-                    future = executor.submit(task)
-                    future.add_done_callback(callback())
-                    futures.append(future)
-        for future in futures:
+                future = executor.submit(task)
+                future.add_done_callback(callback())
+                futures.append(future)
+
+        # Since no progress can be made, just wait for futures to complete
+        for future in as_completed(futures):
             future.result()
+
+    def execute(self) -> None:
+        """Execute all tasks in DAG."""
+        self.sorter.prepare()
+        with ProcessPoolExecutor() as executor:
+            while self.tasks:
+                self._execute_some_tasks(executor)
