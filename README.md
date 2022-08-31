@@ -10,22 +10,23 @@ python -m venv env
 . env/bin/activate
 pip install -r requirements/install.requirements.txt
 
-# Build course files.
-make
+# Build all course files.
+python -m scripts.build
 
-# Copy files into data directory (~/.local/share/polycloze).
-make install
+# Install into data directory.
+mkdir -p ~/.local/share/polycloze
+cp ./build/courses/*.db ~/.local/share/polycloze
 ```
 
-If you only want to build a specific course, then you can use the course name as the `make` target.
+You can also specify a course to build.
+For example:
 
 ```bash
-# Instead of
-make
-
-# You can do
-make eng-spa	# build English -> Spanish course only
+# Build English -> Spanish course
+python -m scripts.build eng spa
 ```
+
+See `python -m scripts.build -h` for details.
 
 ## Supported languages
 
