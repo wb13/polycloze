@@ -15,7 +15,8 @@ It also estimates the student's vocabulary level, so advanced learners don't hav
 For example, `\a:` automatically gets turned into `ä`.
 
 **Uses SQLite**
-: This makes it easy to [add new courses][1] and to track your vocabulary.
+: This makes it easy to track your vocabulary.
+Even course files are stored as SQLite databases.
 By default, course files are saved in `~/.local/share/polycloze` and review data are saved in `~/.local/state/polycloze`.
 
 ## Usage
@@ -30,10 +31,6 @@ make run
 # Open in browser.
 xdg-open http://localhost:3000
 ```
-
-## Related projects
-
-- [https://github.com/lggruspe/polycloze-data][1]
 
 ## Licenses
 
@@ -57,6 +54,3 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 The scripts in [./scripts](./scripts) and
 [./database/migrations](./database/migrations) are also available under the
 terms of the MIT license.
-
-
-[1]: https://github.com/lggruspe/polycloze-data

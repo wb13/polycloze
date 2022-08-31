@@ -56,6 +56,6 @@ func main() {
 func prerunChecks() {
 	courses := api.AvailableCourses("", "", true)
 	if len(courses) == 0 {
-		log.Fatal("Couldn't find installed courses. Please visit https://github.com/lggruspe/polycloze-data")
+		log.Fatal("Couldn't find installed courses. Please visit https://github.com/lggruspe/polycloze/tree/main/python")
 	}
 }
