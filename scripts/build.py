@@ -47,6 +47,12 @@ examples:
         formatter_class=RawDescriptionHelpFormatter,
     )
     parser.add_argument(
+        "-l",
+        dest="show_supported_languages",
+        action="store_true",
+        help="show list of supported languages",
+    )
+    parser.add_argument(
         "-B",
         dest="build_always",
         action="store_true",
@@ -67,7 +73,16 @@ examples:
     return parser.parse_args()
 
 
+def show_supported_languages() -> None:
+    for code, language in supported_languages.items():
+        print(code, "-", language.name)
+    sys.exit()
+
+
 def main(args: Namespace) -> None:
+    if args.show_supported_languages:
+        show_supported_languages()
+
     try:
         l1s = parse_languages(args.l1)
         l2s = parse_languages(args.l2)

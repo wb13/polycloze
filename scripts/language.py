@@ -168,8 +168,3 @@ languages["tgl"] = Language(
     alphabet=set("abcdefghijklmnñopqrstuvwxyzáàâéèêëíìîóòôúùû"),
     symbols=set("-.'"),
 )
-
-
-if __name__ == "__main__":
-    for code in languages:
-        print(code)
