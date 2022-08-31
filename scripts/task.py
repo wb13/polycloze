@@ -188,7 +188,7 @@ class CourseBuilderTask:
                 database = tmp/"scratch.db"
 
                 # Apply migrations in empty database file
-                migrations = Path(__file__).parent.parent/"migrations"
+                migrations = Path(__file__).with_name("migrations")
                 with connect(database) as con:
                     migrate(con, check_scripts(migrations))
 
