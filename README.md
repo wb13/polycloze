@@ -30,9 +30,21 @@ See `python -m scripts.build -h` for details.
 
 ## Supported languages
 
+- dan (Danish)
 - deu (German)
 - eng (English)
+- fin (Finnish)
+- fra (French)
+- hrv (Croatian)
+- ita (Italian)
+- lit (Lithuanian)
+- nld (Dutch)
+- nob (Norwegian Bokmål)
+- pol (Polish)
+- por (Portuguese)
+- ron (Romanian)
 - spa (Spanish)
+- swe (Swedish)
 - tgl (Tagalog)
 
 You can add more by making the appropriate changes in `scripts/language.py`.
