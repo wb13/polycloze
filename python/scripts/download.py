@@ -220,7 +220,7 @@ def has_been_a_week(downloads: Path) -> bool:
 
     assert links.last_modified == sentences.last_modified
     week = timedelta(weeks=1)
-    return links.last_modified + week < date.today()
+    return links.last_modified + week <= date.today()
 
 
 def main(args: Namespace) -> None:
