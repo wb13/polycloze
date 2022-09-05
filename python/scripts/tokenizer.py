@@ -81,6 +81,7 @@ def write_sentences(
         writer.writerow(["tatoeba_id", "text", "tokens"])
         for line in file:
             id_, line = line.split("\t", maxsplit=1)
+            line = line.strip()
             sentence = Sentence(
                 id=int(id_),
                 text=line,
