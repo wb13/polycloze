@@ -225,3 +225,25 @@ def course_builder(lang1: str, lang2: str) -> Task:
     """Create task for building lang1 -> lang2 course."""
     assert lang1 != lang2
     return t.cast(Task, CourseBuilderTask(lang1, lang2))
+
+
+def create_empty_course() -> None:
+    """Create empty course database file for testing purposes."""
+    migrations = Path(__file__).with_name("migrations")
+
+    sources = list(migrations.glob("*.sql"))
+    target = build/"test.db"
+
+    for source in sources:
+        assert source.is_file()
+
+    if is_outdated([target], sources):
+        print("Creating test.db")
+        with TemporaryDirectory() as tmpname:
+            tmp = Path(tmpname)
+            database = tmp/"test.db"
+            with connect(database) as con:
+                migrate(con, check_scripts(migrations))
+
+            target.parent.mkdir(parents=True, exist_ok=True)
+            move(database, target)

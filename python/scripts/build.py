@@ -117,6 +117,9 @@ def build_dependency_graph(l1s: list[str], l2s: list[str]) -> DependencyGraph:
                     task.language_tokenizer(lang1),
                     task.language_tokenizer(lang2),
                 )
+
+    # misc. tasks
+    deps.add(task.create_empty_course)
     return deps
 
 
