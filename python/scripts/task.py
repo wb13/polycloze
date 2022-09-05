@@ -80,6 +80,10 @@ def prepare_sentences() -> None:
 class LanguageTokenizerTask:
     lang: str
 
+    @property
+    def __name__(self) -> str:
+        return f"LanguageTokenizerTask({self.lang})"
+
     def __call__(self) -> None:
         """Run this task."""
         lang = self.lang
@@ -121,6 +125,10 @@ class TranslationMapperTask:
     lang1: str
     lang2: str
 
+    @property
+    def __name__(self) -> str:
+        return f"TranslationMapperTask({self.lang1}, {self.lang2})"
+
     def __call__(self) -> None:
         lang1 = self.lang1
         lang2 = self.lang2
@@ -156,6 +164,10 @@ def translation_mapper(lang1: str, lang2: str) -> Task:
 class CourseBuilderTask:
     lang1: str
     lang2: str
+
+    @property
+    def __name__(self) -> str:
+        return f"CourseBuilderTask({self.lang1}, {self.lang2})"
 
     def __call__(self) -> None:
         lang1 = self.lang1

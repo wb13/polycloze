@@ -59,6 +59,12 @@ examples:
         help="build all targets unconditionally",
     )
     parser.add_argument(
+        "--verbose",
+        dest="verbose",
+        action="store_true",
+        help="increase verbosity",
+    )
+    parser.add_argument(
         "l1",
         default="_",
         nargs="?",
@@ -79,19 +85,7 @@ def show_supported_languages() -> None:
     sys.exit()
 
 
-def main(args: Namespace) -> None:
-    if args.show_supported_languages:
-        show_supported_languages()
-
-    try:
-        l1s = parse_languages(args.l1)
-        l2s = parse_languages(args.l2)
-    except UnknownLanguage as exc:
-        sys.exit(f"unknown language: {exc.args[0]}")
-
-    if args.build_always:
-        dependency.BUILD_ALWAYS = True
-
+def build_dependency_graph(l1s: list[str], l2s: list[str]) -> DependencyGraph:
     # Build dependency graph
     deps = DependencyGraph()
     deps.add(task.decompress_links, task.download_latest)
@@ -123,8 +117,26 @@ def main(args: Namespace) -> None:
                     task.language_tokenizer(lang1),
                     task.language_tokenizer(lang2),
                 )
+    return deps
 
-    deps.execute()
+
+def main(args: Namespace) -> None:
+    if args.show_supported_languages:
+        show_supported_languages()
+
+    try:
+        l1s = parse_languages(args.l1)
+        l2s = parse_languages(args.l2)
+    except UnknownLanguage as exc:
+        sys.exit(f"unknown language: {exc.args[0]}")
+
+    if args.build_always:
+        dependency.BUILD_ALWAYS = True
+
+    deps = build_dependency_graph(l1s, l2s)
+    summary = deps.execute()
+    if args.verbose:
+        print(str(summary))
 
 
 if __name__ == "__main__":

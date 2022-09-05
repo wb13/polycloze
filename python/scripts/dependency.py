@@ -1,6 +1,7 @@
 """Provides functions for checking if a target has to be rebuilt."""
 
 from concurrent.futures import as_completed, Future, ProcessPoolExecutor
+from datetime import datetime
 from graphlib import TopologicalSorter
 from pathlib import Path
 from time import sleep
@@ -44,6 +45,25 @@ def is_outdated(targets: list[Path], sources: list[Path]) -> bool:
         return True
 
 
+class TaskSummary(t.NamedTuple):
+    start: datetime
+    end: datetime
+    name: str
+
+    def __str__(self) -> str:
+        layout = "%Y-%m-%d %H:%M:%S"
+        start = self.start.strftime(layout)
+        end = self.end.strftime(layout)
+        return f"{start} - {end} [{self.name}]"
+
+
+class WorkloadSummary(t.NamedTuple):
+    tasks: list[TaskSummary]
+
+    def __str__(self) -> str:
+        return "\n".join(str(task) for task in sorted(self.tasks))
+
+
 Task = t.Callable[[], t.Any]
 
 
@@ -57,30 +77,54 @@ class DependencyGraph:
         self.tasks.add(task)
         self.tasks.update(dependencies)
 
-    def _execute_some_tasks(self, executor: ProcessPoolExecutor) -> None:
-        """Execute tasks until no progress can be made."""
+    def _execute_some_tasks(
+        self,
+        executor: ProcessPoolExecutor,
+    ) -> list[TaskSummary]:
+        """Execute tasks until no progress can be made.
+
+        Returns list of completed tasks.
+        """
+        completed = []
         futures = []
         while self.sorter.is_active():
             sleep(0)   # Be nice to others
 
             for task in self.sorter.get_ready():
-                def callback(
+                def create_callback(
                     task: Task = task
                 ) -> t.Callable[[Future[Task]], None]:
                     self.tasks.remove(task)
-                    return lambda _: self.sorter.done(task)
+                    start = datetime.now()
+
+                    def callback(_: Future[Task]) -> None:
+                        self.sorter.done(task)
+                        summary = TaskSummary(
+                            start=start,
+                            end=datetime.now(),
+                            name=task.__name__,
+                        )
+                        completed.append(summary)
+                    return callback
 
                 future = executor.submit(task)
-                future.add_done_callback(callback())
+                future.add_done_callback(create_callback())
                 futures.append(future)
 
         # Since no progress can be made, just wait for futures to complete
         for future in as_completed(futures):
             future.result()
+        return completed
 
-    def execute(self) -> None:
-        """Execute all tasks in DAG."""
+    def execute(self) -> "WorkloadSummary":
+        """Execute all tasks in DAG.
+
+        Returns summary of executed tasks.
+        """
+        completed = []
+
         self.sorter.prepare()
         with ProcessPoolExecutor() as executor:
             while self.tasks:
-                self._execute_some_tasks(executor)
+                completed.extend(self._execute_some_tasks(executor))
+        return WorkloadSummary(completed)
