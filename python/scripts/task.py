@@ -7,7 +7,7 @@ only when sources are modified.
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
-from shutil import move
+from shutil import copyfile, move
 from sqlite3 import connect
 from tempfile import TemporaryDirectory
 import typing as t
@@ -182,6 +182,7 @@ class CourseBuilderTask:
         )
 
         sources = [
+            build/"test.db",
             l1_dir/"sentences.csv",
             l1_dir/"words.csv",
             l2_dir/"sentences.csv",
@@ -199,12 +200,7 @@ class CourseBuilderTask:
                 tmp = Path(tmpname)
                 database = tmp/"scratch.db"
 
-                # Apply migrations in empty database file
-                migrations = Path(__file__).with_name("migrations")
-                with connect(database) as con:
-                    migrate(con, check_scripts(migrations))
-
-                # Populate database
+                copyfile(build/"test.db", database)
                 populate(
                     database=database,
                     l1_dir=l1_dir,
@@ -212,11 +208,6 @@ class CourseBuilderTask:
                     translations=translations,
                     reversed_=lang1 < lang2,
                 )
-
-                # Replace existing course with new one.
-                # shutil.move is used instead of Path.replace, because
-                # Path.replace might raise OSError: Invalid cross-device link
-                target.parent.mkdir(parents=True, exist_ok=True)
                 move(database, target)
 
 
@@ -242,8 +233,12 @@ def create_empty_course() -> None:
         with TemporaryDirectory() as tmpname:
             tmp = Path(tmpname)
             database = tmp/"test.db"
+
+            # Apply migrations to empty database
             with connect(database) as con:
                 migrate(con, check_scripts(migrations))
 
+            # shutil.move is used instead of Path.replace, because
+            # Path.replace might raise OSError: Invalid cross-device link
             target.parent.mkdir(parents=True, exist_ok=True)
             move(database, target)
