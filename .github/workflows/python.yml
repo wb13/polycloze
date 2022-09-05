@@ -1,0 +1,43 @@
+# See: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+name: Python
+
+on:
+  push:
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install requirements
+      run: |
+        python -m pip install --upgrade pip
+        cd python
+        pip install -r requirements/dev.requirements.txt
+    - name: Run pylint
+      run: |
+        cd python
+        pylint -d C0115,C0116 scripts
+    - name: Run flake8
+      run: |
+        cd python
+        flake8 --show-source --max-complexity 12 scripts
+    - name: Run mypy
+      run: |
+        cd python
+        mypy --strict scripts
+        #    - name: Test with pytest
+        #      run: |
+        #        pytest
