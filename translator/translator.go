@@ -15,7 +15,7 @@ type Translation struct {
 	Text      string `json:"text"`
 }
 
-func Translate(s *database.Session, sentence sentences.Sentence) (Translation, error) {
+func Translate[T database.Querier](q T, sentence sentences.Sentence) (Translation, error) {
 	var translation Translation
 
 	if sentence.TatoebaID <= 0 {
@@ -27,7 +27,7 @@ select tatoeba_id, text from translation where tatoeba_id in
 	(select target from translates where source = ?)
 	order by random() limit 1
 `
-	row := s.QueryRow(query, sentence.TatoebaID)
+	row := q.QueryRow(query, sentence.TatoebaID)
 	err := row.Scan(&translation.TatoebaID, &translation.Text)
 	return translation, err
 }

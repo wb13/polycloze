@@ -4,31 +4,66 @@
 package translator
 
 import (
+	"database/sql"
 	"testing"
 
-	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/sentences"
+	"github.com/lggruspe/polycloze/utils"
 )
 
-func newSession(l1, l2 string) *database.Session {
-	db, err := database.New(":memory:")
-	if err != nil {
-		panic(err)
-	}
+func translator(reversed bool) *sql.DB {
+	db := utils.TestingDatabase()
+	populate(db, reversed)
+	return db
+}
 
-	session, err := database.NewSession(db, basedir.Course(l1, l2))
-	if err != nil {
+func insertSentence(db *sql.DB, tatoebaID int, text string) {
+	query := `
+insert into sentence (tatoeba_id, text, tokens, frequency_class)
+values (?, ?, '[]', 1)
+`
+	if _, err := db.Exec(query, tatoebaID, text); err != nil {
 		panic(err)
 	}
-	return session
+}
+
+func insertTranslation(db *sql.DB, tatoebaID int, text string) {
+	query := `insert into translation (tatoeba_id, text) values (?, ?)`
+	if _, err := db.Exec(query, tatoebaID, text); err != nil {
+		panic(err)
+	}
+}
+
+func linkSentences(db *sql.DB, source, target int) {
+	query := `insert into translates (source, target) values (?, ?)`
+	if _, err := db.Exec(query, source, target); err != nil {
+		panic(err)
+	}
+}
+
+// Populates DB with sentences and translations.
+func populate(db *sql.DB, reversed bool) {
+	if !reversed {
+		insertSentence(db, 1, "foo")
+		insertTranslation(db, 2, "bar")
+		insertTranslation(db, 3, "baz")
+		linkSentences(db, 1, 2)
+		linkSentences(db, 1, 3)
+	} else {
+		insertTranslation(db, 1, "foo")
+		insertSentence(db, 2, "bar")
+		insertSentence(db, 3, "baz")
+		linkSentences(db, 2, 1)
+		linkSentences(db, 3, 1)
+	}
 }
 
 func TestTranslate(t *testing.T) {
 	t.Parallel()
-	session := newSession("eng", "spa")
+	// foo -> bar
+	session := translator(false)
 
-	sentence, err := sentences.Search(session, "Hola.")
+	sentence, err := sentences.Search(session, "foo")
 	if err != nil {
 		t.Fatal("sentence not found:", err)
 	}
@@ -44,9 +79,10 @@ func TestTranslate(t *testing.T) {
 
 func TestReverseTranslate(t *testing.T) {
 	t.Parallel()
-	session := newSession("spa", "eng")
+	// bar -> foo
+	session := translator(true)
 
-	sentence, err := sentences.Search(session, "Hello.")
+	sentence, err := sentences.Search(session, "bar")
 	if err != nil {
 		t.Fatal("sentence not found:", err)
 	}
@@ -62,7 +98,7 @@ func TestReverseTranslate(t *testing.T) {
 
 func TestTranslateNonTatoebaSentence(t *testing.T) {
 	t.Parallel()
-	session := newSession("eng", "spa")
+	session := translator(false)
 
 	sentence := sentences.Sentence{
 		ID:        100,

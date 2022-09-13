@@ -79,11 +79,11 @@ select coalesce(
 	return getSentence(s, sentence)
 }
 
-func Search(s *database.Session, text string) (Sentence, error) {
+func Search[T database.Querier](q T, text string) (Sentence, error) {
 	query := `
 select id, tatoeba_id, tokens from sentence where text = ? collate nocase
 `
-	row := s.QueryRow(query, text)
+	row := q.QueryRow(query, text)
 
 	var sentence Sentence
 	sentence.Text = text
