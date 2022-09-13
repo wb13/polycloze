@@ -80,9 +80,11 @@ func detach(con *sql.Conn, name string) error {
 	return err
 }
 
-type CanQuery interface {
-	*sql.DB | *sql.Tx
+type Querier interface {
+	*sql.DB | *sql.Tx | *Session
 
+	Begin() (*sql.Tx, error)
+	Exec(query string, args ...any) (sql.Result, error)
 	Query(query string, args ...any) (*sql.Rows, error)
 	QueryRow(query string, args ...any) *sql.Row
 }
