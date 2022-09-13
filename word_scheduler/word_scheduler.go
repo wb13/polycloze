@@ -14,11 +14,11 @@ import (
 )
 
 // Gets preferred difficulty/frequency_class.
-func PreferredDifficulty(s *database.Session) int {
+func PreferredDifficulty[T database.Querier](q T) int {
 	query := `select frequency_class from student`
 
 	var difficulty int
-	row := s.QueryRow(query)
+	row := q.QueryRow(query)
 	_ = row.Scan(&difficulty)
 	return difficulty
 }
@@ -52,18 +52,18 @@ func GetWordsWith(s *database.Session, n int, pred func(word string) bool) ([]st
 	return append(reviews, words...), nil
 }
 
-func frequencyClass(s *database.Session, word string) int {
+func frequencyClass[T database.Querier](q T, word string) int {
 	query := `select frequency_class from word where word = ?`
-	row := s.QueryRow(query, text.Casefold(word))
+	row := q.QueryRow(query, text.Casefold(word))
 
 	var result int
 	_ = row.Scan(&result)
 	return result
 }
 
-func isNewWord(s *database.Session, word string) bool {
+func isNewWord[T database.Querier](q T, word string) bool {
 	query := `select rowid from review where item = ?`
-	row := s.QueryRow(query, text.Casefold(word))
+	row := q.QueryRow(query, text.Casefold(word))
 
 	var rowid int
 	err := row.Scan(&rowid)
@@ -71,25 +71,25 @@ func isNewWord(s *database.Session, word string) bool {
 }
 
 // This should only be called when an item is seen for the first time.
-func updateStudentStats(s *database.Session, correct bool) error {
+func updateStudentStats[T database.Querier](q T, correct bool) error {
 	query := `update student set correct = correct + 1`
 	if !correct {
 		query = `update student set incorrect = incorrect + 1`
 	}
-	_, err := s.Exec(query)
+	_, err := q.Exec(query)
 	return err
 }
 
-func UpdateWord(s *database.Session, word string, correct bool) error {
-	if frequencyClass(s, word) >= PreferredDifficulty(s) && isNewWord(s, word) {
-		if err := updateStudentStats(s, correct); err != nil {
+func UpdateWord[T database.Querier](q T, word string, correct bool) error {
+	if frequencyClass(q, word) >= PreferredDifficulty(q) && isNewWord(q, word) {
+		if err := updateStudentStats(q, correct); err != nil {
 			return err
 		}
 	}
-	if err := rs.UpdateReview(s, text.Casefold(word), correct); err != nil {
+	if err := rs.UpdateReview(q, text.Casefold(word), correct); err != nil {
 		return err
 	}
-	return postTune(s)
+	return postTune(q)
 }
 
 // See UpdateReviewAt.

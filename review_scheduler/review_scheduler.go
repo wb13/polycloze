@@ -14,9 +14,9 @@ import (
 
 // Returns items due for review, no more than count.
 // Pass a negative count if you want to get all due items.
-func ScheduleReview(s *database.Session, due time.Time, count int) ([]string, error) {
+func ScheduleReview[T database.Querier](q T, due time.Time, count int) ([]string, error) {
 	query := `select item from review where due < ? order by due limit ?`
-	rows, err := s.Query(query, due.UTC(), count)
+	rows, err := q.Query(query, due.UTC(), count)
 	if err != nil {
 		return nil, err
 	}
@@ -34,8 +34,8 @@ func ScheduleReview(s *database.Session, due time.Time, count int) ([]string, er
 }
 
 // Same as Schedule, but with some default args.
-func ScheduleReviewNow(s *database.Session, count int) ([]string, error) {
-	return ScheduleReview(s, time.Now().UTC(), count)
+func ScheduleReviewNow[T database.Querier](q T, count int) ([]string, error) {
+	return ScheduleReview(q, time.Now().UTC(), count)
 }
 
 // Same as ScheduleReviewNowWith, but takes a predicate argument.
@@ -97,8 +97,8 @@ func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 }
 
 // Updates review status of item.
-func UpdateReviewAt(s *database.Session, item string, correct bool, now time.Time) error {
-	tx, err := s.Begin()
+func UpdateReviewAt[T database.Querier](q T, item string, correct bool, now time.Time) error {
+	tx, err := q.Begin()
 	if err != nil {
 		return err
 	}
@@ -146,6 +146,6 @@ insert into review (item, interval, due, learned, reviewed) values (?, ?, ?, ?, 
 	return tx.Commit()
 }
 
-func UpdateReview(s *database.Session, item string, correct bool) error {
-	return UpdateReviewAt(s, item, correct, time.Now().UTC())
+func UpdateReview[T database.Querier](q T, item string, correct bool) error {
+	return UpdateReviewAt(q, item, correct, time.Now().UTC())
 }

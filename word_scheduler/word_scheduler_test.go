@@ -4,29 +4,42 @@
 package word_scheduler
 
 import (
+	"database/sql"
 	"testing"
 
-	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/database"
 	rs "github.com/lggruspe/polycloze/review_scheduler"
+	"github.com/lggruspe/polycloze/utils"
 )
 
-func wordScheduler() *database.Session {
-	db, _ := database.New(":memory:")
-	s, err := database.NewSession(db, basedir.Course("eng", "spa"))
-	if err != nil {
-		panic(err)
-	}
-	return s
+func wordScheduler() *sql.DB {
+	return utils.TestingDatabase()
 }
 
 func TestFrequencyClass(t *testing.T) {
 	t.Parallel()
 
 	s := wordScheduler()
-	class := frequencyClass(s, "hola")
-	if class <= 0 {
-		t.Fatal("expected frequency class to be > 0")
+
+	query := `insert into word (word, frequency_class) values (?, ?)`
+	if _, err := s.Exec(query, "foo", 1); err != nil {
+		panic(err)
+	}
+	if _, err := s.Exec(query, "bar", 2); err != nil {
+		panic(err)
+	}
+
+	if class := frequencyClass(s, "Foo"); class != 1 {
+		t.Fatal("expected frequency class to be 1")
+		// should be case-insensitive
+	}
+
+	if class := frequencyClass(s, "bar"); class != 2 {
+		t.Fatal("expected frequency class to be 2")
+	}
+
+	if class := frequencyClass(s, "baz"); class != 0 {
+		t.Fatal("expected frequency class to be 0")
+		// if not in database
 	}
 }
 
