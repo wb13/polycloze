@@ -16,6 +16,10 @@ import (
 	"github.com/lggruspe/polycloze/flashcards"
 )
 
+func pred(_ string) bool {
+	return true
+}
+
 func main() {
 	n := 10
 	var err error
@@ -32,19 +36,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	ig := flashcards.NewItemGenerator(db, basedir.Course("eng", "spa"))
-
 	start := time.Now()
 
-	words, err := ig.GenerateWords(n, func(_ string) bool {
-		return true
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	hook := database.AttachCourse(basedir.Course("eng", "spa"))
-	items := flashcards.GenerateItems(db, words, hook)
+	items := flashcards.Get(db, n, pred, hook)
 	for _, item := range items {
 		fmt.Println(item)
 	}

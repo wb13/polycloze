@@ -69,15 +69,28 @@ func getParts(tokens []string, word string) []string {
 	}
 }
 
-// TODO pass Session object instead of creating it here.
-func (ig ItemGenerator) GenerateWords(n int, pred func(word string) bool) ([]string, error) {
-	// NOTE Can't goroutines share this object?
-	session, err := ig.Session()
+func generateWords(
+	db *sql.DB,
+	n int,
+	pred func(word string) bool,
+	hooks ...database.ConnectionHook,
+) ([]string, error) {
+	ctx := context.TODO()
+	con, err := database.NewConnection(db, ctx)
 	if err != nil {
 		return nil, err
 	}
-	defer session.Close()
-	return word_scheduler.GetWordsWith(session, n, pred)
+	defer con.Close()
+
+	for _, hook := range hooks {
+		if err := hook.Enter(con); err != nil {
+			return nil, err
+		}
+		defer func(hook database.ConnectionHook) {
+			_ = hook.Exit(con)
+		}(hook)
+	}
+	return word_scheduler.GetWordsWith(con, n, pred)
 }
 
 func GenerateItem[T database.Querier](q T, word string) (Item, error) {
@@ -153,4 +166,19 @@ func GenerateItemsIntoChannel(
 		}(word)
 	}
 	wg.Wait()
+}
+
+// Returns list of flashcards to show.
+// n: max number of flashcards to return.
+func Get(
+	db *sql.DB,
+	n int,
+	pred func(word string) bool,
+	hooks ...database.ConnectionHook,
+) []Item {
+	words, err := generateWords(db, n, pred, hooks...)
+	if err != nil {
+		return nil
+	}
+	return GenerateItems(db, words, hooks...)
 }

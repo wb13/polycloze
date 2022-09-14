@@ -47,19 +47,13 @@ func excludeWords(r *http.Request) func(string) bool {
 	}
 }
 
-func generateFlashcards(ig *flashcards.ItemGenerator, db *sql.DB, w http.ResponseWriter, r *http.Request) {
+func generateFlashcards(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
-	words, err := ig.GenerateWords(getN(r), excludeWords(r))
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	l1 := chi.URLParam(r, "l1")
 	l2 := chi.URLParam(r, "l2")
 	hook := database.AttachCourse(basedir.Course(l1, l2))
-
-	items := flashcards.GenerateItems(db, words, hook)
+	items := flashcards.Get(db, getN(r), excludeWords(r), hook)
 	bytes, err := json.Marshal(Items{Items: items})
 	if err != nil {
 		log.Fatal(err)
@@ -137,7 +131,7 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		handleReviewUpdate(&ig, l1, l2, w, r)
 	case "GET":
-		generateFlashcards(&ig, db, w, r)
+		generateFlashcards(db, w, r)
 	}
 }
 
