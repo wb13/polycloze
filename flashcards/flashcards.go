@@ -76,20 +76,11 @@ func generateWords(
 	hooks ...database.ConnectionHook,
 ) ([]string, error) {
 	ctx := context.TODO()
-	con, err := database.NewConnection(db, ctx)
+	con, err := database.NewConnection(db, ctx, hooks...)
 	if err != nil {
 		return nil, err
 	}
 	defer con.Close()
-
-	for _, hook := range hooks {
-		if err := hook.Enter(con); err != nil {
-			return nil, err
-		}
-		defer func(hook database.ConnectionHook) {
-			_ = hook.Exit(con)
-		}(hook)
-	}
 	return word_scheduler.GetWordsWith(con, n, pred)
 }
 
@@ -145,20 +136,11 @@ func generateItemsIntoChannel(
 		go func(word string) {
 			defer wg.Done()
 
-			con, err := database.NewConnection(db, ctx)
+			con, err := database.NewConnection(db, ctx, hooks...)
 			if err != nil {
 				return
 			}
 			defer con.Close()
-
-			for _, hook := range hooks {
-				if err := hook.Enter(con); err != nil {
-					return
-				}
-				defer func(hook database.ConnectionHook) {
-					_ = hook.Exit(con)
-				}(hook)
-			}
 
 			if item, err := generateItem(con, word); err == nil {
 				ch <- item
