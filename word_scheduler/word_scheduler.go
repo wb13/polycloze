@@ -24,12 +24,12 @@ func PreferredDifficulty[T database.Querier](q T) int {
 }
 
 // Same as GetWords, but takes an additional time.Time argument.
-func GetWordsAt(s *database.Session, n int, due time.Time) ([]string, error) {
-	reviews, err := rs.ScheduleReview(s, due, n)
+func GetWordsAt[T database.Querier](q T, n int, due time.Time) ([]string, error) {
+	reviews, err := rs.ScheduleReview(q, due, n)
 	if err != nil {
 		return nil, err
 	}
-	words, err := GetNewWordsWith(s, n-len(reviews), PreferredDifficulty(s), func(_ string) bool {
+	words, err := GetNewWordsWith(q, n-len(reviews), PreferredDifficulty(q), func(_ string) bool {
 		return true
 	})
 	if err != nil {
@@ -40,12 +40,12 @@ func GetWordsAt(s *database.Session, n int, due time.Time) ([]string, error) {
 
 // Returns up to words to make flashcards for.
 // Only includes words that satisfy the predicate.
-func GetWordsWith(s *database.Session, n int, pred func(word string) bool) ([]string, error) {
-	reviews, err := rs.ScheduleReviewNowWith(s, n, pred)
+func GetWordsWith[T database.Querier](q T, n int, pred func(word string) bool) ([]string, error) {
+	reviews, err := rs.ScheduleReviewNowWith(q, n, pred)
 	if err != nil {
 		return nil, err
 	}
-	words, err := GetNewWordsWith(s, n-len(reviews), PreferredDifficulty(s), pred)
+	words, err := GetNewWordsWith(q, n-len(reviews), PreferredDifficulty(q), pred)
 	if err != nil {
 		return nil, err
 	}
@@ -93,14 +93,14 @@ func UpdateWord[T database.Querier](q T, word string, correct bool) error {
 }
 
 // See UpdateReviewAt.
-func UpdateWordAt(s *database.Session, word string, correct bool, at time.Time) error {
-	if frequencyClass(s, word) >= PreferredDifficulty(s) && isNewWord(s, word) {
-		if err := updateStudentStats(s, correct); err != nil {
+func UpdateWordAt[T database.Querier](q T, word string, correct bool, at time.Time) error {
+	if frequencyClass(q, word) >= PreferredDifficulty(q) && isNewWord(q, word) {
+		if err := updateStudentStats(q, correct); err != nil {
 			return err
 		}
 	}
-	if err := rs.UpdateReviewAt(s, text.Casefold(word), correct, at); err != nil {
+	if err := rs.UpdateReviewAt(q, text.Casefold(word), correct, at); err != nil {
 		return err
 	}
-	return postTune(s)
+	return postTune(q)
 }

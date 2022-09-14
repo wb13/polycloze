@@ -40,9 +40,9 @@ func ScheduleReviewNow[T database.Querier](q T, count int) ([]string, error) {
 
 // Same as ScheduleReviewNowWith, but takes a predicate argument.
 // Only items that satisfy the predicate are included in the result.
-func ScheduleReviewNowWith(s *database.Session, count int, pred func(item string) bool) ([]string, error) {
+func ScheduleReviewNowWith[T database.Querier](q T, count int, pred func(item string) bool) ([]string, error) {
 	query := `select item from review where due < ? order by due`
-	rows, err := s.Query(query, time.Now().UTC())
+	rows, err := q.Query(query, time.Now().UTC())
 	if err != nil {
 		return nil, err
 	}

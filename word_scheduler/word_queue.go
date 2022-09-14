@@ -25,13 +25,13 @@ func getNRows(rows *sql.Rows, n int, pred func(word string) bool) ([]string, err
 	return words, nil
 }
 
-func getWordsAboveDifficultyWith(s *database.Session, n, preferredDifficulty int, pred func(word string) bool) ([]string, error) {
+func getWordsAboveDifficultyWith[T database.Querier](q T, n, preferredDifficulty int, pred func(word string) bool) ([]string, error) {
 	query := `
 select word from word where frequency_class >= ? and word not in
 (select item from review)
 order by id asc
 `
-	rows, err := s.Query(query, preferredDifficulty, n)
+	rows, err := q.Query(query, preferredDifficulty, n)
 	if err != nil {
 		return nil, err
 	}
@@ -39,13 +39,13 @@ order by id asc
 	return getNRows(rows, n, pred)
 }
 
-func getWordsBelowDifficultyWith(s *database.Session, n, preferredDifficulty int, pred func(word string) bool) ([]string, error) {
+func getWordsBelowDifficultyWith[T database.Querier](q T, n, preferredDifficulty int, pred func(word string) bool) ([]string, error) {
 	query := `
 select word from word where frequency_class < ? and word not in
 (select item from review)
 order by id desc
 `
-	rows, err := s.Query(query, preferredDifficulty, n)
+	rows, err := q.Query(query, preferredDifficulty, n)
 	if err != nil {
 		return nil, err
 	}
@@ -59,8 +59,8 @@ order by id desc
 // If there are not enough words in query result, will also include words below
 // the preferredDifficulty.
 // Only words that satisfy the predicate are included in the result.
-func GetNewWordsWith(s *database.Session, n, preferredDifficulty int, pred func(word string) bool) ([]string, error) {
-	words, err := getWordsAboveDifficultyWith(s, n, preferredDifficulty, pred)
+func GetNewWordsWith[T database.Querier](q T, n, preferredDifficulty int, pred func(word string) bool) ([]string, error) {
+	words, err := getWordsAboveDifficultyWith(q, n, preferredDifficulty, pred)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func GetNewWordsWith(s *database.Session, n, preferredDifficulty int, pred func(
 		return words, nil
 	}
 
-	more, err := getWordsBelowDifficultyWith(s, n-len(words), preferredDifficulty, pred)
+	more, err := getWordsBelowDifficultyWith(q, n-len(words), preferredDifficulty, pred)
 	if err != nil {
 		return nil, err
 	}
