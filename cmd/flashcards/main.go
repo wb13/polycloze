@@ -43,7 +43,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	items := ig.GenerateItems(words)
+	hook := database.AttachCourse(basedir.Course("eng", "spa"))
+	items := flashcards.GenerateItems(db, words, hook)
 	for _, item := range items {
 		fmt.Println(item)
 	}

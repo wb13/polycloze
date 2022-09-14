@@ -4,6 +4,7 @@
 package flashcards
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"math/rand"
@@ -102,9 +103,9 @@ func GenerateItem[T database.Querier](q T, word string) (Item, error) {
 }
 
 // Creates a cloze item for each word.
-func (ig ItemGenerator) GenerateItems(words []string) []Item {
+func GenerateItems(db *sql.DB, words []string, hooks ...database.ConnectionHook) []Item {
 	ch := make(chan Item, len(words))
-	ig.GenerateItemsIntoChannel(ch, words)
+	GenerateItemsIntoChannel(db, ch, words, hooks...)
 	close(ch)
 
 	items := make([]Item, 0)
@@ -114,26 +115,42 @@ func (ig ItemGenerator) GenerateItems(words []string) []Item {
 	return items
 }
 
-// TODO Take callback function that returns database session so that
-// ItemGenerator doesn't have to know about basedir.Course
-func (ig ItemGenerator) GenerateItemsIntoChannel(ch chan Item, words []string) {
+// Enter functions are invoked in a FIFO manner, while Exit functions are deferred.
+func GenerateItemsIntoChannel(
+	db *sql.DB,
+	ch chan Item,
+	words []string,
+	hooks ...database.ConnectionHook,
+) {
 	var wg sync.WaitGroup
 	wg.Add(len(words))
+
+	// TODO use request context instead
+	ctx := context.TODO()
+
 	for _, word := range words {
-		go func(ig *ItemGenerator, word string) {
+		go func(word string) {
 			defer wg.Done()
 
-			session, err := ig.Session()
+			con, err := database.NewConnection(db, ctx)
 			if err != nil {
 				return
 			}
-			defer session.Close()
+			defer con.Close()
 
-			item, err := GenerateItem(session, word)
-			if err == nil {
+			for _, hook := range hooks {
+				if err := hook.Enter(con); err != nil {
+					return
+				}
+				defer func(hook database.ConnectionHook) {
+					_ = hook.Exit(con)
+				}(hook)
+			}
+
+			if item, err := GenerateItem(con, word); err == nil {
 				ch <- item
 			}
-		}(&ig, word)
+		}(word)
 	}
 	wg.Wait()
 }

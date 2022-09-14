@@ -28,5 +28,7 @@ func TestProfiler(t *testing.T) {
 	if err != nil {
 		t.Fatal("expected err to be nil:", err)
 	}
-	ig.GenerateItems(words)
+
+	hook := database.AttachCourse(basedir.Course("eng", "spa"))
+	GenerateItems(ig.db, words, hook)
 }
