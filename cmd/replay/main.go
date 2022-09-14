@@ -4,6 +4,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -53,17 +54,22 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close()
 
-	session, err := database.NewSession(db, basedir.Course("eng", inferLanguage(args.logFile)))
+	con, err := database.NewConnection(
+		db,
+		context.TODO(),
+		database.AttachCourse(basedir.Course("eng", inferLanguage(args.logFile))),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err := replay.ReplayFile(session, args.logFile); err != nil {
+	if err := replay.ReplayFile(con, args.logFile); err != nil {
 		log.Fatal(err)
 	}
 
-	words, err := ws.GetWordsAt(session, args.steps, replay.Tomorrow())
+	words, err := ws.GetWordsAt(con, args.steps, replay.Tomorrow())
 	if err != nil {
 		log.Fatal(err)
 	}

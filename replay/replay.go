@@ -31,9 +31,9 @@ func Tomorrow() time.Time {
 	return Today().Add(day).UTC()
 }
 
-func Replay(s *database.Session, events []logger.LogEvent) error {
+func Replay(c *database.Connection, events []logger.LogEvent) error {
 	for _, event := range events {
-		err := ws.UpdateWordAt(s, event.Word, event.Correct, event.Timestamp)
+		err := ws.UpdateWordAt(c, event.Word, event.Correct, event.Timestamp)
 		if err != nil {
 			return err
 		}
@@ -47,10 +47,10 @@ func Replay(s *database.Session, events []logger.LogEvent) error {
 	return nil
 }
 
-func ReplayFile(s *database.Session, reviews string) error {
+func ReplayFile(c *database.Connection, reviews string) error {
 	events, err := logger.ParseFile(reviews)
 	if err != nil {
 		return err
 	}
-	return Replay(s, events)
+	return Replay(c, events)
 }
