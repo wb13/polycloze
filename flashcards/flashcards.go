@@ -35,11 +35,6 @@ type ItemGenerator struct {
 	courseDB string // to be attached
 }
 
-// NOTE Caller has to close connection.
-func (ig ItemGenerator) Session() (*database.Session, error) {
-	return database.NewSession(ig.db, ig.courseDB)
-}
-
 // Creates an ItemGenerator.
 func NewItemGenerator(db *sql.DB, courseDB string) ItemGenerator {
 	return ItemGenerator{

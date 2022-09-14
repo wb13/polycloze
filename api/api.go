@@ -68,7 +68,7 @@ func success(frequencyClass int) []byte {
 	return []byte(fmt.Sprintf("{\"success\": true, \"frequencyClass\": %v}", frequencyClass))
 }
 
-func handleReviewUpdate(ig *flashcards.ItemGenerator, l1, l2 string, w http.ResponseWriter, r *http.Request) {
+func handleReviewUpdate(db *sql.DB, l1, l2 string, w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		http.Error(w, "expected json body in POST request", 400)
 		return
@@ -85,19 +85,20 @@ func handleReviewUpdate(ig *flashcards.ItemGenerator, l1, l2 string, w http.Resp
 		return
 	}
 
-	session, err := ig.Session()
+	hook := database.AttachCourse(basedir.Course(l1, l2))
+	con, err := database.NewConnection(db, r.Context(), hook)
 	if err != nil {
-		log.Fatal("could not create new session:", err)
+		log.Fatal("could not connect to database:", err)
 	}
-	defer session.Close()
+	defer con.Close()
 
 	var frequencyClass int
 	for _, review := range reviews.Reviews {
-		err := word_scheduler.UpdateWord(session, review.Word, review.Correct)
+		err := word_scheduler.UpdateWord(con, review.Word, review.Correct)
 		if err != nil {
 			log.Printf("failed to update word: '%v'\n\t%v\n", review.Word, err.Error())
 		}
-		frequencyClass = word_scheduler.PreferredDifficulty(session)
+		frequencyClass = word_scheduler.PreferredDifficulty(con)
 		_ = logger.LogReview(basedir.Log(l1, l2), review.Correct, review.Word)
 	}
 
@@ -125,11 +126,9 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	ig := flashcards.NewItemGenerator(db, basedir.Course(l1, l2))
-
 	switch r.Method {
 	case "POST":
-		handleReviewUpdate(&ig, l1, l2, w, r)
+		handleReviewUpdate(db, l1, l2, w, r)
 	case "GET":
 		generateFlashcards(db, w, r)
 	}
