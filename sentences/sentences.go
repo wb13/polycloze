@@ -18,18 +18,18 @@ type Sentence struct {
 	Tokens    []string
 }
 
-func findWordID(s *database.Session, word string) (int, error) {
+func findWordID[T database.Querier](q T, word string) (int, error) {
 	query := `select id from word where word = ?`
-	row := s.QueryRow(query, word)
+	row := q.QueryRow(query, word)
 
 	var id int
 	err := row.Scan(&id)
 	return id, err
 }
 
-func getSentence(s *database.Session, id int) (*Sentence, error) {
+func getSentence[T database.Querier](q T, id int) (*Sentence, error) {
 	query := `select tatoeba_id, text, tokens from sentence where id = ?`
-	row := s.QueryRow(query, id)
+	row := q.QueryRow(query, id)
 
 	var sentence Sentence
 	sentence.ID = id
@@ -53,8 +53,8 @@ func getSentence(s *database.Session, id int) (*Sentence, error) {
 	return &sentence, nil
 }
 
-func PickSentence(s *database.Session, word string, maxDifficulty int) (*Sentence, error) {
-	id, err := findWordID(s, word)
+func PickSentence[T database.Querier](q T, word string, maxDifficulty int) (*Sentence, error) {
+	id, err := findWordID(q, word)
 	if err != nil {
 		return nil, err
 	}
@@ -70,13 +70,13 @@ select coalesce(
 	(select coalesce(id, min(frequency_class)) from contains join sentence on (sentence = id)
 		where word = ?))
 `
-	row := s.QueryRow(query, id, maxDifficulty, id)
+	row := q.QueryRow(query, id, maxDifficulty, id)
 
 	var sentence int
 	if err := row.Scan(&sentence); err != nil {
 		return nil, err
 	}
-	return getSentence(s, sentence)
+	return getSentence(q, sentence)
 }
 
 func Search[T database.Querier](q T, text string) (Sentence, error) {
