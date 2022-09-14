@@ -93,7 +93,7 @@ func generateWords(
 	return word_scheduler.GetWordsWith(con, n, pred)
 }
 
-func GenerateItem[T database.Querier](q T, word string) (Item, error) {
+func generateItem[T database.Querier](q T, word string) (Item, error) {
 	var item Item
 
 	sentence, err := sentences.PickSentence(q, word, word_scheduler.PreferredDifficulty(q))
@@ -116,9 +116,9 @@ func GenerateItem[T database.Querier](q T, word string) (Item, error) {
 }
 
 // Creates a cloze item for each word.
-func GenerateItems(db *sql.DB, words []string, hooks ...database.ConnectionHook) []Item {
+func generateItems(db *sql.DB, words []string, hooks ...database.ConnectionHook) []Item {
 	ch := make(chan Item, len(words))
-	GenerateItemsIntoChannel(db, ch, words, hooks...)
+	generateItemsIntoChannel(db, ch, words, hooks...)
 	close(ch)
 
 	items := make([]Item, 0)
@@ -129,7 +129,7 @@ func GenerateItems(db *sql.DB, words []string, hooks ...database.ConnectionHook)
 }
 
 // Enter functions are invoked in a FIFO manner, while Exit functions are deferred.
-func GenerateItemsIntoChannel(
+func generateItemsIntoChannel(
 	db *sql.DB,
 	ch chan Item,
 	words []string,
@@ -160,7 +160,7 @@ func GenerateItemsIntoChannel(
 				}(hook)
 			}
 
-			if item, err := GenerateItem(con, word); err == nil {
+			if item, err := generateItem(con, word); err == nil {
 				ch <- item
 			}
 		}(word)
@@ -180,5 +180,5 @@ func Get(
 	if err != nil {
 		return nil
 	}
-	return GenerateItems(db, words, hooks...)
+	return generateItems(db, words, hooks...)
 }
