@@ -68,6 +68,7 @@ func getParts(tokens []string, word string) []string {
 	}
 }
 
+// TODO pass Session object instead of creating it here.
 func (ig ItemGenerator) GenerateWords(n int, pred func(word string) bool) ([]string, error) {
 	// NOTE Can't goroutines share this object?
 	session, err := ig.Session()
@@ -78,22 +79,15 @@ func (ig ItemGenerator) GenerateWords(n int, pred func(word string) bool) ([]str
 	return word_scheduler.GetWordsWith(session, n, pred)
 }
 
-func (ig ItemGenerator) GenerateItem(word string) (Item, error) {
+func GenerateItem[T database.Querier](q T, word string) (Item, error) {
 	var item Item
 
-	// NOTE Can't goroutines share this object?
-	session, err := ig.Session()
-	if err != nil {
-		return item, err
-	}
-	defer session.Close()
-
-	sentence, err := sentences.PickSentence(session, word, word_scheduler.PreferredDifficulty(session))
+	sentence, err := sentences.PickSentence(q, word, word_scheduler.PreferredDifficulty(q))
 	if err != nil {
 		return item, err
 	}
 
-	translation, err := translator.Translate(session, *sentence)
+	translation, err := translator.Translate(q, *sentence)
 	if err != nil {
 		panic(fmt.Errorf("could not translate sentence (%v): %v", sentence, err))
 	}
@@ -120,13 +114,22 @@ func (ig ItemGenerator) GenerateItems(words []string) []Item {
 	return items
 }
 
+// TODO Take callback function that returns database session so that
+// ItemGenerator doesn't have to know about basedir.Course
 func (ig ItemGenerator) GenerateItemsIntoChannel(ch chan Item, words []string) {
 	var wg sync.WaitGroup
 	wg.Add(len(words))
 	for _, word := range words {
 		go func(ig *ItemGenerator, word string) {
 			defer wg.Done()
-			item, err := ig.GenerateItem(word)
+
+			session, err := ig.Session()
+			if err != nil {
+				return
+			}
+			defer session.Close()
+
+			item, err := GenerateItem(session, word)
 			if err == nil {
 				ch <- item
 			}
