@@ -81,7 +81,7 @@ func detach(con *sql.Conn, name string) error {
 }
 
 type Querier interface {
-	*sql.DB | *sql.Tx | *Session
+	*sql.DB | *sql.Tx | *Connection | *Session
 
 	Begin() (*sql.Tx, error)
 	Exec(query string, args ...any) (sql.Result, error)
