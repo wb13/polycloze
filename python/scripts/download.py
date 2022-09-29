@@ -91,7 +91,7 @@ def fetch_headers(url: str) -> dict[str, str]:
 
     May raise requests.exceptions.HTTPError.
     """
-    response = head(url)
+    response = head(url, timeout=10)
     response.raise_for_status()
     return t.cast(dict[str, str], response.headers)
 
@@ -101,7 +101,7 @@ def stream(url: str, chunk_size: int = 1024) -> t.Iterable[bytes]:
 
     May raise requests.exceptions.HTTPError.
     """
-    response = get(url, stream=True)
+    response = get(url, stream=True, timeout=10)
     response.raise_for_status()
     for chunk in response.iter_content(chunk_size):
         yield chunk
