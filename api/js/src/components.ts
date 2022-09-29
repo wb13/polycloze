@@ -3,8 +3,8 @@ import { ItemBuffer } from "./buffer";
 import { createScoreCounter } from "./counter";
 import { availableCourses } from "./data";
 import { getL1, getL2 } from "./language";
-import { createOverview } from "./overview";
 import { createLanguageForm } from "./select";
+import { createCourseTable } from "./table";
 
 export class ClozeApp extends HTMLElement {
     async connectedCallback() {
@@ -26,13 +26,12 @@ export class LanguageSelect extends HTMLElement {
 
 export class Overview extends HTMLElement {
     async connectedCallback() {
-        const target = this.getAttribute("target") || "/study";
         const courses = await availableCourses({
             l1: getL1().code,
             stats: true,
         });
         this.innerHTML = "<h1>Pick a language.</h1>";
-        this.appendChild(createOverview(courses, target));
+        this.appendChild(createCourseTable(courses));
     }
 }
 

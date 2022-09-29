@@ -1,0 +1,15 @@
+tbody > tr:nth-of-type(odd) {
+	background-color: whitesmoke;
+}
+
+tbody > tr:hover {
+	background-color: buttonface;
+}
+
+tbody > tr:nth-of-type(odd):active {
+	background-color: whitesmoke;
+}
+
+tbody > tr:nth-of-type(even):active {
+	background-color: inherit;
+}
