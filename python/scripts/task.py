@@ -242,3 +242,8 @@ def create_empty_course() -> None:
             # Path.replace might raise OSError: Invalid cross-device link
             target.parent.mkdir(parents=True, exist_ok=True)
             move(database, target)
+
+
+def create_course_directory() -> None:
+    """Create course directory."""
+    (build/"courses").mkdir(parents=True, exist_ok=True)
