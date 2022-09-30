@@ -1,24 +1,14 @@
-# Dev environment
-# Usage:
-# docker build -t <image> .
-# docker run -dit --name <container> <image>
-# docker exec <container> sh -c 'rm -rf "/src/*"'
-# docker cp . <container>:/src
+FROM ubuntu
 
-FROM node:18
-FROM golang:1.19
+ENV XDG_DATA_HOME=/home/.local/share
+ENV XDG_STATE_HOME=/home/.local/state
+RUN mkdir -p $XDG_DATA_HOME/polycloze
 
-COPY --from=0 / /
-WORKDIR /src
+# Copy course files
+COPY python/build/courses/eng-tgl.db $XDG_DATA_HOME/polycloze
 
-RUN apt-get update
-RUN apt-get install shellcheck
-RUN apt-get install sqlite3
+# Copy executable
+COPY polycloze /
 
-COPY go.mod .
-COPY go.sum .
-RUN go mod download
-
-COPY api/js/package.json .
-COPY api/js/package-lock.json .
-RUN npm ci
+ENTRYPOINT ["/polycloze"]
+EXPOSE 3000
