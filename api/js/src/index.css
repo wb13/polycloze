@@ -34,6 +34,15 @@ h1, h2, h3, h4, h5, h6 {
 	font-weight: 500;
 }
 
+/* For all form related styling */
+
+form.signin {
+	display: flex;
+	flex-direction: column;
+	align-items: start;
+	gap: 1em;
+}
+
 
 /* For all navigation related styling */
 

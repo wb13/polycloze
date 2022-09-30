@@ -1,0 +1,30 @@
+{{template "_header.html"}}
+<title>polycloze | Register.</title>
+{{template "_nav.html"}}
+
+<main>
+<h1>Register</h1>
+
+<form class="signin" action="/register" method="POST">
+	<div>
+		<label for="username" style="display:block">Username</label>
+		<input id="username" name="username">
+	</div>
+
+	<div>
+		<label for="password" style="display:block">Password</label>
+		<input id="password" name="password" type="password">
+	</div>
+
+	<div>
+		<label for="confirm-password" style="display:block">Confirm password</label>
+		<input id="confirm-password" name="confirm-password" type="password">
+	</div>
+
+	<p class="button-group">
+		<button type="submit">Register</button>
+	</p>
+</form>
+</main>
+
+{{template "_footer.html"}}
