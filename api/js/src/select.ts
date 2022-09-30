@@ -39,6 +39,7 @@ function createLanguageLabel(): HTMLLabelElement {
 
 export function createLanguageForm(languages: Language[]): HTMLFormElement {
     const form = document.createElement("form");
+    form.style.display = "inline";
     form.append(createLanguageLabel(), createLanguageSelect(languages));
     return form;
 }
