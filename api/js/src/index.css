@@ -1,7 +1,14 @@
 @import './normalize.css';
 
+@font-face {
+	font-family: 'Nunito';
+	src: url("../public/fonts/Nunito/Nunito-VariableFont_wght.ttf") format("truetype");
+	font-display: fallback;
+}
+
 :root {
 	--monospace: _, monospace;	/* 2nd monospace makes monospace font larger */
+	--sans-serif: 'Nunito', sans-serif;
 
 	--small: 0.75em;
 	--medium: 1.5em;
@@ -14,7 +21,7 @@
 }
 
 body {
-	font-family: var(--monospace);
+	font-family: var(--sans-serif);
 }
 
 main {
