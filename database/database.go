@@ -8,17 +8,21 @@ import (
 	"context"
 	"database/sql"
 	"embed"
-	"errors"
 	"fmt"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite3"
-	"github.com/golang-migrate/migrate/v4/source/iofs"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/pressly/goose/v3"
 )
 
 //go:embed migrations/*.sql
 var fs embed.FS
+
+func init() {
+	goose.SetBaseFS(fs)
+	if err := goose.SetDialect("sqlite3"); err != nil {
+		panic(err)
+	}
+}
 
 // NOTE Caller has to Close the db.
 func Open(path string) (*sql.DB, error) {
@@ -40,30 +44,7 @@ func New(path string) (*sql.DB, error) {
 
 // Upgrades database to the latest version.
 func Upgrade(db *sql.DB) error {
-	dbDriver, err := sqlite3.WithInstance(db, &sqlite3.Config{})
-	if err != nil {
-		return err
-	}
-
-	srcDriver, err := iofs.New(fs, "migrations")
-	if err != nil {
-		return err
-	}
-
-	m, err := migrate.NewWithInstance(
-		"iofs",
-		srcDriver,
-		"sqlite3",
-		dbDriver,
-	)
-	if err != nil {
-		return err
-	}
-
-	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return err
-	}
-	return nil
+	return goose.Up(db, "migrations")
 }
 
 // Attaches database to the connection.

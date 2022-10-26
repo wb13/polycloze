@@ -1,7 +1,9 @@
 -- Copyright (c) 2022 Levi Gruspe
 -- License: MIT, or AGPLv3 or later
 
----- used by review_scheduler
+---- Used by review_scheduler.
+
+-- +goose Up
 
 -- Table of review sessions.
 -- Unseen items don't appear here.
@@ -13,3 +15,6 @@ CREATE TABLE review (
 	due NOT NULL,								-- Date of next review
 	correct BOOLEAN GENERATED ALWAYS AS (interval > 0) VIRTUAL
 );
+
+-- +goose Down
+DROP TABLE review;
