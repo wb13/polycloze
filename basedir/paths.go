@@ -27,3 +27,7 @@ func Log(l1, l2 string) string {
 func Course(l1, l2 string) string {
 	return path.Join(DataDir, fmt.Sprintf("%s-%s.db", l1, l2))
 }
+
+func Users() string {
+	return path.Join(StateDir, "users.db")
+}

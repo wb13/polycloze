@@ -8,13 +8,17 @@
 <form class="signin" action="/signin" method="POST">
 	<div>
 		<label for="username" style="display:block">Username</label>
-		<input id="username" name="username">
+		<input id="username" name="username" required>
 	</div>
 
 	<div>
 		<label for="password" style="display:block">Password</label>
-		<input id="password" name="password" type="password">
+		<input id="password" name="password" type="password" required>
 	</div>
+
+	{{if .}}
+	<div class="incorrect">{{.}}</div>
+	{{end}}
 
 	<p class="button-group">
 		<button type="submit">Sign in</button>

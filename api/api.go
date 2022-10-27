@@ -147,9 +147,10 @@ func Router(config Config) (chi.Router, error) {
 	r.Use(middleware.Logger)
 	r.HandleFunc("/", showPage("home.html"))
 	r.HandleFunc("/about", showPage("about.html"))
-	r.HandleFunc("/register", showPage("register.html"))
-	r.HandleFunc("/signin", showPage("signin.html"))
 	r.HandleFunc("/study", showPage("study.html"))
+
+	r.HandleFunc("/register", handleRegister)
+	r.HandleFunc("/signin", handleSignIn)
 
 	r.Handle("/dist/*", http.StripPrefix("/dist/", serveDist()))
 	r.Handle("/public/*", http.StripPrefix("/public/", servePublic()))
