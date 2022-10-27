@@ -120,6 +120,11 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	l1 := chi.URLParam(r, "l1")
 	l2 := chi.URLParam(r, "l2")
 
+	if !courseExists(l1, l2) {
+		http.NotFound(w, r)
+		return
+	}
+
 	db, err := database.New(basedir.Review(l1, l2))
 	if err != nil {
 		log.Fatal(fmt.Errorf("could not open review database (%v-%v): %v", l1, l2, err))
