@@ -15,10 +15,10 @@ import (
 )
 
 //go:embed migrations
-var fs embed.FS
+var migrations embed.FS
 
 func init() {
-	goose.SetBaseFS(fs)
+	goose.SetBaseFS(migrations)
 	goose.SetLogger(goose.NopLogger())
 	if err := goose.SetDialect("sqlite3"); err != nil {
 		panic(err)
