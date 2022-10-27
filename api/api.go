@@ -147,6 +147,9 @@ func Router(config Config) (chi.Router, error) {
 	r.Handle("/dist/*", http.StripPrefix("/dist/", serveDist()))
 	r.Handle("/public/*", http.StripPrefix("/public/", servePublic()))
 
+	// serviceworker has to be at the root.
+	r.Handle("/serviceworker.js*", http.StripPrefix("/", serveDist()))
+
 	r.HandleFunc("/courses", courseOptions)
 
 	r.HandleFunc("/{l1}/{l2}", createHandler)

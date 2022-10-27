@@ -4,5 +4,6 @@ import "./components.ts";
 document.documentElement.lang = "en";
 
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("dist/serviceworker.js");
+    // serviceworker has to be at the root.
+    navigator.serviceWorker.register("serviceworker.js");
 }
