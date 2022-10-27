@@ -19,6 +19,7 @@ var fs embed.FS
 
 func init() {
 	goose.SetBaseFS(fs)
+	goose.SetLogger(goose.NopLogger())
 	if err := goose.SetDialect("sqlite3"); err != nil {
 		panic(err)
 	}
