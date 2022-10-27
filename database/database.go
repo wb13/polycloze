@@ -14,7 +14,7 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
-//go:embed migrations/*.sql
+//go:embed migrations
 var fs embed.FS
 
 func init() {
@@ -45,7 +45,7 @@ func New(path string) (*sql.DB, error) {
 
 // Upgrades database to the latest version.
 func Upgrade(db *sql.DB) error {
-	return goose.Up(db, "migrations")
+	return goose.Up(db, "migrations/reviews")
 }
 
 // Attaches database to the connection.
