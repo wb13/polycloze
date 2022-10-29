@@ -8,8 +8,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-
-	"github.com/lggruspe/polycloze/auth"
 )
 
 //go:embed templates/*.html
@@ -27,11 +25,6 @@ func init() {
 	}
 }
 
-type templateData struct {
-	Session *auth.Session
-	Message string
-}
-
-func renderTemplate(w http.ResponseWriter, name string, data *templateData) error {
+func renderTemplate(w http.ResponseWriter, name string, data map[string]any) error {
 	return templates.ExecuteTemplate(w, name, data)
 }

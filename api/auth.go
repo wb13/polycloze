@@ -13,24 +13,20 @@ import (
 	"github.com/lggruspe/polycloze/database"
 )
 
-func newTemplateData(r *http.Request) (templateData, error) {
-	var data templateData
-	session, err := auth.GetSession(r)
-	if err != nil {
-		return data, err
+func newTemplateData(r *http.Request) map[string]any {
+	data := make(map[string]any)
+	if session, err := auth.GetSession(r); err == nil {
+		if session.Data.UserID >= 0 {
+			data["userID"] = session.Data.UserID
+			data["username"] = session.Data.Username
+		}
 	}
-	data.Session = &session
-	return data, nil
+	return data
 }
 
 func handleSignIn(w http.ResponseWriter, r *http.Request) {
 	// TODO redirect if logged in
-	data, err := newTemplateData(r)
-	if err != nil {
-		data.Message = "Authentication failed."
-		goto fail
-	}
-
+	data := newTemplateData(r)
 	if r.Method == "POST" {
 		db, err := database.OpenUsersDB(basedir.Users())
 		if err != nil {
@@ -43,13 +39,13 @@ func handleSignIn(w http.ResponseWriter, r *http.Request) {
 
 		userID, err := auth.Authenticate(db, username, password)
 		if err != nil {
-			data.Message = "Incorrect username or password."
+			data["message"] = "Incorrect username or password."
 			goto fail
 		}
 
 		session, err := auth.GetSession(r)
 		if err != nil {
-			data.Message = "Authentication failed."
+			data["message"] = "Authentication failed."
 			goto fail
 		}
 
@@ -57,7 +53,7 @@ func handleSignIn(w http.ResponseWriter, r *http.Request) {
 		session.Data.Username = username
 
 		if err := session.Save(w); err != nil {
-			data.Message = "Authentication failed."
+			data["message"] = "Authentication failed."
 			goto fail
 		}
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
@@ -65,19 +61,14 @@ func handleSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 fail:
-	if err := renderTemplate(w, "signin.html", &data); err != nil {
+	if err := renderTemplate(w, "signin.html", data); err != nil {
 		log.Println(err)
 	}
 }
 
 func handleRegister(w http.ResponseWriter, r *http.Request) {
 	// TODO redirect if logged in
-	data, err := newTemplateData(r)
-	if err != nil {
-		data.Message = "Something went wrong."
-		goto fail
-	}
-
+	data := newTemplateData(r)
 	if r.Method == "POST" {
 		db, err := database.OpenUsersDB(basedir.Users())
 		if err != nil {
@@ -88,7 +79,7 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 		username := r.FormValue("username")
 		password := r.FormValue("password")
 		if err := auth.Register(db, username, password); err != nil {
-			data.Message = "This username is unavailable. Try another one."
+			data["message"] = "This username is unavailable. Try another one."
 			goto fail
 		}
 
@@ -97,7 +88,7 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 fail:
-	if err := renderTemplate(w, "register.html", &data); err != nil {
+	if err := renderTemplate(w, "register.html", data); err != nil {
 		log.Println(err)
 	}
 }
