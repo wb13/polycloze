@@ -11,6 +11,7 @@ import (
 	"github.com/lggruspe/polycloze/database"
 )
 
+// NOTE Caller should close DB.
 func openDB() *sql.DB {
 	db, err := database.OpenUsersDB(":memory:")
 	if err != nil {
@@ -22,6 +23,7 @@ func openDB() *sql.DB {
 func TestAuthenticateUnregistered(t *testing.T) {
 	t.Parallel()
 	db := openDB()
+	defer db.Close()
 
 	if _, err := Authenticate(db, "foo", "bar"); err == nil {
 		t.Fatal("authentication should fail if user is not registered")
@@ -31,6 +33,7 @@ func TestAuthenticateUnregistered(t *testing.T) {
 func TestAuthenticateRegistered(t *testing.T) {
 	t.Parallel()
 	db := openDB()
+	defer db.Close()
 
 	if err := Register(db, "foo", "bar"); err != nil {
 		t.Fatal("initial registration should succeed:", err)
@@ -43,6 +46,7 @@ func TestAuthenticateRegistered(t *testing.T) {
 func TestAuthenticateIncorrectPassword(t *testing.T) {
 	t.Parallel()
 	db := openDB()
+	defer db.Close()
 
 	if err := Register(db, "foo", "bar"); err != nil {
 		t.Fatal("initial registration should succeed:", err)
@@ -55,6 +59,7 @@ func TestAuthenticateIncorrectPassword(t *testing.T) {
 func TestRegisterPasswordStorage(t *testing.T) {
 	t.Parallel()
 	db := openDB()
+	defer db.Close()
 
 	username := "username"
 	password := "password"
@@ -80,6 +85,7 @@ func TestRegisterPasswordStorage(t *testing.T) {
 func TestRegisterTakenUsername(t *testing.T) {
 	t.Parallel()
 	db := openDB()
+	defer db.Close()
 
 	if err := Register(db, "foo", "bar"); err != nil {
 		t.Fatal("initial registration should succeed:", err)
@@ -92,6 +98,7 @@ func TestRegisterTakenUsername(t *testing.T) {
 func TestRegisterEmptyUsername(t *testing.T) {
 	t.Parallel()
 	db := openDB()
+	defer db.Close()
 
 	if err := Register(db, "", "password"); err == nil {
 		t.Fatal("registration should fail if username is an empty string")
@@ -101,6 +108,7 @@ func TestRegisterEmptyUsername(t *testing.T) {
 func TestRegisterEmptyPassword(t *testing.T) {
 	t.Parallel()
 	db := openDB()
+	defer db.Close()
 
 	if err := Register(db, "username", ""); err != nil {
 		t.Fatal("empty string should be allowed as password:", err)
