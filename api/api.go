@@ -155,6 +155,7 @@ func Router(config Config) (chi.Router, error) {
 
 	r.HandleFunc("/register", handleRegister)
 	r.HandleFunc("/signin", handleSignIn)
+	r.HandleFunc("/signout", handleSignOut)
 
 	r.Handle("/dist/*", http.StripPrefix("/dist/", serveDist()))
 	r.Handle("/public/*", http.StripPrefix("/public/", servePublic()))

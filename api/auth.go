@@ -14,6 +14,7 @@ import (
 )
 
 func handleSignIn(w http.ResponseWriter, r *http.Request) {
+	// TODO redirect if logged in
 	var message string
 	if r.Method == "POST" {
 		db, err := database.OpenUsersDB(basedir.Users())
@@ -50,6 +51,7 @@ fail:
 }
 
 func handleRegister(w http.ResponseWriter, r *http.Request) {
+	// TODO redirect if logged in
 	var message string
 
 	if r.Method == "POST" {
@@ -74,4 +76,16 @@ fail:
 	if err := templates.ExecuteTemplate(w, "register.html", message); err != nil {
 		log.Println(err)
 	}
+}
+
+func handleSignOut(w http.ResponseWriter, r *http.Request) {
+	// TODO what if not signed in?
+	if r.Method != "POST" {
+		http.NotFound(w, r)
+		return
+	}
+
+	session := auth.GetSession(r)
+	_ = session.Delete(w)
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
