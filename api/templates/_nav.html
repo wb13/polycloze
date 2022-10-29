@@ -2,7 +2,11 @@
 	<a href="/" class="colorless logo">poly<u>cloze</u></a>
 
 	<div>
+		{{if .Session.Data.Username}}
+		<button is="sign-out"></button>
+		{{else}}
 		<button is="sign-in"></button>
+		{{end}}
 		<language-select></language-select>
 	</div>
 </nav>

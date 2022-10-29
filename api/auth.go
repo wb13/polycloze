@@ -13,9 +13,17 @@ import (
 	"github.com/lggruspe/polycloze/database"
 )
 
+func newTemplateData(r *http.Request) templateData {
+	session := auth.GetSession(r)
+	return templateData{
+		Session: &session,
+	}
+}
+
 func handleSignIn(w http.ResponseWriter, r *http.Request) {
 	// TODO redirect if logged in
-	var message string
+	data := newTemplateData(r)
+
 	if r.Method == "POST" {
 		db, err := database.OpenUsersDB(basedir.Users())
 		if err != nil {
@@ -28,7 +36,7 @@ func handleSignIn(w http.ResponseWriter, r *http.Request) {
 
 		userID, err := auth.Authenticate(db, username, password)
 		if err != nil {
-			message = "Incorrect username or password."
+			data.Message = "Incorrect username or password."
 			goto fail
 		}
 
@@ -37,7 +45,7 @@ func handleSignIn(w http.ResponseWriter, r *http.Request) {
 		session.Data.Username = username
 
 		if err := session.Save(w); err != nil {
-			message = "Authentication failed."
+			data.Message = "Authentication failed."
 			goto fail
 		}
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
@@ -45,14 +53,14 @@ func handleSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 fail:
-	if err := templates.ExecuteTemplate(w, "signin.html", message); err != nil {
+	if err := renderTemplate(w, "signin.html", &data); err != nil {
 		log.Println(err)
 	}
 }
 
 func handleRegister(w http.ResponseWriter, r *http.Request) {
 	// TODO redirect if logged in
-	var message string
+	data := newTemplateData(r)
 
 	if r.Method == "POST" {
 		db, err := database.OpenUsersDB(basedir.Users())
@@ -64,7 +72,7 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 		username := r.FormValue("username")
 		password := r.FormValue("password")
 		if err := auth.Register(db, username, password); err != nil {
-			message = "This username is unavailable. Try another one."
+			data.Message = "This username is unavailable. Try another one."
 			goto fail
 		}
 
@@ -73,7 +81,7 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 fail:
-	if err := templates.ExecuteTemplate(w, "register.html", message); err != nil {
+	if err := renderTemplate(w, "register.html", &data); err != nil {
 		log.Println(err)
 	}
 }

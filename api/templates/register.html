@@ -1,6 +1,6 @@
 {{template "_header.html"}}
 <title>polycloze | Register.</title>
-{{template "_nav.html"}}
+{{template "_nav.html" .}}
 
 <main>
 <h1>Register</h1>
@@ -21,8 +21,8 @@
 		<input id="confirm-password" name="confirm-password" type="password" required>
 	</div>
 
-	{{if .}}
-	<div class="incorrect">{{.}}</div>
+	{{if .Message}}
+	<div class="incorrect">{{.Message}}</div>
 	{{end}}
 
 	<p class="button-group">
