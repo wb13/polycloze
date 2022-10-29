@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	"log"
 	"net/http"
+	"strings"
 )
 
 const cookieName = "id"
@@ -29,12 +30,30 @@ type Session struct {
 }
 
 // Generates 128-bit session ID in base64 encoding.
+// NOTE Not guaranteed to produce unique session IDs.
+// Caller should make sure the IDs are unique.
 func generateSessionID() string {
 	bytes := make([]byte, 16) // 128-bits
 	if _, err := rand.Read(bytes); err != nil {
 		panic("something unexpected occurred")
 	}
 	return base64.StdEncoding.EncodeToString(bytes)
+}
+
+// Repeatedly calls generateSessionID until an unused ID is found.
+// Creates an entry for the ID in the database.
+func generateUniqueSessionID(db *sql.DB) (string, error) {
+	for {
+		id := generateSessionID()
+		err := reserveID(db, id)
+		if err == nil {
+			return id, nil
+		}
+		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
+			continue
+		}
+		return id, err
+	}
 }
 
 // Get session data from database.
@@ -60,6 +79,13 @@ func saveData(db *sql.DB, session Session) error {
 			SET user_id = excluded.user_id, username = excluded.username
 	`
 	_, err := db.Exec(query, session.ID, session.Data.UserID, session.Data.Username)
+	return err
+}
+
+// Tries to reserve session ID without saving any data.
+func reserveID(db *sql.DB, id string) error {
+	query := `INSERT INTO user_session (session_id) VALUES (?)`
+	_, err := db.Exec(query, id)
 	return err
 }
 
@@ -98,7 +124,12 @@ func GenerateSession(db *sql.DB, r *http.Request) (Session, error) {
 			return session, nil
 		}
 	}
-	session.ID = generateSessionID()
+
+	id, err := generateUniqueSessionID(db)
+	if err != nil {
+		return session, err
+	}
+	session.ID = id
 	session.Data.UserID = -1
 	session.Data.Username = ""
 	return session, nil
