@@ -10,9 +10,6 @@ import (
 	"encoding/base64"
 	"log"
 	"net/http"
-
-	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/database"
 )
 
 const cookieName = "default-session"
@@ -128,21 +125,17 @@ func (s Session) Delete(w http.ResponseWriter) error {
 
 // Gets session before each request.
 // NOTE Doesn't auto-save sessions.
-func Middleware(next http.Handler) http.Handler {
+func Middleware(db *sql.DB) func(http.Handler) http.Handler {
 	// Gets user session and stuffs it in the request context.
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		db, err := database.OpenUsersDB(basedir.Users())
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer db.Close()
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			session, err := GenerateSession(db, r)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		session, err := GenerateSession(db, r)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		ctx := context.WithValue(r.Context(), contextKey{}, session)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+			ctx := context.WithValue(r.Context(), contextKey{}, session)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
 }

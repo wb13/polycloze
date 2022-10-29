@@ -12,6 +12,8 @@ import (
 	"strconv"
 
 	"github.com/lggruspe/polycloze/api"
+	"github.com/lggruspe/polycloze/basedir"
+	"github.com/lggruspe/polycloze/database"
 )
 
 type Args struct {
@@ -44,7 +46,14 @@ func main() {
 
 	args := parseArgs()
 	config := api.Config{AllowCORS: args.cors, Port: args.port}
-	r, err := api.Router(config)
+
+	db, err := database.OpenUsersDB(basedir.Users())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	r, err := api.Router(config, db)
 	if err != nil {
 		log.Fatal(err)
 	}

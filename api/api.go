@@ -141,13 +141,14 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func Router(config Config) (chi.Router, error) {
+// db: user DB for authentication
+func Router(config Config, db *sql.DB) (chi.Router, error) {
 	r := chi.NewRouter()
 	if config.AllowCORS {
 		r.Use(cors)
 	}
 	r.Use(middleware.Logger)
-	r.Use(auth.Middleware)
+	r.Use(auth.Middleware(db))
 
 	r.HandleFunc("/", showPage("home.html"))
 	r.HandleFunc("/about", showPage("about.html"))
