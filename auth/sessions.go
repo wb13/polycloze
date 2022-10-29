@@ -93,7 +93,8 @@ func GenerateSession(db *sql.DB, r *http.Request) (Session, error) {
 	session := Session{db: db}
 
 	cookie, err := r.Cookie(cookieName)
-	if err == nil && cookie.Valid() == nil {
+	// NOTE should check cookie.Valid(), but incorrectly returns error when Expires is not set...
+	if err == nil {
 		if data, err := getData(db, cookie.Value); err == nil {
 			session.ID = cookie.Value
 			session.Data = data
