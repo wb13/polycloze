@@ -24,11 +24,21 @@ func handleSignIn(w http.ResponseWriter, r *http.Request) {
 
 		username := r.FormValue("username")
 		password := r.FormValue("password")
-		if _, err := auth.Authenticate(db, username, password); err != nil {
+
+		userID, err := auth.Authenticate(db, username, password)
+		if err != nil {
 			message = "Incorrect username or password."
 			goto fail
 		}
 
+		session := auth.GetSession(r)
+		session.Data.UserID = userID
+		session.Data.Username = username
+
+		if err := session.Save(w); err != nil {
+			message = "Authentication failed."
+			goto fail
+		}
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}

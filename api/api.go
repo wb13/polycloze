@@ -14,6 +14,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+
+	"github.com/lggruspe/polycloze/auth"
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/flashcards"
@@ -145,6 +147,8 @@ func Router(config Config) (chi.Router, error) {
 		r.Use(cors)
 	}
 	r.Use(middleware.Logger)
+	r.Use(auth.Middleware)
+
 	r.HandleFunc("/", showPage("home.html"))
 	r.HandleFunc("/about", showPage("about.html"))
 	r.HandleFunc("/study", showPage("study.html"))

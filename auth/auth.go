@@ -29,6 +29,8 @@ func Register(db *sql.DB, username, password string) error {
 	return nil
 }
 
+// Validates credentials.
+// Returns user ID on success.
 func Authenticate(db *sql.DB, username, password string) (int, error) {
 	var id int
 	var hash string
