@@ -13,16 +13,23 @@ import (
 	"github.com/lggruspe/polycloze/database"
 )
 
-func newTemplateData(r *http.Request) templateData {
-	session := auth.GetSession(r)
-	return templateData{
-		Session: &session,
+func newTemplateData(r *http.Request) (templateData, error) {
+	var data templateData
+	session, err := auth.GetSession(r)
+	if err != nil {
+		return data, err
 	}
+	data.Session = &session
+	return data, nil
 }
 
 func handleSignIn(w http.ResponseWriter, r *http.Request) {
 	// TODO redirect if logged in
-	data := newTemplateData(r)
+	data, err := newTemplateData(r)
+	if err != nil {
+		data.Message = "Authentication failed."
+		goto fail
+	}
 
 	if r.Method == "POST" {
 		db, err := database.OpenUsersDB(basedir.Users())
@@ -40,7 +47,12 @@ func handleSignIn(w http.ResponseWriter, r *http.Request) {
 			goto fail
 		}
 
-		session := auth.GetSession(r)
+		session, err := auth.GetSession(r)
+		if err != nil {
+			data.Message = "Authentication failed."
+			goto fail
+		}
+
 		session.Data.UserID = userID
 		session.Data.Username = username
 
@@ -60,7 +72,11 @@ fail:
 
 func handleRegister(w http.ResponseWriter, r *http.Request) {
 	// TODO redirect if logged in
-	data := newTemplateData(r)
+	data, err := newTemplateData(r)
+	if err != nil {
+		data.Message = "Something went wrong."
+		goto fail
+	}
 
 	if r.Method == "POST" {
 		db, err := database.OpenUsersDB(basedir.Users())
@@ -93,7 +109,7 @@ func handleSignOut(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session := auth.GetSession(r)
+	session, _ := auth.GetSession(r) // TODO handle error
 	_ = session.Delete(w)
 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }

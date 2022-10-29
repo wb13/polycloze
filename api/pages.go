@@ -10,7 +10,10 @@ import (
 
 func showPage(name string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		data := newTemplateData(r)
+		data, err := newTemplateData(r)
+		if err != nil {
+			log.Println(err)
+		}
 		if err := renderTemplate(w, name, &data); err != nil {
 			log.Println(err)
 		}

@@ -4,18 +4,14 @@
 package auth
 
 import (
-	"context"
 	"crypto/rand"
 	"database/sql"
 	"encoding/base64"
-	"log"
 	"net/http"
 	"strings"
 )
 
 const cookieName = "id"
-
-type contextKey struct{}
 
 type SessionData struct {
 	UserID   int    // negative means none
@@ -106,9 +102,15 @@ func deleteCookie(name string) http.Cookie {
 	}
 }
 
-// Gets existing session from request context.
-func GetSession(r *http.Request) Session {
-	return r.Context().Value(contextKey{}).(Session)
+// Gets session from request context, from cookie/db, or creates a new one.
+func GetSession(r *http.Request) (Session, error) {
+	value := r.Context().Value(keySession)
+	switch value := value.(type) {
+	case Session:
+		return value, nil
+	default:
+		return GenerateSession(GetDB(r), r)
+	}
 }
 
 // Gets existing session from cookie/db, or creates a new one.
@@ -152,21 +154,4 @@ func (s Session) Delete(w http.ResponseWriter) error {
 	cookie := deleteCookie(cookieName)
 	http.SetCookie(w, &cookie)
 	return nil
-}
-
-// Gets session before each request.
-// NOTE Doesn't auto-save sessions.
-func Middleware(db *sql.DB) func(http.Handler) http.Handler {
-	// Gets user session and stuffs it in the request context.
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			session, err := GenerateSession(db, r)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			ctx := context.WithValue(r.Context(), contextKey{}, session)
-			next.ServeHTTP(w, r.WithContext(ctx))
-		})
-	}
 }
