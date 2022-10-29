@@ -12,7 +12,7 @@ import (
 	"net/http"
 )
 
-const cookieName = "default-session"
+const cookieName = "id"
 
 type contextKey struct{}
 
