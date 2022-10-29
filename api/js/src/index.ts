@@ -1,5 +1,5 @@
 import "./index.css";
-import "./components.ts";
+import "./components";
 
 document.documentElement.lang = "en";
 
