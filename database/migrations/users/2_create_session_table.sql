@@ -4,8 +4,8 @@
 -- +goose Up
 CREATE TABLE user_session (
 	session_id TEXT PRIMARY KEY CHECK(session_id != ''),
-	created TEXT NOT NULL DEFAULT (strftime('%s', 'now')),
-	updated TEXT NOT NULL DEFAULT (strftime('%s', 'now')),
+	created INTEGER NOT NULL DEFAULT (unixepoch('now')),
+	updated INTEGER NOT NULL DEFAULT (unixepoch('now')),
 	user_id INTEGER REFERENCES user,	-- null if user is not logged in
 	username TEXT 										-- null if user is not logged in
 );

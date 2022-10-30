@@ -54,8 +54,8 @@ func reserveID(db *sql.DB, id string) error {
 func deleteID(db *sql.DB, id string) error {
 	query := `
 		DELETE FROM user_session WHERE session_id = ?
-			OR created < (strftime('%s', 'now') - 14400)
-			OR updated < (strftime('%s', 'now') - 1800)
+			OR created < (unixepoch('now') - 14400)
+			OR updated < (unixepoch('now') - 1800)
 	`
 	_, err := db.Exec(query, id)
 	return err

@@ -28,7 +28,7 @@ func getData(db *sql.DB, id string) map[string]any {
 // The session must exist already.
 // `SaveData` would still return `nil`, but wouldn't insert a new entry for the missing session.
 func SaveData(db *sql.DB, s *Session) error {
-	query := `UPDATE user_session SET user_id = ?, username = ?, updated = strftime('%s', 'now') WHERE session_id = ?`
+	query := `UPDATE user_session SET user_id = ?, username = ?, updated = unixepoch('now') WHERE session_id = ?`
 	_, err := db.Exec(query, s.Data["userID"], s.Data["username"], s.ID)
 	return err
 }
