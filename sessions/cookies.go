@@ -35,21 +35,24 @@ func validateCookie(db *sql.DB, c *http.Cookie) error {
 }
 
 func setCookie(w http.ResponseWriter, id string) {
-	// TODO set other fields
-	// TODO make sure the cookie is valid, or it will be dropped silently
 	c := http.Cookie{
-		Name:  cookieName,
-		Value: id,
+		Name:     cookieName,
+		Value:    id,
+		SameSite: http.SameSiteStrictMode,
+		HttpOnly: true,
+		Secure:   true,
 	}
 	http.SetCookie(w, &c)
 }
 
 func deleteCookie(w http.ResponseWriter) {
-	// TODO set other fields; MaxAge?
-	// TODO make sure the cookie is valid, or it will be dropped silently
 	c := http.Cookie{
-		Name:  cookieName,
-		Value: "",
+		Name:     cookieName,
+		Value:    "",
+		SameSite: http.SameSiteStrictMode,
+		HttpOnly: true,
+		Secure:   true,
+		MaxAge:   -1,
 	}
 	http.SetCookie(w, &c)
 }
