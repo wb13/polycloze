@@ -4,8 +4,18 @@
 package sessions
 
 import (
+	"database/sql"
 	"testing"
+	"time"
 )
+
+// Gets `updated` timestamp of session.
+func timestamp(db *sql.DB, id string) (int, error) {
+	var updated int
+	query := `SELECT updated FROM user_session WHERE session_id = ?`
+	err := db.QueryRow(query, id).Scan(&updated)
+	return updated, err
+}
 
 func TestGetDataNonExistentID(t *testing.T) {
 	// The result should be a non-nil empty map.
@@ -125,5 +135,43 @@ func TestGetSaveEmptyData(t *testing.T) {
 
 	if data := getData(db, id); len(data) != 0 {
 		t.Fatal("expected result to be an empty map:", data)
+	}
+}
+
+func TestSaveDataTimestamp(t *testing.T) {
+	// `user_session.updated` should be updated after saving data.
+	t.Parallel()
+	id := "abcdefg"
+	db := testDB()
+	defer db.Close()
+
+	s := Session{ID: id}
+
+	if err := reserveID(db, id); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+	if err := SaveData(db, &s); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	before, err := timestamp(db, s.ID)
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Sleep for one second to make sure timestamp will change.
+	time.Sleep(time.Second)
+
+	if err := SaveData(db, &s); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	after, err := timestamp(db, s.ID)
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	if before >= after {
+		t.Fatal("expected before < after:", before, after)
 	}
 }

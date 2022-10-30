@@ -50,8 +50,13 @@ func reserveID(db *sql.DB, id string) error {
 }
 
 // Deletes session ID from the database.
+// Also deletes old (created > 4 hours ago) and idle (updated > 30 minutes ago) sessions.
 func deleteID(db *sql.DB, id string) error {
-	query := `DELETE FROM user_session WHERE session_id = ?`
+	query := `
+		DELETE FROM user_session WHERE session_id = ?
+			OR created < (strftime('%s', 'now') - 14400)
+			OR updated < (strftime('%s', 'now') - 1800)
+	`
 	_, err := db.Exec(query, id)
 	return err
 }
