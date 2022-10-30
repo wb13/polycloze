@@ -5,35 +5,81 @@
 package api
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/lggruspe/polycloze/auth"
-	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/database"
+	"github.com/lggruspe/polycloze/sessions"
 )
 
-func newTemplateData(r *http.Request) map[string]any {
-	data := make(map[string]any)
-	if session, err := auth.GetSession(r); err == nil {
-		if session.Data.UserID >= 0 {
-			data["userID"] = session.Data.UserID
-			data["username"] = session.Data.Username
-		}
+func hasUserID(data map[string]any) bool {
+	val, ok := data["userID"]
+	if !ok {
+		return false
 	}
-	return data
+	switch val := val.(type) {
+	case int:
+		return val >= 0
+	default:
+		return false
+	}
 }
 
-func handleSignIn(w http.ResponseWriter, r *http.Request) {
-	// TODO redirect if logged in
-	data := newTemplateData(r)
-	if r.Method == "POST" {
-		db, err := database.OpenUsersDB(basedir.Users())
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer db.Close()
+func hasUsername(data map[string]any) bool {
+	val, ok := data["username"]
+	if !ok {
+		return false
+	}
+	switch val := val.(type) {
+	case string:
+		return len(val) > 0
+	default:
+		return false
+	}
+}
 
+// Checks if user is authenticated.
+func isSignedIn(s *sessions.Session) bool {
+	return hasUserID(s.Data) && hasUsername(s.Data)
+}
+
+// HandlerFunc for user registrations.
+func handleRegister(w http.ResponseWriter, r *http.Request) {
+	// Redirect to home page if already signed in.
+	db := auth.GetDB(r)
+	s, err := sessions.ResumeSession(db, w, r)
+	if err == nil && isSignedIn(s) {
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	data := make(map[string]any)
+	if r.Method == "POST" {
+		username := r.FormValue("username")
+		password := r.FormValue("password")
+
+		if auth.Register(db, username, password) == nil {
+			http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
+			return
+		}
+		data["message"] = "This username is unavailable. Try another one."
+	}
+
+	if err := renderTemplate(w, "register.html", data); err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+	}
+}
+
+// HandlerFunc for signing in.
+func handleSignIn(w http.ResponseWriter, r *http.Request) {
+	db := auth.GetDB(r)
+	s, err := sessions.ResumeSession(db, w, r)
+	if err == nil && isSignedIn(s) {
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+	data := make(map[string]any)
+	if r.Method == "POST" {
 		username := r.FormValue("username")
 		password := r.FormValue("password")
 
@@ -43,64 +89,40 @@ func handleSignIn(w http.ResponseWriter, r *http.Request) {
 			goto fail
 		}
 
-		session, err := auth.GetSession(r)
+		s, err = sessions.StartSession(db, w, r)
 		if err != nil {
 			data["message"] = "Authentication failed."
 			goto fail
 		}
 
-		session.Data.UserID = userID
-		session.Data.Username = username
-
-		if err := session.Save(w); err != nil {
+		s.Data["userID"] = userID
+		s.Data["username"] = username
+		if sessions.SaveData(db, s) != nil {
 			data["message"] = "Authentication failed."
 			goto fail
 		}
+
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
 fail:
 	if err := renderTemplate(w, "signin.html", data); err != nil {
-		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 	}
 }
 
-func handleRegister(w http.ResponseWriter, r *http.Request) {
-	// TODO redirect if logged in
-	data := newTemplateData(r)
-	if r.Method == "POST" {
-		db, err := database.OpenUsersDB(basedir.Users())
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer db.Close()
-
-		username := r.FormValue("username")
-		password := r.FormValue("password")
-		if err := auth.Register(db, username, password); err != nil {
-			data["message"] = "This username is unavailable. Try another one."
-			goto fail
-		}
-
-		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
-		return
-	}
-
-fail:
-	if err := renderTemplate(w, "register.html", data); err != nil {
-		log.Println(err)
-	}
-}
-
+// HandlerFunc for signing out.
 func handleSignOut(w http.ResponseWriter, r *http.Request) {
-	// TODO what if not signed in?
 	if r.Method != "POST" {
 		http.NotFound(w, r)
 		return
 	}
 
-	session, _ := auth.GetSession(r) // TODO handle error
-	_ = session.Delete(w)
+	db := auth.GetDB(r)
+	if err := sessions.EndSession(db, w, r); err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }

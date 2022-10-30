@@ -4,15 +4,21 @@
 package api
 
 import (
-	"log"
 	"net/http"
+
+	"github.com/lggruspe/polycloze/auth"
+	"github.com/lggruspe/polycloze/sessions"
 )
 
 func showPage(name string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		data := newTemplateData(r)
+		var data map[string]any
+		db := auth.GetDB(r)
+		if s, err := sessions.StartOrResumeSession(db, w, r); err == nil {
+			data = s.Data
+		}
 		if err := renderTemplate(w, name, data); err != nil {
-			log.Println(err)
+			http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		}
 	}
 }

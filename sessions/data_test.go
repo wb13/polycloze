@@ -38,7 +38,7 @@ func TestSaveDataNonExistentID(t *testing.T) {
 			"username": "foobar",
 		},
 	}
-	if err := saveData(db, &s); err != nil {
+	if err := SaveData(db, &s); err != nil {
 		t.Fatal("expected err to be nil:", err)
 	}
 
@@ -66,7 +66,7 @@ func TestGetSaveNonEmptyData(t *testing.T) {
 	if err := reserveID(db, id); err != nil {
 		t.Fatal("expected err to be nil:", err)
 	}
-	if err := saveData(db, &s); err != nil {
+	if err := SaveData(db, &s); err != nil {
 		t.Fatal("expected err to be nil:", err)
 	}
 
@@ -109,7 +109,7 @@ func TestGetSaveEmptyData(t *testing.T) {
 	if err := reserveID(db, id); err != nil {
 		t.Fatal("expected err to be nil:", err)
 	}
-	if err := saveData(db, &s); err != nil {
+	if err := SaveData(db, &s); err != nil {
 		t.Fatal("expected err to be nil:", err)
 	}
 	if data := getData(db, id); len(data) != 2 {
@@ -119,7 +119,7 @@ func TestGetSaveEmptyData(t *testing.T) {
 	// Next, save session with empty data.
 	s.Data = make(map[string]any)
 
-	if err := saveData(db, &s); err != nil {
+	if err := SaveData(db, &s); err != nil {
 		t.Fatal("expected err to be nil:", err)
 	}
 
