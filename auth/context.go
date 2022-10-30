@@ -14,7 +14,6 @@ type contextValueKey int
 // Keys for getting values from request context.
 const (
 	keyUserDB contextValueKey = iota
-	keySession
 )
 
 // Stuffs pointer to database of users into request context.
