@@ -8,6 +8,7 @@ import (
 )
 
 func TestReserveID(t *testing.T) {
+	t.Parallel()
 	db := openDB()
 	defer db.Close()
 
