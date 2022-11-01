@@ -12,3 +12,24 @@ export function createButton(content: string, onClick?: (event: Event) => void):
     setButton(button, content, onClick);
     return button;
 }
+
+function followLinkPost(url: string) {
+    const form = document.createElement("form");
+    form.action = url;
+    form.method = "POST";
+    form.style.display = "none";
+
+    document.body.appendChild(form);
+
+    form.submit();
+}
+
+export function setButtonLink(button: HTMLButtonElement, href: string, method = "GET") {
+    button.addEventListener("click", () => {
+        if (method === "POST") {
+            followLinkPost(href);
+        } else {
+            window.location.pathname = href;
+        }
+    });
+}

@@ -3,9 +3,9 @@
 
 	<div>
 		{{if .username}}
-		<button is="sign-out"></button>
+		<button is="button-link" href="/signout" method="POST">Sign out</button>
 		{{else}}
-		<button is="sign-in"></button>
+		<button is="button-link" href="/signin">Sign in</button>
 		{{end}}
 		<language-select></language-select>
 	</div>

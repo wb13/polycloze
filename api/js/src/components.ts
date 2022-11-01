@@ -1,12 +1,11 @@
 import { createApp } from "./app";
 import { ItemBuffer } from "./buffer";
-import { setButton } from "./button";
+import { setButtonLink } from "./button";
 import { createScoreCounter } from "./counter";
 import { availableCourses } from "./data";
 import { getL1, getL2 } from "./language";
 import { createLanguageForm } from "./select";
 import { createCourseTable } from "./table";
-import { followLinkPost } from "./utils";
 
 export class ClozeApp extends HTMLElement {
     async connectedCallback() {
@@ -54,19 +53,11 @@ export class ScoreCounter extends HTMLElement {
     }
 }
 
-export class SignInButton extends HTMLButtonElement {
-    constructor() {
-        super();
-        setButton(this, "Sign in", () => {
-            window.location.pathname = "/signin";
-        });
-    }
-}
-
-export class SignOutButton extends HTMLButtonElement {
-    constructor() {
-        super();
-        setButton(this, "Sign out", () => followLinkPost("/signout"));
+export class ButtonLink extends HTMLButtonElement {
+    connectedCallback() {
+        const href = this.getAttribute("href") || "/";
+        const method = (this.getAttribute("method") || "GET").toUpperCase();
+        setButtonLink(this, href, method);
     }
 }
 
@@ -74,5 +65,4 @@ customElements.define("cloze-app", ClozeApp);
 customElements.define("language-select", LanguageSelect);
 customElements.define("polycloze-overview", Overview);
 customElements.define("score-counter", ScoreCounter);
-customElements.define("sign-in", SignInButton, { extends: "button" });
-customElements.define("sign-out", SignOutButton, { extends: "button" });
+customElements.define("button-link", ButtonLink, { extends: "button" });
