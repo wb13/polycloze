@@ -1,18 +1,111 @@
 {{template "_header.html"}}
-<title>polycloze | About</title>
+<title>polycloze | Test</title>
 {{template "_nav.html" .}}
 
 <main>
-<h1>About</h1>
+<h1>About polycloze</h1>
 <p>
-Polycloze is a tool for studying foreign language vocabulary using cloze tests.
-It is open-source software, available under the <a target="_blank" href="https://www.gnu.org/licenses/">AGPLv3 license</a>.
-The source code is on <a target="_blank" href="https://github.com/lggruspe/polycloze">GitHub</a>.
+	polycloze is a self-hosted language learning website.
+	It is completely free and <b>open source</b>.
+	The source code is available on <a href="https://github.com/lggruspe/polycloze">GitHub</a>, under the <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPLv3 license</a>.
+</p>
+
+<p>Vocabulary is important. Take vocabulary learning into your own hands.</p>
+
+<p style="justify-content:center" class="button-group">
+	<button>Start learning</button>
+	<button>Documentation</button>
+</p>
+
+<br>
+
+<h2>Problem</h2>
+
+<p>
+	Reading is a good way to acquire vocabulary, because it exposes readers to words in different contexts.
+	However, it becomes a chore when you have to look up every other word in the dictionary.
+	This happens <a href="https://en.wikipedia.org/wiki/Extensive_reading#Threshold">when your vocabulary is not big enough</a>.
 </p>
 
 <p>
-Sentences and translations were taken from <a target="_blank" href="https://tatoeba.org/">Tatoeba</a>.
-These are released under <a target="_blank" href="https://creativecommons.org/licenses/by/2.0/fr">CC BY 2.0 FR</a>.
+	Our goal is to help you <b>learn words efficiently</b>, so you can start reading stuff in your target language as quickly as possible.
+</p>
+
+<h2>Strategy</h2>
+
+<ol>
+	<li>
+		<p>
+			<b>Prioritize useful words.</b>
+			Reading is tedious when you don't know a lot of words.
+			By learning the most common words first, you can quickly increase the percentage of familiar words in any text.
+		</p>
+	</li>
+	<li>
+		<p>
+			<b>Use spaced repetition.</b>
+			Forgetting is natural.
+			<a href="https://en.wikipedia.org/wiki/Spaced_repetition">Spaced repetition</a> exploits the spacing effect to minimize the rate of forgetting.
+			The less you forget, the less time you spend relearning forgotten words.
+		</p>
+	</li>
+	<li>
+		<p>
+			<b>Study sentences instead of words.</b>
+			It takes repeated exposures to a word to learn it.
+			One exposure is rarely enough, because a word can mean different things in different contexts.
+			Knowing a word is more than simply knowing its definition or translation.
+			You have to know how to use the word and in what contexts.
+		</p>
+	</li>
+</ol>
+
+<h2>Features</h2>
+
+<h3>Adaptive word scheduler</h3>
+
+<p>
+	In what order should you study words?
+	Strategy #1 is to study the most common words first.
+	This works for beginners, but the advice might be inappropriate for more advanced learners who are using polycloze for the first time.
+</p>
+
+<p>
+	The word scheduler introduces words that are appropriate for the learner's level.
+	Advanced learners no longer have to go through thousands of flashcards of basic vocabulary.
+	If you get all the newly introduced words at a certain <a href="https://de.wikipedia.org/wiki/H%C3%A4ufigkeitsklasse">frequency class</a> right, then the difficulty is probably too low for you.
+	The scheduler will notice and start introducing words at a more difficult frequency class.
+	But if new words are too difficult, the scheduler will start introducing easier words.
+</p>
+
+<h3>Auto-tuning spacing algorithm</h3>
+
+<p>
+	There's no need to tweak the parameters of the spacing algorithm.
+	The algorithm tunes itself so that the spacing between reviews is just right.
+	When the spacing is too short, you end up reviewing words more than necessary.
+	And when it's too long, there's a chance you'll forget the word before the next scheduled review.
+</p>
+
+<h3>Cloze deletion tests</h3>
+
+<p>
+	<a href="https://en.wikipedia.org/wiki/Cloze_test">Cloze tests</a> ask you to fill in missing parts of a sentence or text.
+	This is perfect for strategy #3, because it tests how well you can understand the context and identify the missing word.
+</p>
+
+<h3>Digraphs</h3>
+
+<p>
+	Even if your keyboard doesn't have all the needed keys, you can use <a href="https://github.com/lggruspe/polycloze/blob/main/docs/digraphs.md">digraphs</a> to enter symbols in your target language.
+	For example, <code>\a:</code> gets turned into <code>ä</code>.
+</p>
+
+<h2>Credits</h2>
+
+<p>
+	Sentences and translations were taken from <a href="https://tatoeba.org/">Tatoeba</a>.
+	These are released under <a href="https://creativecommons.org/licenses/by/2.0/fr">CC BY 2.0 FR</a>.
 </p>
 </main>
 
