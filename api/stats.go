@@ -42,8 +42,8 @@ func queryInt(path, query string, upgrade ...bool) (int, error) {
 	return result, err
 }
 
-func countSeen(l1, l2 string) (int, error) {
-	return queryInt(basedir.Review(l1, l2), `select count(*) from review`, true)
+func countSeen(l1, l2 string, userID int) (int, error) {
+	return queryInt(basedir.Review(userID, l1, l2), `select count(*) from review`, true)
 }
 
 // Total count of words in course.
@@ -52,29 +52,29 @@ func countTotal(l1, l2 string) (int, error) {
 }
 
 // New words learned today.
-func countLearnedToday(l1, l2 string) (int, error) {
+func countLearnedToday(l1, l2 string, userID int) (int, error) {
 	query := `select count(*) from review where learned >= current_date`
-	return queryInt(basedir.Review(l1, l2), query, true)
+	return queryInt(basedir.Review(userID, l1, l2), query, true)
 }
 
 // Number of words reviewed today, excluding new words.
-func countReviewedToday(l1, l2 string) (int, error) {
+func countReviewedToday(l1, l2 string, userID int) (int, error) {
 	query := `
 select count(*) from review where reviewed >= current_date
 and learned < current_date
 `
-	return queryInt(basedir.Review(l1, l2), query, true)
+	return queryInt(basedir.Review(userID, l1, l2), query, true)
 }
 
 // Number of correct answers today.
-func countCorrectToday(l1, l2 string) (int, error) {
+func countCorrectToday(l1, l2 string, userID int) (int, error) {
 	// NOTE assumes that 1 day is the smallest non-empty interval
 	query := `select count(*) from review where reviewed >= current_date and correct`
-	return queryInt(basedir.Review(l1, l2), query, true)
+	return queryInt(basedir.Review(userID, l1, l2), query, true)
 }
 
-func getCourseStats(l1, l2 string) (*CourseStats, error) {
-	seen, err := countSeen(l1, l2)
+func getCourseStats(l1, l2 string, userID int) (*CourseStats, error) {
+	seen, err := countSeen(l1, l2, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -84,17 +84,17 @@ func getCourseStats(l1, l2 string) (*CourseStats, error) {
 		return nil, err
 	}
 
-	learned, err := countLearnedToday(l1, l2)
+	learned, err := countLearnedToday(l1, l2, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	reviewed, err := countReviewedToday(l1, l2)
+	reviewed, err := countReviewedToday(l1, l2, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	correct, err := countCorrectToday(l1, l2)
+	correct, err := countCorrectToday(l1, l2, userID)
 	if err != nil {
 		return nil, err
 	}

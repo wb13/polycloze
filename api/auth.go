@@ -5,9 +5,13 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
+	"os"
+	"path"
 
 	"github.com/lggruspe/polycloze/auth"
+	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/sessions"
 )
 
@@ -73,12 +77,12 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 func handleSignIn(w http.ResponseWriter, r *http.Request) {
 	db := auth.GetDB(r)
 	s, err := sessions.ResumeSession(db, w, r)
+	data := make(map[string]any)
+
 	if err == nil && isSignedIn(s) {
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-		return
+		goto success
 	}
 
-	data := make(map[string]any)
 	if r.Method == "POST" {
 		username := r.FormValue("username")
 		password := r.FormValue("password")
@@ -101,15 +105,21 @@ func handleSignIn(w http.ResponseWriter, r *http.Request) {
 			data["message"] = "Authentication failed."
 			goto fail
 		}
-
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
-		return
+		goto success
 	}
 
 fail:
 	if err := renderTemplate(w, "signin.html", data); err != nil {
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 	}
+	return
+
+success:
+	if err := initUserDirectory(s.Data["userID"].(int)); err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
 
 // HandlerFunc for signing out.
@@ -125,4 +135,21 @@ func handleSignOut(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+}
+
+func initUserDirectory(userID int) error {
+	base := basedir.User(userID)
+	logs := path.Join(base, "logs")
+	reviews := path.Join(base, "reviews")
+
+	if err := os.MkdirAll(base, 0o700); err != nil {
+		return fmt.Errorf("failed to create user directory: %v", err)
+	}
+	if err := os.MkdirAll(logs, 0o700); err != nil {
+		return fmt.Errorf("failed to create user directory: %v", err)
+	}
+	if err := os.MkdirAll(reviews, 0o700); err != nil {
+		return fmt.Errorf("failed to create user directory: %v", err)
+	}
+	return nil
 }

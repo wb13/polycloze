@@ -8,18 +8,22 @@ import (
 	"path"
 )
 
+// Returns path to user's files.
+// Doesn't check if the path exists.
+func User(userID int) string {
+	return path.Join(StateDir, "users", fmt.Sprintf("%v", userID))
+}
+
 // Returns path to review database.
 // l1 and l2: ISO 639-3 code
-// TODO user param
-func Review(l1, l2 string) string {
-	return path.Join(StateDir, "reviews", "user", fmt.Sprintf("%s-%s.db", l1, l2))
+func Review(userID int, l1, l2 string) string {
+	return path.Join(User(userID), "reviews", fmt.Sprintf("%s-%s.db", l1, l2))
 }
 
 // Returns path to log file.
 // l1 and l2: ISO 639-3 code
-// TODO user param
-func Log(l1, l2 string) string {
-	return path.Join(StateDir, "logs", "user", fmt.Sprintf("%s-%s.log", l1, l2))
+func Log(userID int, l1, l2 string) string {
+	return path.Join(User(userID), "logs", fmt.Sprintf("%s-%s.log", l1, l2))
 }
 
 // Returns path to database for course.

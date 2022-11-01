@@ -71,7 +71,7 @@ func success(frequencyClass int) []byte {
 	return []byte(fmt.Sprintf("{\"success\": true, \"frequencyClass\": %v}", frequencyClass))
 }
 
-func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request) {
+func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, userID int) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		http.Error(w, "expected json body in POST request", 400)
 		return
@@ -104,7 +104,7 @@ func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 			log.Printf("failed to update word: '%v'\n\t%v\n", review.Word, err.Error())
 		}
 		frequencyClass = word_scheduler.PreferredDifficulty(con)
-		_ = logger.LogReview(basedir.Log(l1, l2), review.Correct, review.Word)
+		_ = logger.LogReview(basedir.Log(userID, l1, l2), review.Correct, review.Word)
 	}
 
 	if _, err := w.Write(success(frequencyClass)); err != nil {
@@ -136,7 +136,8 @@ func handleFlashcards(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err = database.New(basedir.Review(l1, l2))
+	userID := s.Data["userID"].(int)
+	db, err = database.New(basedir.Review(userID, l1, l2))
 	if err != nil {
 		log.Println(fmt.Errorf("could not open review database (%v-%v): %v", l1, l2, err))
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
@@ -146,7 +147,7 @@ func handleFlashcards(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "POST":
-		handleReviewUpdate(db, w, r)
+		handleReviewUpdate(db, w, r, userID)
 	case "GET":
 		generateFlashcards(db, w, r)
 	}

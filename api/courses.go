@@ -11,8 +11,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/lggruspe/polycloze/auth"
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
+	"github.com/lggruspe/polycloze/sessions"
 )
 
 type Language struct {
@@ -47,13 +49,18 @@ func courseGlobPattern(l1, l2 string) string {
 	return fmt.Sprintf("%s-%s.db", l1, l2)
 }
 
-func AvailableCourses(l1, l2 string, includeStats bool) []Course {
+// user: optional, include their stat if non-empty
+func AvailableCourses(l1, l2 string, user ...int) []Course {
+	if len(user) > 1 {
+		panic("expected zero or one user")
+	}
+
 	var courses []Course
 
 	glob := courseGlobPattern(l1, l2)
 	matches, _ := filepath.Glob(filepath.Join(basedir.DataDir, glob))
 	for _, match := range matches {
-		course, err := getCourseInfo(match, includeStats)
+		course, err := getCourseInfo(match, user...)
 		if err == nil {
 			courses = append(courses, course)
 		}
@@ -69,7 +76,11 @@ func courseExists(l1, l2 string) bool {
 }
 
 // Input: path to course db file.
-func getCourseInfo(path string, includeStats bool) (Course, error) {
+func getCourseInfo(path string, user ...int) (Course, error) {
+	if len(user) > 1 {
+		panic("expected zero or one user")
+	}
+
 	var course Course
 
 	db, err := database.Open(path)
@@ -107,8 +118,8 @@ func getCourseInfo(path string, includeStats bool) (Course, error) {
 		return course, fmt.Errorf("invalid course database: %s\n", path)
 	}
 
-	if includeStats {
-		stats, err := getCourseStats(course.L1.Code, course.L2.Code)
+	if len(user) > 0 {
+		stats, err := getCourseStats(course.L1.Code, course.L2.Code, user[0])
 		if err != nil {
 			return course, err
 		}
@@ -120,13 +131,22 @@ func getCourseInfo(path string, includeStats bool) (Course, error) {
 
 func courseOptions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-
 	q := r.URL.Query()
+
+	user := make([]int, 0, 1)
+	if q.Get("stats") == "true" {
+		db := auth.GetDB(r)
+		s, err := sessions.ResumeSession(db, w, r)
+		if err == nil && isSignedIn(s) {
+			user = append(user, s.Data["userID"].(int))
+		}
+	}
+
 	courses := Courses{
 		Courses: AvailableCourses(
 			q.Get("l1"),
 			q.Get("l2"),
-			q.Get("stats") == "true",
+			user...,
 		),
 	}
 	bytes, err := json.Marshal(courses)
