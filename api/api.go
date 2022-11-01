@@ -119,7 +119,7 @@ func cors(next http.Handler) http.Handler {
 	})
 }
 
-func createHandler(w http.ResponseWriter, r *http.Request) {
+func handleFlashcards(w http.ResponseWriter, r *http.Request) {
 	l1 := chi.URLParam(r, "l1")
 	l2 := chi.URLParam(r, "l2")
 
@@ -156,6 +156,19 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleStudy(w http.ResponseWriter, r *http.Request) {
+	db := auth.GetDB(r)
+	s, err := sessions.ResumeSession(db, w, r)
+	if err != nil || !isSignedIn(s) {
+		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
+		return
+	}
+
+	if err := renderTemplate(w, "study.html", s.Data); err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+	}
+}
+
 // db: user DB for authentication
 func Router(config Config, db *sql.DB) (chi.Router, error) {
 	r := chi.NewRouter()
@@ -166,8 +179,8 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 	r.Use(auth.Middleware(db))
 
 	r.HandleFunc("/", handleHome)
+	r.HandleFunc("/study", handleStudy)
 	r.HandleFunc("/about", showPage("about.html"))
-	r.HandleFunc("/study", showPage("study.html"))
 
 	r.HandleFunc("/register", handleRegister)
 	r.HandleFunc("/signin", handleSignIn)
@@ -180,7 +193,6 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 	r.Handle("/serviceworker.js*", http.StripPrefix("/", serveDist()))
 
 	r.HandleFunc("/courses", courseOptions)
-
-	r.HandleFunc("/{l1}/{l2}", createHandler)
+	r.HandleFunc("/{l1}/{l2}", handleFlashcards)
 	return r, nil
 }
