@@ -20,6 +20,7 @@ import (
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/flashcards"
 	"github.com/lggruspe/polycloze/logger"
+	"github.com/lggruspe/polycloze/sessions"
 	"github.com/lggruspe/polycloze/text"
 	"github.com/lggruspe/polycloze/word_scheduler"
 )
@@ -141,6 +142,20 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleHome(w http.ResponseWriter, r *http.Request) {
+	db := auth.GetDB(r)
+	s, err := sessions.StartOrResumeSession(db, w, r)
+
+	if err != nil || !isSignedIn(s) {
+		http.Redirect(w, r, "/about", http.StatusTemporaryRedirect)
+		return
+	}
+
+	if err := renderTemplate(w, "home.html", s.Data); err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+	}
+}
+
 // db: user DB for authentication
 func Router(config Config, db *sql.DB) (chi.Router, error) {
 	r := chi.NewRouter()
@@ -150,7 +165,7 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 	r.Use(middleware.Logger)
 	r.Use(auth.Middleware(db))
 
-	r.HandleFunc("/", showPage("home.html"))
+	r.HandleFunc("/", handleHome)
 	r.HandleFunc("/about", showPage("about.html"))
 	r.HandleFunc("/study", showPage("study.html"))
 
