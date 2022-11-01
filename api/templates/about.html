@@ -65,15 +65,13 @@
 <h3>Adaptive word scheduler</h3>
 
 <p>
-	In what order should you study words?
-	Strategy #1 is to study the most common words first.
-	This works for beginners, but the advice might be inappropriate for more advanced learners who are using polycloze for the first time.
+	The word scheduler introduces the most common words first by default (strategy #1).
+	But for more advanced learners, it wouldn't be a good use of time to start from the lowest difficulty.
 </p>
 
 <p>
-	The word scheduler introduces words that are appropriate for the learner's level.
-	Advanced learners no longer have to go through thousands of flashcards of basic vocabulary.
-	If you get all the newly introduced words at a certain <a href="https://de.wikipedia.org/wiki/H%C3%A4ufigkeitsklasse">frequency class</a> right, then the difficulty is probably too low for you.
+	Instead, the word scheduler adapts to the learner's level.
+	If you get all the newly introduced words at a certain <a href="https://de.wikipedia.org/wiki/H%C3%A4ufigkeitsklasse">frequency class</a> right, then the difficulty is probably too low.
 	The scheduler will notice and start introducing words at a more difficult frequency class.
 	But if new words are too difficult, the scheduler will start introducing easier words.
 </p>
@@ -81,10 +79,10 @@
 <h3>Auto-tuning spacing algorithm</h3>
 
 <p>
-	There's no need to tweak the parameters of the spacing algorithm.
-	The algorithm tunes itself so that the spacing between reviews is just right.
-	When the spacing is too short, you end up reviewing words more than necessary.
+	When the spacing between reviews is too short, you end up reviewing words more than necessary.
 	And when it's too long, there's a chance you'll forget the word before the next scheduled review.
+	The algorithm tunes itself so that the spacing between reviews is just right.
+	There's no need to tweak the parameters of the spacing algorithm.
 </p>
 
 <h3>Cloze deletion tests</h3>
