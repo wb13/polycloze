@@ -1,23 +1,20 @@
 # poly<u>cloze</u>
 
-A tool for studying foreign language vocabulary using cloze tests.
+A self-hosted language learning website.
 
-[Demo](https://polycloze-demo.herokuapp.com/)
+[Demo 1](https://demo.polycloze.com)
+
+[Demo 2](https://polycloze-demo.herokuapp.com/)
 
 ## Features
 
-**Adaptive flashcards scheduler**
-:	Polycloze's flashcards scheduler adjusts the spacing between reviews based on the student's performance.
-It also estimates the student's vocabulary level, so advanced learners don't have to see words they already know.
-
-**[Digraphs](./docs/digraphs.md)**
-: Even if your keyboard doesn't have all the needed keys, you can use digraphs to enter any symbol in your target language.
-For example, `\a:` automatically gets turned into `ä`.
-
-**Uses SQLite**
-: This makes it easy to track your vocabulary.
-Even course files are stored as SQLite databases.
-By default, course files are saved in `~/.local/share/polycloze` and review data are saved in `~/.local/state/polycloze`.
+- Cloze deletion tests
+- Auto-tuning spaced repetition algorithm
+- Adaptive word scheduler
+    + Word scheduler estimates the student's vocabulary so it can skip words that are too easy.
+- [Digraphs](./docs/digraphs.md)
+    + For example, when you type `\a:`, it gets turned into `ä`.
+- [Automated course builder](./python)
 
 ## Usage
 
