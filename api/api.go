@@ -71,7 +71,7 @@ func success(frequencyClass int) []byte {
 	return []byte(fmt.Sprintf("{\"success\": true, \"frequencyClass\": %v}", frequencyClass))
 }
 
-func handleReviewUpdate(db *sql.DB, l1, l2 string, w http.ResponseWriter, r *http.Request) {
+func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		http.Error(w, "expected json body in POST request", 400)
 		return
@@ -88,6 +88,8 @@ func handleReviewUpdate(db *sql.DB, l1, l2 string, w http.ResponseWriter, r *htt
 		return
 	}
 
+	l1 := chi.URLParam(r, "l1")
+	l2 := chi.URLParam(r, "l2")
 	hook := database.AttachCourse(basedir.Course(l1, l2))
 	con, err := database.NewConnection(db, r.Context(), hook)
 	if err != nil {
@@ -120,23 +122,31 @@ func cors(next http.Handler) http.Handler {
 }
 
 func handleFlashcards(w http.ResponseWriter, r *http.Request) {
+	db := auth.GetDB(r)
+	s, err := sessions.ResumeSession(db, w, r)
+	if err != nil || !isSignedIn(s) {
+		http.NotFound(w, r)
+		return
+	}
+
 	l1 := chi.URLParam(r, "l1")
 	l2 := chi.URLParam(r, "l2")
-
 	if !courseExists(l1, l2) {
 		http.NotFound(w, r)
 		return
 	}
 
-	db, err := database.New(basedir.Review(l1, l2))
+	db, err = database.New(basedir.Review(l1, l2))
 	if err != nil {
-		log.Fatal(fmt.Errorf("could not open review database (%v-%v): %v", l1, l2, err))
+		log.Println(fmt.Errorf("could not open review database (%v-%v): %v", l1, l2, err))
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
 	}
 	defer db.Close()
 
 	switch r.Method {
 	case "POST":
-		handleReviewUpdate(db, l1, l2, w, r)
+		handleReviewUpdate(db, w, r)
 	case "GET":
 		generateFlashcards(db, w, r)
 	}
