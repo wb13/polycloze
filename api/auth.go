@@ -49,50 +49,63 @@ func isSignedIn(s *sessions.Session) bool {
 // HandlerFunc for user registrations.
 func handleRegister(w http.ResponseWriter, r *http.Request) {
 	// Redirect to home page if already signed in.
+	data := make(map[string]any)
 	db := auth.GetDB(r)
-	s, err := sessions.ResumeSession(db, w, r)
-	if err == nil && isSignedIn(s) {
+	s, err := sessions.StartOrResumeSession(db, w, r)
+	if err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	if isSignedIn(s) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
-
-	data := make(map[string]any)
 	if r.Method == "POST" {
 		username := r.FormValue("username")
 		password := r.FormValue("password")
+		csrfToken := r.FormValue("csrf-token")
 
+		if !sessions.CheckCSRFToken(s.ID, csrfToken) {
+			data["message"] = "Something went wrong. Please try again."
+			goto fail
+		}
 		if auth.Register(db, username, password) == nil {
 			http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
 			return
 		}
 		data["message"] = "This username is unavailable. Try another one."
 	}
+
+fail:
+	data["csrfToken"] = sessions.CSRFToken(s.ID)
 	renderTemplate(w, "register.html", data)
 }
 
 // HandlerFunc for signing in.
 func handleSignIn(w http.ResponseWriter, r *http.Request) {
-	db := auth.GetDB(r)
-	s, err := sessions.ResumeSession(db, w, r)
 	data := make(map[string]any)
-
-	if err == nil && isSignedIn(s) {
+	db := auth.GetDB(r)
+	s, err := sessions.StartOrResumeSession(db, w, r)
+	if err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	if isSignedIn(s) {
 		goto success
 	}
 
 	if r.Method == "POST" {
 		username := r.FormValue("username")
 		password := r.FormValue("password")
+		csrfToken := r.FormValue("csrf-token")
 
+		if !sessions.CheckCSRFToken(s.ID, csrfToken) {
+			data["message"] = "Authentication failed."
+			goto fail
+		}
 		userID, err := auth.Authenticate(db, username, password)
 		if err != nil {
 			data["message"] = "Incorrect username or password."
-			goto fail
-		}
-
-		s, err = sessions.StartSession(db, w, r)
-		if err != nil {
-			data["message"] = "Authentication failed."
 			goto fail
 		}
 
@@ -106,6 +119,7 @@ func handleSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 fail:
+	data["csrfToken"] = sessions.CSRFToken(s.ID)
 	renderTemplate(w, "signin.html", data)
 	return
 
