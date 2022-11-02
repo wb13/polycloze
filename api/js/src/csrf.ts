@@ -1,5 +1,5 @@
 // Returns csrf token from header meta, or empty string.
-function csrf(): string {
+export function csrf(): string {
     const meta = document.querySelector("meta[name=\"csrf-token\"]");
     if (meta == null) {
         return "";

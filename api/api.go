@@ -71,9 +71,15 @@ func success(frequencyClass int) []byte {
 	return []byte(fmt.Sprintf("{\"success\": true, \"frequencyClass\": %v}", frequencyClass))
 }
 
-func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, userID int) {
+func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, s *sessions.Session) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		http.Error(w, "expected json body in POST request", 400)
+		return
+	}
+
+	// Check csrf token in HTTP headers.
+	if !sessions.CheckCSRFToken(s.ID, r.Header.Get("X-CSRF-Token")) {
+		http.Error(w, "Forbidden.", http.StatusForbidden)
 		return
 	}
 
@@ -98,6 +104,7 @@ func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, user
 	}
 	defer con.Close()
 
+	userID := s.Data["userID"].(int)
 	var frequencyClass int
 	for _, review := range reviews.Reviews {
 		err := word_scheduler.UpdateWord(con, review.Word, review.Correct)
@@ -148,7 +155,7 @@ func handleFlashcards(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "POST":
-		handleReviewUpdate(db, w, r, userID)
+		handleReviewUpdate(db, w, r, s)
 	case "GET":
 		generateFlashcards(db, w, r)
 	}

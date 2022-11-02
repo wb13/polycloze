@@ -1,5 +1,6 @@
 // Contains functions for getting data from the server and from localStorage.
 
+import { csrf } from "./csrf";
 import { Item } from "./item";
 import { getL1, getL2 } from "./language";
 import { Course, ItemsSchema, ReviewSchema, CoursesSchema } from "./schema";
@@ -71,7 +72,8 @@ export async function submitReview(word: string, correct: boolean): Promise<Revi
         }),
         headers: {
             Accept: "application/json",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrf()
         },
         method: "POST",
         mode: "cors" as RequestMode
