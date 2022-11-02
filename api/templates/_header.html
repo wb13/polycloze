@@ -3,6 +3,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#ffffff">
 <meta name="description" content="Polycloze is a tool for studying foreign language vocabulary using cloze tests. Source: https://github.com/lggruspe/polycloze.">
+{{if .csrfToken}}
+<meta name="csrf-token" content="{{.csrfToken}}">
+{{end}}
 
 <link rel="icon" type="icon" href="public/favicon.ico">
 <link rel="apple-touch-icon" sizes="180x180" href="public/apple-touch-icon.png">

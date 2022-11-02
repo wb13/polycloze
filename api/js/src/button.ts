@@ -1,4 +1,5 @@
 import "./button.css";
+import { createCSRFTokenInput } from "./csrf";
 
 export function setButton(button: HTMLButtonElement, content: string, onClick?: (event: Event) => void) {
     button.textContent = content;
@@ -18,6 +19,7 @@ function followLinkPost(url: string) {
     form.action = url;
     form.method = "POST";
     form.style.display = "none";
+    form.appendChild(createCSRFTokenInput());
 
     document.body.appendChild(form);
 

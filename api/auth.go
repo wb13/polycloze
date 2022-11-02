@@ -139,10 +139,17 @@ func handleSignOut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	db := auth.GetDB(r)
+	s, err := sessions.ResumeSession(db, w, r)
+	if err != nil || !isSignedIn(s) {
+		goto done
+	}
+
 	if err := sessions.EndSession(db, w, r); err != nil {
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
+
+done:
 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
 
