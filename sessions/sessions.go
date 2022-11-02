@@ -67,12 +67,14 @@ func StartOrResumeSession(db *sql.DB, w http.ResponseWriter, r *http.Request) (*
 // Ends a session.
 // Does nothing if there's no client session cookie.
 func EndSession(db *sql.DB, w http.ResponseWriter, r *http.Request) error {
+	var id string
 	c, err := getCookie(r)
-	if err != nil {
-		return nil
+	if err == nil {
+		id = c.Value
 	}
 
-	if err := deleteID(db, c.Value); err != nil {
+	// Deleting empty ID doesn't delete any specific session, but deletes stale sessions.
+	if err := deleteID(db, id); err != nil {
 		return fmt.Errorf("failed to end session: %v", err)
 	}
 
