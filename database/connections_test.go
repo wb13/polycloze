@@ -28,6 +28,8 @@ func connection(db *sql.DB) *Connection {
 
 func TestDefaultConnectionHook(t *testing.T) {
 	// Default Enter and Exit functions shouldn't simply return nil.
+	t.Parallel()
+
 	hook := DefaultConnectionHook()
 
 	db := database()
@@ -46,6 +48,7 @@ func TestDefaultConnectionHook(t *testing.T) {
 
 func TestConnectionHookEnterExit(t *testing.T) {
 	// Enter and Exit hooks should be called in the proper order.
+	t.Parallel()
 
 	var result string
 
@@ -94,6 +97,7 @@ func TestConnectionHookEnterExit(t *testing.T) {
 
 func TestNewConnectionError(t *testing.T) {
 	// Exit hooks should be called immediately in the proper order on failure.
+	t.Parallel()
 
 	enter := 0
 	exit := 0

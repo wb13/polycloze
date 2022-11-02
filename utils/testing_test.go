@@ -7,8 +7,10 @@ import (
 	"testing"
 )
 
-func TestTestingDatabase(_ *testing.T) {
+func TestTestingDatabase(t *testing.T) {
 	// TestingDatabase should run with no errors.
+	t.Parallel()
+
 	db := TestingDatabase()
 	db.Close()
 }
