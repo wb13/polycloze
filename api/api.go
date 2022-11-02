@@ -79,7 +79,8 @@ func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, user
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.Fatal("could not read request body:", err)
+		http.Error(w, "Could not read request.", http.StatusInternalServerError)
+		return
 	}
 
 	var reviews Reviews
@@ -171,6 +172,7 @@ func handleStudy(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
 		return
 	}
+	s.Data["csrfToken"] = sessions.CSRFToken(s.ID)
 	renderTemplate(w, "study.html", s.Data)
 }
 
