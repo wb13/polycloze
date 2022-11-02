@@ -33,3 +33,11 @@ func DeleteCSRFToken(db *sql.DB, sessionID, token string) error {
 	_, err := db.Exec(query, sessionID, token)
 	return err
 }
+
+// Validates CSRF token.
+func CheckCSRFToken(db *sql.DB, sessionID, token string) bool {
+	var result string
+	query := `SELECT token FROM csrf_token WHERE (session_id, token) = (?, ?) LIMIT 1`
+	err := db.QueryRow(query, sessionID, token).Scan(&result)
+	return err == nil
+}
