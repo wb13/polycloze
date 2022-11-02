@@ -6,6 +6,7 @@
 <h1>Register</h1>
 
 <form class="signin" action="/register" method="POST">
+	{{template "_csrf.html" .}}
 	<div>
 		<label for="username" style="display:block">Username</label>
 		<input id="username" name="username" required>
