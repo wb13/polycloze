@@ -17,8 +17,6 @@ func showPage(name string) func(http.ResponseWriter, *http.Request) {
 		if s, err := sessions.StartOrResumeSession(db, w, r); err == nil {
 			data = s.Data
 		}
-		if err := renderTemplate(w, name, data); err != nil {
-			http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-		}
+		renderTemplate(w, name, data)
 	}
 }

@@ -67,10 +67,7 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 		}
 		data["message"] = "This username is unavailable. Try another one."
 	}
-
-	if err := renderTemplate(w, "register.html", data); err != nil {
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-	}
+	renderTemplate(w, "register.html", data)
 }
 
 // HandlerFunc for signing in.
@@ -109,9 +106,7 @@ func handleSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 fail:
-	if err := renderTemplate(w, "signin.html", data); err != nil {
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-	}
+	renderTemplate(w, "signin.html", data)
 	return
 
 success:

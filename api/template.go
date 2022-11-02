@@ -25,6 +25,11 @@ func init() {
 	}
 }
 
-func renderTemplate(w http.ResponseWriter, name string, data map[string]any) error {
-	return templates.ExecuteTemplate(w, name, data)
+// Renders template.
+// Replies with an internal server error when template execution fails.
+// Caller shouldn't make further writes in this case.
+func renderTemplate(w http.ResponseWriter, name string, data map[string]any) {
+	if err := templates.ExecuteTemplate(w, name, data); err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+	}
 }

@@ -161,10 +161,7 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/about", http.StatusTemporaryRedirect)
 		return
 	}
-
-	if err := renderTemplate(w, "home.html", s.Data); err != nil {
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-	}
+	renderTemplate(w, "home.html", s.Data)
 }
 
 func handleStudy(w http.ResponseWriter, r *http.Request) {
@@ -174,10 +171,7 @@ func handleStudy(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
 		return
 	}
-
-	if err := renderTemplate(w, "study.html", s.Data); err != nil {
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-	}
+	renderTemplate(w, "study.html", s.Data)
 }
 
 // db: user DB for authentication
