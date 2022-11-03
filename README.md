@@ -2,9 +2,7 @@
 
 A self-hosted language learning website.
 
-[Demo 1](https://demo.polycloze.com)
-
-[Demo 2](https://polycloze-demo.herokuapp.com/)
+[Demo](https://demo.polycloze.com)
 
 ## Features
 
