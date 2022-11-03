@@ -15,15 +15,27 @@ function createLanguageButton(language: Language): HTMLButtonElement {
 }
 
 // Creates a language select menu.
-// Returns a div element and a function that toggles the visibility of the menu.
+// Returns:
+// - a div element
+// - a function that shows the menu
+// - a function that hides the menu.
 // The menu is hidden by default (display: none).
-function createLanguageMenu(languages: Language[]): [HTMLDivElement, () => void] {
+function createLanguageMenu(languages: Language[]): [HTMLDivElement, () => void, () => void] {
     const div = document.createElement("div");
     div.classList.add("menu");
     div.style.display = "none";
-    const toggle = () => {
-        div.style.display = div.style.display === "none" ? "" : "none";
+    const show = () => {
+        div.style.display = "";
     };
+    const hide = () => {
+        div.style.display = "none";
+    };
+
+    // Create close button.
+    const button = createButton("✕", hide);
+    button.classList.add("button-borderless");
+    button.classList.add("button-tight");
+    div.appendChild(button);
 
     const current = getL1();
     const visited = new Map();
@@ -34,23 +46,23 @@ function createLanguageMenu(languages: Language[]): [HTMLDivElement, () => void]
         visited.set(language.code, language);
         div.appendChild(createLanguageButton(language));
     }
-    return [div, toggle];
+    return [div, show, hide];
 }
 
 export function createLanguageSelectButton(languages: Language[]): HTMLButtonElement {
-    const [menu, toggle] = createLanguageMenu(languages);
+    const [menu, show, hide] = createLanguageMenu(languages);
     document.body.appendChild(menu);
 
     const l1 = getL1();
     const content = `🌐 ${l1.name}`;
-    const button = createButton(content, toggle);
+    const button = createButton(content, show);
     button.classList.add("button-borderless");
     button.classList.add("button-tight");
 
     // Listen for clicks outside the menu.
     document.addEventListener("click", onClickOutside(menu, (target: EventTarget) => {
         if (target != button) {
-            menu.style.display = "none";
+            hide();
         }
     }));
     return button;
