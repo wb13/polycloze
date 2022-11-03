@@ -1,4 +1,8 @@
 **
 
-!python/build/courses/eng-tgl.db
+!python/build/courses/eng-deu.db
+!python/build/courses/eng-fra.db
+!python/build/courses/eng-spa.db
+!python/build/courses/spa-eng.db
+!python/build/courses/tgl-*.db
 !polycloze
