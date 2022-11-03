@@ -3,10 +3,10 @@
 
 	<div>
 		{{if .username}}
-		<button is="button-link" href="/signout" method="POST">Sign out</button>
+		<button is="button-link" class="button-borderless button-tight" href="/signout" method="POST">Sign out</button>
 		{{else}}
-		<button is="button-link" href="/signin">Sign in</button>
+		<button is="button-link" class="button-borderless button-tight" href="/signin">Sign in</button>
 		{{end}}
-		<language-select></language-select>
+		<language-select-button></language-select-button>
 	</div>
 </nav>

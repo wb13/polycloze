@@ -4,7 +4,7 @@ import { setButtonLink } from "./button";
 import { createScoreCounter } from "./counter";
 import { availableCourses } from "./data";
 import { getL1, getL2 } from "./language";
-import { createLanguageForm } from "./select";
+import { createLanguageSelectButton } from "./select";
 import { createCourseTable } from "./table";
 
 export class ClozeApp extends HTMLElement {
@@ -17,11 +17,11 @@ export class ClozeApp extends HTMLElement {
     }
 }
 
-export class LanguageSelect extends HTMLElement {
+export class LanguageSelectButton extends HTMLElement {
     async connectedCallback() {
         const courses = await availableCourses();
         const languages = courses.map(c => c.l1);
-        this.appendChild(createLanguageForm(languages));
+        this.appendChild(createLanguageSelectButton(languages));
     }
 }
 
@@ -62,7 +62,7 @@ export class ButtonLink extends HTMLButtonElement {
 }
 
 customElements.define("cloze-app", ClozeApp);
-customElements.define("language-select", LanguageSelect);
+customElements.define("language-select-button", LanguageSelectButton);
 customElements.define("polycloze-overview", Overview);
 customElements.define("score-counter", ScoreCounter);
 customElements.define("button-link", ButtonLink, { extends: "button" });
