@@ -82,11 +82,11 @@ func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 		return nil, err
 	}
 
-	parsedDue, err := parseTimestamp(due)
+	parsedDue, err := ParseTimestamp(due)
 	if err != nil {
 		return nil, err
 	}
-	parsedReviewed, err := parseTimestamp(reviewed)
+	parsedReviewed, err := ParseTimestamp(reviewed)
 	if err != nil {
 		return nil, err
 	}

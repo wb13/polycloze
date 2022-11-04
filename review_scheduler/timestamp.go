@@ -15,7 +15,7 @@ func formatTime(t time.Time) string {
 }
 
 // Parses sqlite timestamps.
-func parseTimestamp(timestamp string) (time.Time, error) {
+func ParseTimestamp(timestamp string) (time.Time, error) {
 	prefix := strings.TrimSpace(timestamp)[:len(layout)]
 	return time.Parse(layout, prefix)
 }
