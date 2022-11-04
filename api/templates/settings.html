@@ -1,0 +1,62 @@
+{{template "_header.html" .}}
+<title>polycloze | Settings</title>
+{{template "_nav.html" .}}
+
+<main>
+	<h1>Settings</h1>
+
+	<h2>Change password</h2>
+
+	<form class="signin" action="/settings" method="POST">
+		{{template "_csrf.html" .}}
+		<div>
+			<label for="username" style="display:block">Username</label>
+			<input id="username" name="username" required autocapitalize="none" value="{{.username}}" disabled>
+		</div>
+
+		<div>
+			<label for="current-password" style="display:block">Current password</label>
+			<input id="current-password" name="current-password" type="password" required>
+		</div>
+
+		<div>
+			<label for="new-password" style="display:block">New password</label>
+			<input id="new-password" name="new-password" type="password" required>
+		</div>
+
+		<div>
+			<label for="confirm-password" style="display:block">Confirm password</label>
+			<input id="confirm-password" name="confirm-password" type="password" required>
+		</div>
+
+		{{if .message}}
+		<div class="incorrect">{{.message}}</div>
+		{{end}}
+
+		<p class="button-group">
+			<button type="submit">Change password</button>
+		</p>
+
+		<script>
+			const newPassword = document.getElementById("new-password");
+			const confirmPassword = document.getElementById("confirm-password")
+			const button = document.querySelector('form.signin button[type="submit"]')
+			button.addEventListener("click", event => {
+				if (newPassword.value === confirmPassword.value) {
+					newPassword.setCustomValidity("")
+					confirmPassword.setCustomValidity("")
+				} else {
+					const message = "Passwords don't match."
+					newPassword.setCustomValidity(message)
+					confirmPassword.setCustomValidity(message)
+					newPassword.reportValidity()
+					confirmPassword.reportValidity()
+					event.preventDefault()
+					event.stopPropagation()
+				}
+			})
+		</script>
+	</form>
+</main>
+
+{{template "_footer.html"}}

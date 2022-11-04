@@ -196,6 +196,8 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 	r.HandleFunc("/study", handleStudy)
 	r.HandleFunc("/about", showPage("about.html"))
 
+	r.HandleFunc("/settings", handleSettings)
+
 	r.HandleFunc("/register", handleRegister)
 	r.HandleFunc("/signin", handleSignIn)
 	r.HandleFunc("/signout", handleSignOut)

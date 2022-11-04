@@ -117,3 +117,85 @@ func TestRegisterEmptyPassword(t *testing.T) {
 		t.Fatal("empty string should be allowed as password:", err)
 	}
 }
+
+func TestChangePassword(t *testing.T) {
+	t.Parallel()
+	db := openDB()
+	defer db.Close()
+
+	if err := Register(db, "foo", "bar"); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	oldID, err := Authenticate(db, "foo", "bar")
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Change password
+	if err := ChangePassword(db, oldID, "baz"); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Authenticating with old password should fail
+	if _, err := Authenticate(db, "foo", "bar"); err == nil {
+		t.Fatal("expected sign in with old password to fail")
+	}
+
+	// Authenticating with new password shouldn't fail
+	newID, err := Authenticate(db, "foo", "baz")
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// user ID shouldn't change after password change.
+	if newID != oldID {
+		t.Fatal("expected user ID to not change:", oldID, newID)
+	}
+}
+
+func TestChangePasswordNonExistentUser(t *testing.T) {
+	t.Parallel()
+	db := openDB()
+	defer db.Close()
+
+	if err := ChangePassword(db, 1, "baz"); err != nil {
+		t.Fatal("ChangePassword should not return error if user doesn't exist:", err)
+	}
+}
+
+func TestChangePasswordStorage(t *testing.T) {
+	t.Parallel()
+	db := openDB()
+	defer db.Close()
+
+	// Register user
+	if err := Register(db, "foo", "bar"); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	id, err := Authenticate(db, "foo", "bar")
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Change password
+	password := "password"
+	if err := ChangePassword(db, id, password); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Check how the password is stored.
+	var hash string
+	query := `SELECT password FROM user WHERE username = 'foo'`
+	if err := db.QueryRow(query).Scan(&hash); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	if strings.Contains(hash, password) {
+		t.Fatal("password should not be stored in plaintext")
+	}
+	if strings.Contains(password, hash) {
+		t.Fatal("password should not be stored in plaintext")
+	}
+}
