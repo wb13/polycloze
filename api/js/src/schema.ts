@@ -29,3 +29,15 @@ export type Course = {
 export type CoursesSchema = {
     courses: Course[];
 };
+
+export type VocabularyItem = {
+  word: string;
+  reviewed: string;
+  due: string;
+  strength: number;
+};
+
+// from /<l1>/<l2>/vocab
+export type VocabularySchema = {
+  results: VocabularyItem[];
+};

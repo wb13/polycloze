@@ -3,7 +3,7 @@
 import { csrf } from "./csrf";
 import { Item } from "./item";
 import { getL1, getL2 } from "./language";
-import { Course, ItemsSchema, ReviewSchema, CoursesSchema } from "./schema";
+import { Course, ItemsSchema, ReviewSchema, CoursesSchema, VocabularyItem, VocabularySchema } from "./schema";
 
 // Location of server
 const src = findServer();
@@ -16,6 +16,12 @@ function currentCourse(n = 10, x: string[] = []): string {
         url += `&x=${word}`;
     }
     return url;
+}
+
+function currentCourseVocab(limit = 20): string {
+    const l1 = getL1().code;
+    const l2 = getL2().code;
+    return `/${l1}/${l2}/vocab?limit=${limit}`;
 }
 
 // Server stuff
@@ -51,6 +57,13 @@ export async function availableCourses(params: AvailableCoursesOptions = {}): Pr
     const options = { mode: "cors" as RequestMode };
     const json = await fetchJson<CoursesSchema>(url, options);
     return json.courses;
+}
+
+export async function fetchVocabularyItems(): Promise<VocabularyItem[]> {
+    const url = new URL(currentCourseVocab(), src);
+    const options = { mode: "cors" as RequestMode };
+    const json = await fetchJson<VocabularySchema>(url, options);
+    return json.results;
 }
 
 export async function fetchItems(n = 10, x: string[] = []): Promise<Item[]> {
