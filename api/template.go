@@ -5,6 +5,7 @@ package api
 
 import (
 	"embed"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -30,6 +31,7 @@ func init() {
 // Caller shouldn't make further writes in this case.
 func renderTemplate(w http.ResponseWriter, name string, data map[string]any) {
 	if err := templates.ExecuteTemplate(w, name, data); err != nil {
+		log.Println(fmt.Errorf("template execution error: %v", err))
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 	}
 }

@@ -153,7 +153,6 @@ func courseOptions(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	if _, err := w.Write(bytes); err != nil {
 		log.Println(err)
 	}
