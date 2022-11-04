@@ -160,3 +160,7 @@ input:focus {
 .transparent {
 	opacity: 0;
 }
+
+.underline {
+	text-decoration: underline 2px;
+}
