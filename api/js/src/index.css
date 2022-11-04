@@ -161,6 +161,6 @@ input:focus {
 	opacity: 0;
 }
 
-.underline {
+.underline, a.logo:hover {
 	text-decoration: underline 2px;
 }
