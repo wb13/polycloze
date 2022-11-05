@@ -33,3 +33,12 @@ func servePublic() http.Handler {
 	}
 	return http.FileServer(http.FS(sub))
 }
+
+// Usage: http.Handle("/svg/*", http.StripPrefix("/svg/", serveSVG()))
+func serveSVG() http.Handler {
+	sub, err := fs.Sub(dist, "js/dist/svg")
+	if err != nil {
+		panic(err)
+	}
+	return http.FileServer(http.FS(sub))
+}

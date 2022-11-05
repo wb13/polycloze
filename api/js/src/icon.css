@@ -1,0 +1,4 @@
+img[src^="/public/svg"] {
+	height: 1em;
+	vertical-align: sub;	/* Aligns phosphor SVG icons */
+}

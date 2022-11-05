@@ -3,11 +3,19 @@
 
 	<div>
 		{{if .username}}
-		<button is="button-link" class="button-borderless button-tight" href="/vocab">Vocabulary</button>
-		<button is="button-link" class="button-borderless button-tight" href="/settings">Settings</button>
-		<button is="button-link" class="button-borderless button-tight" href="/signout" method="POST">Sign out</button>
+		<button is="button-link" class="button-borderless button-tight" href="/vocab">
+			<img src="/public/svg/notebook.svg"> Vocabulary
+		</button>
+		<button is="button-link" class="button-borderless button-tight" href="/settings">
+			<img src="/public/svg/faders.svg"> Settings
+		</button>
+		<button is="button-link" class="button-borderless button-tight" href="/signout" method="POST">
+			<img src="/public/svg/sign-out.svg"> Sign out
+		</button>
 		{{else}}
-		<button is="button-link" class="button-borderless button-tight" href="/signin">Sign in</button>
+		<button is="button-link" class="button-borderless button-tight" href="/signin">
+			<img src="/public/svg/sign-in.svg"> Sign in
+		</button>
 		{{end}}
 		<language-select-button></language-select-button>
 	</div>

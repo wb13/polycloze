@@ -1,6 +1,7 @@
 import "./select.css";
 import { createButton } from "./button";
 import { onClickOutside } from "./click";
+import { createIcon } from "./icon";
 import { Language, getL1, setL1 } from "./language";
 
 // Creates an entry in the language select menu.
@@ -54,7 +55,9 @@ export function createLanguageSelectButton(languages: Language[]): HTMLButtonEle
     document.body.appendChild(menu);
 
     const l1 = getL1();
-    const content = `🌐 ${l1.name}`;
+    const content = document.createElement("span");
+    content.append(createIcon("globe"), ` ${l1.name}`);
+
     const button = createButton(content, show);
     button.classList.add("button-borderless");
     button.classList.add("button-tight");
