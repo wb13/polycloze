@@ -9,6 +9,20 @@ const year = 365 * day;
 
 export function relative(date: Date): string {
     const now = new Date(Date.now());
+    if (date <= now) {
+        return howLongAgo(now, date);
+    }
+    return howFarInTheFuture(now, date);
+}
+
+export function createDateTime(date: Date): HTMLSpanElement {
+    const span = document.createElement("span");
+    span.title = date.toLocaleString();
+    span.textContent = relative(date);
+    return span;
+}
+
+function howLongAgo(now: Date, date: Date): string {
     const diff = now.valueOf() - date.valueOf();    // in milliseconds
 
     const years = Math.floor(diff / year);
@@ -69,9 +83,63 @@ export function relative(date: Date): string {
     return "Just now";
 }
 
-export function createDateTime(date: Date): HTMLSpanElement {
-    const span = document.createElement("span");
-    span.title = date.toLocaleString();
-    span.textContent = relative(date);
-    return span;
+function howFarInTheFuture(now: Date, date: Date): string {
+    const diff = date.valueOf() - now.valueOf();    // in milliseconds
+
+    const years = Math.floor(diff / year);
+    if (years > 1) {
+        return `In ${years} years`;
+    }
+    if (years > 0) {
+        return "Next year";
+    }
+
+    const months = Math.floor(diff / month);
+    if (months > 1) {
+        return `In ${months} months`;
+    }
+    if (months > 0) {
+        return "Next month";
+    }
+
+    const weeks = Math.floor(diff / week);
+    if (weeks > 1) {
+        return `In ${weeks} weeks`;
+    }
+    if (weeks > 0) {
+        return "Next week";
+    }
+
+    const days = Math.floor(diff / day);
+    if (days > 1) {
+        return `In ${days} days`;
+    }
+    if (days > 0) {
+        return "Tomorrow";
+    }
+
+    const hours = Math.floor(diff / hour);
+    if (hours > 1) {
+        return `In ${hours} hours`;
+    }
+    if (hours > 0) {
+        return "In 1 hour";
+    }
+
+    const minutes = Math.floor(diff / minute);
+    if (minutes > 1) {
+        return `In ${minutes} minutes`;
+    }
+    if (minutes > 0) {
+        return "In 1 minute";
+    }
+
+    const seconds = Math.floor(diff / second);
+    if (seconds > 1) {
+        return `In ${seconds} seconds`;
+    }
+    if (seconds > 0) {
+        return "In 1 second";
+    }
+    return "Now";
 }
