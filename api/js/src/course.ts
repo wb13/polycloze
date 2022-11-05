@@ -1,31 +1,51 @@
 /* Course table. */
 
 import "./course.css";
+import { createButton } from "./button";
+import { createIcon } from "./icon";
 import { setL2 } from "./language";
 import { Course } from "./schema";
 import { createTable, createTableData, createTableHeader } from "./table";
 
-function createCourseMeter(course: Course): HTMLDivElement {
+function createSpan(children: Array<string | Element>): HTMLSpanElement {
+    const span = document.createElement("span");
+    span.append(...children);
+    return span;
+}
+
+function createSeenCount(course: Course): HTMLElement {
     const seen = course.stats?.seen || 0;
-    const total = course.stats?.total || 1;
+    if (seen <= 0) {
+        return document.createElement("div");
+    }
 
-    const meter = document.createElement("meter");
-    meter.max = total;
-    meter.optimum = total;
-    meter.value = seen;
-
-    const description = document.createElement("div");
-    description.textContent = `${seen}/${total}`;
-
-    const div = document.createElement("div");
-    div.append(meter, description);
-    return div;
+    const content = createSpan([createIcon("info"), ` ${seen} words`]);
+    const button = createButton(content, () => {
+        setL2(course.l2);
+        window.location.pathname = "/vocab";
+    });
+    button.classList.add("button-borderless");
+    button.classList.add("button-tight");
+    button.style.margin = "0";
+    return button;
 }
 
 function createDiv(child: string | Element): HTMLDivElement {
     const div = document.createElement("div");
     div.append(child);
     return div;
+}
+
+function createCourseCodeButton(course: Course): HTMLButtonElement {
+    const content = createSpan([createIcon("play-circle"), ` ${course.l2.code}`]);
+    const button = createButton(content, () => {
+        setL2(course.l2);
+        window.location.pathname = "/study";
+    });
+    button.classList.add("button-borderless");
+    button.classList.add("button-tight");
+    button.style.margin = "0";
+    return button;
 }
 
 function createStudiedTodayCell(course: Course): HTMLTableCellElement {
@@ -54,16 +74,11 @@ function createStudiedTodayCell(course: Course): HTMLTableCellElement {
 function createCourseTableRow(course: Course): HTMLTableRowElement {
     const tr = document.createElement("tr");
     tr.append(
-        createTableData(course.l2.code),
+        createTableData(createCourseCodeButton(course)),
         createTableData(course.l2.name),
-        createCourseMeter(course),
+        createTableData(createSeenCount(course)),
         createStudiedTodayCell(course),
     );
-
-    tr.addEventListener("click", () => {
-        setL2(course.l2);
-        window.location.pathname = "/study";
-    });
     return tr;
 }
 
