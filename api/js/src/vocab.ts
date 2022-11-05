@@ -1,4 +1,5 @@
 import "./vocab.css";
+import { createDateTime } from "./datetime";
 import { getL2 } from "./language";
 import { VocabularyItem } from "./schema";
 
@@ -39,12 +40,14 @@ function createVocabularyListTableData(child: string | Element): HTMLTableCellEl
 }
 
 function createVocabularyListTableRow(item: VocabularyItem): HTMLTableRowElement {
+    const reviewed = new Date(Date.parse(item.reviewed));
+    const due = new Date(Date.parse(item.due));
+
     const tr = document.createElement("tr");
-    console.log("debuig:", item);
     tr.append(
         createVocabularyListTableData(item.word),
-        createVocabularyListTableData(item.reviewed),
-        createVocabularyListTableData(item.due),
+        createVocabularyListTableData(createDateTime(reviewed)),
+        createVocabularyListTableData(createDateTime(due)),
         createVocabularyListTableData(String(item.strength)),
     );
     return tr;
