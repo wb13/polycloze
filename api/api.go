@@ -183,6 +183,17 @@ func handleStudy(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "study.html", s.Data)
 }
 
+func handleVocabularyPage(w http.ResponseWriter, r *http.Request) {
+	db := auth.GetDB(r)
+	s, err := sessions.ResumeSession(db, w, r)
+	if err != nil || !isSignedIn(s) {
+		http.NotFound(w, r)
+		return
+	}
+	s.Data["csrfToken"] = sessions.CSRFToken(s.ID)
+	renderTemplate(w, "vocab.html", s.Data)
+}
+
 // db: user DB for authentication
 func Router(config Config, db *sql.DB) (chi.Router, error) {
 	r := chi.NewRouter()
@@ -194,6 +205,7 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 
 	r.HandleFunc("/", handleHome)
 	r.HandleFunc("/study", handleStudy)
+	r.HandleFunc("/vocab", handleVocabularyPage)
 	r.HandleFunc("/about", showPage("about.html"))
 
 	r.HandleFunc("/settings", handleSettings)

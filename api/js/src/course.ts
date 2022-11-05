@@ -1,6 +1,6 @@
 /* Course table. */
 
-import "./table.css";
+import "./course.css";
 import { setL2 } from "./language";
 import { Course } from "./schema";
 
