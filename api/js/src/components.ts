@@ -13,7 +13,7 @@ export class ClozeApp extends HTMLElement {
         const [app, ready] = await createApp(new ItemBuffer());
         this.appendChild(app);
         ready();
-        document.title = `polycloze | ${await l2}`;
+        document.title = `${await l2} | polycloze`;
     }
 }
 
