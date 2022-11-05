@@ -64,7 +64,7 @@ export class ButtonLink extends HTMLButtonElement {
 
 export class VocabularyList extends HTMLElement {
     async connectedCallback() {
-        const vocabulary = await fetchVocabularyItems();
+        const vocabulary = await fetchVocabularyItems(100, "", "word");
         this.appendChild(createVocabularyList(vocabulary));
     }
 }

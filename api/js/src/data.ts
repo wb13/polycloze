@@ -18,12 +18,6 @@ function currentCourse(n = 10, x: string[] = []): string {
     return url;
 }
 
-function currentCourseVocab(limit = 20): string {
-    const l1 = getL1().code;
-    const l2 = getL2().code;
-    return `/${l1}/${l2}/vocab?limit=${limit}`;
-}
-
 // Server stuff
 
 async function fetchJson<T>(url: string | URL, options: RequestInit): Promise<T> {
@@ -59,8 +53,12 @@ export async function availableCourses(params: AvailableCoursesOptions = {}): Pr
     return json.courses;
 }
 
-export async function fetchVocabularyItems(): Promise<VocabularyItem[]> {
-    const url = new URL(currentCourseVocab(), src);
+export async function fetchVocabularyItems(limit = 20, after = "", sortBy = "word"): Promise<VocabularyItem[]> {
+    const l1 = getL1().code;
+    const l2 = getL2().code;
+    const path = `/${l1}/${l2}/vocab?limit=${limit}&after=${after}&sortBy=${sortBy}`;
+
+    const url = new URL(path, src);
     const options = { mode: "cors" as RequestMode };
     const json = await fetchJson<VocabularySchema>(url, options);
     return json.results;
