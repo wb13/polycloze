@@ -3,7 +3,7 @@ import { ItemBuffer } from "./buffer";
 import { setButtonLink } from "./button";
 import { createScoreCounter } from "./counter";
 import { createCourseTable } from "./course";
-import { availableCourses, fetchVocabularyItems } from "./data";
+import { availableCourses } from "./data";
 import { getL1, getL2 } from "./language";
 import { createLanguageSelectButton } from "./select";
 import { createVocabularyList } from "./vocab";
@@ -64,8 +64,7 @@ export class ButtonLink extends HTMLButtonElement {
 
 export class VocabularyList extends HTMLElement {
     async connectedCallback() {
-        const vocabulary = await fetchVocabularyItems(100, "", "word");
-        this.appendChild(createVocabularyList(vocabulary));
+        this.appendChild(await createVocabularyList());
     }
 }
 

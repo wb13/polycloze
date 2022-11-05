@@ -1,4 +1,6 @@
 import "./vocab.css";
+import { createButton } from "./button";
+import { fetchVocabularyItems } from "./data";
 import { createDateTime } from "./datetime";
 import { getL2 } from "./language";
 import { VocabularyItem } from "./schema";
@@ -25,23 +27,43 @@ function createVocabularyListTableRow(item: VocabularyItem): HTMLTableRowElement
     return tr;
 }
 
-function createVocabularyListTableBody(items: VocabularyItem[]): HTMLTableSectionElement {
+// Creates table body for displaying vocabulary list.
+// Returns a table section (tbody) and an update function for adding items to the table.
+function createVocabularyListTableBody(): [HTMLTableSectionElement, (items: VocabularyItem[]) => void] {
     const tbody = document.createElement("tbody");
-    tbody.append(...items.map(createVocabularyListTableRow));
-    return tbody;
+    const update = (items: VocabularyItem[]) => tbody.append(...items.map(createVocabularyListTableRow));
+    return [tbody, update];
 }
 
-function createVocabularyListBody(items: VocabularyItem[]): HTMLTableElement {
+// Creates body of vocabulary list page.
+// Returns a table and an update function for adding items to the table.
+function createVocabularyListBody(): [HTMLTableElement, (items: VocabularyItem[]) => void] {
     const headers = ["Word", "Last seen", "Due", "Strength"];
-    return createTable(
-        createTableHeader(headers),
-        createVocabularyListTableBody(items),
-    );
+    const [body, update] = createVocabularyListTableBody();
+    return [createTable(createTableHeader(headers), body), update];
 }
 
-export function createVocabularyList(items: VocabularyItem[]): HTMLDivElement {
+export async function createVocabularyList(): Promise<HTMLDivElement> {
+    const [body, update] = createVocabularyListBody();
+
     const div = document.createElement("div");
     div.appendChild(createVocabularyListHeader());
-    div.appendChild(createVocabularyListBody(items));
+    div.appendChild(body);
+    const button = div.appendChild(createButton("Load more", loadMore));
+
+    let after = "";
+
+    await loadMore();
     return div;
+
+    async function loadMore() {
+        const items = await fetchVocabularyItems(100, after);
+        const ok = items.length > 0 && items[items.length - 1].word !== after;
+        if (!ok) {
+            button.remove();
+        } else {
+            update(items);
+            after = items[items.length - 1].word;
+        }
+    }
 }
