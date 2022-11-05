@@ -26,7 +26,7 @@ type vocabularyItem struct {
 	Word     string    `json:"word"`
 	Reviewed time.Time `json:"reviewed"`
 	Due      time.Time `json:"due"`
-	Strength int
+	Strength int       `json:"strength"`
 }
 
 type vocabulary struct {
