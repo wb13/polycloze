@@ -61,7 +61,7 @@ export async function fetchVocabularyItems(limit = 20, after = "", sortBy = "wor
     const url = new URL(path, src);
     const options = { mode: "cors" as RequestMode };
     const json = await fetchJson<VocabularySchema>(url, options);
-    return json.results;
+    return json.results || [];
 }
 
 export async function fetchItems(n = 10, x: string[] = []): Promise<Item[]> {

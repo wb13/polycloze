@@ -141,7 +141,7 @@ func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]voc
 		LIMIT ?
 	`, sortBy)
 
-	var words []vocabularyItem
+	words := make([]vocabularyItem, 0)
 	rows, err := db.Query(query, after, limit)
 	if err != nil {
 		return nil, err
