@@ -3,35 +3,7 @@
 import "./course.css";
 import { setL2 } from "./language";
 import { Course } from "./schema";
-
-function createCourseTableHeaderCell(content: string): HTMLTableCellElement {
-    const th = document.createElement("th");
-    th.scope = "col";
-    th.textContent = content;
-    return th;
-}
-
-function createCourseTableHeader(): HTMLTableSectionElement {
-    const headers = [
-        "Code",
-        "Language",
-        "Seen (words)",
-        "Studied today",
-    ];
-
-    const tr = document.createElement("tr");
-    tr.append(...headers.map(createCourseTableHeaderCell));
-
-    const thead = document.createElement("thead");
-    thead.appendChild(tr);
-    return thead;
-}
-
-function createCourseTableData(child: string | Element): HTMLTableCellElement {
-    const td = document.createElement("td");
-    td.append(child);
-    return td;
-}
+import { createTable, createTableData, createTableHeader } from "./table";
 
 function createCourseMeter(course: Course): HTMLDivElement {
     const seen = course.stats?.seen || 0;
@@ -69,21 +41,21 @@ function createStudiedTodayCell(course: Course): HTMLTableCellElement {
     }
 
     if (children.length === 0) {
-        return createCourseTableData("");
+        return createTableData("");
     }
 
     const div = document.createElement("div");
     div.style.textAlign = "center";
     div.append(...children);
-    return createCourseTableData(div);
+    return createTableData(div);
 }
 
 // Assumes course contains stats.
 function createCourseTableRow(course: Course): HTMLTableRowElement {
     const tr = document.createElement("tr");
     tr.append(
-        createCourseTableData(course.l2.code),
-        createCourseTableData(course.l2.name),
+        createTableData(course.l2.code),
+        createTableData(course.l2.name),
         createCourseMeter(course),
         createStudiedTodayCell(course),
     );
@@ -102,7 +74,9 @@ function createCourseTableBody(courses: Course[]): HTMLTableSectionElement {
 }
 
 export function createCourseTable(courses: Course[]): HTMLTableElement {
-    const table = document.createElement("table");
-    table.append(createCourseTableHeader(), createCourseTableBody(courses));
-    return table;
+    const headers = ["Code", "Language", "Seen (words)", "Studied today"];
+    return createTable(
+        createTableHeader(headers),
+        createCourseTableBody(courses),
+    );
 }
