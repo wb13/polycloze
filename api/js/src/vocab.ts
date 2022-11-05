@@ -6,6 +6,17 @@ import { getL2 } from "./language";
 import { VocabularyItem } from "./schema";
 import { createTable, createTableData, createTableHeader } from "./table";
 
+function createStrengthMeter(strength: number): HTMLMeterElement {
+    const meter = document.createElement("meter");
+    meter.min = 0;
+    meter.max = 10;  // ~1 year interval (log2(2 * 365))
+    meter.optimum = 10;
+    meter.low = 3;  // ~1 week interval
+    meter.high = 8; // ~6 months interval
+    meter.value = strength;
+    return meter;
+}
+
 function createVocabularyListHeader(): HTMLHeadingElement {
     const h1 = document.createElement("h1");
     const l2 = getL2();
@@ -22,7 +33,7 @@ function createVocabularyListTableRow(item: VocabularyItem): HTMLTableRowElement
         createTableData(item.word),
         createTableData(createDateTime(reviewed)),
         createTableData(createDateTime(due)),
-        createTableData(String(item.strength)),
+        createTableData(createStrengthMeter(item.strength)),
     );
     return tr;
 }
