@@ -62,6 +62,7 @@ export async function createVocabularyList(): Promise<HTMLDivElement> {
     div.appendChild(createVocabularyListHeader());
     div.appendChild(body);
     const button = div.appendChild(createButton("Load more", loadMore));
+    button.style.margin = "1em 0";
 
     let after = "";
 
