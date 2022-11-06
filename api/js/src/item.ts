@@ -2,6 +2,7 @@ import "./item.css";
 import { createButton } from "./button";
 import { getL1 } from "./language";
 import { Sentence, createSentence } from "./sentence";
+import { speak } from "./tts";
 
 export type Translation = {
     tatoebaID?: number
@@ -69,6 +70,7 @@ export function createItem(item: Item, next: () => void, clearBuffer: (frequency
     const [submitBtn, enable] = createSubmitButton();
 
     const done = () => {
+        speak(item.sentence.parts.join(""));
         showTranslationLink(item.translation, getBody());
         const btn = createButton("Next", next);
         submitBtn.replaceWith(btn);
