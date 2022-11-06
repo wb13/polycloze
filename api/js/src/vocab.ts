@@ -55,6 +55,12 @@ function createVocabularyListBody(): [HTMLDivElement, (items: VocabularyItem[]) 
     return [createScrollingTable(table), update];
 }
 
+function createParagraph(content: string): HTMLParagraphElement {
+    const p = document.createElement("p");
+    p.textContent = content;
+    return p;
+}
+
 export async function createVocabularyList(): Promise<HTMLDivElement> {
     const [body, update] = createVocabularyListBody();
 
@@ -67,6 +73,11 @@ export async function createVocabularyList(): Promise<HTMLDivElement> {
     let after = "";
 
     await loadMore();
+
+    if (after === "") {
+        // If there are no words.
+        body.replaceWith(createParagraph("There's nothing to see here."));
+    }
     return div;
 
     async function loadMore() {
