@@ -35,6 +35,15 @@ function createCourseCodeCell(course: Course): HTMLTableCellElement {
     return td;
 }
 
+function createCourseNameCell(course: Course): HTMLTableCellElement {
+    const td = createTableData(course.l2.name);
+    td.addEventListener("click", () => {
+        setL2(course.l2);
+        window.location.pathname = "/study";
+    });
+    return td;
+}
+
 function createStudiedTodayCell(course: Course): HTMLTableCellElement {
     const children = [];
     if (course.stats) {
@@ -62,7 +71,7 @@ function createCourseTableRow(course: Course): HTMLTableRowElement {
     const tr = document.createElement("tr");
     tr.append(
         createCourseCodeCell(course),
-        createTableData(course.l2.name),
+        createCourseNameCell(course),
         createSeenCountCell(course),
         createStudiedTodayCell(course),
     );
