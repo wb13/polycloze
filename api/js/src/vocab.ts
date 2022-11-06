@@ -4,7 +4,7 @@ import { fetchVocabularyItems } from "./data";
 import { createDateTime } from "./datetime";
 import { getL2 } from "./language";
 import { VocabularyItem } from "./schema";
-import { createTable, createTableData, createTableHeader } from "./table";
+import { createScrollingTable, createTable, createTableData, createTableHeader } from "./table";
 
 function createStrengthMeter(strength: number): HTMLMeterElement {
     const meter = document.createElement("meter");
@@ -48,10 +48,11 @@ function createVocabularyListTableBody(): [HTMLTableSectionElement, (items: Voca
 
 // Creates body of vocabulary list page.
 // Returns a table and an update function for adding items to the table.
-function createVocabularyListBody(): [HTMLTableElement, (items: VocabularyItem[]) => void] {
+function createVocabularyListBody(): [HTMLDivElement, (items: VocabularyItem[]) => void] {
     const headers = ["Word", "Last seen", "Due", "Strength"];
     const [body, update] = createVocabularyListTableBody();
-    return [createTable(createTableHeader(headers), body), update];
+    const table = createTable(createTableHeader(headers), body);
+    return [createScrollingTable(table), update];
 }
 
 export async function createVocabularyList(): Promise<HTMLDivElement> {

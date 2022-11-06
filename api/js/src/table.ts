@@ -27,3 +27,12 @@ export function createTable(header: HTMLTableSectionElement, body: HTMLTableSect
     table.append(header, body);
     return table;
 }
+
+// Wraps around table so that it scrolls horizontally when the content overflows.
+// The result is a div rather than a table.
+export function createScrollingTable(table: HTMLTableElement): HTMLDivElement {
+    const div = document.createElement("div");
+    div.style.overflowX = "scroll";
+    div.appendChild(table);
+    return div;
+}

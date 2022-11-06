@@ -4,7 +4,7 @@ import "./course.css";
 import { createIcon } from "./icon";
 import { setL2 } from "./language";
 import { Course } from "./schema";
-import { createTable, createTableData, createTableHeader } from "./table";
+import { createScrollingTable, createTable, createTableData, createTableHeader } from "./table";
 
 function createSeenCountCell(course: Course): HTMLTableCellElement {
     const td = createTableData("");
@@ -84,10 +84,11 @@ function createCourseTableBody(courses: Course[]): HTMLTableSectionElement {
     return tbody;
 }
 
-export function createCourseTable(courses: Course[]): HTMLTableElement {
+export function createCourseTable(courses: Course[]): HTMLElement {
     const headers = ["Code", "Language", "Seen (words)", "Studied today"];
-    return createTable(
+    const table = createTable(
         createTableHeader(headers),
         createCourseTableBody(courses),
     );
+    return createScrollingTable(table);
 }

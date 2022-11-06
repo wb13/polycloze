@@ -16,4 +16,5 @@ tbody > tr:nth-of-type(even):active {
 
 td {
 	padding: 0.5em;
+	white-space: nowrap;
 }
