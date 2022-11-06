@@ -1,33 +1,22 @@
 /* Course table. */
 
 import "./course.css";
-import { createButton } from "./button";
 import { createIcon } from "./icon";
 import { setL2 } from "./language";
 import { Course } from "./schema";
 import { createTable, createTableData, createTableHeader } from "./table";
 
-function createSpan(children: Array<string | Element>): HTMLSpanElement {
-    const span = document.createElement("span");
-    span.append(...children);
-    return span;
-}
-
-function createSeenCount(course: Course): HTMLElement {
+function createSeenCountCell(course: Course): HTMLTableCellElement {
+    const td = createTableData("");
     const seen = course.stats?.seen || 0;
-    if (seen <= 0) {
-        return document.createElement("div");
+    if (seen > 0) {
+        td.append(createIcon("info"), ` ${seen} words`);
+        td.addEventListener("click", () => {
+            setL2(course.l2);
+            window.location.pathname = "/vocab";
+        });
     }
-
-    const content = createSpan([createIcon("info"), ` ${seen} words`]);
-    const button = createButton(content, () => {
-        setL2(course.l2);
-        window.location.pathname = "/vocab";
-    });
-    button.classList.add("button-borderless");
-    button.classList.add("button-tight");
-    button.style.margin = "0";
-    return button;
+    return td;
 }
 
 function createDiv(child: string | Element): HTMLDivElement {
@@ -36,16 +25,14 @@ function createDiv(child: string | Element): HTMLDivElement {
     return div;
 }
 
-function createCourseCodeButton(course: Course): HTMLButtonElement {
-    const content = createSpan([createIcon("play-circle"), ` ${course.l2.code}`]);
-    const button = createButton(content, () => {
+function createCourseCodeCell(course: Course): HTMLTableCellElement {
+    const td = createTableData("");
+    td.append(createIcon("play-circle"), ` ${course.l2.code}`);
+    td.addEventListener("click", () => {
         setL2(course.l2);
         window.location.pathname = "/study";
     });
-    button.classList.add("button-borderless");
-    button.classList.add("button-tight");
-    button.style.margin = "0";
-    return button;
+    return td;
 }
 
 function createStudiedTodayCell(course: Course): HTMLTableCellElement {
@@ -74,9 +61,9 @@ function createStudiedTodayCell(course: Course): HTMLTableCellElement {
 function createCourseTableRow(course: Course): HTMLTableRowElement {
     const tr = document.createElement("tr");
     tr.append(
-        createTableData(createCourseCodeButton(course)),
+        createCourseCodeCell(course),
         createTableData(course.l2.name),
-        createTableData(createSeenCount(course)),
+        createSeenCountCell(course),
         createStudiedTodayCell(course),
     );
     return tr;
