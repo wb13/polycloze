@@ -60,9 +60,9 @@ done:
 // Smallest frequency class of unseen word.
 func easiestUnseen[T database.Querier](q T) int {
 	query := `
-select min(frequency_class) from word
-where word not in (select item from review)
-`
+		SELECT coalesce(min(frequency_class), 0) FROM word
+		WHERE word NOT IN (SELECT item FROM review)
+	`
 
 	var difficulty int
 	row := q.QueryRow(query)
