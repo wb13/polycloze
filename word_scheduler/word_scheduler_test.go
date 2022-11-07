@@ -11,6 +11,7 @@ import (
 	"github.com/lggruspe/polycloze/utils"
 )
 
+// NOTE Caller should close after use.
 func wordScheduler() *sql.DB {
 	return utils.TestingDatabase()
 }
@@ -19,6 +20,7 @@ func TestFrequencyClass(t *testing.T) {
 	t.Parallel()
 
 	s := wordScheduler()
+	defer s.Close()
 
 	query := `insert into word (word, frequency_class) values (?, ?)`
 	if _, err := s.Exec(query, "foo", 1); err != nil {
@@ -48,6 +50,7 @@ func TestCase(t *testing.T) {
 	t.Parallel()
 
 	s := wordScheduler()
+	defer s.Close()
 
 	if err := UpdateWord(s, "Foo", false); err != nil {
 		t.Fatal("expected err to be nil", err)

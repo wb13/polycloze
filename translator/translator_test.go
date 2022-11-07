@@ -62,6 +62,7 @@ func TestTranslate(t *testing.T) {
 	t.Parallel()
 	// foo -> bar
 	session := translator(false)
+	defer session.Close()
 
 	sentence, err := sentences.Search(session, "foo")
 	if err != nil {
@@ -81,6 +82,7 @@ func TestReverseTranslate(t *testing.T) {
 	t.Parallel()
 	// bar -> foo
 	session := translator(true)
+	defer session.Close()
 
 	sentence, err := sentences.Search(session, "bar")
 	if err != nil {
@@ -99,6 +101,7 @@ func TestReverseTranslate(t *testing.T) {
 func TestTranslateNonTatoebaSentence(t *testing.T) {
 	t.Parallel()
 	session := translator(false)
+	defer session.Close()
 
 	sentence := sentences.Sentence{
 		ID:        100,

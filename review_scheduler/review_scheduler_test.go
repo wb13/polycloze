@@ -15,6 +15,7 @@ func TestSchedule(t *testing.T) {
 	t.Parallel()
 
 	db := utils.TestingDatabase()
+	defer db.Close()
 
 	items, err := ScheduleReviewNow(db, 100)
 	if err != nil {
@@ -30,6 +31,7 @@ func TestUpdate(t *testing.T) {
 	t.Parallel()
 
 	db := utils.TestingDatabase()
+	defer db.Close()
 
 	if err := UpdateReview(db, "foo", false); err != nil {
 		t.Fatal("expected err to be nil", err)
@@ -55,6 +57,8 @@ func TestUpdateRecentlyAnsweredItemDoesntGetScheduled(t *testing.T) {
 	t.Parallel()
 
 	db := utils.TestingDatabase()
+	defer db.Close()
+
 	items := []string{"foo", "bar", "baz"}
 	for _, item := range items {
 		if err := UpdateReview(db, item, true); err != nil {
@@ -76,6 +80,8 @@ func TestUpdateIncorrectThenCorrect(t *testing.T) {
 	t.Parallel()
 
 	db := utils.TestingDatabase()
+	defer db.Close()
+
 	if err := UpdateReview(db, "foo", false); err != nil {
 		t.Fatal("expected err to be nil:", err)
 	}
@@ -94,6 +100,7 @@ func TestUpdateSuccessfulReviewDoesNotDecreaseIntervalSize(t *testing.T) {
 	t.Parallel()
 
 	db := utils.TestingDatabase()
+	defer db.Close()
 
 	query := func() time.Duration {
 		row := db.QueryRow(`select interval from review`)
@@ -129,6 +136,7 @@ func TestCase(t *testing.T) {
 	t.Parallel()
 
 	db := utils.TestingDatabase()
+	defer db.Close()
 
 	if err := UpdateReview(db, "Foo", false); err != nil {
 		t.Fatal("expected nil err", err)
