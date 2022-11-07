@@ -1,6 +1,6 @@
 // Item buffer
 
-import { fetchItems } from "./data";
+import { fetchItems } from "./api";
 import { Item } from "./item";
 import { Sentence } from "./sentence";
 
@@ -44,7 +44,10 @@ export class ItemBuffer {
 
     backgroundFetch(count: number) {
         setTimeout(async() => {
-            const items = await fetchItems(count, Array.from(this.keys));
+            const items = await fetchItems({
+                n: count,
+                x: Array.from(this.keys),
+            });
             items.forEach(item => this.add(item));
         });
     }
@@ -54,7 +57,10 @@ export class ItemBuffer {
     // no new items left.
     async take(): Promise<Item | undefined> {
         if (this.buffer.length === 0) {
-            const items = await fetchItems(2, Array.from(this.keys));
+            const items = await fetchItems({
+                n: 2,
+                x: Array.from(this.keys),
+            });
             this.backgroundFetch(2);
             items.forEach(item => this.add(item));
             return this.buffer.shift();

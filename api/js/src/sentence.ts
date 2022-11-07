@@ -1,8 +1,8 @@
 import "./sentence.css";
+import { submitReview } from "./api";
 import { createBlank, evaluateInput } from "./blank";
 import { dispatchUnbuffer } from "./buffer";
 import { dispatchUpdateCount } from "./counter";
-import { submitReview } from "./data";
 import { getL2 } from "./language";
 import { edit } from "./unsaved";
 

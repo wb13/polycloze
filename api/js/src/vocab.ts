@@ -1,6 +1,6 @@
 import "./vocab.css";
+import { fetchVocabulary } from "./api";
 import { createButton } from "./button";
-import { fetchVocabularyItems } from "./data";
 import { createDateTime } from "./datetime";
 import { getL2 } from "./language";
 import { VocabularyItem } from "./schema";
@@ -81,7 +81,7 @@ export async function createVocabularyList(): Promise<HTMLDivElement> {
     return div;
 
     async function loadMore() {
-        const items = await fetchVocabularyItems(100, after);
+        const items = await fetchVocabulary({ after, limit: 100 });
         const ok = items.length > 0 && items[items.length - 1].word !== after;
         if (!ok) {
             button.remove();
