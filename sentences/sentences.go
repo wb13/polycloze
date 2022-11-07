@@ -60,7 +60,7 @@ func PickSentence[T database.Querier](q T, word string, maxDifficulty int) (*Sen
 	}
 
 	// Select sentence that contains word and isn't too "difficult"
-	// I.e. sentence.frequency_class <= student.frequency_class, or if there's no
+	// I.e. sentence.frequency_class <= student's estimated level, or if there's no
 	// such sentence, returns the sentence with the minimum frequency_class instead.
 	query := `
 select coalesce(

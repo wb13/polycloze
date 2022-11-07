@@ -13,23 +13,13 @@ import (
 	"github.com/lggruspe/polycloze/text"
 )
 
-// Gets preferred difficulty/frequency_class.
-func PreferredDifficulty[T database.Querier](q T) int {
-	query := `select frequency_class from student`
-
-	var difficulty int
-	row := q.QueryRow(query)
-	_ = row.Scan(&difficulty)
-	return difficulty
-}
-
 // Same as GetWords, but takes an additional time.Time argument.
 func GetWordsAt[T database.Querier](q T, n int, due time.Time) ([]string, error) {
 	reviews, err := rs.ScheduleReview(q, due, n)
 	if err != nil {
 		return nil, err
 	}
-	words, err := GetNewWordsWith(q, n-len(reviews), PreferredDifficulty(q), func(_ string) bool {
+	words, err := GetNewWordsWith(q, n-len(reviews), Placement(q), func(_ string) bool {
 		return true
 	})
 	if err != nil {
@@ -45,7 +35,7 @@ func GetWordsWith[T database.Querier](q T, n int, pred func(word string) bool) (
 	if err != nil {
 		return nil, err
 	}
-	words, err := GetNewWordsWith(q, n-len(reviews), PreferredDifficulty(q), pred)
+	words, err := GetNewWordsWith(q, n-len(reviews), Placement(q), pred)
 	if err != nil {
 		return nil, err
 	}
@@ -70,37 +60,23 @@ func isNewWord[T database.Querier](q T, word string) bool {
 	return err != nil && errors.Is(err, sql.ErrNoRows)
 }
 
-// This should only be called when an item is seen for the first time.
-func updateStudentStats[T database.Querier](q T, correct bool) error {
-	query := `update student set correct = correct + 1`
-	if !correct {
-		query = `update student set incorrect = incorrect + 1`
-	}
-	_, err := q.Exec(query)
-	return err
-}
-
 func UpdateWord[T database.Querier](q T, word string, correct bool) error {
-	if frequencyClass(q, word) >= PreferredDifficulty(q) && isNewWord(q, word) {
-		if err := updateStudentStats(q, correct); err != nil {
+	if isNewWord(q, word) {
+		class := frequencyClass(q, word)
+		if err := updateNewWordStat(q, class, correct); err != nil {
 			return err
 		}
 	}
-	if err := rs.UpdateReview(q, text.Casefold(word), correct); err != nil {
-		return err
-	}
-	return postTune(q)
+	return rs.UpdateReview(q, text.Casefold(word), correct)
 }
 
 // See UpdateReviewAt.
 func UpdateWordAt[T database.Querier](q T, word string, correct bool, at time.Time) error {
-	if frequencyClass(q, word) >= PreferredDifficulty(q) && isNewWord(q, word) {
-		if err := updateStudentStats(q, correct); err != nil {
+	if isNewWord(q, word) {
+		class := frequencyClass(q, word)
+		if err := updateNewWordStat(q, class, correct); err != nil {
 			return err
 		}
 	}
-	if err := rs.UpdateReviewAt(q, text.Casefold(word), correct, at); err != nil {
-		return err
-	}
-	return postTune(q)
+	return rs.UpdateReviewAt(q, text.Casefold(word), correct, at)
 }

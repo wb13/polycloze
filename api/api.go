@@ -66,7 +66,7 @@ func generateFlashcards(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// frequencyClass is taken from student.frequency_class
+// frequencyClass is the student's estimated level (see word_scheduler.Placement).
 func success(frequencyClass int) []byte {
 	return []byte(fmt.Sprintf("{\"success\": true, \"frequencyClass\": %v}", frequencyClass))
 }
@@ -111,7 +111,7 @@ func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, s *s
 		if err != nil {
 			log.Printf("failed to update word: '%v'\n\t%v\n", review.Word, err.Error())
 		}
-		frequencyClass = word_scheduler.PreferredDifficulty(con)
+		frequencyClass = word_scheduler.Placement(con)
 		_ = logger.LogReview(basedir.Log(userID, l1, l2), review.Correct, review.Word)
 	}
 

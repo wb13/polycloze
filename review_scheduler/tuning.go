@@ -13,29 +13,8 @@ import (
 
 const day time.Duration = 24 * time.Hour
 
-func tuneDifficulty(tx *sql.Tx) error {
-	query := `select correct, incorrect from student`
-	row := tx.QueryRow(query)
-
-	var correct, incorrect int
-	if err := row.Scan(&correct, &incorrect); err != nil {
-		return err
-	}
-
-	if wilson.IsTooHard(correct, incorrect) {
-		return decreaseDifficulty(tx)
-	} else if wilson.IsTooEasy(correct, incorrect) {
-		return increaseDifficulty(tx)
-	}
-	return nil
-}
-
-// Auto-tunes intervals and base difficulty (student.frequency_class).
+// Auto-tunes intervals.
 func autoTune(tx *sql.Tx) error {
-	if err := tuneDifficulty(tx); err != nil {
-		return err
-	}
-
 	query := `select interval, correct, incorrect from interval order by interval asc`
 	rows, err := tx.Query(query)
 	if err != nil {
@@ -233,7 +212,7 @@ func increaseInterval(tx *sql.Tx, interval time.Duration) error {
 	return replaceInterval(tx, interval, mid)
 }
 
-// Updates interval and student tables.
+// Updates interval table.
 func updateIntervalStats(tx *sql.Tx, review *Review, correct bool) error {
 	var interval time.Duration = 0
 	if review != nil {
@@ -246,27 +225,5 @@ func updateIntervalStats(tx *sql.Tx, review *Review, correct bool) error {
 		query = `update interval set incorrect = incorrect + 1 where interval = ?`
 	}
 	_, err := tx.Exec(query, seconds(interval))
-	return err
-}
-
-func increaseDifficulty(tx *sql.Tx) error {
-	query := `
-update student set
-	frequency_class = frequency_class + 1,
-	correct = 0,
-	incorrect = 0
-`
-	_, err := tx.Exec(query)
-	return err
-}
-
-func decreaseDifficulty(tx *sql.Tx) error {
-	query := `
-update student set
-	frequency_class = max(0, frequency_class - 1),
-	correct = 0,
-	incorrect = 0
-`
-	_, err := tx.Exec(query)
 	return err
 }
