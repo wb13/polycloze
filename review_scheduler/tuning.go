@@ -7,29 +7,11 @@ package review_scheduler
 import (
 	"database/sql"
 	"time"
+
+	"github.com/lggruspe/polycloze/wilson"
 )
 
 const day time.Duration = 24 * time.Hour
-
-func isTooEasy(correct, incorrect int) bool {
-	// Threshold can't be too high or the tuner will be too conservative.
-	// Only uses 0.80 confidence, higher values require too many samples.
-
-	z := -0.845 // z-score for one-sided confidence interval (80% confidence)
-	lower := Wilson(correct, incorrect, z)
-
-	// 80% likelihood that the true proportion is bounded below by `lower`.
-	// > 0.9 test is too slow when incorrect > 0
-	return lower > 0.875
-}
-
-func isTooHard(correct, incorrect int) bool {
-	z := 2.325 // z-score for one-sided confidence interval
-	upper := Wilson(correct, incorrect, z)
-
-	// 99% confident that the true proportion is bounded above by `upper`
-	return upper < 0.8
-}
 
 func tuneDifficulty(tx *sql.Tx) error {
 	query := `select correct, incorrect from student`
@@ -40,9 +22,9 @@ func tuneDifficulty(tx *sql.Tx) error {
 		return err
 	}
 
-	if isTooHard(correct, incorrect) {
+	if wilson.IsTooHard(correct, incorrect) {
 		return decreaseDifficulty(tx)
-	} else if isTooEasy(correct, incorrect) {
+	} else if wilson.IsTooEasy(correct, incorrect) {
 		return increaseDifficulty(tx)
 	}
 	return nil
@@ -75,11 +57,11 @@ func autoTune(tx *sql.Tx) error {
 			continue
 		}
 
-		if isTooHard(correct, incorrect) {
+		if wilson.IsTooHard(correct, incorrect) {
 			if err := decreaseInterval(tx, interval); err != nil {
 				return err
 			}
-		} else if isTooEasy(correct, incorrect) {
+		} else if wilson.IsTooEasy(correct, incorrect) {
 			if err := increaseInterval(tx, interval); err != nil {
 				return err
 			}

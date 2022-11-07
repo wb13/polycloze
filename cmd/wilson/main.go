@@ -9,12 +9,12 @@ import (
 	"log"
 	"strconv"
 
-	rs "github.com/lggruspe/polycloze/review_scheduler"
+	"github.com/lggruspe/polycloze/wilson"
 )
 
 func experiment(ns, nf int, z float64) {
-	lower := rs.Wilson(ns, nf, z)
-	upper := rs.Wilson(ns, nf, -z)
+	lower := wilson.Wilson(ns, nf, z)
+	upper := wilson.Wilson(ns, nf, -z)
 	fmt.Printf("%.4f <= p <= 1\n", lower)
 	fmt.Printf("0 <= p <= %.4f\n", upper)
 	fmt.Println()
