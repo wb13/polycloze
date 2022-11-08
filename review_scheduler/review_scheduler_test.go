@@ -155,3 +155,57 @@ func TestCase(t *testing.T) {
 		t.Error("expected \"Foo\"")
 	}
 }
+
+func TestReviewTimestampType(t *testing.T) {
+	// Timestamps should be stored as integers (UNIX timestamps).
+	t.Parallel()
+
+	db := utils.TestingDatabase()
+	defer db.Close()
+
+	if err := UpdateReview(db, "foo", true); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	query := `
+		SELECT learned, typeof(learned), reviewed, typeof(reviewed), due, typeof(due)
+		FROM review
+	`
+
+	rows, err := db.Query(query)
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var learned, reviewed, due int
+		var tLearned, tReviewed, tDue string
+
+		if err := rows.Scan(&learned, &tLearned, &reviewed, &tReviewed, &due, &tDue); err != nil {
+			t.Fatal("expected err to be nil:", err)
+		}
+
+		if tLearned != "integer" {
+			t.Fatal("expected typeof(learned) to be 'integer':", tLearned)
+		}
+		if tReviewed != "integer" {
+			t.Fatal("expected typeof(reviewed) to be 'integer':", tReviewed)
+		}
+		if tDue != "integer" {
+			t.Fatal("expected typeof(due) to be 'integer':", tDue)
+		}
+
+		// Check if learned, reviewed and due have more than 4 digits.
+		// `cast(current_timestamp as integer)` returns a 4 digit number.
+		if learned < 10000 {
+			t.Fatal("expected learned to be a UNIX timestamp:", learned)
+		}
+		if reviewed < 10000 {
+			t.Fatal("expected reviewed to be a UNIX timestamp:", reviewed)
+		}
+		if due < 10000 {
+			t.Fatal("expected due to be a UNIX timestamp:", due)
+		}
+	}
+}

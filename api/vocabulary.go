@@ -18,7 +18,6 @@ import (
 	"github.com/lggruspe/polycloze/auth"
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
-	"github.com/lggruspe/polycloze/review_scheduler"
 	"github.com/lggruspe/polycloze/sessions"
 )
 
@@ -150,19 +149,12 @@ func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]voc
 
 	for rows.Next() {
 		var vocab vocabularyItem
-		var reviewed, due string
+		var reviewed, due int64
 		if err := rows.Scan(&vocab.Word, &reviewed, &due, &vocab.Strength); err != nil {
 			return nil, err
 		}
-
-		vocab.Reviewed, err = review_scheduler.ParseTimestamp(reviewed)
-		if err != nil {
-			continue
-		}
-		vocab.Due, err = review_scheduler.ParseTimestamp(due)
-		if err != nil {
-			continue
-		}
+		vocab.Reviewed = time.Unix(reviewed, 0)
+		vocab.Due = time.Unix(due, 0)
 		words = append(words, vocab)
 	}
 	return words, nil

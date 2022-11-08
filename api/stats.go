@@ -53,23 +53,23 @@ func countTotal(l1, l2 string) (int, error) {
 
 // New words learned today.
 func countLearnedToday(l1, l2 string, userID int) (int, error) {
-	query := `select count(*) from review where learned >= current_date`
+	query := `SELECT count(*) FROM review WHERE learned >= unixepoch(CURRENT_DATE)`
 	return queryInt(basedir.Review(userID, l1, l2), query, true)
 }
 
 // Number of words reviewed today, excluding new words.
 func countReviewedToday(l1, l2 string, userID int) (int, error) {
 	query := `
-select count(*) from review where reviewed >= current_date
-and learned < current_date
-`
+		SELECT count(*) FROM review
+		WHERE reviewed >= unixepoch(CURRENT_DATE) AND learned < unixepoch(CURRENT_DATE)
+	`
 	return queryInt(basedir.Review(userID, l1, l2), query, true)
 }
 
 // Number of correct answers today.
 func countCorrectToday(l1, l2 string, userID int) (int, error) {
 	// NOTE assumes that 1 day is the smallest non-empty interval
-	query := `select count(*) from review where reviewed >= current_date and correct`
+	query := `SELECT count(*) FROM review WHERE reviewed >= unixepoch(CURRENT_DATE) AND correct`
 	return queryInt(basedir.Review(userID, l1, l2), query, true)
 }
 

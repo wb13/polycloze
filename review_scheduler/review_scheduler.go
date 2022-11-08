@@ -15,8 +15,8 @@ import (
 // Returns items due for review, no more than count.
 // Pass a negative count if you want to get all due items.
 func ScheduleReview[T database.Querier](q T, due time.Time, count int) ([]string, error) {
-	query := `select item from review where due < ? order by due limit ?`
-	rows, err := q.Query(query, due.UTC(), count)
+	query := `SELECT item FROM review WHERE due <= ? ORDER BY due LIMIT ?`
+	rows, err := q.Query(query, due.Unix(), count)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func ScheduleReview[T database.Querier](q T, due time.Time, count int) ([]string
 
 // Same as Schedule, but with some default args.
 func ScheduleReviewNow[T database.Querier](q T, count int) ([]string, error) {
-	return ScheduleReview(q, time.Now().UTC(), count)
+	return ScheduleReview(q, time.Now(), count)
 }
 
 // Same as ScheduleReviewNowWith, but takes a predicate argument.
@@ -67,9 +67,8 @@ func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 	row := tx.QueryRow(query, item)
 	var review Review
 
-	var due string
 	var interval time.Duration
-	var reviewed string
+	var due, reviewed int64
 	err := row.Scan(
 		&due,
 		&interval,
@@ -82,16 +81,8 @@ func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 		return nil, err
 	}
 
-	parsedDue, err := ParseTimestamp(due)
-	if err != nil {
-		return nil, err
-	}
-	parsedReviewed, err := ParseTimestamp(reviewed)
-	if err != nil {
-		return nil, err
-	}
-	review.Due = parsedDue
-	review.Reviewed = parsedReviewed
+	review.Due = time.Unix(due, 0)
+	review.Reviewed = time.Unix(reviewed, 0)
 	review.Interval = interval * time.Second
 	return &review, nil
 }
@@ -121,21 +112,18 @@ func UpdateReviewAt[T database.Querier](q T, item string, correct bool, now time
 	}
 
 	query := `
-insert into review (item, interval, due, learned, reviewed) values (?, ?, ?, ?, ?)
-	on conflict (item) do update set
-		interval=excluded.interval,
-		due=excluded.due,
-		reviewed=?
-`
-	timestamp := formatTime(now)
+		INSERT INTO review (item, interval, due, learned, reviewed)
+		VALUES (?, ?, ?, unixepoch('now'), unixepoch('now'))
+		ON CONFLICT (item) DO UPDATE SET
+			interval = excluded.interval,
+			due = excluded.due,
+			reviewed = excluded.reviewed
+	`
 	_, err = tx.Exec(
 		query,
 		item,
 		seconds(next.Interval),
-		formatTime(next.Due),
-		timestamp,
-		timestamp,
-		timestamp,
+		next.Due.Unix(),
 	)
 	if err != nil {
 		return err
