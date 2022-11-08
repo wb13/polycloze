@@ -36,11 +36,11 @@ func autoTune(tx *sql.Tx) error {
 		}
 
 		if wilson.IsTooHard(correct, incorrect) {
-			if err := decreaseInterval(tx, interval); err != nil {
+			if err := shortenInterval(tx, interval); err != nil {
 				return err
 			}
 		} else if wilson.IsTooEasy(correct, incorrect) {
-			if err := increaseInterval(tx, interval); err != nil {
+			if err := lengthenInterval(tx, interval); err != nil {
 				return err
 			}
 		}
@@ -117,7 +117,7 @@ func replaceWithExistingInterval(tx *sql.Tx, interval, replacement time.Duration
 	return err
 }
 
-func decreaseInterval(tx *sql.Tx, interval time.Duration) error {
+func shortenInterval(tx *sql.Tx, interval time.Duration) error {
 	if interval <= day {
 		return nil
 	}
@@ -191,7 +191,7 @@ func nextInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error) {
 	return next * time.Hour, err
 }
 
-func increaseInterval(tx *sql.Tx, interval time.Duration) error {
+func lengthenInterval(tx *sql.Tx, interval time.Duration) error {
 	next, err := nextInterval(tx, interval)
 	if err != nil {
 		return err
