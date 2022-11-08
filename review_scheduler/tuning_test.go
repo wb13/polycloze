@@ -39,3 +39,25 @@ func TestInsertInterval(t *testing.T) {
 		t.Fatal("expected `interval` to be equal to 1:", interval)
 	}
 }
+
+func TestMaxInterval(t *testing.T) {
+	// Should return 0 if there are no intervals in the database.
+	t.Parallel()
+
+	db := utils.TestingDatabase()
+	defer db.Close()
+
+	tx, err := db.Begin()
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	max, err := maxInterval(tx)
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	if max != 0 {
+		t.Fatal("expected max interval to be 0:", err)
+	}
+}
