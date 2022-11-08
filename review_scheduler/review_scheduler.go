@@ -83,7 +83,7 @@ func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 
 	review.Due = time.Unix(due, 0)
 	review.Reviewed = time.Unix(reviewed, 0)
-	review.Interval = interval * time.Second
+	review.Interval = interval * time.Hour
 	return &review, nil
 }
 
@@ -122,7 +122,7 @@ func UpdateReviewAt[T database.Querier](q T, item string, correct bool, now time
 	_, err = tx.Exec(
 		query,
 		item,
-		seconds(next.Interval),
+		int64(next.Interval.Hours()),
 		next.Due.Unix(),
 	)
 	if err != nil {

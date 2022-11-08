@@ -15,7 +15,7 @@ const day time.Duration = 24 * time.Hour
 
 // Auto-tunes intervals.
 func autoTune(tx *sql.Tx) error {
-	query := `select interval, correct, incorrect from interval order by interval asc`
+	query := `SELECT interval, correct, incorrect FROM interval ORDER BY interval ASC`
 	rows, err := tx.Query(query)
 	if err != nil {
 		return err
@@ -23,13 +23,12 @@ func autoTune(tx *sql.Tx) error {
 	defer rows.Close()
 
 	for rows.Next() {
-		var intervalS time.Duration
+		var interval time.Duration
 		var correct, incorrect int
-		if err := rows.Scan(&intervalS, &correct, &incorrect); err != nil {
+		if err := rows.Scan(&interval, &correct, &incorrect); err != nil {
 			return err
 		}
-
-		interval := intervalS * time.Second
+		interval *= time.Hour
 
 		if interval <= day {
 			// Don't change intervals = 0 and 1 day.
@@ -55,20 +54,20 @@ func previousInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error)
 		return 0, nil
 	}
 	query := `select max(interval) from interval where interval < ?`
-	row := tx.QueryRow(query, seconds(interval))
+	row := tx.QueryRow(query, int64(interval.Hours()))
 
 	var prev time.Duration
 	if err := row.Scan(&prev); err != nil {
 		return 0, err
 	}
 	// NOTE Assumes the query never returns null.
-	return prev * time.Second, nil
+	return prev * time.Hour, nil
 }
 
 // Check if interval already exists in db.
 func alreadyExists(tx *sql.Tx, interval time.Duration) (bool, error) {
 	query := `select * from interval where interval = ?`
-	rows, err := tx.Query(query, seconds(interval))
+	rows, err := tx.Query(query, int64(interval.Hours()))
 	if err != nil {
 		return false, err
 	}
@@ -80,40 +79,41 @@ func alreadyExists(tx *sql.Tx, interval time.Duration) (bool, error) {
 	return false, nil
 }
 
+// Replaces interval value in `interval` and `review` tables.
 // Assumes replacement isn't already in the interval table.
 func replaceInterval(tx *sql.Tx, interval, replacement time.Duration) error {
-	intervalSecs := seconds(interval)
-	replacementSecs := seconds(replacement)
-
 	query := `
-update interval set interval = ?, correct = 0, incorrect = 0
-where interval = ?
-`
-	if _, err := tx.Exec(query, replacementSecs, intervalSecs); err != nil {
+		UPDATE interval SET interval = ?, correct = 0, incorrect = 0
+		WHERE interval = ?
+	`
+	_, err := tx.Exec(query, int64(replacement.Hours()), int64(interval.Hours()))
+	if err != nil {
 		return err
 	}
 
 	query = `
-update review set
-	interval = ?,
-	due = datetime(unixepoch(due) + (? - interval) / 1e9, 'unixepoch')
-where interval = ?
-`
-	_, err := tx.Exec(query, replacementSecs, replacementSecs, intervalSecs)
+		UPDATE review SET
+			interval = ?,
+			due = due + (? - interval) * 3600
+		WHERE interval = ?
+	`
+	_, err = tx.Exec(
+		query,
+		int64(replacement.Hours()),
+		int64(replacement.Hours()),
+		int64(interval.Hours()),
+	)
 	return err
 }
 
 func replaceWithExistingInterval(tx *sql.Tx, interval, replacement time.Duration) error {
-	intervalSecs := seconds(interval)
-	replacementSecs := seconds(replacement)
-
-	query := `delete from interval where interval = ?`
-	if _, err := tx.Exec(query, intervalSecs); err != nil {
+	query := `DELETE FROM interval WHERE interval = ?`
+	if _, err := tx.Exec(query, int64(interval.Hours())); err != nil {
 		return err
 	}
 
-	query = `update review set interval = ? where interval = ?`
-	_, err := tx.Exec(query, replacementSecs, intervalSecs)
+	query = `UPDATE review SET interval = ? WHERE interval = ?`
+	_, err := tx.Exec(query, int64(replacement.Hours()), int64(interval.Hours()))
 	return err
 }
 
@@ -138,20 +138,16 @@ func decreaseInterval(tx *sql.Tx, interval time.Duration) error {
 
 // Returns the largest interval in the database.
 func maxInterval(tx *sql.Tx) (time.Duration, error) {
-	query := `select max(interval) from interval`
-	row := tx.QueryRow(query)
-
 	var max time.Duration
-	if err := row.Scan(&max); err != nil {
-		return 0, err
-	}
-	return max * time.Second, nil
+	query := `select max(interval) from interval`
+	err := tx.QueryRow(query).Scan(&max)
+	return max * time.Hour, err
 }
 
 // Creates record for interval if it doesn't already exist.
 func insertInterval(tx *sql.Tx, interval time.Duration) error {
 	query := `insert or ignore into interval (interval) values (?)`
-	_, err := tx.Exec(query, seconds(interval))
+	_, err := tx.Exec(query, int64(interval.Hours()))
 	return err
 }
 
@@ -188,13 +184,11 @@ func nextInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error) {
 	}
 
 	query := `select min(interval) from interval where interval > ?`
-	row := tx.QueryRow(query, seconds(interval))
+	row := tx.QueryRow(query, int64(interval.Hours()))
 
 	var next time.Duration
-	if err := row.Scan(&next); err != nil {
-		return 0, err
-	}
-	return next * time.Second, nil
+	err := row.Scan(&next)
+	return next * time.Hour, err
 }
 
 func increaseInterval(tx *sql.Tx, interval time.Duration) error {
@@ -224,6 +218,6 @@ func updateIntervalStats(tx *sql.Tx, review *Review, correct bool) error {
 	if !correct {
 		query = `update interval set incorrect = incorrect + 1 where interval = ?`
 	}
-	_, err := tx.Exec(query, seconds(interval))
+	_, err := tx.Exec(query, int64(interval.Hours()))
 	return err
 }

@@ -108,7 +108,7 @@ func TestUpdateSuccessfulReviewDoesNotDecreaseIntervalSize(t *testing.T) {
 		if err := row.Scan(&interval); err != nil {
 			t.Fatal("expected err to be nil:", err)
 		}
-		return interval * time.Second
+		return interval * time.Hour
 	}
 
 	now := time.Now().UTC()
