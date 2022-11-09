@@ -10,18 +10,19 @@ from pathlib import Path
 import sys
 import typing as t
 
-from spacy.language import Language as SpacyLanguage
-
 from .language import languages, Language
+
+if t.TYPE_CHECKING:
+    from spacy.tokenizer import Tokenizer as SpacyTokenizer     # type: ignore
 
 
 @dataclass
 class Tokenizer:
-    nlp: SpacyLanguage
+    tokenizer: "SpacyTokenizer"
 
     def tokenize(self, sentence: str) -> list[str]:
         tokens = []
-        for token in self.nlp.tokenizer(sentence):
+        for token in self.tokenizer(sentence):
             tokens.append(token.text)
             if token.whitespace_:
                 tokens.append(token.whitespace_)

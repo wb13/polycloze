@@ -33,6 +33,7 @@ See `python -m scripts.build -h` for details.
 - dan (Danish)
 - deu (German)
 - eng (English)
+- epo (Esperanto)
 - fin (Finnish)
 - fra (French)
 - hrv (Croatian)

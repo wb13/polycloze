@@ -70,6 +70,14 @@ languages["eng"] = Language(
     symbols=set("-.'"),
 )
 
+languages["epo"] = Language(
+    code="epo",
+    name="Esperanto",
+    bcp47="eo",
+    tokenizer=lambda: import_tokenizer("spacy.language", "Language"),
+    alphabet=set("abcĉdefgĝhĥijĵklmnoprsŝtuŭvz"),
+)
+
 languages["fin"] = Language(
     code="fin",
     name="Finnish",
