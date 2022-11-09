@@ -5,7 +5,6 @@ from collections import Counter
 import csv
 from dataclasses import dataclass
 import fileinput
-from importlib import import_module
 import json
 from pathlib import Path
 import sys
@@ -14,14 +13,6 @@ import typing as t
 from spacy.language import Language as SpacyLanguage
 
 from .language import languages, Language
-
-
-def load_spacy_language(code: str) -> SpacyLanguage:
-    assert code in languages
-
-    parent, name = languages[code].spacy_path
-    mod = import_module(f"spacy.lang.{parent}")
-    return t.cast(SpacyLanguage, getattr(mod, name)())
 
 
 @dataclass
@@ -126,13 +117,14 @@ def process_language(
     """
     output.mkdir(parents=True, exist_ok=True)
 
-    tokenizer = Tokenizer(load_spacy_language(language_code))
+    language = languages[language_code]
+    tokenizer = Tokenizer(language.tokenizer())
     word_counter = WordCounter()
     write_sentences(output/"sentences.csv", file, tokenizer, word_counter)
     write_words(
         output/"words.csv",
         word_counter,
-        languages[language_code],
+        language,
         log,
     )
 
