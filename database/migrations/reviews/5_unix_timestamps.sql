@@ -16,6 +16,11 @@ CREATE TABLE new_review (
 		correct BOOLEAN GENERATED ALWAYS AS (interval > 0) VIRTUAL
 );
 
+-- NOTE `review.interval` does not reference the `interval` table,
+-- because merging intervals would require all reviews with interval ID
+-- >= the merged interval ID to be updated if `review.interval` references
+-- the `interval` table's key.
+
 -- Copy data from old to new table.
 INSERT INTO new_review
 SELECT item, unixepoch(learned), unixepoch(reviewed), interval, unixepoch(due)
