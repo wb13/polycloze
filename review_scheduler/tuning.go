@@ -112,8 +112,18 @@ func replaceWithExistingInterval(tx *sql.Tx, interval, replacement time.Duration
 		return err
 	}
 
-	query = `UPDATE review SET interval = ? WHERE interval = ?`
-	_, err := tx.Exec(query, int64(replacement.Hours()), int64(interval.Hours()))
+	query = `
+		UPDATE review SET
+			interval = ?,
+			due = due + (? - interval) * 3600
+		WHERE interval = ?
+	`
+	_, err := tx.Exec(
+		query,
+		int64(replacement.Hours()),
+		int64(replacement.Hours()),
+		int64(interval.Hours()),
+	)
 	return err
 }
 
