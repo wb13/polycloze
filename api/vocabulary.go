@@ -116,6 +116,31 @@ func getSortBy(q url.Values) string {
 	return "word"
 }
 
+// Returns map from interval (as number of hours) to strength.
+// Use this to compute interval strength.
+// The result is not the same as `interval.ROWID`, because there can be gaps in
+// rowids.
+func queryIntervalStrengths(db *sql.DB) (map[int]int, error) {
+	query := `SELECT interval FROM interval ORDER BY interval ASC`
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query intervals: %v", err)
+	}
+	defer rows.Close()
+
+	var strength int
+	intervals := make(map[int]int)
+	for rows.Next() {
+		var interval int
+		if err := rows.Scan(&interval); err != nil {
+			return nil, fmt.Errorf("failed to query intervals: %v", err)
+		}
+		intervals[interval] = strength
+		strength++
+	}
+	return intervals, nil
+}
+
 // Lists words returned by query.
 // - limit should be between 10 and 100.
 // 	 Silently changes limit if not.
@@ -132,8 +157,13 @@ func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]voc
 		panic(fmt.Errorf("invalid sortBy value: %v", sortBy))
 	}
 
+	intervals, err := queryIntervalStrengths(db)
+	if err != nil {
+		return nil, fmt.Errorf("vocabulary search failed: %v", err)
+	}
+
 	query := fmt.Sprintf(`
-		SELECT item AS word, reviewed, due, interval.rowid AS strength
+		SELECT item AS word, reviewed, due, interval
 		FROM review JOIN interval USING (interval)
 		WHERE item > ?
 		ORDER BY %s
@@ -143,18 +173,20 @@ func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]voc
 	words := make([]vocabularyItem, 0)
 	rows, err := db.Query(query, after, limit)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("vocabulary search failed: %v", err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var vocab vocabularyItem
 		var reviewed, due int64
-		if err := rows.Scan(&vocab.Word, &reviewed, &due, &vocab.Strength); err != nil {
-			return nil, err
+		var interval int
+		if err := rows.Scan(&vocab.Word, &reviewed, &due, &interval); err != nil {
+			return nil, fmt.Errorf("vocabulary search failed: %v", err)
 		}
 		vocab.Reviewed = time.Unix(reviewed, 0)
 		vocab.Due = time.Unix(due, 0)
+		vocab.Strength = intervals[interval]
 		words = append(words, vocab)
 	}
 	return words, nil
