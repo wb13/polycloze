@@ -123,8 +123,8 @@ func TestPlacementTooHard(t *testing.T) {
 	}
 }
 
-func TestPlacementComparedToEasiestUnseen(t *testing.T) {
-	// Placement test should ignore stats from lower frequency classes.
+func TestPlacementPastCompletedFrequencyClasses(t *testing.T) {
+	// Placement test should ignore performance from completed frequency classes.
 	t.Parallel()
 
 	db := utils.TestingDatabase()
@@ -145,5 +145,36 @@ func TestPlacementComparedToEasiestUnseen(t *testing.T) {
 	level := Placement(db)
 	if level != 3 {
 		t.Fatal("expected to skip to level 3:", level)
+	}
+}
+
+func TestPlacementGreaterThanOrEqualToEasiestUnseen(t *testing.T) {
+	// Placement test level should be >= easiest unseen frequency class.
+	t.Parallel()
+
+	db := utils.TestingDatabase()
+	defer db.Close()
+
+	// Insert unseen level 3 word.
+	query := `INSERT INTO word (word, frequency_class) VALUES ('unseen', 3)`
+	if _, err := db.Exec(query); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Scenario: student completed all previous levels without failing or acing them.
+	if err := updateNewWordStat(db, 0, true); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+	if err := updateNewWordStat(db, 1, true); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+	if err := updateNewWordStat(db, 2, true); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Estimated level >= easiest unseen frequency class.
+	level := Placement(db)
+	if level != 3 {
+		t.Fatal("expected level to be >= 3:", level)
 	}
 }

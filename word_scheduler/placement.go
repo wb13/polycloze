@@ -18,10 +18,11 @@ func Placement[T database.Querier](q T) int {
 	query := `
 		SELECT frequency_class, correct, incorrect
 		FROM new_word_stat
+		WHERE frequency_class >= ?
 		ORDER BY frequency_class ASC
 	`
 
-	rows, err := q.Query(query)
+	rows, err := q.Query(query, class)
 	if err != nil {
 		return class
 	}
