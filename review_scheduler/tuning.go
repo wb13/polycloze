@@ -6,6 +6,7 @@ package review_scheduler
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/lggruspe/polycloze/wilson"
@@ -64,55 +65,30 @@ func previousInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error)
 	return prev * time.Hour, nil
 }
 
-// Check if interval already exists in db.
-func alreadyExists(tx *sql.Tx, interval time.Duration) (bool, error) {
-	query := `select * from interval where interval = ?`
-	rows, err := tx.Query(query, int64(interval.Hours()))
+// TODO Fix bias when rounding up
+func setInterval(tx *sql.Tx, before, after time.Duration) error {
+	// Update intervals in review table.
+	query := `UPDATE review SET interval = ? WHERE interval = ?`
+	_, err := tx.Exec(query, int64(after.Hours()), int64(before.Hours()))
 	if err != nil {
-		return false, err
+		return fmt.Errorf("failed to update interval: %v", err)
 	}
-	defer rows.Close()
 
-	for rows.Next() {
-		return true, nil
-	}
-	return false, nil
-}
-
-// Replaces interval value in `interval` and `review` tables.
-// Assumes replacement isn't already in the interval table.
-func replaceInterval(tx *sql.Tx, interval, replacement time.Duration) error {
-	query := `
-		UPDATE interval SET interval = ?, correct = 0, incorrect = 0
-		WHERE interval = ?
+	// Insert new interval.
+	query = `
+		INSERT OR IGNORE INTO interval (interval, correct, incorrect)
+		VALUES (?, 0, 0)
 	`
-	_, err := tx.Exec(query, int64(replacement.Hours()), int64(interval.Hours()))
-	if err != nil {
-		return err
+	if _, err := tx.Exec(query, int64(after.Hours())); err != nil {
+		return fmt.Errorf("failed to update interval: %v", err)
 	}
 
-	query = `UPDATE review SET interval = ? WHERE interval = ?`
-	_, err = tx.Exec(
-		query,
-		int64(replacement.Hours()),
-		int64(interval.Hours()),
-	)
-	return err
-}
-
-func replaceWithExistingInterval(tx *sql.Tx, interval, replacement time.Duration) error {
-	query := `DELETE FROM interval WHERE interval = ?`
-	if _, err := tx.Exec(query, int64(interval.Hours())); err != nil {
-		return err
+	// Delete old interval.
+	query = `DELETE FROM interval WHERE interval = ?`
+	if _, err := tx.Exec(query, int64(before.Hours())); err != nil {
+		return fmt.Errorf("failed to update interval: %v", err)
 	}
-
-	query = `UPDATE review SET interval = ? WHERE interval = ?`
-	_, err := tx.Exec(
-		query,
-		int64(replacement.Hours()),
-		int64(interval.Hours()),
-	)
-	return err
+	return nil
 }
 
 func shortenInterval(tx *sql.Tx, interval time.Duration) error {
@@ -125,13 +101,7 @@ func shortenInterval(tx *sql.Tx, interval time.Duration) error {
 		return err
 	}
 	mid := (prev + interval) / 2
-
-	if exists, err := alreadyExists(tx, mid); err != nil {
-		return err
-	} else if exists {
-		return replaceWithExistingInterval(tx, interval, mid)
-	}
-	return replaceInterval(tx, interval, mid)
+	return setInterval(tx, interval, mid)
 }
 
 // Returns the largest interval in the database.
@@ -195,13 +165,7 @@ func lengthenInterval(tx *sql.Tx, interval time.Duration) error {
 		return err
 	}
 	mid := (interval + next) / 2
-
-	if exists, err := alreadyExists(tx, mid); err != nil {
-		return err
-	} else if exists {
-		return replaceWithExistingInterval(tx, interval, mid)
-	}
-	return replaceInterval(tx, interval, mid)
+	return setInterval(tx, interval, mid)
 }
 
 // Updates interval table.
