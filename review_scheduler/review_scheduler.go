@@ -6,6 +6,7 @@ package review_scheduler
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/lggruspe/polycloze/database"
@@ -63,14 +64,13 @@ func ScheduleReviewNowWith[T database.Querier](q T, count int, pred func(item st
 
 // Gets most recent review of item.
 func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
-	query := `select due, interval, reviewed from review where item = ?`
+	query := `SELECT interval, reviewed FROM review WHERE item = ?`
 	row := tx.QueryRow(query, item)
 	var review Review
 
 	var interval time.Duration
-	var due, reviewed int64
+	var reviewed int64
 	err := row.Scan(
-		&due,
 		&interval,
 		&reviewed,
 	)
@@ -81,7 +81,6 @@ func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 		return nil, err
 	}
 
-	review.Due = time.Unix(due, 0)
 	review.Reviewed = time.Unix(reviewed, 0)
 	review.Interval = interval * time.Hour
 	return &review, nil
@@ -91,45 +90,43 @@ func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 func UpdateReviewAt[T database.Querier](q T, item string, correct bool, now time.Time) error {
 	tx, err := q.Begin()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to update review: %v", err)
 	}
 
 	review, err := mostRecentReview(tx, item)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to update review: %v", err)
 	}
 
-	if review == nil || !now.Before(review.Due) {
+	if review == nil || !now.Before(review.Due()) {
 		// Only update interval stats if the student didn't cram
 		if err := updateIntervalStats(tx, review, correct); err != nil {
-			return err
+			return fmt.Errorf("failed to update review: %v", err)
 		}
 	}
 
 	next, err := nextReview(tx, review, correct, now)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to update review: %v", err)
 	}
 
 	query := `
-		INSERT INTO review (item, interval, due, learned, reviewed)
-		VALUES (?, ?, ?, unixepoch('now'), unixepoch('now'))
+		INSERT INTO review (item, interval, learned, reviewed)
+		VALUES (?, ?, unixepoch('now'), unixepoch('now'))
 		ON CONFLICT (item) DO UPDATE SET
 			interval = excluded.interval,
-			due = excluded.due,
 			reviewed = excluded.reviewed
 	`
 	_, err = tx.Exec(
 		query,
 		item,
 		int64(next.Interval.Hours()),
-		next.Due.Unix(),
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to update review: %v", err)
 	}
 	if err := autoTune(tx); err != nil {
-		return err
+		return fmt.Errorf("failed to update review: %v", err)
 	}
 	return tx.Commit()
 }

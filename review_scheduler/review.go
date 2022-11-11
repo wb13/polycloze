@@ -10,9 +10,12 @@ import (
 )
 
 type Review struct {
-	Due      time.Time     // Due date of next review
 	Interval time.Duration // Interval between now and due date
 	Reviewed time.Time
+}
+
+func (r Review) Due() time.Time {
+	return r.Reviewed.Add(r.Interval)
 }
 
 func (r Review) Correct() bool {
@@ -26,7 +29,7 @@ func calculateInterval(tx *sql.Tx, review *Review, correct bool, now time.Time) 
 	}
 	reviewed := now
 	if review != nil {
-		if now.Before(review.Due) {
+		if now.Before(review.Due()) {
 			// Don't increase interval if the user crammed
 			println("user crammed :(")
 			return review.Interval, nil
@@ -49,6 +52,5 @@ func nextReview(tx *sql.Tx, review *Review, correct bool, now time.Time) (Review
 	}
 	r.Reviewed = now
 	r.Interval = interval
-	r.Due = now.Add(interval)
 	return r, nil
 }
