@@ -226,5 +226,6 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 	r.HandleFunc("/{l1}/{l2}", handleFlashcards)
 
 	r.HandleFunc("/{l1}/{l2}/vocab", handleVocabulary)
+	r.HandleFunc("/{l1}/{l2}/stats/vocab", handleVocabularySize)
 	return r, nil
 }

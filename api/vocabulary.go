@@ -18,6 +18,7 @@ import (
 	"github.com/lggruspe/polycloze/auth"
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
+	"github.com/lggruspe/polycloze/metrics"
 	"github.com/lggruspe/polycloze/sessions"
 )
 
@@ -192,4 +193,51 @@ func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]Wor
 		words = append(words, vocab)
 	}
 	return words, nil
+}
+
+func handleVocabularySize(w http.ResponseWriter, r *http.Request) {
+	db := auth.GetDB(r)
+	s, err := sessions.ResumeSession(db, w, r)
+	if err != nil || !isSignedIn(s) {
+		http.NotFound(w, r)
+		return
+	}
+
+	l1 := chi.URLParam(r, "l1")
+	l2 := chi.URLParam(r, "l2")
+	if !courseExists(l1, l2) {
+		http.NotFound(w, r)
+		return
+	}
+
+	userID := s.Data["userID"].(int)
+	db, err = database.New(basedir.Review(userID, l1, l2))
+	if err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	start := time.Unix(0, 0)
+	end := time.Now()
+	nSamples := 12
+	data, err := metrics.CountVocabulary(db, start, end, nSamples)
+	if err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	// Encode JSON
+	bytes, err := data.EncodeJSON()
+	if err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	// Send JSON
+	w.Header().Set("Content-Type", "application/json")
+	if _, err := w.Write(bytes); err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+	}
 }
