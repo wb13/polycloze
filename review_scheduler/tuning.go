@@ -160,6 +160,11 @@ func nextInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error) {
 }
 
 func lengthenInterval(tx *sql.Tx, interval time.Duration) error {
+	if interval <= day {
+		return nil
+	}
+
+	// TODO what if it there's no next interval?
 	next, err := nextInterval(tx, interval)
 	if err != nil {
 		return err
