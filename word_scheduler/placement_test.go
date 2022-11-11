@@ -122,3 +122,28 @@ func TestPlacementTooHard(t *testing.T) {
 		t.Fatal("expected to stay at current level (1):", level)
 	}
 }
+
+func TestPlacementComparedToEasiestUnseen(t *testing.T) {
+	// Placement test should ignore stats from lower frequency classes.
+	t.Parallel()
+
+	db := utils.TestingDatabase()
+	defer db.Close()
+
+	// Insert unseen level 3 word.
+	query := `INSERT INTO word (word, frequency_class) VALUES ('unseen', 3)`
+	if _, err := db.Exec(query); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Even if lower levels are failing but all words at these levels have already
+	// been seen...
+	flunk(db, 1)
+	flunk(db, 2)
+
+	// Placement test should ignore performance at lower levels.
+	level := Placement(db)
+	if level != 3 {
+		t.Fatal("expected to skip to level 3:", level)
+	}
+}

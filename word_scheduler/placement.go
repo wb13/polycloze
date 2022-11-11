@@ -10,7 +10,10 @@ import (
 
 // Estimates student's level with a frequency class.
 func Placement[T database.Querier](q T) int {
-	var class int
+	// Estimated level shouldn't be lower than the lowest unseen frequency class.
+	// Otherwise, the estimated level will be stuck if there's a frequency class
+	// with a low enough score.
+	class := easiestUnseen(q)
 
 	query := `
 		SELECT frequency_class, correct, incorrect
@@ -47,13 +50,6 @@ func Placement[T database.Querier](q T) int {
 	}
 
 done:
-	// Estimated level shouldn't be lower than the lowest unseen frequency class.
-	// Otherwise, the estimated level will be stuck if there's a frequency class
-	// with a low enough score.
-	if easiest := easiestUnseen(q); easiest > class {
-		class = easiest
-	}
-
 	return class
 }
 
