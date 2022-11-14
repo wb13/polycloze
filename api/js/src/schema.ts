@@ -39,8 +39,9 @@ export type CoursesSchema = {
     courses: Course[];
 };
 
-export type VocabularyItem = {
+export type Word = {
   word: string;
+  learned: string;
   reviewed: string;
   due: string;
   strength: number;
@@ -48,5 +49,5 @@ export type VocabularyItem = {
 
 // from /<l1>/<l2>/vocab
 export type VocabularySchema = {
-  results: VocabularyItem[];
+  words: Word[];
 };

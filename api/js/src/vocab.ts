@@ -3,7 +3,7 @@ import { fetchVocabulary } from "./api";
 import { createButton } from "./button";
 import { createDateTime } from "./datetime";
 import { getL2 } from "./language";
-import { VocabularyItem } from "./schema";
+import { Word } from "./schema";
 import { createScrollingTable, createTable, createTableData, createTableHeader } from "./table";
 
 function createStrengthMeter(strength: number): HTMLMeterElement {
@@ -24,32 +24,34 @@ function createVocabularyListHeader(): HTMLHeadingElement {
     return h1;
 }
 
-function createVocabularyListTableRow(item: VocabularyItem): HTMLTableRowElement {
-    const reviewed = new Date(Date.parse(item.reviewed));
-    const due = new Date(Date.parse(item.due));
+function createVocabularyListTableRow(word: Word): HTMLTableRowElement {
+    const learned = new Date(Date.parse(word.learned));
+    const reviewed = new Date(Date.parse(word.reviewed));
+    const due = new Date(Date.parse(word.due));
 
     const tr = document.createElement("tr");
     tr.append(
-        createTableData(item.word),
+        createTableData(word.word),
+        createTableData(createDateTime(learned)),
         createTableData(createDateTime(reviewed)),
         createTableData(createDateTime(due)),
-        createTableData(createStrengthMeter(item.strength)),
+        createTableData(createStrengthMeter(word.strength)),
     );
     return tr;
 }
 
 // Creates table body for displaying vocabulary list.
-// Returns a table section (tbody) and an update function for adding items to the table.
-function createVocabularyListTableBody(): [HTMLTableSectionElement, (items: VocabularyItem[]) => void] {
+// Returns a table section (tbody) and an update function for adding words to the table.
+function createVocabularyListTableBody(): [HTMLTableSectionElement, (words: Word[]) => void] {
     const tbody = document.createElement("tbody");
-    const update = (items: VocabularyItem[]) => tbody.append(...items.map(createVocabularyListTableRow));
+    const update = (words: Word[]) => tbody.append(...words.map(createVocabularyListTableRow));
     return [tbody, update];
 }
 
 // Creates body of vocabulary list page.
-// Returns a table and an update function for adding items to the table.
-function createVocabularyListBody(): [HTMLDivElement, (items: VocabularyItem[]) => void] {
-    const headers = ["Word", "Last seen", "Due", "Strength"];
+// Returns a table and an update function for adding words to the table.
+function createVocabularyListBody(): [HTMLDivElement, (words: Word[]) => void] {
+    const headers = ["Word", "Learned", "Last seen", "Due", "Strength"];
     const [body, update] = createVocabularyListTableBody();
     const table = createTable(createTableHeader(headers), body);
     return [createScrollingTable(table), update];

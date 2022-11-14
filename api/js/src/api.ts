@@ -10,7 +10,7 @@ import {
     Language,
     LanguagesSchema,
     ReviewSchema,
-    VocabularyItem,
+    Word,
     VocabularySchema,
 } from "./schema";
 
@@ -35,7 +35,7 @@ function defaultFetchVocabularyOptions(): FetchVocabularyOptions {
     };
 }
 
-export async function fetchVocabulary(options: FetchVocabularyOptions = {}): Promise<VocabularyItem[]> {
+export async function fetchVocabulary(options: FetchVocabularyOptions = {}): Promise<Word[]> {
     const { l1, l2, limit, after, sortBy } = {...defaultFetchVocabularyOptions(), ...options};
     const url = resolve(`/${l1}/${l2}/vocab`);
     setParams(url, { after, limit, sortBy });
@@ -43,7 +43,7 @@ export async function fetchVocabulary(options: FetchVocabularyOptions = {}): Pro
     const json = await fetchJson<VocabularySchema>(url, {
         mode: "cors" as RequestMode,
     });
-    return json.results || [];
+    return json.words || [];
 }
 
 // Fetches list of supported languages (L1).

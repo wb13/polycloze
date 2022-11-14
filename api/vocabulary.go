@@ -21,15 +21,16 @@ import (
 	"github.com/lggruspe/polycloze/sessions"
 )
 
-type vocabularyItem struct {
+type Word struct {
 	Word     string    `json:"word"`
+	Learned  time.Time `json:"learned"`
 	Reviewed time.Time `json:"reviewed"`
 	Due      time.Time `json:"due"`
 	Strength int       `json:"strength"`
 }
 
-type vocabulary struct {
-	Results []vocabularyItem `json:"results"`
+type Vocabulary struct {
+	Words []Word `json:"words"`
 }
 
 func handleVocabulary(w http.ResponseWriter, r *http.Request) {
@@ -66,7 +67,7 @@ func handleVocabulary(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	bytes, err := json.Marshal(vocabulary{Results: results})
+	bytes, err := json.Marshal(Vocabulary{Words: results})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -144,7 +145,7 @@ func queryIntervalStrengths(db *sql.DB) (map[int]int, error) {
 // Lists words returned by query.
 // - limit should be between 10 and 100.
 // 	 Silently changes limit if not.
-func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]vocabularyItem, error) {
+func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]Word, error) {
 	// Cap limit.
 	if limit < 10 {
 		limit = 10
@@ -163,14 +164,14 @@ func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]voc
 	}
 
 	query := fmt.Sprintf(`
-		SELECT item AS word, reviewed, due, interval
+		SELECT item AS word, learned, reviewed, due, interval
 		FROM review JOIN interval USING (interval)
 		WHERE item > ?
 		ORDER BY %s
 		LIMIT ?
 	`, sortBy)
 
-	words := make([]vocabularyItem, 0)
+	words := make([]Word, 0)
 	rows, err := db.Query(query, after, limit)
 	if err != nil {
 		return nil, fmt.Errorf("vocabulary search failed: %v", err)
@@ -178,12 +179,13 @@ func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]voc
 	defer rows.Close()
 
 	for rows.Next() {
-		var vocab vocabularyItem
-		var reviewed, due int64
+		var vocab Word
+		var learned, reviewed, due int64
 		var interval int
-		if err := rows.Scan(&vocab.Word, &reviewed, &due, &interval); err != nil {
+		if err := rows.Scan(&vocab.Word, &learned, &reviewed, &due, &interval); err != nil {
 			return nil, fmt.Errorf("vocabulary search failed: %v", err)
 		}
+		vocab.Learned = time.Unix(learned, 0)
 		vocab.Reviewed = time.Unix(reviewed, 0)
 		vocab.Due = time.Unix(due, 0)
 		vocab.Strength = intervals[interval]
