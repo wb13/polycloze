@@ -24,7 +24,7 @@ func serveDist() http.Handler {
 	if err != nil {
 		panic(err)
 	}
-	return http.FileServer(http.FS(sub))
+	return cacheUntilBusted(http.FileServer(http.FS(sub)))
 }
 
 // Usage: http.Handle("/public/*", http.StripPrefix("/public/", servePublic()))
@@ -33,7 +33,7 @@ func servePublic() http.Handler {
 	if err != nil {
 		panic(err)
 	}
-	return http.FileServer(http.FS(sub))
+	return cacheUntilBusted(http.FileServer(http.FS(sub)))
 }
 
 // Usage: http.Handle("/svg/*", http.StripPrefix("/svg/", serveSVG()))
@@ -42,10 +42,22 @@ func serveSVG() http.Handler {
 	if err != nil {
 		panic(err)
 	}
-	return http.FileServer(http.FS(sub))
+	return cacheUntilBusted(http.FileServer(http.FS(sub)))
+}
+
+// Caches responses that contain search params until cache gets busted.
+// Bust cache by changing the search params to previously unused params.
+// Requests without search params won't set caching instructions.
+func cacheUntilBusted(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if len(r.URL.RawQuery) > 0 {
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // Serve files from data directory.
 func serveShare() http.Handler {
-	return http.FileServer(http.Dir(basedir.DataDir))
+	return cacheUntilBusted(http.FileServer(http.Dir(basedir.DataDir)))
 }
