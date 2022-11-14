@@ -2,7 +2,8 @@ import "./select.css";
 import { createButton } from "./button";
 import { onClickOutside } from "./click";
 import { createIcon } from "./icon";
-import { Language, getL1, setL1 } from "./language";
+import { getL1, setL1 } from "./language";
+import { Language } from "./schema";
 
 // Creates an entry in the language select menu.
 function createLanguageButton(language: Language): HTMLButtonElement {

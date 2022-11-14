@@ -1,10 +1,6 @@
 // Language info in localStorage.
 
-export type Language = {
-  code: string
-  name: string
-  bcp47: string
-}
+import { Language } from "./schema";
 
 export function getL1(): Language {
     return {

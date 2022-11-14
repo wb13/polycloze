@@ -1,4 +1,4 @@
-import { fetchCourses } from "./api";
+import { fetchCourses, fetchLanguages } from "./api";
 import { createApp } from "./app";
 import { ItemBuffer } from "./buffer";
 import { setButtonLink } from "./button";
@@ -20,8 +20,7 @@ export class ClozeApp extends HTMLElement {
 
 export class LanguageSelectButton extends HTMLElement {
     async connectedCallback() {
-        const courses = await fetchCourses();
-        const languages = courses.map(c => c.l1);
+        const languages = await fetchLanguages();
         this.appendChild(createLanguageSelectButton(languages));
     }
 }

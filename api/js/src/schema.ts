@@ -1,7 +1,6 @@
 // JSON schemas used by server.
 
 import { Item } from "./item";
-import { Language } from "./language";
 
 export type ItemsSchema = {
     items: Item[];
@@ -18,6 +17,16 @@ export type CourseStats = {
   learned?: number
   reviewed?: number
   correct?: number
+};
+
+export type Language = {
+  code: string;
+  name: string;
+  bcp47: string;
+};
+
+export type LanguagesSchema = {
+  languages: Language[];
 };
 
 export type Course = {

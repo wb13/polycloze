@@ -3,7 +3,16 @@
 import { Item } from "./item";
 import { getL1, getL2 } from "./language";
 import { fetchJson, resolve, submitJson } from "./request";
-import { Course, CoursesSchema, ItemsSchema, ReviewSchema, VocabularyItem, VocabularySchema } from "./schema";
+import {
+    Course,
+    CoursesSchema,
+    ItemsSchema,
+    Language,
+    LanguagesSchema,
+    ReviewSchema,
+    VocabularyItem,
+    VocabularySchema,
+} from "./schema";
 
 type FetchVocabularyOptions = {
     // Path params
@@ -35,6 +44,15 @@ export async function fetchVocabulary(options: FetchVocabularyOptions = {}): Pro
         mode: "cors" as RequestMode,
     });
     return json.results || [];
+}
+
+// Fetches list of supported languages (L1).
+export async function fetchLanguages(): Promise<Language[]> {
+    const url = resolve("/share/languages.json");
+    const json = await fetchJson<LanguagesSchema>(url, {
+        mode: "cors" as RequestMode,
+    });
+    return json.languages;
 }
 
 type FetchCoursesOptions = {
