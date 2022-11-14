@@ -11,6 +11,7 @@ import {
     LanguagesSchema,
     ReviewSchema,
     Word,
+    VocabularyDataSchema,
     VocabularySchema,
 } from "./schema";
 
@@ -110,6 +111,28 @@ export async function fetchItems(options: FetchItemsOptions = {}): Promise<Item[
 type Params = {
     [name: string]: unknown;
 };
+
+type FetchVocabularySizeOptions = {
+    // Path params
+    l1?: string;
+    l2?: string;
+}
+
+function defaultFetchVocabularySizeOptions(): FetchVocabularySizeOptions {
+    return {
+        l1: getL1().code,
+        l2: getL2().code,
+    };
+}
+
+export function fetchVocabularySize(options: FetchVocabularySizeOptions = {}): Promise<VocabularyDataSchema> {
+    const { l1, l2 } = {...defaultFetchVocabularySizeOptions(), ...options};
+    const url = resolve(`/${l1}/${l2}/stats/vocab`);
+
+    return fetchJson<VocabularyDataSchema>(url, {
+        mode: "cors" as RequestMode,
+    });
+}
 
 function setParams(url: URL, params: Params) {
     for (const name of Object.getOwnPropertyNames(params)) {
