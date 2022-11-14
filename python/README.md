@@ -14,8 +14,7 @@ pip install -r requirements/install.requirements.txt
 python -m scripts.build
 
 # Install into data directory.
-mkdir -p ~/.local/share/polycloze
-cp ./build/courses/*.db ~/.local/share/polycloze
+cp -r ./build/polycloze ~/.local/share
 ```
 
 You can also specify a course to build.

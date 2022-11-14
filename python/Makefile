@@ -4,8 +4,7 @@ all:
 
 .PHONY:	install
 install:
-	mkdir -p "$$HOME/.local/share/polycloze"
-	cp ./build/courses/*.db "$$HOME/.local/share/polycloze"
+	cp -r ./build/polycloze "$$HOME/.local/share"
 
 .PHONY:	check
 check:

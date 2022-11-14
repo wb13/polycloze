@@ -189,7 +189,7 @@ class CourseBuilderTask:
             l2_dir/"words.csv",
             translations,
         ]
-        target = build/"courses"/f"{lang1}-{lang2}.db"
+        target = build/"polycloze"/"courses"/f"{lang1}-{lang2}.db"
 
         for source in sources:
             assert source.is_file()
@@ -246,4 +246,4 @@ def create_empty_course() -> None:
 
 def create_course_directory() -> None:
     """Create course directory."""
-    (build/"courses").mkdir(parents=True, exist_ok=True)
+    (build/"polycloze"/"courses").mkdir(parents=True, exist_ok=True)
