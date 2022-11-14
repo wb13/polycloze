@@ -8,6 +8,8 @@ import (
 	"embed"
 	"io/fs"
 	"net/http"
+
+	"github.com/lggruspe/polycloze/basedir"
 )
 
 //go:embed js/dist
@@ -41,4 +43,9 @@ func serveSVG() http.Handler {
 		panic(err)
 	}
 	return http.FileServer(http.FS(sub))
+}
+
+// Serve files from data directory.
+func serveShare() http.Handler {
+	return http.FileServer(http.Dir(basedir.DataDir))
 }

@@ -216,6 +216,7 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 
 	r.Handle("/dist/*", http.StripPrefix("/dist/", serveDist()))
 	r.Handle("/public/*", http.StripPrefix("/public/", servePublic()))
+	r.Handle("/share/*", http.StripPrefix("/share/", serveShare()))
 	r.Handle("/svg/*", http.StripPrefix("/svg/", serveSVG()))
 
 	// serviceworker has to be at the root.
