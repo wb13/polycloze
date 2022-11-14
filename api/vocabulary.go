@@ -164,7 +164,7 @@ func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]Wor
 	}
 
 	query := fmt.Sprintf(`
-		SELECT item AS word, learned, reviewed, due, interval
+		SELECT item AS word, learned, reviewed, due, interval AS strength
 		FROM review JOIN interval USING (interval)
 		WHERE item > ?
 		ORDER BY %s
