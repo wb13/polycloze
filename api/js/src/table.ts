@@ -32,7 +32,7 @@ export function createTable(header: HTMLTableSectionElement, body: HTMLTableSect
 // The result is a div rather than a table.
 export function createScrollingTable(table: HTMLTableElement): HTMLDivElement {
     const div = document.createElement("div");
-    div.style.overflowX = "scroll";
+    div.style.overflowX = "auto";
     div.appendChild(table);
     return div;
 }
