@@ -58,7 +58,7 @@ func AvailableCourses(l1, l2 string, user ...int) []Course {
 	var courses []Course
 
 	glob := courseGlobPattern(l1, l2)
-	matches, _ := filepath.Glob(filepath.Join(basedir.DataDir, glob))
+	matches, _ := filepath.Glob(filepath.Join(basedir.DataDir, "courses", glob))
 	for _, match := range matches {
 		course, err := getCourseInfo(match, user...)
 		if err == nil {

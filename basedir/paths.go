@@ -29,7 +29,7 @@ func Log(userID int, l1, l2 string) string {
 // Returns path to database for course.
 // l1 and l2 are ISO 639-3 codes.
 func Course(l1, l2 string) string {
-	return path.Join(DataDir, fmt.Sprintf("%s-%s.db", l1, l2))
+	return path.Join(DataDir, "courses", fmt.Sprintf("%s-%s.db", l1, l2))
 }
 
 func Users() string {
