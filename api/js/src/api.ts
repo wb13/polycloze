@@ -49,6 +49,7 @@ export async function fetchVocabulary(options: FetchVocabularyOptions = {}): Pro
 // Fetches list of supported languages (L1).
 export async function fetchLanguages(): Promise<Language[]> {
     const url = resolve("/share/languages.json");
+    setParams(url, { t: "20221114" });
     const json = await fetchJson<LanguagesSchema>(url, {
         mode: "cors" as RequestMode,
     });

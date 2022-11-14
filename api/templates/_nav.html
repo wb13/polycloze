@@ -4,20 +4,20 @@
 	<div>
 		{{if .username}}
 		<button is="button-link" class="button-borderless button-tight" href="/study">
-			<img src="/public/svg/brain.svg"> Study
+			<img src="/public/svg/brain.svg?t=20221114"> Study
 		</button>
 		<button is="button-link" class="button-borderless button-tight" href="/vocab">
-			<img src="/public/svg/notebook.svg"> Vocabulary
+			<img src="/public/svg/notebook.svg?t=20221114"> Vocabulary
 		</button>
 		<button is="button-link" class="button-borderless button-tight" href="/settings">
-			<img src="/public/svg/faders.svg"> Settings
+			<img src="/public/svg/faders.svg?t=20221114"> Settings
 		</button>
 		<button is="button-link" class="button-borderless button-tight" href="/signout" method="POST">
-			<img src="/public/svg/sign-out.svg"> Sign out
+			<img src="/public/svg/sign-out.svg?t=20221114"> Sign out
 		</button>
 		{{else}}
 		<button is="button-link" class="button-borderless button-tight" href="/signin">
-			<img src="/public/svg/sign-in.svg"> Sign in
+			<img src="/public/svg/sign-in.svg?t=20221114"> Sign in
 		</button>
 		{{end}}
 		<language-select-button></language-select-button>
