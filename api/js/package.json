@@ -36,6 +36,7 @@
     "typescript": "^4.6.4"
   },
   "dependencies": {
+    "chart.js": "^3.9.1",
     "fastest-levenshtein": "^1.0.12"
   }
 }
