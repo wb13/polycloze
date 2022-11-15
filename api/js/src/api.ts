@@ -116,6 +116,11 @@ type FetchVocabularySizeOptions = {
     // Path params
     l1?: string;
     l2?: string;
+
+    // Search params
+    start?: number; // UNIX timestamp
+    end?: number;   // UNIX timestamp
+    nSamples?: number;
 }
 
 function defaultFetchVocabularySizeOptions(): FetchVocabularySizeOptions {
@@ -126,8 +131,9 @@ function defaultFetchVocabularySizeOptions(): FetchVocabularySizeOptions {
 }
 
 export function fetchVocabularySize(options: FetchVocabularySizeOptions = {}): Promise<VocabularyDataSchema> {
-    const { l1, l2 } = {...defaultFetchVocabularySizeOptions(), ...options};
+    const { l1, l2, start, end, nSamples } = {...defaultFetchVocabularySizeOptions(), ...options};
     const url = resolve(`/${l1}/${l2}/stats/vocab`);
+    setParams(url, { start, end, nSamples });
 
     return fetchJson<VocabularyDataSchema>(url, {
         mode: "cors" as RequestMode,
