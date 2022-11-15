@@ -195,6 +195,31 @@ func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]Wor
 	return words, nil
 }
 
+func getStartTime(q url.Values) time.Time {
+	v := q.Get("start")
+	if start, err := strconv.Atoi(v); err == nil {
+		return time.Unix(int64(start), 0)
+	}
+	// Defaults to one year ago.
+	return time.Now().AddDate(-1, 0, 0)
+}
+
+func getEndTime(q url.Values) time.Time {
+	v := q.Get("end")
+	if end, err := strconv.Atoi(v); err == nil {
+		return time.Unix(int64(end), 0)
+	}
+	return time.Now()
+}
+
+func getNSamples(q url.Values) int {
+	v := q.Get("nSamples")
+	if n, err := strconv.Atoi(v); err == nil {
+		return n
+	}
+	return 12
+}
+
 func handleVocabularySize(w http.ResponseWriter, r *http.Request) {
 	db := auth.GetDB(r)
 	s, err := sessions.ResumeSession(db, w, r)
@@ -218,10 +243,13 @@ func handleVocabularySize(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	start := time.Unix(0, 0)
-	end := time.Now()
-	nSamples := 12
-	data, err := metrics.CountVocabulary(db, start, end, nSamples)
+	q := r.URL.Query()
+	data, err := metrics.CountVocabulary(
+		db,
+		getStartTime(q),
+		getEndTime(q),
+		getNSamples(q),
+	)
 	if err != nil {
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
