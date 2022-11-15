@@ -31,25 +31,6 @@ const stackedBarChartOptions = {
     },
 };
 
-// NOTE supply your own data
-const stackedBarChartConfig = {
-    type: "bar",
-    options: stackedBarChartOptions,
-    plugins: {
-        title: {
-            display: true,
-            text: "Vocabulary size",
-        },
-        legend: {
-            labels: {
-                font: {
-                    family: "Nunito",
-                },
-            },
-        },
-    },
-};
-
 const monthLabels = [
     "Jan",
     "Feb",
@@ -71,7 +52,8 @@ function createChart(canvas: HTMLCanvasElement, vocabData: VocabularyDataSchema)
         datasets: normalize(vocabData),
     };
     return new Chart(canvas, {
-        ...stackedBarChartConfig,
+        type: "bar",
+        options: stackedBarChartOptions,
         data,
     });
 }
