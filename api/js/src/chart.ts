@@ -1,3 +1,4 @@
+import { fetchVocabularySize } from "./api";
 import { VocabularyDataSchema } from "./schema";
 
 import {
@@ -31,24 +32,19 @@ const stackedBarChartOptions = {
     },
 };
 
-const monthLabels = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
+const dayLabels = [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+    "Sun",
 ];
 
 function createChart(canvas: HTMLCanvasElement, vocabData: VocabularyDataSchema): Chart {
     const data = {
-        labels: monthLabels,
+        labels: dayLabels,
         datasets: normalize(vocabData),
     };
     return new Chart(canvas, {
@@ -77,8 +73,15 @@ function normalize(data: VocabularyDataSchema): Array<{ label: string, data: num
     return datasets;
 }
 
-export function createVocabularyChart(data: VocabularyDataSchema): HTMLCanvasElement {
+type Timescale = "week";
+
+export async function createVocabularyChart(_: Timescale): Promise<HTMLCanvasElement> {
+    const vocab = await fetchVocabularySize({
+        start: Math.floor(Date.now()/1000 - 7 * 24 * 3600),
+        nSamples: 7,
+    });
+
     const canvas = document.createElement("canvas");
-    createChart(canvas, data);
+    createChart(canvas, vocab);
     return canvas;
 }
