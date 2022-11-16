@@ -21,7 +21,7 @@ type Activity struct {
 // Bounds the result between 1 and 366.
 func oldestActivity(db *sql.DB, now time.Time) (int, error) {
 	today := now.Unix() / 60 / 60 / 24
-	query := `SELECT max(? - days_since_epoch) FROM activity`
+	query := `SELECT coalesce(max(? - days_since_epoch), 0) FROM activity`
 	var age int
 	if err := db.QueryRow(query, today).Scan(&age); err != nil {
 		return 0, fmt.Errorf("failed to get oldest review: %v", err)
