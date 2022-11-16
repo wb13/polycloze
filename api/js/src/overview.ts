@@ -1,6 +1,6 @@
 import { createActivityChart, createVocabularyChart } from "./chart";
 import { getL1, getL2 } from "./language";
-import { Activity } from "./schema";
+import { ActivityHistory } from "./schema";
 
 function createOverviewHeader(): HTMLHeadingElement {
     const l1 = getL1();
@@ -10,7 +10,7 @@ function createOverviewHeader(): HTMLHeadingElement {
     return h1;
 }
 
-export function createOverviewPage(activityHistory: Activity[]): DocumentFragment {
+export function createOverviewPage(activityHistory: ActivityHistory): DocumentFragment {
     const fragment = document.createDocumentFragment();
     fragment.append(
         createOverviewHeader(),

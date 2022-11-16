@@ -1,4 +1,4 @@
-import { Activity } from "./schema";
+import { ActivityHistory } from "./schema";
 
 import {
     CategoryScale,
@@ -39,14 +39,29 @@ function dateNDaysAgo(n: number): Date {
     return new Date(daysSinceEpoch * 24 * 60 * 60 * 1000);
 }
 
-// Returns vocabulary size data over the past week.
-function vocabularyData(activityHistory: Activity[]): ChartData {
-    const week = activityHistory.slice(0, 7);
-    const labels = week.map((_, i) => dayLabels[dateNDaysAgo(i).getDay()]).reverse();
-    const data = week.map(a => a.learned - a.forgotten).reverse();
-    for (let i = 1; i < data.length; i++) {
-        data[i] += data[i-1];
+// Computes vocabulary size at each day this year.
+export function computeVocabularySize({ activities, aggregates }: ActivityHistory): number[] {
+    const vocab = new Array(367).fill(0);
+
+    // Set increments
+    for (let i = 0; i < activities.length; i++) {
+        const { learned, forgotten } = activities[i];
+        vocab[i] = learned - forgotten;
     }
+    vocab[vocab.length - 1] = aggregates.learned - aggregates.forgotten;
+
+    // Accumulate vocab size
+    for (let i = vocab.length - 2; i >= 0; i--) {
+        vocab[i] += vocab[i + 1];
+    }
+    return vocab;
+}
+
+// Returns vocabulary size data over the past week.
+function vocabularyData(activityHistory: ActivityHistory): ChartData {
+    const week = activityHistory.activities.slice(0, 7);
+    const labels = week.map((_, i) => dayLabels[dateNDaysAgo(i).getDay()]).reverse();
+    const data = computeVocabularySize(activityHistory).slice(0, labels.length).reverse();
     return {
         labels,
         datasets: [{data, cubicInterpolationMode: "monotone", fill: true}],
@@ -57,8 +72,8 @@ function createDataset(data: number[]): ChartDataset {
     return {data, cubicInterpolationMode: "monotone"};
 }
 
-function activityData(activityHistory: Activity[]): ChartData {
-    const week = activityHistory.slice(0, 7);
+function activityData(activityHistory: ActivityHistory): ChartData {
+    const week = activityHistory.activities.slice(0, 7);
     const labels = week.map((_, i) => dayLabels[dateNDaysAgo(i).getDay()]).reverse();
     return {
         labels,
@@ -72,7 +87,7 @@ function activityData(activityHistory: Activity[]): ChartData {
     };
 }
 
-function createChart(canvas: HTMLCanvasElement, activityHistory: Activity[]): Chart {
+function createChart(canvas: HTMLCanvasElement, activityHistory: ActivityHistory): Chart {
     return new Chart(canvas, {
         type: "line",
         options: {
@@ -82,13 +97,13 @@ function createChart(canvas: HTMLCanvasElement, activityHistory: Activity[]): Ch
     });
 }
 
-export function createVocabularyChart(activityHistory: Activity[]): HTMLCanvasElement {
+export function createVocabularyChart(activityHistory: ActivityHistory): HTMLCanvasElement {
     const canvas = document.createElement("canvas");
     createChart(canvas, activityHistory);
     return canvas;
 }
 
-export function createActivityChart(activityHistory: Activity[]): HTMLCanvasElement {
+export function createActivityChart(activityHistory: ActivityHistory): HTMLCanvasElement {
     const canvas = document.createElement("canvas");
     new Chart(canvas, {
         type: "line",

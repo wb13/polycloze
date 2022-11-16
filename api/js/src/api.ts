@@ -4,7 +4,6 @@ import { Item } from "./item";
 import { getL1, getL2 } from "./language";
 import { fetchJson, resolve, submitJson } from "./request";
 import {
-    Activity,
     ActivityHistory,
     Course,
     CoursesSchema,
@@ -62,13 +61,12 @@ function defaultFetchActivityHistoryOptions(): FetchActivityHistoryOptions {
 }
 
 // Fetches student's activity history over the past year.
-export async function fetchActivityHistory(options: FetchActivityHistoryOptions = {}): Promise<Activity[]> {
+export async function fetchActivityHistory(options: FetchActivityHistoryOptions = {}): Promise<ActivityHistory> {
     const {l1, l2} = {...defaultFetchActivityHistoryOptions(), ...options};
     const url = resolve(`/${l1}/${l2}/activity`);
-    const json = await fetchJson<ActivityHistory>(url, {
+    return await fetchJson<ActivityHistory>(url, {
         mode: "cors" as RequestMode,
     });
-    return json.activities || [];
 }
 
 export async function fetchStaticCourses(): Promise<Course[]> {
