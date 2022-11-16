@@ -1,15 +1,4 @@
 .menu {
-	position: absolute;
-	top: 1em;
-	right: 1em;
-
-	display: flex;
-	flex-direction: column;
-
-	padding: 1rem;
-
-	border: 1px solid lightgray;
-	box-shadow: 1px 1px 1px gray;
-
-	background: white;
+	padding-left: 1rem;
+	padding-right: 1rem;
 }

@@ -1,8 +1,8 @@
 import "./select.css";
 import { createButton } from "./button";
-import { onClickOutside } from "./click";
 import { createIcon } from "./icon";
 import { getL1, setL1 } from "./language";
+import { createModal } from "./modal";
 import { Language } from "./schema";
 
 // Creates an entry in the language select menu.
@@ -16,28 +16,10 @@ function createLanguageButton(language: Language): HTMLButtonElement {
     return button;
 }
 
-// Creates a language select menu.
-// Returns:
-// - a div element
-// - a function that shows the menu
-// - a function that hides the menu.
-// The menu is hidden by default (display: none).
-function createLanguageMenu(languages: Language[]): [HTMLDivElement, () => void, () => void] {
-    const div = document.createElement("div");
-    div.classList.add("menu");
-    div.style.display = "none";
-    const show = () => {
-        div.style.display = "";
-    };
-    const hide = () => {
-        div.style.display = "none";
-    };
-
-    // Create close button.
-    const button = createButton("✕", hide);
-    button.classList.add("button-borderless");
-    button.classList.add("button-tight");
-    div.appendChild(button);
+// Creates a language select menu/modal
+function createLanguageMenu(languages: Language[]): [HTMLDivElement, () => void] {
+    const body = document.createElement("div");
+    body.classList.add("menu");
 
     const current = getL1();
     const visited = new Map();
@@ -46,13 +28,13 @@ function createLanguageMenu(languages: Language[]): [HTMLDivElement, () => void,
             continue;
         }
         visited.set(language.code, language);
-        div.appendChild(createLanguageButton(language));
+        body.appendChild(createLanguageButton(language));
     }
-    return [div, show, hide];
+    return createModal(body);
 }
 
 export function createLanguageSelectButton(languages: Language[]): HTMLButtonElement {
-    const [menu, show, hide] = createLanguageMenu(languages);
+    const [menu, show] = createLanguageMenu(languages);
     document.body.appendChild(menu);
 
     const l1 = getL1();
@@ -62,12 +44,5 @@ export function createLanguageSelectButton(languages: Language[]): HTMLButtonEle
     const button = createButton(content, show);
     button.classList.add("button-borderless");
     button.classList.add("button-tight");
-
-    // Listen for clicks outside the menu.
-    document.addEventListener("click", onClickOutside(menu, (target: EventTarget) => {
-        if (target != button) {
-            hide();
-        }
-    }));
     return button;
 }

@@ -1,0 +1,41 @@
+.modal {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.modal-header {
+	display: flex;
+	justify-content: space-between;
+}
+
+.modal-background {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	background-color: black;
+	opacity: 0.3;
+
+	z-index: 1;
+}
+
+.modal-dialog {
+	z-index: 2;
+	opacity: 1;
+
+	padding: 0.5rem;
+
+	border: 1px solid lightgray;
+	box-shadow: 1px 1px 1px gray;
+
+	background: white;
+}
