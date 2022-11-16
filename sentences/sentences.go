@@ -65,12 +65,12 @@ func PickSentence[T database.Querier](q T, word string, maxDifficulty int) (*Sen
 	query := `
 select coalesce(
 	(select id from contains join sentence on (sentence = id)
-		where word = ? and frequency_class <= ?
+		where word = @word and frequency_class <= @class
 		order by random() limit 1),
 	(select coalesce(id, min(frequency_class)) from contains join sentence on (sentence = id)
-		where word = ?))
+		where word = @word))
 `
-	row := q.QueryRow(query, id, maxDifficulty, id)
+	row := q.QueryRow(query, sql.Named("word", id), sql.Named("class", maxDifficulty))
 
 	var sentence int
 	if err := row.Scan(&sentence); err != nil {
