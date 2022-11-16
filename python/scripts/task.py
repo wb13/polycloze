@@ -40,6 +40,35 @@ def download_latest() -> None:
         download(downloads)
 
 
+def courses_json() -> None:
+    """Generate JSON file containing list of available courses."""
+    courses = []
+    for code1, language1 in supported_languages.items():
+        for code2, language2 in supported_languages.items():
+            if code1 == code2:
+                continue
+
+            course = {
+                "l1": {
+                    "code": code1,
+                    "name": language1.name,
+                    "bcp47": language1.bcp47,
+                },
+                "l2": {
+                    "code": code2,
+                    "name": language2.name,
+                    "bcp47": language2.bcp47,
+                },
+            }
+            courses.append(course)
+
+    target = build/"polycloze"/"courses.json"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(dumps({
+        "courses": courses,
+    }), encoding="utf-8")
+
+
 def languages_json() -> None:
     """Generate JSON file containing list of supported languages."""
     languages = []

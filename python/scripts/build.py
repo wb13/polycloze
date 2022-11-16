@@ -88,6 +88,7 @@ def show_supported_languages() -> None:
 def build_dependency_graph(l1s: list[str], l2s: list[str]) -> DependencyGraph:
     # Build dependency graph
     deps = DependencyGraph()
+    deps.add(task.courses_json)
     deps.add(task.languages_json)
     deps.add(task.decompress_links, task.download_latest)
     deps.add(task.decompress_sentences, task.download_latest)
