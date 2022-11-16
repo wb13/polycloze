@@ -17,23 +17,46 @@ type Activity struct {
 	Strengthened int `json:"strengthened"`
 }
 
+// Returns how many days ago the oldest review was, if it's not too old.
+// Bounds the result between 1 and 366.
+func oldestActivity(db *sql.DB, now time.Time) (int, error) {
+	today := now.Unix() / 60 / 60 / 24
+	query := `SELECT max(? - days_since_epoch) FROM activity`
+	var age int
+	if err := db.QueryRow(query, today).Scan(&age); err != nil {
+		return 0, fmt.Errorf("failed to get oldest review: %v", err)
+	}
+
+	if age <= 0 {
+		age = 1
+	} else if age > cutoff {
+		age = cutoff
+	}
+	return age, nil
+}
+
 // Returns user activity over the past year.
-// The result is a slice of length 366.
 // result[i]: Activity i days ago.
 func ActivityHistory(db *sql.DB, now time.Time) ([]Activity, error) {
 	query := `
 		SELECT forgotten, unimproved, crammed, learned, strengthened, ? - days_since_epoch AS i
 		FROM activity
-		WHERE i >= 0 AND i < 366
+		WHERE i >= 0 AND i <= ?
 	`
 
-	rows, err := db.Query(query, now.Unix()/60/60/24)
+	rows, err := db.Query(query, now.Unix()/60/60/24, cutoff)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get activity history: %v", err)
 	}
 	defer rows.Close()
 
-	activities := make([]Activity, 366)
+	var activities []Activity
+
+	if age, err := oldestActivity(db, now); err != nil {
+		return nil, fmt.Errorf("failed to get activity history: %v", err)
+	} else {
+		activities = make([]Activity, age+1)
+	}
 	for rows.Next() {
 		var i int
 		var activity Activity

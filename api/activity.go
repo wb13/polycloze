@@ -4,6 +4,7 @@
 package api
 
 import (
+	"log"
 	"net/http"
 	"time"
 
@@ -39,13 +40,23 @@ func handleActivity(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	history, err := activity.ActivityHistory(db, time.Now())
+	now := time.Now()
+	history, err := activity.ActivityHistory(db, now)
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
 
-	sendJSON(w, map[string][]activity.Activity{
+	aggregates, err := activity.AggregateOld(db, now)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	sendJSON(w, map[string]any{
+		"aggregates": aggregates,
 		"activities": history,
 	})
 }
