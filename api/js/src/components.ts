@@ -1,8 +1,8 @@
-import { fetchCourses, fetchStaticCourses } from "./api";
+import { fetchActivityHistory, fetchCourses, fetchStaticCourses } from "./api";
 import { createApp } from "./app";
 import { ItemBuffer } from "./buffer";
 import { setButtonLink } from "./button";
-import { createVocabularyChart } from "./chart";
+import { createActivityChart, createVocabularyChart } from "./chart";
 import { createScoreCounter } from "./counter";
 import { createCourseTable } from "./course";
 import { getL1, getL2 } from "./language";
@@ -30,7 +30,9 @@ export class Overview extends HTMLElement {
     async connectedCallback() {
         const courses = await fetchCourses({ l1: getL1().code, stats: true });
         this.innerHTML = "<h1>Pick a language.</h1>";
-        this.appendChild(await createVocabularyChart());
+        const activityHistory = await fetchActivityHistory();
+        this.appendChild(createVocabularyChart(activityHistory));
+        this.appendChild(createActivityChart(activityHistory));
         this.appendChild(createCourseTable(courses));
     }
 }

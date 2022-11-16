@@ -1,10 +1,10 @@
-import { fetchActivityHistory } from "./api";
 import { Activity } from "./schema";
 
 import {
     CategoryScale,
     Chart,
     ChartData,
+    ChartDataset,
     Filler,
     LineController,
     LineElement,
@@ -53,6 +53,25 @@ function vocabularyData(activityHistory: Activity[]): ChartData {
     };
 }
 
+function createDataset(data: number[]): ChartDataset {
+    return {data, cubicInterpolationMode: "monotone"};
+}
+
+function activityData(activityHistory: Activity[]): ChartData {
+    const week = activityHistory.slice(0, 7);
+    const labels = week.map((_, i) => dayLabels[dateNDaysAgo(i).getDay()]).reverse();
+    return {
+        labels,
+        datasets: [
+            createDataset(week.map(a => a.forgotten).reverse()),
+            createDataset(week.map(a => a.unimproved).reverse()),
+            createDataset(week.map(a => a.crammed).reverse()),
+            createDataset(week.map(a => a.learned).reverse()),
+            createDataset(week.map(a => a.strengthened).reverse()),
+        ],
+    };
+}
+
 function createChart(canvas: HTMLCanvasElement, activityHistory: Activity[]): Chart {
     return new Chart(canvas, {
         type: "line",
@@ -63,9 +82,20 @@ function createChart(canvas: HTMLCanvasElement, activityHistory: Activity[]): Ch
     });
 }
 
-export async function createVocabularyChart(): Promise<HTMLCanvasElement> {
-    const activityHistory = await fetchActivityHistory();
+export function createVocabularyChart(activityHistory: Activity[]): HTMLCanvasElement {
     const canvas = document.createElement("canvas");
     createChart(canvas, activityHistory);
+    return canvas;
+}
+
+export function createActivityChart(activityHistory: Activity[]): HTMLCanvasElement {
+    const canvas = document.createElement("canvas");
+    new Chart(canvas, {
+        type: "line",
+        options: {
+            responsive: true,
+        },
+        data: activityData(activityHistory),
+    });
     return canvas;
 }
