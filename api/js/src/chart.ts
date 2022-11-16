@@ -49,7 +49,7 @@ function vocabularyData(activityHistory: Activity[]): ChartData {
     }
     return {
         labels,
-        datasets: [{data, fill: true}],
+        datasets: [{data, cubicInterpolationMode: "monotone", fill: true}],
     };
 }
 
