@@ -52,13 +52,15 @@ export type VocabularySchema = {
   words: Word[];
 };
 
-// from /<l1>/<l2>/stats/vocab
-export type VocabularyDataSchema = {
-  start: string;
-  end: string;
-  nSamples: number;
-  datasets: {
-    name: string;
-    data: number[];
-  }[];
-}
+export type Activity = {
+  forgotten: number;
+  unimproved: number;
+  crammed: number;
+  learned: number;
+  strengthened: number;
+};
+
+// from /<l1>/<l2>/activity
+export type ActivityHistory = {
+  activities: Activity[];
+};

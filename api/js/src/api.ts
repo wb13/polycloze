@@ -4,6 +4,8 @@ import { Item } from "./item";
 import { getL1, getL2 } from "./language";
 import { fetchJson, resolve, submitJson } from "./request";
 import {
+    Activity,
+    ActivityHistory,
     Course,
     CoursesSchema,
     ItemsSchema,
@@ -11,7 +13,6 @@ import {
     LanguagesSchema,
     ReviewSchema,
     Word,
-    VocabularyDataSchema,
     VocabularySchema,
 } from "./schema";
 
@@ -45,6 +46,29 @@ export async function fetchVocabulary(options: FetchVocabularyOptions = {}): Pro
         mode: "cors" as RequestMode,
     });
     return json.words || [];
+}
+
+type FetchActivityHistoryOptions = {
+    // Path params
+    l1?: string;
+    l2?: string;
+};
+
+function defaultFetchActivityHistoryOptions(): FetchActivityHistoryOptions {
+    return {
+        l1: getL1().code,
+        l2: getL2().code,
+    };
+}
+
+// Fetches student's activity history over the past year.
+export async function fetchActivityHistory(options: FetchActivityHistoryOptions = {}): Promise<Activity[]> {
+    const {l1, l2} = {...defaultFetchActivityHistoryOptions(), ...options};
+    const url = resolve(`/${l1}/${l2}/activity`);
+    const json = await fetchJson<ActivityHistory>(url, {
+        mode: "cors" as RequestMode,
+    });
+    return json.activities || [];
 }
 
 // Fetches list of supported languages (L1).
@@ -111,34 +135,6 @@ export async function fetchItems(options: FetchItemsOptions = {}): Promise<Item[
 type Params = {
     [name: string]: unknown;
 };
-
-type FetchVocabularySizeOptions = {
-    // Path params
-    l1?: string;
-    l2?: string;
-
-    // Search params
-    start?: number; // UNIX timestamp
-    end?: number;   // UNIX timestamp
-    nSamples?: number;
-}
-
-function defaultFetchVocabularySizeOptions(): FetchVocabularySizeOptions {
-    return {
-        l1: getL1().code,
-        l2: getL2().code,
-    };
-}
-
-export function fetchVocabularySize(options: FetchVocabularySizeOptions = {}): Promise<VocabularyDataSchema> {
-    const { l1, l2, start, end, nSamples } = {...defaultFetchVocabularySizeOptions(), ...options};
-    const url = resolve(`/${l1}/${l2}/stats/vocab`);
-    setParams(url, { start, end, nSamples });
-
-    return fetchJson<VocabularyDataSchema>(url, {
-        mode: "cors" as RequestMode,
-    });
-}
 
 function setParams(url: URL, params: Params) {
     for (const name of Object.getOwnPropertyNames(params)) {

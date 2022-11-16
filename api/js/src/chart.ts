@@ -1,36 +1,27 @@
-import { fetchVocabularySize } from "./api";
-import { VocabularyDataSchema } from "./schema";
+import { fetchActivityHistory } from "./api";
+import { Activity } from "./schema";
 
 import {
-    BarController,
-    BarElement,
     CategoryScale,
     Chart,
+    ChartData,
+    Filler,
+    LineController,
+    LineElement,
     LinearScale,
     PointElement,
 } from "chart.js";
 
 Chart.register(
-    BarController,
-    BarElement,
     CategoryScale,
+    Filler,
+    LineController,
+    LineElement,
     LinearScale,
     PointElement,
 );
 
 Chart.defaults.font.family = "Nunito";
-
-const stackedBarChartOptions = {
-    responsive: true,
-    scales: {
-        x: {
-            stacked: true,
-        },
-        y: {
-            stacked: true,
-        },
-    },
-};
 
 const dayLabels = [
     "Mon",
@@ -42,46 +33,31 @@ const dayLabels = [
     "Sun",
 ];
 
-function createChart(canvas: HTMLCanvasElement, vocabData: VocabularyDataSchema): Chart {
-    const data = {
-        labels: dayLabels,
-        datasets: normalize(vocabData),
-    };
-    return new Chart(canvas, {
-        type: "bar",
-        options: stackedBarChartOptions,
-        data,
-    });
-}
-
-function randomColor(): string {
-    return "#" + Math.floor(Math.random() * 0x10).toString(16).repeat(3);
-}
-
-// Makes data fit for chart.js use.
-function normalize(data: VocabularyDataSchema): Array<{ label: string, data: number[] }> {
-    const datasets = [];
-    for (const dataset of data.datasets) {
-        const label = dataset.name;
-        const data = dataset.data.slice(0);
-        datasets.push({
-            label,
-            data: label === "0h" ? data.map(x => -x) : data,
-            backgroundColor: randomColor(),
-        });
+// Returns vocabulary size data over the past week.
+function vocabularyData(activityHistory: Activity[]): ChartData {
+    const data = activityHistory.slice(0, 7).reverse().map(a => a.learned - a.forgotten);
+    for (let i = 1; i < data.length; i++) {
+        data[i] += data[i-1];
     }
-    return datasets;
+    return {
+        labels: dayLabels,  // TODO fix order of labels
+        datasets: [{data, fill: true}],
+    };
 }
 
-type Timescale = "week";
-
-export async function createVocabularyChart(_: Timescale): Promise<HTMLCanvasElement> {
-    const vocab = await fetchVocabularySize({
-        start: Math.floor(Date.now()/1000 - 7 * 24 * 3600),
-        nSamples: 7,
+function createChart(canvas: HTMLCanvasElement, activityHistory: Activity[]): Chart {
+    return new Chart(canvas, {
+        type: "line",
+        options: {
+            responsive: true,
+        },
+        data: vocabularyData(activityHistory),
     });
+}
 
+export async function createVocabularyChart(): Promise<HTMLCanvasElement> {
+    const activityHistory = await fetchActivityHistory();
     const canvas = document.createElement("canvas");
-    createChart(canvas, vocab);
+    createChart(canvas, activityHistory);
     return canvas;
 }
