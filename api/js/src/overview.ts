@@ -1,4 +1,8 @@
-import { createActivityChart, createVocabularyChart } from "./chart";
+import {
+    computeVocabularySize,
+    createActivityChart,
+    createVocabularyChart,
+} from "./chart";
 import { getL1, getL2 } from "./language";
 import { ActivityHistory } from "./schema";
 
@@ -10,12 +14,86 @@ function createOverviewHeader(): HTMLHeadingElement {
     return h1;
 }
 
+function createVocabularySummary(activityHistory: ActivityHistory): HTMLParagraphElement {
+    const size = computeVocabularySize(activityHistory)[0];
+    const p = document.createElement("p");
+    p.textContent = `You've learned ${size} words. Keep up the good work!`;
+    return p;
+}
+
+function createActionButtons(): HTMLParagraphElement {
+    const p = document.createElement("p");
+    p.classList.add("button-group");
+    p.style.justifyContent = "center";
+
+    p.innerHTML = `
+        <button is="button-link" href="/study">
+            <img src="/public/svg/brain.svg?t=20221114"> Continue learning
+        </button>
+        <button is="button-link" href="/vocab">
+            <img src="/public/svg/notebook.svg?t=20221114"> Vocabulary
+        </button>
+    `;
+    return p;
+}
+
+function createTodaySummary(activityHistory: ActivityHistory): DocumentFragment {
+    const { learned, strengthened, forgotten } = activityHistory.activities[0];
+    const score = 100 * (learned + strengthened) / (learned + strengthened + forgotten);
+    const template = document.createElement("template");
+    template.innerHTML = `
+        <h2>Recent activity</h2>
+        <p>Summary of today's work:</p>
+        <ul>
+            <li>Learned ${learned} words</li>
+            <li>Strengthened ${strengthened} words</li>
+            <li>Forgot ${forgotten} words</li>
+            <li>Your score: ${score}%</li>
+        </ul>
+    `;
+    return template.content;
+}
+
+// Tries to compute streak.
+// Since ActivityHistory only keeps track of activity in the past year,
+// result may be less than the real streak.
+function computeStreak(activityHistory: ActivityHistory): number {
+    if (activityHistory.activities.length === 0) {
+        return 0;
+    }
+    for (const [i, activity] of activityHistory.activities.entries()) {
+        const { crammed, learned, strengthened } = activity;
+        if (crammed <= 0 && learned <= 0 && strengthened <= 0) {
+            return i;
+        }
+    }
+    return 366;
+}
+
+function createStreakSummary(activityHistory: ActivityHistory): DocumentFragment {
+    const streak = computeStreak(activityHistory);
+    const template = document.createElement("template");
+    template.innerHTML = `
+        <p>You're on a ${streak}-day streak.</p>
+        <p class="button-group" style="justify-content: center">
+            <button is="button-link" href="/study">
+                <img src="/public/svg/heartbeat.svg?t=20221114"> Extend streak
+            </button>
+        </p>
+    `;
+    return template.content;
+}
+
 export function createOverviewPage(activityHistory: ActivityHistory): DocumentFragment {
     const fragment = document.createDocumentFragment();
     fragment.append(
         createOverviewHeader(),
         createVocabularyChart(activityHistory),
+        createVocabularySummary(activityHistory),
+        createActionButtons(),
+        createTodaySummary(activityHistory),
         createActivityChart(activityHistory),
+        createStreakSummary(activityHistory),
     );
     return fragment;
 }
