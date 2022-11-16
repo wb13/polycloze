@@ -4,8 +4,6 @@
 package api
 
 import (
-	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
@@ -47,19 +45,7 @@ func handleActivity(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Encode JSON
-	data := make(map[string][]activity.Activity)
-	data["activities"] = history
-	bytes, err := json.Marshal(data)
-	if err != nil {
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-		return
-	}
-
-	// Send JSON
-	w.Header().Set("Content-Type", "application/json")
-	if _, err := w.Write(bytes); err != nil {
-		log.Println(err)
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-	}
+	sendJSON(w, map[string][]activity.Activity{
+		"activities": history,
+	})
 }

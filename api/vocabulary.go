@@ -5,7 +5,6 @@ package api
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -27,10 +26,6 @@ type Word struct {
 	Reviewed time.Time `json:"reviewed"`
 	Due      time.Time `json:"due"`
 	Strength int       `json:"strength"`
-}
-
-type Vocabulary struct {
-	Words []Word `json:"words"`
 }
 
 func handleVocabulary(w http.ResponseWriter, r *http.Request) {
@@ -64,16 +59,9 @@ func handleVocabulary(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-
-	bytes, err := json.Marshal(Vocabulary{Words: results})
-	if err != nil {
-		log.Fatal(err)
-	}
-	if _, err := w.Write(bytes); err != nil {
-		log.Println(err)
-	}
+	sendJSON(w, map[string][]Word{
+		"words": results,
+	})
 }
 
 // Gets limit from URL query.

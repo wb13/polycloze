@@ -25,10 +25,6 @@ import (
 	"github.com/lggruspe/polycloze/word_scheduler"
 )
 
-type Items struct {
-	Items []flashcards.Item `json:"items"`
-}
-
 func getN(r *http.Request) int {
 	n := 10
 	q := r.URL.Query()
@@ -51,19 +47,13 @@ func excludeWords(r *http.Request) func(string) bool {
 }
 
 func generateFlashcards(db *sql.DB, w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	l1 := chi.URLParam(r, "l1")
 	l2 := chi.URLParam(r, "l2")
 	hook := database.AttachCourse(basedir.Course(l1, l2))
 	items := flashcards.Get(db, getN(r), excludeWords(r), hook)
-	bytes, err := json.Marshal(Items{Items: items})
-	if err != nil {
-		log.Fatal(err)
-	}
-	if _, err := w.Write(bytes); err != nil {
-		log.Println(err)
-	}
+	sendJSON(w, map[string][]flashcards.Item{
+		"items": items,
+	})
 }
 
 // frequencyClass is the student's estimated level (see word_scheduler.Placement).

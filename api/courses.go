@@ -4,9 +4,7 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -32,11 +30,6 @@ type Course struct {
 	L1    Language     `json:"l1"`
 	L2    Language     `json:"l2"`
 	Stats *CourseStats `json:"stats,omitempty"`
-}
-
-// Only used for encoding to json
-type Courses struct {
-	Courses []Course `json:"courses"`
 }
 
 func courseGlobPattern(l1, l2 string) string {
@@ -130,7 +123,6 @@ func getCourseInfo(path string, user ...int) (Course, error) {
 }
 
 func courseOptions(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	q := r.URL.Query()
 
 	user := make([]int, 0, 1)
@@ -141,19 +133,11 @@ func courseOptions(w http.ResponseWriter, r *http.Request) {
 			user = append(user, s.Data["userID"].(int))
 		}
 	}
-
-	courses := Courses{
-		Courses: AvailableCourses(
+	sendJSON(w, map[string][]Course{
+		"courses": AvailableCourses(
 			q.Get("l1"),
 			q.Get("l2"),
 			user...,
 		),
-	}
-	bytes, err := json.Marshal(courses)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if _, err := w.Write(bytes); err != nil {
-		log.Println(err)
-	}
+	})
 }
