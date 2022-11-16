@@ -1,4 +1,4 @@
-import { fetchCourses, fetchLanguages } from "./api";
+import { fetchCourses } from "./api";
 import { createApp } from "./app";
 import { ItemBuffer } from "./buffer";
 import { setButtonLink } from "./button";
@@ -6,7 +6,7 @@ import { createVocabularyChart } from "./chart";
 import { createScoreCounter } from "./counter";
 import { createCourseTable } from "./course";
 import { getL1, getL2 } from "./language";
-import { createLanguageSelectButton } from "./select";
+import { createCourseSelectButton } from "./select";
 import { createVocabularyList } from "./vocab";
 
 export class ClozeApp extends HTMLElement {
@@ -19,10 +19,10 @@ export class ClozeApp extends HTMLElement {
     }
 }
 
-export class LanguageSelectButton extends HTMLElement {
+export class CourseSelectButton extends HTMLElement {
     async connectedCallback() {
-        const languages = await fetchLanguages();
-        this.appendChild(createLanguageSelectButton(languages));
+        const courses = await fetchCourses({ stats: false });
+        this.appendChild(createCourseSelectButton(courses));
     }
 }
 
@@ -61,7 +61,7 @@ export class VocabularyList extends HTMLElement {
 }
 
 customElements.define("cloze-app", ClozeApp);
-customElements.define("language-select-button", LanguageSelectButton);
+customElements.define("course-select-button", CourseSelectButton);
 customElements.define("polycloze-overview", Overview);
 customElements.define("score-counter", ScoreCounter);
 customElements.define("button-link", ButtonLink, { extends: "button" });
