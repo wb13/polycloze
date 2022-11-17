@@ -1,4 +1,4 @@
-import { fetchActivityHistory, fetchStaticCourses } from "./api";
+import { fetchActivityHistory, fetchCourses } from "./api";
 import { createApp } from "./app";
 import { ItemBuffer } from "./buffer";
 import { setButtonLink } from "./button";
@@ -20,7 +20,7 @@ export class ClozeApp extends HTMLElement {
 
 export class CourseSelectButton extends HTMLElement {
     async connectedCallback() {
-        const courses = await fetchStaticCourses();
+        const courses = await fetchCourses();
         this.appendChild(createCourseSelectButton(courses));
     }
 }

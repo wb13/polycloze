@@ -69,8 +69,8 @@ export async function fetchActivityHistory(options: FetchActivityHistoryOptions 
     });
 }
 
-export async function fetchStaticCourses(): Promise<Course[]> {
-    const url = resolve("/share/courses.json");
+export async function fetchCourses(): Promise<Course[]> {
+    const url = resolve("/api/courses");
     setParams(url, { t: "20221114" });
     const json = await fetchJson<CoursesSchema>(url, {
         mode: "cors" as RequestMode,
@@ -80,7 +80,7 @@ export async function fetchStaticCourses(): Promise<Course[]> {
 
 // Fetches list of supported languages (L1).
 export async function fetchLanguages(): Promise<Language[]> {
-    const url = resolve("/share/languages.json");
+    const url = resolve("/api/languages");
     setParams(url, { t: "20221114" });
     const json = await fetchJson<LanguagesSchema>(url, {
         mode: "cors" as RequestMode,
