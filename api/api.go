@@ -63,7 +63,7 @@ func success(frequencyClass int) []byte {
 
 func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, s *sessions.Session) {
 	if r.Header.Get("Content-Type") != "application/json" {
-		http.Error(w, "expected json body in POST request", 400)
+		http.Error(w, "expected json body in POST request", http.StatusBadRequest)
 		return
 	}
 
@@ -81,7 +81,7 @@ func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, s *s
 
 	var reviews Reviews
 	if err := json.Unmarshal(body, &reviews); err != nil {
-		http.Error(w, "could not parse json", 400)
+		http.Error(w, "could not parse json", http.StatusBadRequest)
 		return
 	}
 
