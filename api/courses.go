@@ -5,14 +5,11 @@ package api
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
 
-	"github.com/lggruspe/polycloze/auth"
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
-	"github.com/lggruspe/polycloze/sessions"
 )
 
 type Language struct {
@@ -27,9 +24,8 @@ type Languages struct {
 }
 
 type Course struct {
-	L1    Language     `json:"l1"`
-	L2    Language     `json:"l2"`
-	Stats *CourseStats `json:"stats,omitempty"`
+	L1 Language `json:"l1"`
+	L2 Language `json:"l2"`
 }
 
 func courseGlobPattern(l1, l2 string) string {
@@ -42,18 +38,13 @@ func courseGlobPattern(l1, l2 string) string {
 	return fmt.Sprintf("%s-%s.db", l1, l2)
 }
 
-// user: optional, include their stat if non-empty
-func AvailableCourses(l1, l2 string, user ...int) []Course {
-	if len(user) > 1 {
-		panic("expected zero or one user")
-	}
-
+func AvailableCourses(l1, l2 string) []Course {
 	var courses []Course
 
 	glob := courseGlobPattern(l1, l2)
 	matches, _ := filepath.Glob(filepath.Join(basedir.DataDir, "courses", glob))
 	for _, match := range matches {
-		course, err := getCourseInfo(match, user...)
+		course, err := getCourseInfo(match)
 		if err == nil {
 			courses = append(courses, course)
 		}
@@ -69,11 +60,7 @@ func courseExists(l1, l2 string) bool {
 }
 
 // Input: path to course db file.
-func getCourseInfo(path string, user ...int) (Course, error) {
-	if len(user) > 1 {
-		panic("expected zero or one user")
-	}
-
+func getCourseInfo(path string) (Course, error) {
 	var course Course
 
 	db, err := database.Open(path)
@@ -110,34 +97,5 @@ func getCourseInfo(path string, user ...int) (Course, error) {
 	if course.L1.Code == "" || course.L2.Code == "" {
 		return course, fmt.Errorf("invalid course database: %s\n", path)
 	}
-
-	if len(user) > 0 {
-		stats, err := getCourseStats(course.L1.Code, course.L2.Code, user[0])
-		if err != nil {
-			return course, err
-		}
-		course.Stats = stats
-	}
-
 	return course, nil
-}
-
-func courseOptions(w http.ResponseWriter, r *http.Request) {
-	q := r.URL.Query()
-
-	user := make([]int, 0, 1)
-	if q.Get("stats") == "true" {
-		db := auth.GetDB(r)
-		s, err := sessions.ResumeSession(db, w, r)
-		if err == nil && isSignedIn(s) {
-			user = append(user, s.Data["userID"].(int))
-		}
-	}
-	sendJSON(w, map[string][]Course{
-		"courses": AvailableCourses(
-			q.Get("l1"),
-			q.Get("l2"),
-			user...,
-		),
-	})
 }

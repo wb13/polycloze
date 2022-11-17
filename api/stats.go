@@ -10,11 +10,6 @@ import (
 	"github.com/lggruspe/polycloze/database"
 )
 
-type CourseStats struct {
-	// all-time
-	Total int `json:"total"`
-}
-
 // If upgrade is non-empty, upgrades the database.
 func queryInt(path, query string, upgrade ...bool) (int, error) {
 	var result int
@@ -37,16 +32,6 @@ func queryInt(path, query string, upgrade ...bool) (int, error) {
 }
 
 // Total count of words in course.
-func countTotal(l1, l2 string) (int, error) {
+func CountTotal(l1, l2 string) (int, error) {
 	return queryInt(basedir.Course(l1, l2), `select count(*) from word`)
-}
-
-func getCourseStats(l1, l2 string, userID int) (*CourseStats, error) {
-	total, err := countTotal(l1, l2)
-	if err != nil {
-		return nil, err
-	}
-	return &CourseStats{
-		Total: total,
-	}, nil
 }
