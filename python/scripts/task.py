@@ -6,7 +6,6 @@ only when sources are modified.
 
 from dataclasses import dataclass
 from functools import cache
-from json import dumps
 from pathlib import Path
 from shutil import copyfile, move
 from sqlite3 import connect
@@ -15,7 +14,6 @@ import typing as t
 
 from .dependency import is_outdated, Task
 from .download import download, has_been_a_week, latest_data
-from .language import languages as supported_languages
 from .mapper import map_translations
 from .migrate import check_scripts, migrate
 from .partition import partition
@@ -38,52 +36,6 @@ def download_latest() -> None:
     if has_been_a_week(downloads):
         print("Downloading latest data from Tatoeba")
         download(downloads)
-
-
-def courses_json() -> None:
-    """Generate JSON file containing list of available courses."""
-    courses = []
-    for code1, language1 in supported_languages.items():
-        for code2, language2 in supported_languages.items():
-            if code1 == code2:
-                continue
-
-            course = {
-                "l1": {
-                    "code": code1,
-                    "name": language1.name,
-                    "bcp47": language1.bcp47,
-                },
-                "l2": {
-                    "code": code2,
-                    "name": language2.name,
-                    "bcp47": language2.bcp47,
-                },
-            }
-            courses.append(course)
-
-    target = build/"polycloze"/"courses.json"
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(dumps({
-        "courses": courses,
-    }), encoding="utf-8")
-
-
-def languages_json() -> None:
-    """Generate JSON file containing list of supported languages."""
-    languages = []
-    for code, language in supported_languages.items():
-        languages.append({
-            "code": code,
-            "name": language.name,
-            "bcp47": language.bcp47,
-        })
-
-    target = build/"polycloze"/"languages.json"
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(dumps({
-        "languages": languages,
-    }), encoding="utf-8")
 
 
 def decompress_links() -> None:
