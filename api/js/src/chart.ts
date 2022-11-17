@@ -92,6 +92,11 @@ function createChart(canvas: HTMLCanvasElement, activityHistory: ActivityHistory
         type: "line",
         options: {
             responsive: true,
+            scales: {
+                y: {
+                    min: 0,
+                },
+            },
         },
         data: vocabularyData(activityHistory),
     });
