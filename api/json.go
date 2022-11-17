@@ -5,8 +5,10 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 // Sends JSON response.
@@ -24,4 +26,23 @@ func sendJSON(w http.ResponseWriter, data any) {
 		log.Println("failed to send JSON:", err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 	}
+}
+
+// Writes JSON to file.
+func writeJSON(name string, data any) error {
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		return fmt.Errorf("failed to encode to JSON: %v", err)
+	}
+
+	f, err := os.Create(name)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %v", err)
+	}
+	defer f.Close()
+
+	if _, err := f.Write(bytes); err != nil {
+		return fmt.Errorf("failed to write JSON: %v", err)
+	}
+	return nil
 }
