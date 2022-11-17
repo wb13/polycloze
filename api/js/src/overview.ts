@@ -4,7 +4,7 @@ import {
     createVocabularyChart,
 } from "./chart";
 import { getL1, getL2 } from "./language";
-import { ActivityHistory } from "./schema";
+import { Activity, ActivityHistory } from "./schema";
 
 function createOverviewHeader(): HTMLHeadingElement {
     const l1 = getL1();
@@ -54,6 +54,10 @@ function createTodaySummary(activityHistory: ActivityHistory): DocumentFragment 
     return template.content;
 }
 
+function hasActivity({ crammed, learned, strengthened }: Activity): boolean {
+    return crammed > 0 || learned > 0 || strengthened > 0;
+}
+
 // Tries to compute streak.
 // Since ActivityHistory only keeps track of activity in the past year,
 // result may be less than the real streak.
@@ -61,13 +65,18 @@ function computeStreak(activityHistory: ActivityHistory): number {
     if (activityHistory.activities.length === 0) {
         return 0;
     }
-    for (const [i, activity] of activityHistory.activities.entries()) {
-        const { crammed, learned, strengthened } = activity;
-        if (crammed <= 0 && learned <= 0 && strengthened <= 0) {
-            return i;
+
+    let streak = 0;
+    for (let i = 1; i < activityHistory.activities.length; i++) {
+        if (!hasActivity(activityHistory.activities[i])) {
+            break;
         }
+        streak = i;
     }
-    return 366;
+    if (hasActivity(activityHistory.activities[0])) {
+        streak++;
+    }
+    return streak;
 }
 
 function createStreakSummary(activityHistory: ActivityHistory): DocumentFragment {
