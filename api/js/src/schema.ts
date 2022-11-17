@@ -11,14 +11,6 @@ export type ReviewSchema = {
     frequencyClass: number;    // describes student's level
 };
 
-export type CourseStats = {
-  seen?: number
-  total?: number
-  learned?: number
-  reviewed?: number
-  correct?: number
-};
-
 export type Language = {
   code: string;
   name: string;
@@ -32,7 +24,6 @@ export type LanguagesSchema = {
 export type Course = {
     l1: Language;
     l2: Language;
-    stats?: CourseStats;
 };
 
 export type CoursesSchema = {

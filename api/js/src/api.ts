@@ -88,27 +88,6 @@ export async function fetchLanguages(): Promise<Language[]> {
     return json.languages;
 }
 
-type FetchCoursesOptions = {
-    l1?: string;        // L1 code
-    l2?: string;        // L2 code
-    stats?: boolean;    // Whether to include stats or not
-};
-
-function defaultFetchCoursesOptions(): FetchCoursesOptions {
-    return { stats: true };
-}
-
-export async function fetchCourses(options: FetchCoursesOptions = {}): Promise<Course[]> {
-    const params = {...defaultFetchCoursesOptions(), ...options};
-    const url = resolve("/courses");
-    setParams(url, params);
-
-    const json = await fetchJson<CoursesSchema>(url, {
-        mode: "cors" as RequestMode,
-    });
-    return json.courses;
-}
-
 type FetchItemsOptions = {
     // Path params
     l1?: string;    // L1 code
