@@ -10,7 +10,9 @@ function createOverviewHeader(): HTMLHeadingElement {
     const l1 = getL1();
     const l2 = getL2();
     const h1 = document.createElement("h1");
-    h1.textContent = `${l2.name} from ${l1.name}`;
+    const title = `${l2.name} from ${l1.name}`;
+    h1.textContent = title;
+    document.title = `${title} | polycloze`;
     return h1;
 }
 
