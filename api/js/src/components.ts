@@ -1,9 +1,9 @@
-import { fetchActivityHistory, fetchCourses, fetchStaticCourses } from "./api";
+import { fetchActivityHistory, fetchStaticCourses } from "./api";
 import { createApp } from "./app";
 import { ItemBuffer } from "./buffer";
 import { setButtonLink } from "./button";
 import { createScoreCounter } from "./counter";
-import { getL1, getL2 } from "./language";
+import { getL2 } from "./language";
 import { createOverviewPage } from "./overview";
 import { createCourseSelectButton } from "./select";
 import { createVocabularyList } from "./vocab";
@@ -34,11 +34,10 @@ export class Overview extends HTMLElement {
 
 export class ScoreCounter extends HTMLElement {
     async connectedCallback() {
-        const l1 = getL1().code;
-        const l2 = getL2().code;
-        const courses = await fetchCourses({ l1, l2, stats: true });
-        const course = courses.find(c => c.l1.code === l1 && c.l2.code === l2);
-        const score = course?.stats?.correct || 0;
+        const activityHistory = await fetchActivityHistory();
+        const today = activityHistory.activities[0];
+        const { crammed, learned, strengthened } = today;
+        const score = crammed + learned + strengthened;
         this.appendChild(createScoreCounter(score));
     }
 }
