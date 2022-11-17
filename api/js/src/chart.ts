@@ -92,6 +92,7 @@ function createChart(canvas: HTMLCanvasElement, activityHistory: ActivityHistory
         type: "line",
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 y: {
                     min: 0,
@@ -102,13 +103,22 @@ function createChart(canvas: HTMLCanvasElement, activityHistory: ActivityHistory
     });
 }
 
-export function createVocabularyChart(activityHistory: ActivityHistory): HTMLCanvasElement {
-    const canvas = document.createElement("canvas");
-    createChart(canvas, activityHistory);
-    return canvas;
+// Wraps around chart to make it responsive.
+// See https://www.chartjs.org/docs/latest/configuration/responsive.html.
+function createChartContainer(chart: HTMLCanvasElement): HTMLDivElement {
+    const div = document.createElement("div");
+    div.style.position = "relative";
+    div.appendChild(chart);
+    return div;
 }
 
-export function createActivityChart(activityHistory: ActivityHistory): HTMLCanvasElement {
+export function createVocabularyChart(activityHistory: ActivityHistory): HTMLDivElement {
+    const canvas = document.createElement("canvas");
+    createChart(canvas, activityHistory);
+    return createChartContainer(canvas);
+}
+
+export function createActivityChart(activityHistory: ActivityHistory): HTMLDivElement {
     const canvas = document.createElement("canvas");
     new Chart(canvas, {
         type: "line",
@@ -117,5 +127,5 @@ export function createActivityChart(activityHistory: ActivityHistory): HTMLCanva
         },
         data: activityData(activityHistory),
     });
-    return canvas;
+    return createChartContainer(canvas);
 }
