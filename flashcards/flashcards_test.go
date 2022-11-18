@@ -14,14 +14,15 @@ func pred(_ string) bool {
 	return true
 }
 
-func TestProfiler(t *testing.T) {
-	t.Parallel()
+func BenchmarkGetFlashcards(b *testing.B) {
 	db, err := database.New(":memory:")
 	if err != nil {
-		t.Fatal("expected err to be nil:", err)
+		b.Fatal("expected err to be nil:", err)
 	}
 	defer db.Close()
 
-	hook := database.AttachCourse(basedir.Course("eng", "spa"))
-	Get(db, 10, pred, hook)
+	for i := 0; i < b.N; i++ {
+		hook := database.AttachCourse(basedir.Course("eng", "deu"))
+		Get(db, 10, pred, hook)
+	}
 }
