@@ -87,34 +87,31 @@ def write_words(
     output: Path,
     word_counter: WordCounter,
     language: Language,
-    log: Path | None,
+    log: Path,
 ) -> None:
-    if log:
-        log.parent.mkdir(parents=True, exist_ok=True)
-        log.write_text("", encoding="utf-8")
-
-    with open(output, "w", newline="", encoding="utf-8") as file:
+    """log: where to write nonwords."""
+    with (
+        open(output, "w", newline="", encoding="utf-8") as file,
+        open(log, "w", encoding="utf-8") as logfile,
+    ):
         writer = csv.writer(file)
         writer.writerow(["word", "frequency"])
         for row in word_counter.count():
             if language.is_word(row[0]):
                 writer.writerow(row)
-            elif log:
-                with open(log, "a", encoding="utf-8") as logfile:
-                    print(row[0], file=logfile)
+            else:
+                print(row[0], file=logfile)
 
 
 def process_language(
     language_code: str,
     output: Path,
     file: Path | None = None,
-    log: Path | None = None,
 ) -> None:
     """Tokenize sentences in file and write all necessary outputs.
 
     output: where to write files
     file: input file of sentences, or stdin if value is None
-    log: optional log file for non-words
     """
     output.mkdir(parents=True, exist_ok=True)
 
@@ -126,7 +123,7 @@ def process_language(
         output/"words.csv",
         word_counter,
         language,
-        log,
+        output/"nonwords.txt",
     )
 
 
@@ -149,12 +146,6 @@ def parse_args() -> Namespace:
         type=Path,
         required=True,
     )
-    parser.add_argument(
-        "-l",
-        dest="log",
-        type=Path,
-        help="log non-words",
-    )
     return parser.parse_args()
 
 
@@ -164,7 +155,7 @@ def main(args: Namespace) -> None:
     if args.output.is_file():
         sys.exit(f"{args.output} is a file")
 
-    process_language(args.language, args.output, args.file, args.log)
+    process_language(args.language, args.output, args.file)
 
 
 if __name__ == "__main__":

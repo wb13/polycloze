@@ -89,21 +89,17 @@ class LanguageTokenizerTask:
         lang = self.lang
         source = build/"sentences"/f"{lang}.tsv"
 
-        log = build/"logs"/"nonwords"/f"{lang}.txt"
-        sentences = build/"languages"/lang/"sentences.csv"
-        words = build/"languages"/lang/"words.csv"
-        targets = [log, sentences, words]
-
+        outdir = build/"languages"/lang
+        targets = [
+            outdir/"sentences.csv",
+            outdir/"words.csv",
+            outdir/"nonwords.txt",
+        ]
         assert source.is_file()
 
         if is_outdated(targets, [source]):
             print(f"Tokenizing words in {lang}")
-            process_language(
-                lang,
-                output=build/"languages"/lang,
-                file=source,
-                log=log,
-            )
+            process_language(lang, output=outdir, file=source)
 
 
 @cache
