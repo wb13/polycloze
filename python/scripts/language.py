@@ -58,7 +58,7 @@ languages["deu"] = Language(
     bcp47="de",
     tokenizer=lambda: import_tokenizer("spacy.lang.de", "German"),
     alphabet=set("abcdefghijklmnopqrstuvwxyzäéöüß"),
-    symbols=set("-.'"),
+    symbols=set("-.'0123456789"),
 )
 
 languages["eng"] = Language(
@@ -67,7 +67,7 @@ languages["eng"] = Language(
     bcp47="en",
     tokenizer=lambda: import_tokenizer("spacy.lang.en", "English"),
     alphabet=set("abcdefghijklmnopqrstuvwxyz"),
-    symbols=set("-.'"),
+    symbols=set("-.'0123456789"),
 )
 
 languages["epo"] = Language(
@@ -76,6 +76,7 @@ languages["epo"] = Language(
     bcp47="eo",
     tokenizer=lambda: import_tokenizer("spacy.language", "Language"),
     alphabet=set("abcĉdefgĝhĥijĵklmnoprsŝtuŭvz"),
+    symbols=set("-0123456789"),
 )
 
 languages["fin"] = Language(
@@ -164,7 +165,7 @@ languages["spa"] = Language(
     bcp47="es",
     tokenizer=lambda: import_tokenizer("spacy.lang.es", "Spanish"),
     alphabet=set("abcdefghijklmnñopqrstuvwxyzáéíóúü"),
-    symbols=set("-."),
+    symbols=set("-.0123456789"),
 )
 
 languages["swe"] = Language(
@@ -181,5 +182,5 @@ languages["tgl"] = Language(
     bcp47="tl",
     tokenizer=lambda: import_tokenizer("spacy.lang.tl", "Tagalog"),
     alphabet=set("abcdefghijklmnñopqrstuvwxyzáàâéèêëíìîóòôúùû"),
-    symbols=set("-.'"),
+    symbols=set("-.'0123456789"),
 )
