@@ -25,6 +25,15 @@ def targets(translations: Path, reverse: bool = False) -> set[int]:
     return sources(translations, not reverse)
 
 
+def get_nonwords(language: Path) -> set[str]:
+    """Get set of non-words in language."""
+    path = language/"nonwords.txt"
+    if not path.is_file():
+        return set()
+    with open(path, encoding="utf-8") as file:
+        return {line.rstrip() for line in file}
+
+
 def populate_translates(
     con: Connection,
     path: Path | str,
@@ -43,7 +52,7 @@ def populate_translates(
         con.commit()
 
 
-def populate_sentence(
+def populate_sentence(  # pylint: disable=too-many-locals
     con: Connection,
     language: Path,
     translations: Path,
@@ -54,8 +63,12 @@ def populate_sentence(
 insert into sentence (tatoeba_id, text, tokens, frequency_class)
 values (?, ?, ?, 0)
 """
+    nonwords = get_nonwords(language)
     words: set[str] = set()
-    with open(language/"sentences.csv", encoding="utf-8") as file:
+    with (
+        open(language/"sentences.csv", encoding="utf-8") as file,
+        open(language/"skipped-sentences.txt", "a", encoding="utf-8") as log,
+    ):
         reader = csv.reader(file)
         next(reader)
         for row in reader:
@@ -63,8 +76,21 @@ values (?, ?, ?, 0)
             text = row[1]
             tokens = row[2]
             if tatoeba_id in _sources:
-                con.execute(query, (tatoeba_id, text, tokens))
-                words.update(token.casefold() for token in json.loads(tokens))
+                for token in json.loads(tokens):
+                    token = token.casefold()
+                    if len(token) > 1 and token in nonwords:
+                        # NOTE This is a heuristic for excluding non-words,
+                        # but not punctuation symbols.
+                        break
+                    words.add(token.casefold())
+                else:
+                    # Insert sentence only if all tokens are words or
+                    # punctuation.
+                    con.execute(query, (tatoeba_id, text, tokens))
+                    continue
+
+                # Log skipped sentence.
+                print(text, file=log)
         con.commit()
     return words
 
