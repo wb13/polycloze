@@ -5,6 +5,7 @@ package translator
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/sentences"
@@ -23,11 +24,19 @@ func Translate[T database.Querier](q T, sentence sentences.Sentence) (Translatio
 	}
 
 	query := `
-select tatoeba_id, text from translation where tatoeba_id in
-	(select target from translates where source = ?)
-	order by random() limit 1
-`
+		SELECT tatoeba_id, text FROM translation
+		WHERE tatoeba_id = (
+			SELECT target FROM translates
+			WHERE source = ?
+			ORDER BY random() LIMIT 1
+		)
+		LIMIT 1
+	`
+
 	row := q.QueryRow(query, sentence.TatoebaID)
 	err := row.Scan(&translation.TatoebaID, &translation.Text)
+	if err != nil {
+		return translation, fmt.Errorf("failed to translate sentence: %v", err)
+	}
 	return translation, err
 }
