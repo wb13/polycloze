@@ -18,6 +18,7 @@ from .mapper import map_translations
 from .migrate import check_scripts, migrate
 from .partition import partition
 from .populate import populate
+from .shrink import shrink
 from .tokenizer import process_language
 from .untar import untar
 
@@ -204,6 +205,9 @@ class CourseBuilderTask:
                     translations=translations,
                     reversed_=lang1 < lang2,
                 )
+
+                with connect(database) as con:
+                    shrink(con)
                 move(database, target)
 
 
