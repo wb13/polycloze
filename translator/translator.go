@@ -30,7 +30,6 @@ func Translate[T database.Querier](q T, sentence sentences.Sentence) (Translatio
 			WHERE source = ?
 			ORDER BY random() LIMIT 1
 		)
-		LIMIT 1
 	`
 
 	row := q.QueryRow(query, sentence.TatoebaID)
