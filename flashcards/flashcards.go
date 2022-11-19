@@ -82,7 +82,7 @@ func generateWords(
 func generateItem[T database.Querier](q T, word string) (Item, error) {
 	var item Item
 
-	sentence, err := sentences.PickSentence(q, word, word_scheduler.Placement(q))
+	sentence, err := sentences.PickSentence(q, word)
 	if err != nil {
 		return item, err
 	}

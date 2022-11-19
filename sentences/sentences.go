@@ -53,25 +53,23 @@ func getSentence[T database.Querier](q T, id int) (*Sentence, error) {
 	return &sentence, nil
 }
 
-func PickSentence[T database.Querier](q T, word string, maxDifficulty int) (*Sentence, error) {
+func PickSentence[T database.Querier](q T, word string) (*Sentence, error) {
 	id, err := findWordID(q, word)
 	if err != nil {
 		return nil, err
 	}
 
-	// Select sentence that contains word and isn't too "difficult"
-	// I.e. sentence.frequency_class <= student's estimated level, or if there's no
-	// such sentence, returns the sentence with the minimum frequency_class instead.
+	// The course builder guarantees that all words have example sentences that
+	// have the same difficulty (`frequency_class`) as the word.
+	// Since the word scheduler only introduces words at the right difficulty,
+	// the example sentences are also at the right difficulty.
 	query := `
-select coalesce(
-	(select id from contains join sentence on (sentence = id)
-		where word = @word and frequency_class <= @class
-		order by random() limit 1),
-	(select coalesce(id, min(frequency_class)) from contains join sentence on (sentence = id)
-		where word = @word))
-`
-	row := q.QueryRow(query, sql.Named("word", id), sql.Named("class", maxDifficulty))
-
+		SELECT id FROM contains
+		JOIN sentence ON (sentence = id)
+		WHERE word = ?
+		ORDER BY random() LIMIT 1
+	`
+	row := q.QueryRow(query, id)
 	var sentence int
 	if err := row.Scan(&sentence); err != nil {
 		return nil, err

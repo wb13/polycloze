@@ -29,7 +29,7 @@ func BenchmarkPickSentence(b *testing.B) {
 	defer con.Close()
 
 	for i := 0; i < b.N; i++ {
-		sentence, err := PickSentence(con, "was", 20)
+		sentence, err := PickSentence(con, "was")
 		if err != nil {
 			b.Fatal("expected err to be nil:", err)
 		}
