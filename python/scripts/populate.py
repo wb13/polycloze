@@ -148,15 +148,30 @@ def query_words(con: Connection, words: t.Sequence[str]) -> t.Iterable[int]:
     return (id_ for id_, in con.execute(query))
 
 
-def populate_contains(con: Connection) -> None:
-    query = "select id, tokens from sentence"
+# Word ID -> number of example sentences
+count_examples: dict[int, int] = {}
+
+
+def populate_contains(con: Connection, max_number_examples: int) -> None:
+    """Link words to sentence they belong to.
+
+    Caps number of linked sentence per word to `max_number_examples`.
+    """
+    query = "SELECT id, tokens FROM sentence ORDER BY frequency_class ASC"
     for id_, tokens in con.execute(query):
         query = "insert into contains (sentence, word) values (?, ?)"
+        word_ids = list(query_words(con, json.loads(tokens)))
         values = (
             (id_, word_id)
-            for word_id in query_words(con, json.loads(tokens))
+            for word_id in word_ids
+            if count_examples.get(word_id, 0) < max_number_examples
         )
         con.executemany(query, values)
+
+        # Count should only be increased once, even if the word appears
+        # multiple times in the sentence.
+        for word_id in word_ids:
+            count_examples[word_id] = count_examples.get(word_id, 0) + 1
     con.commit()
 
 
@@ -215,7 +230,7 @@ def populate(
         )
         populate_word(con, words)
         populate_translation(con, l1_dir, translations, reversed_)
-        populate_contains(con)
+        populate_contains(con, max_number_examples=30)
 
 
 def main(args: Namespace) -> None:
