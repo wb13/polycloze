@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name
 """Tokenizes sentences from standard input and outputs CSV files."""
 
 from argparse import ArgumentParser, Namespace
@@ -6,6 +7,7 @@ import csv
 from dataclasses import dataclass
 import fileinput
 import json
+from math import floor, log2
 from pathlib import Path
 import sys
 import typing as t
@@ -47,11 +49,15 @@ class WordCounter:
     def __init__(self) -> None:
         self.counter: Counter[str] = Counter()
 
-    def add(self, tokens: t.Iterable[str]) -> None:
+    def update(self, tokens: t.Iterable[str]) -> None:
         self.counter.update(token.casefold() for token in tokens)
 
-    def count(self) -> list[tuple[str, int]]:
-        return self.counter.most_common()
+    def most_common(self, n: int | None = None) -> list[tuple[str, int]]:
+        """Return counts of the most common elements."""
+        return self.counter.most_common(n)
+
+    def delete(self, token: str) -> None:
+        del self.counter[token]
 
 
 def write_sentences(
@@ -79,7 +85,7 @@ def write_sentences(
                 text=line,
                 tokens=tokenizer.tokenize(line),
             )
-            word_counter.add(sentence.tokens)
+            word_counter.update(sentence.tokens)
             writer.writerow(sentence.row())
 
 
@@ -90,17 +96,21 @@ def write_words(
     log: Path,
 ) -> None:
     """log: where to write nonwords."""
-    with (
-        open(output, "w", newline="", encoding="utf-8") as file,
-        open(log, "w", encoding="utf-8") as logfile,
-    ):
+    # Delete and log non-words first.
+    with open(log, "w", encoding="utf-8") as logfile:
+        for token, _ in word_counter.most_common():
+            if not language.is_word(token):
+                word_counter.delete(token)
+                print(token, file=logfile)
+
+    max_count = word_counter.most_common(1)[0][1]
+
+    with open(output, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow(["word", "frequency"])
-        for row in word_counter.count():
-            if language.is_word(row[0]):
-                writer.writerow(row)
-            else:
-                print(row[0], file=logfile)
+        writer.writerow(["word", "frequency", "frequency_class"])
+        for word, count in word_counter.most_common():
+            frequency_class = int(floor(0.5 - log2(count / max_count)))
+            writer.writerow([word, count, frequency_class])
 
 
 def process_language(

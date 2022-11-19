@@ -3,7 +3,6 @@
 from argparse import ArgumentParser, Namespace
 import csv
 import json
-from math import floor, log2
 from pathlib import Path
 from sqlite3 import Connection, connect
 import sys
@@ -101,16 +100,9 @@ def populate_word(con: Connection, language: Path, words: set[str]) -> None:
     with open(language/"words.csv", encoding="utf-8") as file:
         reader = csv.reader(file)
         next(reader)
-        row = next(reader)  # first row (highest-frequency word)
-        word = row[0]
-        max_frequency = int(row[1])
-        if word in words:
-            con.execute(query, (word, 0))
-
         for row in reader:
             word = row[0]
-            frequency = int(row[1])
-            frequency_class = int(floor(0.5 - log2(frequency / max_frequency)))
+            frequency_class = int(row[2])
             if word in words:
                 con.execute(query, (word, frequency_class))
         con.commit()
