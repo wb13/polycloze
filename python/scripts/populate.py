@@ -24,13 +24,13 @@ def targets(translations: Path, reverse: bool = False) -> set[int]:
     return sources(translations, not reverse)
 
 
-def get_nonwords(language: Path) -> set[str]:
-    """Get set of non-words in language."""
-    path = language/"nonwords.txt"
-    if not path.is_file():
-        return set()
+def get_words(language: Path) -> dict[str, int]:
+    """Get words in language, mapped to frequency_class."""
+    path = language/"words.csv"
     with open(path, encoding="utf-8") as file:
-        return {line.rstrip() for line in file}
+        reader = csv.reader(file)
+        next(reader)    # Skip header
+        return {row[0]: int(row[2]) for row in reader}
 
 
 def populate_translates(
@@ -53,17 +53,16 @@ def populate_translates(
 
 def populate_sentence(  # pylint: disable=too-many-locals
     con: Connection,
+    words: dict[str, int],
     language: Path,
     translations: Path,
     reverse: bool = False,
-) -> set[str]:
+) -> None:
     _sources = sources(translations, reverse)
     query = """
 insert into sentence (tatoeba_id, text, tokens, frequency_class)
 values (?, ?, ?, 0)
 """
-    nonwords = get_nonwords(language)
-    words: set[str] = set()
     with (
         open(language/"sentences.csv", encoding="utf-8") as file,
         open(language/"skipped-sentences.txt", "a", encoding="utf-8") as log,
@@ -77,11 +76,10 @@ values (?, ?, ?, 0)
             if tatoeba_id in _sources:
                 for token in json.loads(tokens):
                     token = token.casefold()
-                    if len(token) > 1 and token in nonwords:
+                    if len(token) > 1 and token not in words:
                         # NOTE This is a heuristic for excluding non-words,
                         # but not punctuation symbols.
                         break
-                    words.add(token.casefold())
                 else:
                     # Insert sentence only if all tokens are words or
                     # punctuation.
@@ -91,21 +89,16 @@ values (?, ?, ?, 0)
                 # Log skipped sentence.
                 print(text, file=log)
         con.commit()
-    return words
 
 
-def populate_word(con: Connection, language: Path, words: set[str]) -> None:
-    query = "insert into word (word, frequency_class) values (?, ?)"
+def populate_word(con: Connection, words: dict[str, int]) -> None:
+    """Insert words into database.
 
-    with open(language/"words.csv", encoding="utf-8") as file:
-        reader = csv.reader(file)
-        next(reader)
-        for row in reader:
-            word = row[0]
-            frequency_class = int(row[2])
-            if word in words:
-                con.execute(query, (word, frequency_class))
-        con.commit()
+    May include words that don't belong to any DB.
+    """
+    query = "INSERT INTO word (word, frequency_class) VALUES (?, ?)"
+    con.executemany(query, words.items())
+    con.commit()
 
 
 def populate_translation(
@@ -213,13 +206,15 @@ def populate(
         populate_language(con, l1_dir, l2_dir)
         create_temp_trigger(con)
         populate_translates(con, translations, reversed_)
-        words = populate_sentence(
+        words = get_words(l2_dir)
+        populate_sentence(
             con,
+            words,
             l2_dir,
             translations,
             reversed_,
         )
-        populate_word(con, l2_dir, words)
+        populate_word(con, words)
         populate_translation(con, l1_dir, translations, reversed_)
         populate_contains(con)
 
