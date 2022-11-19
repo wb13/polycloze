@@ -33,6 +33,17 @@ def get_words(language: Path) -> dict[str, int]:
         return {row[0]: int(row[2]) for row in reader}
 
 
+def compute_frequency_class(
+    sentence: t.Iterable[str],
+    words: dict[str, int],
+) -> int:
+    """Sentence frequency class = max(frequency class of word in sentence).
+
+    Assumes the tokens in the sentence have been casefolded.
+    """
+    return max(words.get(token, 0) for token in sentence)
+
+
 def populate_translates(
     con: Connection,
     path: Path | str,
@@ -61,7 +72,7 @@ def populate_sentence(  # pylint: disable=too-many-locals
     _sources = sources(translations, reverse)
     query = """
 insert into sentence (tatoeba_id, text, tokens, frequency_class)
-values (?, ?, ?, 0)
+values (?, ?, ?, ?)
 """
     with (
         open(language/"sentences.csv", encoding="utf-8") as file,
@@ -74,8 +85,8 @@ values (?, ?, ?, 0)
             text = row[1]
             tokens = row[2]
             if tatoeba_id in _sources:
-                for token in json.loads(tokens):
-                    token = token.casefold()
+                sentence = [token.casefold() for token in json.loads(tokens)]
+                for token in sentence:
                     if len(token) > 1 and token not in words:
                         # NOTE This is a heuristic for excluding non-words,
                         # but not punctuation symbols.
@@ -83,7 +94,11 @@ values (?, ?, ?, 0)
                 else:
                     # Insert sentence only if all tokens are words or
                     # punctuation.
-                    con.execute(query, (tatoeba_id, text, tokens))
+                    frequency_class = compute_frequency_class(sentence, words)
+                    con.execute(
+                        query,
+                        (tatoeba_id, text, tokens, frequency_class),
+                    )
                     continue
 
                 # Log skipped sentence.
@@ -145,21 +160,6 @@ def populate_contains(con: Connection) -> None:
     con.commit()
 
 
-def create_temp_trigger(con: Connection) -> None:
-    query = """
-create temp trigger t1 after insert on main.contains begin
-    update sentence
-    set frequency_class = max(
-        frequency_class,
-        (select frequency_class from word where word.id = new.word)
-    )
-    where sentence.id = new.sentence;
-end;
-"""
-    con.execute(query)
-    con.commit()
-
-
 def infer_language(path: Path) -> tuple[str, str, str]:
     try:
         code = path.name
@@ -204,7 +204,6 @@ def populate(
     """
     with connect(database) as con:
         populate_language(con, l1_dir, l2_dir)
-        create_temp_trigger(con)
         populate_translates(con, translations, reversed_)
         words = get_words(l2_dir)
         populate_sentence(
