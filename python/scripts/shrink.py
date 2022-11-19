@@ -1,7 +1,4 @@
-"""Shrink course files to target size.
-
-For demo purposes only.
-"""
+"""Shrink course files by reducing number of example sentences per word."""
 
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
@@ -12,13 +9,6 @@ from time import time
 def parse_args() -> Namespace:
     parser = ArgumentParser()
     parser.add_argument(
-        "-t",
-        dest="target_count",
-        type=int,
-        default=10000,
-        help="target number of sentences",
-    )
-    parser.add_argument(
         "courses",
         type=Path,
         nargs="+",
@@ -27,32 +17,122 @@ def parse_args() -> Namespace:
     return parser.parse_args()
 
 
-def cap_sentences(con: Connection, target_count: int) -> None:
-    """Cap number of sentences to target count."""
+def bump_up_frequency_class(con: Connection) -> None:
+    """Bump up frequency class of words that never appear as the most difficult
+    word in a sentence.
+    The new frequency class of such words will be the lowest frequency class of
+    any sentence that the word appears in.
+    """
     query = """
-delete from sentence where id not in (
-    select id from sentence order by random() limit ?)
-"""
-    con.execute(query, (target_count,))
+        UPDATE word
+        SET frequency_class = affected.frequency_class
+        FROM (
+            SELECT a AS id, c AS frequency_class
+            FROM (
+                SELECT
+                    word.id AS a,
+                    word.frequency_class AS b,
+                    min(sentence.frequency_class) AS c
+                FROM word
+                JOIN contains ON (word.id = contains.word)
+                JOIN sentence ON (sentence.id = contains.sentence)
+                GROUP BY (word.id)
+            )
+            WHERE b < c
+        ) AS affected
+        WHERE word.id = affected.id;
+    """
+    con.execute(query)
 
 
-def prune(con: Connection) -> None:
-    """Delete unused data."""
+def cap_sentences(con: Connection) -> None:
+    """Exclude sentence examples that are too difficult."""
+    # Drop index.
+    con.execute("DROP INDEX index_contains_word")
 
-    # 0. delete sentences
-    # 1. delete words orphaned by deleted sentences
+    # Create new contains table.
     con.execute("""
-delete from contains where sentence not in (select id from sentence)
-""")
-    con.execute("delete from word where id not in (select word from contains)")
+        CREATE TABLE new_contains (
+            sentence INTEGER NOT NULL REFERENCES sentence,
+            word INTEGER NOT NULL REFERENCES word
+        )
+    """)
 
-    # 2. delete translations orphaned by deleted sentences
+    # Populate new table.
     con.execute("""
-delete from translates where source not in (select tatoeba_id from sentence)
-""")
+        INSERT INTO new_contains (sentence, word)
+        SELECT sentence.id, word.id
+        FROM sentence
+        JOIN contains ON (sentence.id = contains.sentence)
+        JOIN word ON (word.id = contains.word)
+        WHERE sentence.frequency_class <= word.frequency_class
+    """)
+
+    # Replace old table with new table.
+    con.execute("DROP TABLE contains")
+    con.execute("ALTER TABLE new_contains RENAME TO contains")
+
+    # Recreate index.
     con.execute("""
-delete from translation where tatoeba_id not in (select target from translates)
-""")
+        CREATE INDEX index_contains_word ON contains (word)
+    """)
+
+
+def shrink(con: Connection) -> None:
+    """Shrink course file by reducing number of example sentences per word.
+
+    The caller doesn't have to call `.commit()` afterwards.
+    """
+    bump_up_frequency_class(con)
+    cap_sentences(con)
+    delete_orphans(con)
+
+    con.commit()
+    con.executescript("vacuum")
+
+
+def delete_orphaned_sentences(con: Connection) -> None:
+    """Delete orphaned sentences."""
+    query = """
+        DELETE FROM sentence
+        WHERE id NOT IN (
+            SELECT sentence FROM contains
+        )
+    """
+    con.execute(query)
+
+
+def delete_orphaned_translations(con: Connection) -> None:
+    """Delete orphaned translations."""
+    con.execute("""
+        DELETE FROM translates
+        WHERE source NOT IN (
+            SELECT tatoeba_id FROM sentence
+        )
+    """)
+    con.execute("""
+        DELETE FROM translation
+        WHERE tatoeba_id NOT IN (
+            SELECT target FROM translates
+        )
+    """)
+
+
+def delete_orphans(con: Connection) -> None:
+    """Delete orphaned data."""
+    delete_orphaned_sentences(con)
+    delete_orphaned_translations(con)
+
+    # There may be orphaned words, not because sentences were removed,
+    # but because they originally didn't belong to any sentence.
+    # This happens with words that appear in untranslated sentences.
+    query = """
+        DELETE FROM word
+        WHERE id NOT IN (
+            SELECT word FROM contains
+        )
+    """
+    con.execute(query)
 
 
 def main() -> None:
@@ -61,11 +141,7 @@ def main() -> None:
         print(f"shrinking {path!s}")
         start = time()
         with connect(path) as con:
-            cap_sentences(con, args.target_count)
-            prune(con)
-            con.commit()
-            con.executescript("vacuum")
-
+            shrink(con)
             print("took", time() - start)
 
 
