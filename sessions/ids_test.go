@@ -71,3 +71,16 @@ func TestDeleteIDExists(t *testing.T) {
 		t.Fatal("expected err to be nil:", err)
 	}
 }
+
+func BenchmarkGenerateUniqueID(b *testing.B) {
+	b.RunParallel(func(pb *testing.PB) {
+		db := testDB()
+		defer db.Close()
+		for pb.Next() {
+
+			if _, err := generateUniqueID(db); err != nil {
+				b.Log("expected err to be nil:", err)
+			}
+		}
+	})
+}
