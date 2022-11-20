@@ -1,3 +1,5 @@
+DOCKER = $(shell command -v podman || command -v docker)
+
 .PHONY:	all
 all:	build lint test
 
@@ -35,3 +37,11 @@ run:	build-js
 .PHONY:	init
 init:
 	cd api/js; npm ci
+
+.PHONY:	docker-build
+docker-build:
+	$(DOCKER) build -t polycloze-demo .
+
+.PHONY:	docker-run
+docker-run:
+	$(DOCKER) run -p 3000:3000 --cpus 1 --memory 256m polycloze-demo
