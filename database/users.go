@@ -26,5 +26,8 @@ func OpenUsersDB(path string) (*sql.DB, error) {
 		db.Close()
 		return nil, fmt.Errorf("failed to upgrade user database: %v", err)
 	}
+
+	db.SetMaxOpenConns(1)
+	_, _ = db.Exec("PRAGMA journal_mode=WAL")
 	return db, nil
 }
