@@ -17,34 +17,6 @@ def parse_args() -> Namespace:
     return parser.parse_args()
 
 
-def bump_up_frequency_class(con: Connection) -> None:
-    """Bump up frequency class of words that never appear as the most difficult
-    word in a sentence.
-    The new frequency class of such words will be the lowest frequency class of
-    any sentence that the word appears in.
-    """
-    query = """
-        UPDATE word
-        SET frequency_class = affected.frequency_class
-        FROM (
-            SELECT a AS id, c AS frequency_class
-            FROM (
-                SELECT
-                    word.id AS a,
-                    word.frequency_class AS b,
-                    min(sentence.frequency_class) AS c
-                FROM word
-                JOIN contains ON (word.id = contains.word)
-                JOIN sentence ON (sentence.id = contains.sentence)
-                GROUP BY (word.id)
-            )
-            WHERE b < c
-        ) AS affected
-        WHERE word.id = affected.id;
-    """
-    con.execute(query)
-
-
 def cap_sentences(con: Connection) -> None:
     """Exclude sentence examples that are too difficult."""
     # Drop index.
@@ -83,7 +55,6 @@ def shrink(con: Connection) -> None:
 
     The caller doesn't have to call `.commit()` afterwards.
     """
-    bump_up_frequency_class(con)
     cap_sentences(con)
     delete_orphans(con)
 

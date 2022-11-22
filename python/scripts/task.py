@@ -202,9 +202,8 @@ class CourseBuilderTask:
         sources = [
             build/"test.db",
             l1_dir/"sentences.csv",
-            l1_dir/"words.csv",
-            l2_dir/"sentences.csv",
-            l2_dir/"words.csv",
+            l2_dir/"sentences.db",
+            l2_dir/"words.db",
             translations,
         ]
         target = build/"polycloze"/"courses"/f"{lang1}-{lang2}.db"
