@@ -14,7 +14,7 @@ import typing as t
 
 from .dependency import is_outdated, Task
 from .download import download, has_been_a_week, latest_data
-from .mapper import map_translations
+from .link import partition_links
 from .migrate import check_scripts, migrate
 from .partition import partition
 from .populate import populate
@@ -77,6 +77,21 @@ def prepare_sentences() -> None:
         partition(source, target)
 
 
+def prepare_links() -> None:
+    """Partition links by language pair."""
+    links = build/"tatoeba"/"links.csv"
+    sentences = build/"tatoeba"/"sentences.csv"
+    sources = [links, sentences]
+    target = build/"links"
+
+    for source in sources:
+        assert source.is_file()
+
+    if is_outdated([target], sources):
+        print("Preparing links")
+        partition_links(links, sentences, target)
+
+
 @dataclass(unsafe_hash=True)
 class LanguageTokenizerTask:
     lang: str
@@ -118,46 +133,6 @@ def language_tokenizer(lang: str) -> Task:
 
 
 @dataclass(unsafe_hash=True)
-class TranslationMapperTask:
-    lang1: str
-    lang2: str
-
-    @property
-    def __name__(self) -> str:
-        return f"TranslationMapperTask({self.lang1}, {self.lang2})"
-
-    def __call__(self) -> None:
-        lang1 = self.lang1
-        lang2 = self.lang2
-
-        l1_sentences = build/"sentences"/f"{lang1}.tsv"
-        l2_sentences = build/"sentences"/f"{lang2}.tsv"
-        links = build/"tatoeba"/"links.csv"
-
-        sources = [l1_sentences, l2_sentences, links]
-        target = build/"translations"/f"{lang1}-{lang2}.csv"
-
-        for source in sources:
-            assert source.is_file()
-
-        if is_outdated([target], sources):
-            print(f"Mapping translations between {lang1} and {lang2}")
-            map_translations(l1_sentences, l2_sentences, links, output=target)
-
-
-@cache
-def translation_mapper(lang1: str, lang2: str) -> Task:
-    """Create task for mapping translations between lang1 and lang2.
-
-    @cache'd for the same reason as language_tokenizer.
-    Asserts lang1 < lang2, because lang1->lang2 and lang2->lang1 use the same
-    translation file.
-    """
-    assert lang1 < lang2
-    return t.cast(Task, TranslationMapperTask(lang1, lang2))
-
-
-@dataclass(unsafe_hash=True)
 class CourseBuilderTask:
     lang1: str
     lang2: str
@@ -172,10 +147,10 @@ class CourseBuilderTask:
 
         l1_dir = build/"languages"/lang1
         l2_dir = build/"languages"/lang2
-        translations = (
-            build/"translations"/f"{lang1}-{lang2}.csv"
+        translations = build/"links"/(
+            f"{lang1}-{lang2}.csv"
             if lang1 < lang2
-            else build/"translations"/f"{lang2}-{lang1}.csv"
+            else f"{lang2}-{lang1}.csv"
         )
 
         sources = [
