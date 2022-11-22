@@ -13,6 +13,7 @@ from tempfile import TemporaryDirectory
 import typing as t
 
 from .dependency import is_outdated, Task
+from .difficulty import compute_difficulty_values
 from .download import download, has_been_a_week, latest_data
 from .link import partition_links
 from .migrate import check_scripts, migrate
@@ -124,12 +125,54 @@ def language_tokenizer(lang: str) -> Task:
 
     Cached so that language_tokenizer can be called repeatedly and still refer
     to the same task.
-    lang should be a valid language code.
+    `lang` should be a valid language code.
 
     Returns a class instance, because closures are unpicklable (needed by
     multiprocessing).
     """
     return t.cast(Task, LanguageTokenizerTask(lang))
+
+
+@dataclass(unsafe_hash=True)
+class ComputeDifficultyTask:
+    lang: str
+
+    @property
+    def __name__(self) -> str:
+        return f"ComputeDifficultyTask({self.lang})"
+
+    def __call__(self) -> None:
+        """Run this task."""
+        lang = self.lang
+        language = build/"languages"/lang
+
+        sources = [
+            language/"sentences.csv",
+            language/"words.csv",
+        ]
+
+        targets = [
+            language/"sentences-oov.txt",
+            language/"sentences.db",
+            language/"words.db",
+        ]
+
+        for source in sources:
+            assert source.is_file()
+
+        if is_outdated(targets, sources):
+            print(f"Computing word and sentence difficulty in {lang}")
+            compute_difficulty_values(language)
+
+
+@cache
+def compute_difficulty(lang: str) -> Task:
+    """Compute word and sentence difficulty.
+
+    `lang` should be a valid language code.
+    Cached for the same reasons as `language_tokenizer`.
+    """
+    return t.cast(Task, ComputeDifficultyTask(lang))
 
 
 @dataclass(unsafe_hash=True)

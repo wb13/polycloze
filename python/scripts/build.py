@@ -99,6 +99,7 @@ def build_dependency_graph(l1s: list[str], l2s: list[str]) -> DependencyGraph:
 
     for lang in sorted(set(l1s + l2s)):
         deps.add(task.language_tokenizer(lang), task.prepare_sentences)
+        deps.add(task.compute_difficulty(lang), task.language_tokenizer(lang))
 
     for lang1 in l1s:
         for lang2 in l2s:
