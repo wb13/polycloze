@@ -153,6 +153,9 @@ class CourseBuilderTask:
             else f"{lang2}-{lang1}.csv"
         )
 
+        if not translations.is_file():
+            translations.touch()
+
         sources = [
             build/"test.db",
             l1_dir/"sentences.csv",
@@ -164,7 +167,7 @@ class CourseBuilderTask:
         target = build/"polycloze"/"courses"/f"{lang1}-{lang2}.db"
 
         for source in sources:
-            assert source.is_file()
+            assert source.is_file(), f"{source!s} is not a file"
 
         if is_outdated([target], sources):
             print(f"Building {lang1}->{lang2} course")
