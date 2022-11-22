@@ -109,15 +109,8 @@ def partition_links(links: Path, sentences: Path, outdir: Path) -> None:
                 continue
 
             # Make sure `source_language < target_language`.
-            if source_language == target_language:
+            if source_language >= target_language:
                 continue
-            if target_language < source_language:
-                source, target = target, source
-                source_language, target_language = (
-                    target_language,
-                    source_language,
-                )
-
             outfile = files.get(source_language, target_language)
             print(f"{source},{target}", file=outfile)
 
