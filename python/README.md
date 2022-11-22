@@ -51,7 +51,7 @@ You can add more by making the appropriate changes in `scripts/language.py`.
 
 ## Licenses
 
-All scripts in this repository are available under the [MIT license](./LICENSE).
+These scripts are available under the [MIT license](./LICENSE).
 
 Sentences and translation data are taken from [Tatoeba](https://tatoeba.org),
 which are released under [CC BY 2.0 FR](https://creativecommons.org/licenses/by/2.0/fr).
