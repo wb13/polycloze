@@ -61,6 +61,20 @@ def get_words(language: Path) -> dict[str, WordDifficulty]:
         return {row[0]: WordDifficulty(int(row[2]), [], 3) for row in reader}
 
 
+def is_number(token: str) -> bool:
+    """Check if token is a number.
+
+    Also returns true for time, percentages, game scores, etc.
+    """
+    if not token:
+        return False
+    for char in token:
+        if char in "-.,%:x+" or char.isdigit():
+            continue
+        return False
+    return True
+
+
 def compute_difficulty(
     sentence: list[str],
     words: dict[str, WordDifficulty],
@@ -71,12 +85,13 @@ def compute_difficulty(
     Also updates word difficulty for each word in the sentence.
     """
     # Compute sentence difficulty.
-    difficulty = 0
+    difficulty = -1
     keys = [token.casefold() for token in sentence]
     for word in keys:
-        # Heuristic rule for excluding non-words, but not punctuation symbols.
+        # Heuristic rule for excluding non-words, but not punctuation symbols
+        # or numbers. Loanwords are excluded.
         if word not in words:
-            if len(word) > 1:
+            if len(word) > 1 and not is_number(word):
                 return -1
             continue
         value = words[word]
@@ -85,6 +100,9 @@ def compute_difficulty(
         # because `value.difficulty` is not stable yet.
         # It becomes stable after all the sentences have been examined.
         difficulty = max(difficulty, value.frequency_class)
+
+    if difficulty < 0:
+        return difficulty
 
     # Record sentence difficulty.
     for word in keys:
