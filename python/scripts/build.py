@@ -99,11 +99,15 @@ def build_dependency_graph(l1s: list[str], l2s: list[str]) -> DependencyGraph:
 
     for lang in sorted(set(l1s + l2s)):
         deps.add(task.language_tokenizer(lang), task.prepare_sentences)
-        deps.add(task.compute_difficulty(lang), task.language_tokenizer(lang))
 
     for lang1 in l1s:
         for lang2 in l2s:
             if lang1 != lang2:
+                deps.add(
+                    task.compute_difficulty(lang1, lang2),
+                    task.language_tokenizer(lang2),
+                    task.prepare_links,
+                )
                 deps.add(
                     task.course_builder(lang1, lang2),
                     task.create_empty_course,
@@ -111,7 +115,7 @@ def build_dependency_graph(l1s: list[str], l2s: list[str]) -> DependencyGraph:
                     task.language_tokenizer(lang1),
                     task.language_tokenizer(lang2),
                     task.create_course_directory,
-                    task.compute_difficulty(lang2),
+                    task.compute_difficulty(lang1, lang2),
                 )
     return deps
 

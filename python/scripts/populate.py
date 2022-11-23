@@ -12,17 +12,13 @@ import typing as t
 from .language import languages
 
 
-def sources(translations: Path, reverse: bool = False) -> set[int]:
+def targets(translations: Path, reverse: bool = False) -> set[int]:
     result = set()
     with open(translations, encoding="utf-8") as file:
         reader = csv.reader(file)
         for row in reader:
-            result.add(int(row[0] if not reverse else row[1]))
+            result.add(int(row[0] if reverse else row[1]))
     return result
-
-
-def targets(translations: Path, reverse: bool = False) -> set[int]:
-    return sources(translations, not reverse)
 
 
 def populate_translates(
@@ -43,46 +39,27 @@ def populate_translates(
         con.commit()
 
 
-def populate_sentence(
-    con: Connection,
-    language: Path,
-    translations: Path,
-    reverse: bool = False,
-) -> None:
+def populate_sentence(con: Connection, course: Path) -> None:
     con.execute(
         "ATTACH DATABASE ? AS ts",
-        (str((language/"sentences.db").resolve()),),
+        (str((course/"sentences.db").resolve()),),
     )
-    _sources = sources(translations, reverse)
-
-    query = "SELECT tatoeba_id, text, tokens, difficulty FROM ts.sentence"
-    cur = con.cursor()
-    for row in cur.execute(query):
-        # Ignore sentences that don't have a translation.
-        tatoeba_id = int(row[0])
-        if tatoeba_id not in _sources:
-            continue
-
-        text = row[1]
-        tokens = row[2]
-        difficulty = int(row[3])
-
-        query = """
-            INSERT INTO sentence (tatoeba_id, text, tokens, frequency_class)
-            VALUES (?, ?, ?, ?)
-        """
-        con.execute(query, (tatoeba_id, text, tokens, difficulty))
+    con.execute("""
+        INSERT INTO sentence (tatoeba_id, text, tokens, frequency_class)
+        SELECT tatoeba_id, text, tokens, difficulty
+        FROM ts.sentence
+    """)
     con.commit()
 
 
-def populate_word(con: Connection, language: Path) -> None:
+def populate_word(con: Connection, course: Path) -> None:
     """Insert words into database.
 
     May include words that don't belong to any sentence.
     """
     con.execute(
         "ATTACH DATABASE ? AS tw",
-        (str((language/"words.db").resolve()),),
+        (str((course/"words.db").resolve()),),
     )
     query = """
         INSERT INTO word (word, frequency_class)
@@ -149,16 +126,16 @@ def populate_contains(con: Connection, max_number_examples: int) -> None:
     con.commit()
 
 
-def infer_language(path: Path) -> tuple[str, str, str]:
+def infer_language(code: str) -> tuple[str, str, str]:
     try:
-        code = path.name
         language = languages[code]
         return (code, language.name, language.bcp47)
     except KeyError:
-        sys.exit(f"unknown language code: {path.name}")
+        sys.exit(f"unknown language code: {code}")
 
 
-def populate_language(con: Connection, lang1: Path, lang2: Path) -> None:
+def populate_language(con: Connection, course: Path) -> None:
+    lang1, lang2 = course.name.split("-")
     query = "insert into language (id, code, name, bcp47) values (?, ?, ?, ?)"
     con.execute(query, ("l1", *infer_language(lang1)))
     con.execute(query, ("l2", *infer_language(lang2)))
@@ -182,8 +159,8 @@ def parse_args() -> Namespace:
 
 def populate(
     database: Path,
+    course: Path,
     l1_dir: Path,
-    l2_dir: Path,
     translations: Path,
     reversed_: bool,
 ) -> None:
@@ -192,15 +169,10 @@ def populate(
     reversed: whether or not translation table columns are swapped
     """
     with connect(database) as con:
-        populate_language(con, l1_dir, l2_dir)
+        populate_language(con, course)
         populate_translates(con, translations, reversed_)
-        populate_sentence(
-            con,
-            l2_dir,
-            translations,
-            reversed_,
-        )
-        populate_word(con, l2_dir)
+        populate_sentence(con, course)
+        populate_word(con, course)
         populate_translation(con, l1_dir, translations, reversed_)
         populate_contains(con, max_number_examples=30)
 

@@ -135,44 +135,58 @@ def language_tokenizer(lang: str) -> Task:
 
 @dataclass(unsafe_hash=True)
 class ComputeDifficultyTask:
-    lang: str
+    lang1: str
+    lang2: str
 
     @property
     def __name__(self) -> str:
-        return f"ComputeDifficultyTask({self.lang})"
+        return f"ComputeDifficultyTask({self.lang1, self.lang2})"
 
     def __call__(self) -> None:
         """Run this task."""
-        lang = self.lang
-        language = build/"languages"/lang
+        lang1 = self.lang1
+        lang2 = self.lang2
+        l2_dir = build/"languages"/lang2
+        translations = build/"links"/(
+            f"{lang1}-{lang2}.csv"
+            if lang1 < lang2
+            else f"{lang2}-{lang1}.csv"
+        )
 
         sources = [
-            language/"sentences.csv",
-            language/"words.csv",
+            l2_dir/"sentences.csv",
+            l2_dir/"words.csv",
+            translations,
         ]
 
+        course = build/"courses"/f"{lang1}-{lang2}"
         targets = [
-            language/"sentences-oov.txt",
-            language/"sentences.db",
-            language/"words.db",
+            course/"skipped.csv",
+            course/"sentences.db",
+            course/"words.db",
         ]
 
         for source in sources:
             assert source.is_file()
 
         if is_outdated(targets, sources):
-            print(f"Computing word and sentence difficulty in {lang}")
-            compute_difficulty_values(language)
+            print(f"Computing word and sentence difficulty in {lang1}-{lang2}")
+            compute_difficulty_values(
+                l2_dir,
+                course,
+                translations=translations,
+                reversed_=lang1 < lang2,
+            )
 
 
 @cache
-def compute_difficulty(lang: str) -> Task:
+def compute_difficulty(lang1: str, lang2: str) -> Task:
     """Compute word and sentence difficulty.
 
-    `lang` should be a valid language code.
+    `lang1` and `lang2` should be valid ISO 639-3 language codes.
     Cached for the same reasons as `language_tokenizer`.
     """
-    return t.cast(Task, ComputeDifficultyTask(lang))
+    return t.cast(Task, ComputeDifficultyTask(lang1, lang2))
 
 
 @dataclass(unsafe_hash=True)
@@ -189,7 +203,6 @@ class CourseBuilderTask:
         lang2 = self.lang2
 
         l1_dir = build/"languages"/lang1
-        l2_dir = build/"languages"/lang2
         translations = build/"links"/(
             f"{lang1}-{lang2}.csv"
             if lang1 < lang2
@@ -199,11 +212,12 @@ class CourseBuilderTask:
         if not translations.is_file():
             translations.touch()
 
+        course = build/"courses"/f"{lang1}-{lang2}"
         sources = [
             build/"test.db",
             l1_dir/"sentences.csv",
-            l2_dir/"sentences.db",
-            l2_dir/"words.db",
+            course/"sentences.db",
+            course/"words.db",
             translations,
         ]
         target = build/"polycloze"/"courses"/f"{lang1}-{lang2}.db"
@@ -220,8 +234,8 @@ class CourseBuilderTask:
                 copyfile(build/"test.db", database)
                 populate(
                     database=database,
+                    course=course,
                     l1_dir=l1_dir,
-                    l2_dir=l2_dir,
                     translations=translations,
                     reversed_=lang1 < lang2,
                 )

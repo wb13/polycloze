@@ -10,6 +10,16 @@ from tempfile import TemporaryDirectory
 import typing as t
 
 
+def sources(translations: Path, reverse: bool) -> set[int]:
+    """Return ID numbers of translated sentences."""
+    result = set()
+    with open(translations, encoding="utf-8") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            result.add(int(row[0] if not reverse else row[1]))
+    return result
+
+
 class WordDifficulty(t.NamedTuple):
     """Keeps track of easiest example sentences for a given word.
     Used to compute word difficulty.
@@ -86,15 +96,20 @@ def compute_difficulty(
     return difficulty
 
 
-def load_sentences(
+def load_sentences(     # pylint: disable=too-many-arguments,too-many-locals
     con: Connection,
     language: Path,
     words: dict[str, WordDifficulty],
+    translations: Path,
+    reversed_: bool,
+    outdir: Path,
 ) -> None:
-    """Load sentence into database.
+    """Load sentence into database, but only those with translations.
 
     Excludes sentences that contains invalid words (not in `words`).
     """
+    _sources = sources(translations, reversed_)
+
     con.execute("""
         CREATE TABLE sentence (
             id INTEGER PRIMARY KEY,
@@ -114,25 +129,35 @@ def load_sentences(
 
         with (
             open(language/"sentences.csv", encoding="utf-8") as infile,
-            open(temp/"sentences-oov.txt", "a", encoding="utf-8") as outfile,
+            open(temp/"skipped.csv", "w", encoding="utf-8") as outfile,
         ):
+            writer = csv.writer(outfile)
+            writer.writerow(["tatoeba_id", "text", "reason_for_exclusion"])
+
             reader = csv.reader(infile)
             next(reader)    # Skip header.
-
             for row in reader:
                 text = row[1]
                 tatoeba_id = int(row[0])
                 tokens = row[2]
+
+                # Exclude untranslated sentences.
+                if tatoeba_id not in _sources:
+                    writer.writerow([tatoeba_id, text, "not translated"])
+                    continue
+
                 difficulty = compute_difficulty(json.loads(tokens), words)
 
-                # Only include sentence that don't contain OOV words.
-                if difficulty >= 0:
-                    con.execute(query, (text, tatoeba_id, tokens, difficulty))
-                else:
-                    # Log sentence with OOV word
-                    print(text, file=outfile)
+                # Exclude sentence contain OOV words (except for punctuation
+                # symbols).
+                if difficulty < 0:
+                    writer.writerow([tatoeba_id, text, "contains OOV word"])
+                    continue
 
-        move(temp/"sentences-oov.txt", language/"sentences-oov.txt")
+                con.execute(query, (text, tatoeba_id, tokens, difficulty))
+
+        outdir.mkdir(parents=True, exist_ok=True)
+        move(temp/"skipped.csv", outdir/"skipped.csv")
 
 
 def write_words(con: Connection, words: dict[str, WordDifficulty]) -> None:
@@ -151,14 +176,30 @@ def write_words(con: Connection, words: dict[str, WordDifficulty]) -> None:
     ))
 
 
-def compute_difficulty_values(language: Path) -> None:
-    """Compute difficulty values for all words and sentences in a language."""
+def compute_difficulty_values(
+    language: Path,
+    outdir: Path,
+    translations: Path,
+    reversed_: bool,
+) -> None:
+    """Compute difficulty values for all words and sentences in a course.
+
+    `outdir`: where course files will be saved
+    `reversed_`: whether or not translation table columns are flipped.
+    """
     words = get_words(language)
     with TemporaryDirectory() as tmpname:
         tempdir = Path(tmpname)
 
         with connect(tempdir/"sentences.db") as con:
-            load_sentences(con, language, words)
+            load_sentences(
+                con,
+                language,
+                words,
+                translations,
+                reversed_,
+                outdir,
+            )
 
         # NOTE Does not recompute sentence difficulty.
         # But maybe it should?
@@ -166,8 +207,9 @@ def compute_difficulty_values(language: Path) -> None:
         with connect(tempdir/"words.db") as con:
             write_words(con, words)
 
-        move(tempdir/"sentences.db", language/"sentences.db")
-        move(tempdir/"words.db", language/"words.db")
+        outdir.mkdir(parents=True, exist_ok=True)
+        move(tempdir/"sentences.db", outdir/"sentences.db")
+        move(tempdir/"words.db", outdir/"words.db")
 
 
 def parse_args() -> Namespace:
@@ -177,11 +219,34 @@ def parse_args() -> Namespace:
         type=Path,
         help="path to language directory",
     )
+    parser.add_argument(
+        dest="translations",
+        type=Path,
+        help="path to L1->L2 translations file",
+    )
+    parser.add_argument(
+        "-o",
+        dest="outdir",
+        type=Path,
+        required=True,
+        help="path to output course directory",
+    )
+    parser.add_argument(
+        "-r",
+        dest="reverse",
+        action="store_true",
+        help="flip columns in translation file",
+    )
     return parser.parse_args()
 
 
 def main(args: Namespace) -> None:
-    compute_difficulty_values(args.language)
+    compute_difficulty_values(
+        args.language,
+        args.outdir,
+        args.translations,
+        args.reverse,
+    )
 
 
 if __name__ == "__main__":
