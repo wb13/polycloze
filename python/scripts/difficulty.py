@@ -9,6 +9,8 @@ from sqlite3 import Connection, connect
 from tempfile import TemporaryDirectory
 import typing as t
 
+from .word import Word
+
 
 def sources(translations: Path, reverse: bool) -> set[int]:
     """Return ID numbers of translated sentences."""
@@ -86,7 +88,7 @@ def compute_difficulty(
     """
     # Compute sentence difficulty.
     difficulty = -1
-    keys = [token.casefold() for token in sentence]
+    keys = [Word(token) for token in sentence]
     for word in keys:
         # Heuristic rule for excluding non-words, but not punctuation symbols
         # or numbers. Loanwords are excluded.

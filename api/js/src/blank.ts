@@ -22,8 +22,18 @@ function resizeInput(input: HTMLInputElement, text: string) {
     input.style.setProperty("width", width);
 }
 
+// Remove surrounding whitespace and soft-hyphens.
+function normalize(word: string): string {
+    return word.trim().replace(/\xAD/g, "");
+}
+
+// Count number of errors in guess.
+function compare(guess: string, answer: string): number {
+    return distance(normalize(guess), normalize(answer));
+}
+
 export function evaluateInput(input: HTMLInputElement, answer: string): Status {
-    switch (distance(input.value.trim(), answer.trim())) {
+    switch (compare(input.value, answer)) {
     case 0:
         changeStatus(input, "correct");
         return "correct";

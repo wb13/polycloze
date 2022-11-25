@@ -13,6 +13,8 @@ import sys
 import typing as t
 
 from .language import languages, Language
+from .word import Word
+
 
 if t.TYPE_CHECKING:
     from spacy.tokenizer import Tokenizer as SpacyTokenizer     # type: ignore
@@ -47,16 +49,16 @@ class Sentence(t.NamedTuple):
 
 class WordCounter:
     def __init__(self) -> None:
-        self.counter: Counter[str] = Counter()
+        self.counter: Counter[Word] = Counter()
 
     def update(self, tokens: t.Iterable[str]) -> None:
-        self.counter.update(token.casefold() for token in tokens)
+        self.counter.update(Word(token) for token in tokens)
 
-    def most_common(self, n: int | None = None) -> list[tuple[str, int]]:
+    def most_common(self, n: int | None = None) -> list[tuple[Word, int]]:
         """Return counts of the most common elements."""
         return self.counter.most_common(n)
 
-    def delete(self, token: str) -> None:
+    def delete(self, token: Word) -> None:
         del self.counter[token]
 
 

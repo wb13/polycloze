@@ -10,6 +10,7 @@ import sys
 import typing as t
 
 from .language import languages
+from .word import Word
 
 
 def targets(translations: Path, reverse: bool = False) -> set[int]:
@@ -95,8 +96,8 @@ def escape(value: str) -> str:
     return f"'{replaced}'"
 
 
-def query_words(con: Connection, words: t.Sequence[str]) -> t.Iterable[int]:
-    value = ", ".join(escape(word.casefold()) for word in words)
+def query_words(con: Connection, words: t.Sequence[Word]) -> t.Iterable[int]:
+    value = ", ".join(escape(word) for word in words)
     query = f"select id from word where word in ({value})"
     return (id_ for id_, in con.execute(query))
 
@@ -110,8 +111,9 @@ def populate_contains(con: Connection, max_number_examples: int) -> None:
 
     query = "SELECT id, tokens FROM sentence ORDER BY frequency_class ASC"
     for id_, tokens in con.execute(query):
+        words = [Word(token) for token in json.loads(tokens)]
         query = "insert into contains (sentence, word) values (?, ?)"
-        word_ids = list(query_words(con, json.loads(tokens)))
+        word_ids = list(query_words(con, words))
         values = (
             (id_, word_id)
             for word_id in word_ids

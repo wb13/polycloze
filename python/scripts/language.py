@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 from importlib import import_module
 import typing as t
 
+from .word import Word
+
 if t.TYPE_CHECKING:
     from spacy.tokenizer import Tokenizer   # type: ignore
 
@@ -32,8 +34,9 @@ class Language:
     alphabet: set[str]
     symbols: set[str] = field(default_factory=set)
 
-    def is_word(self, word: str) -> bool:
-        word = word.casefold()
+    def is_word(self, word: Word) -> bool:
+        if not word:
+            return False
         if word[0] not in self.alphabet:
             return False
         return all(a in self.alphabet or a in self.symbols for a in word)
