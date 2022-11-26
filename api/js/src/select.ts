@@ -32,7 +32,7 @@ function createL1Select(l1Code: string, languages: Language[], onChange: (select
     label.textContent = "I speak ";
 
     const p = document.createElement("p");
-    p.append(label, select);
+    p.append(label, document.createElement("br"), select);
     return p;
 }
 
@@ -45,7 +45,7 @@ function createL2Select(l2Code: string, languages: Language[], onChange: (select
     label.textContent = "I want to learn ";
 
     const p = document.createElement("p");
-    p.append(label, select);
+    p.append(label, document.createElement("br"), select);
     return p;
 }
 
