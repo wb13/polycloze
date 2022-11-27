@@ -1,26 +1,27 @@
 import "./menu.css";
 import { createButton, setButtonLink } from "./button";
 import { createIcon, createLabeledIcon } from "./icon";
+import { createLink } from "./link";
 import { createModal } from "./modal";
 
-function createSignInButton(): HTMLButtonElement {
-    const button = setButtonLink(createButton(createLabeledIcon("sign-in", "Sign in")), "/signin");
-    button.classList.add("button-borderless");
-    button.classList.add("button-tight");
-    return button;
+function createSignInButton(): HTMLAnchorElement {
+    const classes = ["button-borderless", "button-tight"];
+    return createLink("sign-in", "Sign in", "/signin", classes);
 }
 
 function createMenu(signedIn: boolean): HTMLDivElement {
+    const classes = ["button-borderless", "button-tight"];
+
     const div = document.createElement("div");
     div.classList.add("menu");
     if (!signedIn) {
         div.append(createSignInButton());
     } else {
         div.append(
-            setButtonLink(createButton(createLabeledIcon("house", "Home")), "/"),
-            setButtonLink(createButton(createLabeledIcon("brain", "Study")), "/study"),
-            setButtonLink(createButton(createLabeledIcon("notebook", "Vocabulary")), "/vocab"),
-            setButtonLink(createButton(createLabeledIcon("faders", "Settings")), "/settings"),
+            createLink("house", "Home", "/", classes),
+            createLink("brain", "Study", "/study", classes),
+            createLink("notebook", "Vocabulary", "/vocab", classes),
+            createLink("faders", "Settings", "/settings", classes),
             setButtonLink(createButton(createLabeledIcon("sign-out", "Sign out")), "/signout", "POST"),
         );
     }

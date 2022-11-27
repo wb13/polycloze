@@ -1,4 +1,30 @@
-.button {}
+button, .button {
+	background-color: inherit;
+
+	border: 1px solid lightgray;
+	border-radius: 5px;
+	box-shadow: 1px 1px 1px gray;
+
+	padding: 0.5em 1.5em;
+}
+
+button:hover, .button:hover {
+	background-color: buttonface;
+}
+
+button:active, .button:active {
+	box-shadow: none;
+}
+
+button:disabled, .button:disabled {
+	display: none;
+}
+
+a.button {
+	color: inherit;
+	text-decoration: none;
+	text-align: center;
+}
 
 .button-group {
 	display: flex;

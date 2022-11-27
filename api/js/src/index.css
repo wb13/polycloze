@@ -87,28 +87,6 @@ a:hover {
 	text-decoration: underline;
 }
 
-button {
-	background-color: inherit;
-
-	border: 1px solid lightgray;
-	border-radius: 5px;
-	box-shadow: 1px 1px 1px gray;
-
-	padding: 0.5em 1.5em;
-}
-
-button:hover {
-	background-color: buttonface;
-}
-
-button:active {
-	box-shadow: none;
-}
-
-button:disabled {
-	display: none;
-}
-
 input {
 	background-color: lightgray;
 	border: none;

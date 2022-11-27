@@ -4,6 +4,7 @@ import {
     createVocabularyChart,
 } from "./chart";
 import { getL1, getL2 } from "./language";
+import { createLink } from "./link";
 import { Activity, ActivityHistory } from "./schema";
 
 function createOverviewHeader(): HTMLHeadingElement {
@@ -27,15 +28,10 @@ function createActionButtons(): HTMLParagraphElement {
     const p = document.createElement("p");
     p.classList.add("button-group");
     p.style.justifyContent = "center";
-
-    p.innerHTML = `
-        <button is="button-link" href="/study">
-            <img src="/public/svg/brain.svg?t=20221114"> Continue learning
-        </button>
-        <button is="button-link" href="/vocab">
-            <img src="/public/svg/notebook.svg?t=20221114"> Vocabulary
-        </button>
-    `;
+    p.append(
+        createLink("brain", "Continue learning", "/study"),
+        createLink("notebook", "Vocabulary", "/vocab"),
+    );
     return p;
 }
 
@@ -84,14 +80,14 @@ function computeStreak(activityHistory: ActivityHistory): number {
 function createStreakSummary(activityHistory: ActivityHistory): DocumentFragment {
     const streak = computeStreak(activityHistory);
     const template = document.createElement("template");
-    template.innerHTML = `
-        <p>You're on a ${streak}-day streak.</p>
-        <p class="button-group" style="justify-content: center">
-            <button is="button-link" href="/study">
-                <img src="/public/svg/heartbeat.svg?t=20221114"> Extend streak
-            </button>
-        </p>
-    `;
+    template.innerHTML = `<p>You're on a ${streak}-day streak.</p>`;
+
+    const p = document.createElement("p");
+    p.classList.add("button-group");
+    p.style.justifyContent = "center";
+    p.append(createLink("heartbeat", "Extend streak", "/study"));
+
+    template.content.append(p);
     return template.content;
 }
 
