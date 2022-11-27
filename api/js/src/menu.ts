@@ -3,13 +3,18 @@ import { createButton, setButtonLink } from "./button";
 import { createIcon, createLabeledIcon } from "./icon";
 import { createModal } from "./modal";
 
+function createSignInButton(): HTMLButtonElement {
+    const button = setButtonLink(createButton(createLabeledIcon("sign-in", "Sign in")), "/signin");
+    button.classList.add("button-borderless");
+    button.classList.add("button-tight");
+    return button;
+}
+
 function createMenu(signedIn: boolean): HTMLDivElement {
     const div = document.createElement("div");
     div.classList.add("menu");
     if (!signedIn) {
-        div.append(
-            setButtonLink(createButton(createLabeledIcon("sign-in", "Sign in")), "/signin"),
-        );
+        div.append(createSignInButton());
     } else {
         div.append(
             setButtonLink(createButton(createLabeledIcon("house", "Home")), "/"),
@@ -48,10 +53,15 @@ function createMenuListButton(signedIn: boolean): HTMLButtonElement {
 
 // NOTE requires course-select-button
 export function createResponsiveMenu(signedIn: boolean): HTMLDivElement {
+    const div = document.createElement("div");
+    if (!signedIn) {
+        // Just show sign in button.
+        div.append(createSignInButton());
+        return div;
+    }
+
     const wideMenu = createMenu(signedIn);
     wideMenu.classList.add("menu-wide");
-
-    const div = document.createElement("div");
     div.append(
         wideMenu,
         document.createElement("course-select-button"),
