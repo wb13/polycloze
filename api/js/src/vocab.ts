@@ -32,10 +32,10 @@ function createVocabularyListTableRow(word: Word): HTMLTableRowElement {
     const tr = document.createElement("tr");
     tr.append(
         createTableData(word.word),
+        createTableData(createStrengthMeter(word.strength)),
         createTableData(createDateTime(learned)),
         createTableData(createDateTime(reviewed)),
         createTableData(createDateTime(due)),
-        createTableData(createStrengthMeter(word.strength)),
     );
     return tr;
 }
@@ -51,7 +51,7 @@ function createVocabularyListTableBody(): [HTMLTableSectionElement, (words: Word
 // Creates body of vocabulary list page.
 // Returns a table and an update function for adding words to the table.
 function createVocabularyListBody(): [HTMLDivElement, (words: Word[]) => void] {
-    const headers = ["Word", "Learned", "Last seen", "Due", "Strength"];
+    const headers = ["Word", "Strength", "Learned", "Last seen", "Due"];
     const [body, update] = createVocabularyListTableBody();
     const table = createTable(createTableHeader(headers), body);
     return [createScrollingTable(table), update];
