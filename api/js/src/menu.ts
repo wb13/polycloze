@@ -10,15 +10,15 @@ function createMenu(signedIn: boolean): HTMLDivElement {
         div.append(
             setButtonLink(createButton(createLabeledIcon("sign-in", "Sign in")), "/signin"),
         );
-        return div;
+    } else {
+        div.append(
+            setButtonLink(createButton(createLabeledIcon("house", "Home")), "/"),
+            setButtonLink(createButton(createLabeledIcon("brain", "Study")), "/study"),
+            setButtonLink(createButton(createLabeledIcon("notebook", "Vocabulary")), "/vocab"),
+            setButtonLink(createButton(createLabeledIcon("faders", "Settings")), "/settings"),
+            setButtonLink(createButton(createLabeledIcon("sign-out", "Sign out")), "/signout", "POST"),
+        );
     }
-    div.append(
-        setButtonLink(createButton(createLabeledIcon("house", "Home")), "/"),
-        setButtonLink(createButton(createLabeledIcon("brain", "Study")), "/study"),
-        setButtonLink(createButton(createLabeledIcon("notebook", "Vocabulary")), "/vocab"),
-        setButtonLink(createButton(createLabeledIcon("faders", "Settings")), "/settings"),
-        setButtonLink(createButton(createLabeledIcon("sign-out", "Sign out")), "/signout"),
-    );
 
     const buttons = div.querySelectorAll("button");
     for (let i = 0; i < buttons.length; i++) {
@@ -30,15 +30,32 @@ function createMenu(signedIn: boolean): HTMLDivElement {
 }
 
 function createMenuModal(signedIn: boolean): [HTMLDivElement, () => void] {
-    return createModal(createMenu(signedIn), {includeHeader: false});
+    const menu = createMenu(signedIn);
+    menu.classList.add("menu-narrow");
+    return createModal(menu, {includeHeader: false});
 }
 
-export function createMenuListButton(signedIn: boolean): HTMLButtonElement {
+function createMenuListButton(signedIn: boolean): HTMLButtonElement {
     const [modal, show] = createMenuModal(signedIn);
     document.body.appendChild(modal);
 
     const button = createButton(createIcon("list"), show);
+    button.classList.add("menu-list-button");
     button.classList.add("button-borderless");
     button.classList.add("button-tight");
     return button;
+}
+
+// NOTE requires course-select-button
+export function createResponsiveMenu(signedIn: boolean): HTMLDivElement {
+    const wideMenu = createMenu(signedIn);
+    wideMenu.classList.add("menu-wide");
+
+    const div = document.createElement("div");
+    div.append(
+        wideMenu,
+        document.createElement("course-select-button"),
+        createMenuListButton(signedIn),
+    );
+    return div;
 }

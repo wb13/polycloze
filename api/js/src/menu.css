@@ -1,7 +1,29 @@
-.menu {
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
+.menu-wide {
+	display: inline-block;
+}
 
-	padding: 1rem;
+.menu-narrow {
+	display: none;
+}
+
+.menu-list-button {
+	display: none;
+}
+
+@media (max-width: 750px) {
+	.menu-wide {
+		display: none;
+	}
+
+	.menu-narrow {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+
+		padding: 1rem;
+	}
+
+	.menu-list-button {
+		display: inline;
+	}
 }

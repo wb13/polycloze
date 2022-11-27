@@ -4,7 +4,7 @@ import { ItemBuffer } from "./buffer";
 import { setButtonLink } from "./button";
 import { createScoreCounter } from "./counter";
 import { getL2 } from "./language";
-import { createMenuListButton } from "./menu";
+import { createResponsiveMenu } from "./menu";
 import { createOverviewPage } from "./overview";
 import { createCourseSelectButton } from "./select";
 import { createVocabularyList } from "./vocab";
@@ -26,10 +26,10 @@ export class CourseSelectButton extends HTMLElement {
     }
 }
 
-export class MenuListButton extends HTMLElement {
+export class ResponsiveMenu extends HTMLElement {
     async connectedCallback() {
         const signedIn = this.getAttribute("signed-in") != null;
-        this.appendChild(createMenuListButton(signedIn));
+        this.appendChild(createResponsiveMenu(signedIn));
     }
 }
 
@@ -66,7 +66,7 @@ export class VocabularyList extends HTMLElement {
 
 customElements.define("cloze-app", ClozeApp);
 customElements.define("course-select-button", CourseSelectButton);
-customElements.define("menu-list-button", MenuListButton);
+customElements.define("responsive-menu", ResponsiveMenu);
 customElements.define("polycloze-overview", Overview);
 customElements.define("score-counter", ScoreCounter);
 customElements.define("button-link", ButtonLink, { extends: "button" });
