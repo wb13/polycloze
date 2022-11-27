@@ -116,7 +116,7 @@ function createCourseMenu(courses: Course[]): [HTMLDivElement, () => void] {
     let selectL2 = createL2Select(l2.code, targetLanguages(l1.code, courses), updateL2);
 
     const div = document.createElement("div");
-    div.classList.add("menu");
+    div.classList.add("course-menu");
     div.append(selectL1, selectL2, createSaveButtonGroup(save));
     return createModal(div);
 

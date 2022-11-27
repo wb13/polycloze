@@ -17,10 +17,24 @@ function createModalHeader(hide: () => void): HTMLDivElement {
     return div;
 }
 
-function createModalDialog(body: string | Element, hide: () => void): HTMLDivElement {
+type CreateModalDialogOptions = {
+    includeHeader?: boolean;
+};
+
+function defaultCreateModalDialogOptions(): CreateModalDialogOptions {
+    return {includeHeader: true};
+}
+
+function createModalDialog(body: string | Element, hide: () => void, options: CreateModalDialogOptions = {}): HTMLDivElement {
+    const {includeHeader} = {
+        ...defaultCreateModalDialogOptions(),
+        ...options,
+    };
     const div = document.createElement("div");
     div.classList.add("modal-dialog");
-    div.appendChild(createModalHeader(hide));
+    if (includeHeader) {
+        div.appendChild(createModalHeader(hide));
+    }
     div.append(body);
     return div;
 }
@@ -54,10 +68,20 @@ function hideModalElement(element: HTMLElement) {
     document.body.style.position = "";
 }
 
+type CreateModalOptions = {
+    includeHeader?: boolean;
+};
+
+function defaultCreateModalOptions(): CreateModalOptions {
+    return {includeHeader: true};
+}
+
 // Creates modal.
 // Returns a div element and a show-function.
 // Modal should be inserted into document.body.
-export function createModal(body: string | Element): [HTMLDivElement, () => void] {
+export function createModal(body: string | Element, options: CreateModalOptions = {}): [HTMLDivElement, () => void] {
+    const { includeHeader } = {...defaultCreateModalOptions(), ...options};
+
     const div = document.createElement("div");
     div.classList.add("modal");
 
@@ -67,7 +91,7 @@ export function createModal(body: string | Element): [HTMLDivElement, () => void
 
     div.append(
         createModalBackground(hide),
-        createModalDialog(body, hide),
+        createModalDialog(body, hide, { includeHeader }),
     );
     return [div, show];
 }
