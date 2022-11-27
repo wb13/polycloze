@@ -5,7 +5,9 @@ import {
     Chart,
     ChartData,
     ChartDataset,
+    Colors,
     Filler,
+    Legend,
     LineController,
     LineElement,
     LinearScale,
@@ -14,7 +16,9 @@ import {
 
 Chart.register(
     CategoryScale,
+    Colors,
     Filler,
+    Legend,
     LineController,
     LineElement,
     LinearScale,
@@ -64,12 +68,20 @@ function vocabularyData(activityHistory: ActivityHistory): ChartData {
     const data = computeVocabularySize(activityHistory).slice(0, labels.length).reverse();
     return {
         labels,
-        datasets: [{data, cubicInterpolationMode: "monotone", fill: true}],
+        datasets: [
+            {
+                data,
+                label: "Vocabulary size",
+                cubicInterpolationMode: "monotone",
+                fill: true,
+            },
+        ],
     };
 }
 
-function createDataset(data: number[]): ChartDataset {
-    return {data, cubicInterpolationMode: "monotone"};
+// Creates dataset for activity data.
+function createDataset(label: string, data: number[]): ChartDataset {
+    return {data, label, cubicInterpolationMode: "monotone"};
 }
 
 function activityData(activityHistory: ActivityHistory): ChartData {
@@ -78,11 +90,11 @@ function activityData(activityHistory: ActivityHistory): ChartData {
     return {
         labels,
         datasets: [
-            createDataset(week.map(a => a.forgotten).reverse()),
-            createDataset(week.map(a => a.unimproved).reverse()),
-            createDataset(week.map(a => a.crammed).reverse()),
-            createDataset(week.map(a => a.learned).reverse()),
-            createDataset(week.map(a => a.strengthened).reverse()),
+            createDataset("Learned", week.map(a => a.learned).reverse()),
+            createDataset("Forgotten", week.map(a => a.forgotten).reverse()),
+            createDataset("Unimproved", week.map(a => a.unimproved).reverse()),
+            createDataset("Crammed", week.map(a => a.crammed).reverse()),
+            createDataset("Strengthened", week.map(a => a.strengthened).reverse()),
         ],
     };
 }
@@ -96,6 +108,11 @@ function createChart(canvas: HTMLCanvasElement, activityHistory: ActivityHistory
             scales: {
                 y: {
                     min: 0,
+                },
+            },
+            plugins: {
+                legend: {
+                    position: "bottom",
                 },
             },
         },
@@ -124,6 +141,12 @@ export function createActivityChart(activityHistory: ActivityHistory): HTMLDivEl
         type: "line",
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "bottom",
+                },
+            },
         },
         data: activityData(activityHistory),
     });
