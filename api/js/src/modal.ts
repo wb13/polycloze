@@ -10,7 +10,6 @@ function createModalCloseButton(onClick: (event: Event) => void): HTMLButtonElem
 }
 
 function createModalHeader(hide: () => void): HTMLDivElement {
-    // TODO content
     const div = document.createElement("div");
     div.classList.add("modal-header");
     div.appendChild(createModalCloseButton(hide));
@@ -48,7 +47,7 @@ function createModalBackground(hide: () => void): HTMLDivElement {
 
 // Used for showing modal elements only.
 function showModalElement(element: HTMLElement) {
-    element.style.display = "";
+    element.classList.remove("modal-hidden");
     document.body.style.overscrollBehavior = "contain";
     document.body.style.height = "100vh";
     document.body.style.overflowY = "hidden";
@@ -59,7 +58,7 @@ function showModalElement(element: HTMLElement) {
 
 // Used for hiding modal elements only.
 function hideModalElement(element: HTMLElement) {
-    element.style.display = "none";
+    element.classList.add("modal-hidden");
     document.body.style.overscrollBehavior = "";
     document.body.style.height = "";
     document.body.style.overflowY = "";

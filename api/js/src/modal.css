@@ -10,6 +10,10 @@
 	align-items: center;
 }
 
+.modal.modal-hidden {
+	visibility: hidden;
+}
+
 .modal-header {
 	display: flex;
 	justify-content: space-between;
@@ -26,6 +30,12 @@
 	opacity: 0.2;
 
 	z-index: 1;
+
+	transition: opacity 0.5s;
+}
+
+.modal-hidden .modal-background {
+	opacity: 0;
 }
 
 .modal-dialog {
@@ -39,8 +49,15 @@
 
 	background: white;
 
+	transition: right 0.5s;
+	overflow-x: hidden;
+
 	/* Comment out the following to dialog to the center */
 	position: absolute;
 	top: 5.5rem;
 	right: 1rem;
+}
+
+.modal-hidden .modal-dialog {
+	right: 0;
 }
