@@ -1,14 +1,16 @@
 import "./button.css";
 import { createCSRFTokenInput } from "./csrf";
 
-export function setButton(button: HTMLButtonElement, content: string | Element, onClick?: (event: Event) => void) {
+type ButtonContent = string | Element | DocumentFragment;
+
+export function setButton(button: HTMLButtonElement, content: ButtonContent, onClick?: (event: Event) => void) {
     button.append(content);
     if (onClick) {
         button.addEventListener("click", onClick);
     }
 }
 
-export function createButton(content: string | Element, onClick?: (event: Event) => void): HTMLButtonElement {
+export function createButton(content: ButtonContent, onClick?: (event: Event) => void): HTMLButtonElement {
     const button = document.createElement("button");
     setButton(button, content, onClick);
     return button;
@@ -26,7 +28,7 @@ function followLinkPost(url: string) {
     form.submit();
 }
 
-export function setButtonLink(button: HTMLButtonElement, href: string, method = "GET") {
+export function setButtonLink(button: HTMLButtonElement, href: string, method = "GET"): HTMLButtonElement {
     button.addEventListener("click", () => {
         if (method === "POST") {
             followLinkPost(href);
@@ -34,4 +36,5 @@ export function setButtonLink(button: HTMLButtonElement, href: string, method = 
             window.location.pathname = href;
         }
     });
+    return button;
 }
