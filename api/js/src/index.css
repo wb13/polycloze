@@ -117,13 +117,6 @@ input:focus {
 
 /* Classes */
 
-.button-group {
-	display: flex;
-	justify-content: end;
-	align-items: end;
-	column-gap: 1rem;
-}
-
 .card {
 	border: 1px solid lightgray;
 	box-shadow: 1px 1px 1px gray;
