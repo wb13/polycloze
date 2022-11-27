@@ -47,6 +47,11 @@ form.signin {
 /* For all navigation related styling */
 
 nav.primary {
+	position: sticky;
+	top: 0;
+	background-color: white;
+	z-index: 1;	/* so this goes on top of chart.js chart, which has z-index 0 */
+
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
