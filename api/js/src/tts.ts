@@ -150,9 +150,9 @@ function isEnabledTTS(): boolean {
     // enabled by default. So when the item in the local storage isn't set,
     // it is enabled.
     const lang = getL2();
-    return localStorage.getItem(`tts.${lang.code}.disabled`) === "false"
-        ? true
-        : false;
+    return localStorage.getItem(`tts.${lang.code}.disabled`) === "true"
+        ? false
+        : true;
 }
 
 // Takes a callback function that gets called when the checkbox gets clicked.
