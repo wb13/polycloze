@@ -85,7 +85,7 @@ export async function createVocabularyList(): Promise<HTMLDivElement> {
 
     if (after === "") {
         // If there are no words.
-        body.replaceWith(createParagraph("There's nothing to see here."));
+        body.replaceWith(createParagraph("There's nothing to see here yet."));
     }
     return div;
 
