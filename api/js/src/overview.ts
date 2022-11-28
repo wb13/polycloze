@@ -42,12 +42,14 @@ function hasActivity({ crammed, learned, strengthened }: Activity): boolean {
 // Tries to compute streak.
 // Since ActivityHistory only keeps track of activity in the past year,
 // result may be less than the real streak.
-function computeStreak(activityHistory: ActivityHistory): number {
+// Returns length of streak and boolean value (whether or not streak is active).
+function computeStreak(activityHistory: ActivityHistory): [number, boolean] {
     if (activityHistory.activities.length === 0) {
-        return 0;
+        return [0, false];
     }
 
     let streak = 0;
+    let active = false;
     for (let i = 1; i < activityHistory.activities.length; i++) {
         if (!hasActivity(activityHistory.activities[i])) {
             break;
@@ -56,22 +58,32 @@ function computeStreak(activityHistory: ActivityHistory): number {
     }
     if (hasActivity(activityHistory.activities[0])) {
         streak++;
+        active = true;
     }
-    return streak;
+    return [streak, active];
 }
 
-function createStreakSummary(activityHistory: ActivityHistory): DocumentFragment {
-    const streak = computeStreak(activityHistory);
-    const template = document.createElement("template");
-    template.innerHTML = `<p>You're on a ${streak}-day streak.</p>`;
+function createStreakSummary(activityHistory: ActivityHistory): HTMLParagraphElement {
+    const [streak, active] = computeStreak(activityHistory);
+
+    let icon: string;
+    let message: string;
+    if (streak <= 0) {
+        icon = "barbell";
+        message = "Practice today";
+    } else if (active) {
+        icon = "barbell";
+        message = "Keep practicing";
+    } else {
+        icon = "heartbeat";
+        message = `Extend your ${streak}-day streak`;
+    }
 
     const p = document.createElement("p");
     p.classList.add("button-group");
     p.style.justifyContent = "center";
-    p.append(createLink("heartbeat", "Extend streak", "/study"));
-
-    template.content.append(p);
-    return template.content;
+    p.append(createLink(icon, message, "/study"));
+    return p;
 }
 
 export function createOverviewPage(activityHistory: ActivityHistory): DocumentFragment {
