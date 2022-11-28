@@ -42,7 +42,12 @@ export class TTS {
         this.voices = getVoices();
     }
 
+    // Speaks text using the preferred voice if TTS is enabled.
     speak(text: string) {
+        if (!isEnabledTTS()) {
+            return;
+        }
+
         const utterance = new SpeechSynthesisUtterance(text);
 
         const voice = this.voices.get(getPreferredVoice() || "");
@@ -60,20 +65,23 @@ export class TTS {
 // Returns URI of preferred voice for current language.
 function getPreferredVoice(): string | null {
     const lang = getL2();
-    return localStorage.getItem(`voice.${lang.bcp47}`);
+    return localStorage.getItem(`tts.${lang.code}.voiceURI`);
 }
 
 // Sets voice as preferred voice for current language.
 // Assumes the voice is in the correct language.
 function setPreferredVoice(voiceURI: string) {
     const lang = getL2();
-    localStorage.setItem(`voice.${lang.bcp47}`, voiceURI);
+    localStorage.setItem(`tts.${lang.code}.voiceURI`, voiceURI);
 }
 
 function createVoiceSelect(tts: TTS): HTMLSelectElement {
     const preferred = getPreferredVoice();
 
     const select = document.createElement("select");
+    if (!isEnabledTTS()) {
+        select.disabled = true;
+    }
 
     for (const voice of tts.voices.values()) {
         const option = document.createElement("option");
@@ -91,7 +99,8 @@ function createVoiceSelect(tts: TTS): HTMLSelectElement {
 }
 
 function createVoicePlayButton(tts: TTS): HTMLButtonElement {
-    const button = createButton(createIcon("speaker-high"), async() => {
+    const icon = createIcon("speaker-high");
+    const button = createButton(icon, async() => {
         // Voice demo.
         const sentences = await fetchSentences();
         if (sentences.length === 0) {
@@ -104,10 +113,69 @@ function createVoicePlayButton(tts: TTS): HTMLButtonElement {
     return button;
 }
 
-function createVoiceDemo(tts: TTS): HTMLDivElement {
+// Returns a div element, and a function for enabling/disabling the demo.
+function createVoiceDemo(tts: TTS): [HTMLDivElement, (checked: boolean) => void] {
     const div = document.createElement("div");
     div.classList.add("tts-demo");
-    div.append(createVoicePlayButton(tts), createVoiceSelect(tts));
+
+    const button = createVoicePlayButton(tts);
+    const select = createVoiceSelect(tts);
+    div.append(button, select);
+
+    const hook = (checked: boolean) => {
+        if (checked) {
+            select.disabled = false;
+        } else {
+            select.disabled = true;
+        }
+    };
+    return [div, hook];
+}
+
+// Enables TTS in the selected language.
+function enableTTS() {
+    const lang = getL2();
+    localStorage.setItem(`tts.${lang.code}.disabled`, "false");
+}
+
+// Disables TTS in the selected language.
+function disableTTS() {
+    const lang = getL2();
+    localStorage.setItem(`tts.${lang.code}.disabled`, "true");
+}
+
+// Returns whether or not TTS is disabled for the selected language.
+function isEnabledTTS(): boolean {
+    // Local storage stores `disabled` instead of `enabled`, because TTS is
+    // enabled by default. So when the item in the local storage isn't set,
+    // it is enabled.
+    const lang = getL2();
+    return localStorage.getItem(`tts.${lang.code}.disabled`) === "false"
+        ? true
+        : false;
+}
+
+// Takes a callback function that gets called when the checkbox gets clicked.
+// The callback function takes a boolean (checked or not).
+function createVoiceCheckbox(callback: (checked: boolean) => void): HTMLDivElement {
+    const div = document.createElement("div");
+    div.innerHTML = `
+        <input type="checkbox" id="enable-tts" name="enable-tts">
+        <label for="enable-tts">Enable text-to-speech</label>
+    `;
+
+    const input = div.querySelector("input") as HTMLInputElement;
+    if (isEnabledTTS()) {
+        input.checked = true;
+    }
+    input.addEventListener("click", () => {
+        callback(input.checked);
+        if (input.checked) {
+            enableTTS();
+        } else {
+            disableTTS();
+        }
+    });
     return div;
 }
 
@@ -120,9 +188,11 @@ export function createVoiceSettingsSection(): HTMLFormElement {
     const h2 = document.createElement("h2");
     h2.textContent = `${getL2().name} from ${getL1().name} settings`;
 
+    const [demo, hook] = createVoiceDemo(tts);
     form.append(
         h2,
-        createVoiceDemo(tts),
+        createVoiceCheckbox(hook),
+        demo,
     );
     return form;
 }

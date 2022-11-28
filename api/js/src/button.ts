@@ -4,6 +4,7 @@ import { createCSRFTokenInput } from "./csrf";
 type ButtonContent = string | Element | DocumentFragment;
 
 export function setButton(button: HTMLButtonElement, content: ButtonContent, onClick?: (event: Event) => void) {
+    button.innerHTML = "";
     button.append(content);
     if (onClick) {
         button.addEventListener("click", onClick);
