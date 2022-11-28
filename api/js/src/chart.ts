@@ -108,6 +108,9 @@ function createChart(canvas: HTMLCanvasElement, activityHistory: ActivityHistory
             scales: {
                 y: {
                     min: 0,
+                    ticks: {
+                        stepSize: 1,
+                    },
                 },
             },
             plugins: {
@@ -145,6 +148,13 @@ export function createActivityChart(activityHistory: ActivityHistory): HTMLDivEl
             plugins: {
                 legend: {
                     position: "bottom",
+                },
+            },
+            scales: {
+                y: {
+                    ticks: {
+                        stepSize: 1,
+                    },
                 },
             },
         },
