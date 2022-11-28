@@ -17,19 +17,45 @@ function createOverviewHeader(): HTMLHeadingElement {
     return h1;
 }
 
-function createVocabularySummary(activityHistory: ActivityHistory): HTMLParagraphElement {
-    const size = computeVocabularySize(activityHistory)[0];
+// Gives words of encouragement to the user.
+function encourage(): string {
+    const phrases = [
+        "Why don't you give it a try?",
+        "You can do it!",
+    ];
+    const choice = Math.floor(Math.random() * phrases.length);
+    return phrases[choice];
+}
+
+// Praises the user.
+function praise(): string {
+    const phrases = [
+        "Keep up the good work!",
+        "Keep it up!",
+        "Good work!",
+    ];
+    const choice = Math.floor(Math.random() * phrases.length);
+    return phrases[choice];
+}
+
+function createVocabularySummary(vocabularySize: number): HTMLParagraphElement {
     const p = document.createElement("p");
-    p.textContent = `You've learned ${size} words. Keep up the good work!`;
+    if (vocabularySize <= 0) {
+        p.textContent = `You haven't learned any words yet. ${encourage()}`;
+    } else {
+        p.textContent = `You've learned ${vocabularySize} words. ${praise()}`;
+    }
     return p;
 }
 
-function createActionButtons(): HTMLParagraphElement {
+function createActionButtons(vocabularySize: number): HTMLParagraphElement {
+    const text = vocabularySize <= 0 ? "Start learning" : "Continue learning";
+
     const p = document.createElement("p");
     p.classList.add("button-group");
     p.style.justifyContent = "center";
     p.append(
-        createLink("brain", "Continue learning", "/study"),
+        createLink("brain", text, "/study"),
         createLink("notebook", "Vocabulary", "/vocab"),
     );
     return p;
@@ -87,6 +113,8 @@ function createStreakSummary(activityHistory: ActivityHistory): HTMLParagraphEle
 }
 
 export function createOverviewPage(activityHistory: ActivityHistory): DocumentFragment {
+    const size = computeVocabularySize(activityHistory)[0];
+
     const h2 = document.createElement("h2");
     h2.textContent = "Recent activity";
 
@@ -94,8 +122,8 @@ export function createOverviewPage(activityHistory: ActivityHistory): DocumentFr
     fragment.append(
         createOverviewHeader(),
         createVocabularyChart(activityHistory),
-        createVocabularySummary(activityHistory),
-        createActionButtons(),
+        createVocabularySummary(size),
+        createActionButtons(size),
         h2,
         createActivityChart(activityHistory),
         createStreakSummary(activityHistory),
