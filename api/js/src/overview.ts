@@ -35,23 +35,6 @@ function createActionButtons(): HTMLParagraphElement {
     return p;
 }
 
-function createTodaySummary(activityHistory: ActivityHistory): DocumentFragment {
-    const { learned, strengthened, forgotten } = activityHistory.activities[0];
-    const score = 100 * (learned + strengthened) / (learned + strengthened + forgotten);
-    const template = document.createElement("template");
-    template.innerHTML = `
-        <h2>Recent activity</h2>
-        <p>Summary of today's work:</p>
-        <ul>
-            <li>Learned ${learned} words</li>
-            <li>Strengthened ${strengthened} words</li>
-            <li>Forgot ${forgotten} words</li>
-            <li>Your score: ${score}%</li>
-        </ul>
-    `;
-    return template.content;
-}
-
 function hasActivity({ crammed, learned, strengthened }: Activity): boolean {
     return crammed > 0 || learned > 0 || strengthened > 0;
 }
@@ -92,13 +75,16 @@ function createStreakSummary(activityHistory: ActivityHistory): DocumentFragment
 }
 
 export function createOverviewPage(activityHistory: ActivityHistory): DocumentFragment {
+    const h2 = document.createElement("h2");
+    h2.textContent = "Recent activity";
+
     const fragment = document.createDocumentFragment();
     fragment.append(
         createOverviewHeader(),
         createVocabularyChart(activityHistory),
         createVocabularySummary(activityHistory),
         createActionButtons(),
-        createTodaySummary(activityHistory),
+        h2,
         createActivityChart(activityHistory),
         createStreakSummary(activityHistory),
     );

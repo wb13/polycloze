@@ -12,6 +12,7 @@ import {
     LineElement,
     LinearScale,
     PointElement,
+    Tooltip,
 } from "chart.js";
 
 Chart.register(
@@ -23,6 +24,7 @@ Chart.register(
     LineElement,
     LinearScale,
     PointElement,
+    Tooltip,
 );
 
 Chart.defaults.font.family = "Nunito";
