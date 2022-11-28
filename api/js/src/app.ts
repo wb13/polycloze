@@ -1,8 +1,11 @@
 import "./app.css";
 import { ItemBuffer } from "./buffer";
 import { createEmptyItem, createItem } from "./item";
+import { TTS } from "./tts";
 
 export async function createApp(buffer: ItemBuffer): Promise<[HTMLDivElement, () => void]> {
+    const tts = new TTS();
+
     const div = document.createElement("div");
     const item = await buffer.take();
 
@@ -17,7 +20,7 @@ export async function createApp(buffer: ItemBuffer): Promise<[HTMLDivElement, ()
         });
     };
 
-    const [child, resize] = createItem(item, next, (frequencyClass: number) => buffer.clearIfStale(frequencyClass));
+    const [child, resize] = createItem(tts, item, next, (frequencyClass: number) => buffer.clearIfStale(frequencyClass));
     div.appendChild(child);
 
     const ready = () => {

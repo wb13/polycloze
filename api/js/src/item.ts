@@ -2,7 +2,7 @@ import "./item.css";
 import { createButton } from "./button";
 import { getL1 } from "./language";
 import { Sentence, createSentence } from "./sentence";
-import { speak } from "./tts";
+import { TTS } from "./tts";
 
 export type Translation = {
     tatoebaID?: number
@@ -66,11 +66,11 @@ function createSubmitButton(onClick?: (event: Event) => void): [HTMLButtonElemen
     return [button, enable];
 }
 
-export function createItem(item: Item, next: () => void, clearBuffer: (frequencyClass: number) => void): [HTMLDivElement, () => void] {
+export function createItem(tts: TTS, item: Item, next: () => void, clearBuffer: (frequencyClass: number) => void): [HTMLDivElement, () => void] {
     const [submitBtn, enable] = createSubmitButton();
 
     const done = () => {
-        speak(item.sentence.parts.join(""));
+        tts.speak(item.sentence.parts.join(""));
         showTranslationLink(item.translation, getBody());
         const btn = createButton("Next", next);
         submitBtn.replaceWith(btn);

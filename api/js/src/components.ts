@@ -7,6 +7,7 @@ import { getL2 } from "./language";
 import { createResponsiveMenu } from "./menu";
 import { createOverviewPage } from "./overview";
 import { createCourseSelectButton } from "./select";
+import { createVoiceSettingsSection } from "./tts";
 import { createVocabularyList } from "./vocab";
 
 export class ClozeApp extends HTMLElement {
@@ -64,6 +65,12 @@ export class VocabularyList extends HTMLElement {
     }
 }
 
+export class VoiceSettings extends HTMLElement {
+    connectedCallback() {
+        this.appendChild(createVoiceSettingsSection());
+    }
+}
+
 customElements.define("cloze-app", ClozeApp);
 customElements.define("course-select-button", CourseSelectButton);
 customElements.define("responsive-menu", ResponsiveMenu);
@@ -71,3 +78,4 @@ customElements.define("polycloze-overview", Overview);
 customElements.define("score-counter", ScoreCounter);
 customElements.define("button-link", ButtonLink, { extends: "button" });
 customElements.define("vocabulary-list", VocabularyList);
+customElements.define("voice-settings", VoiceSettings);

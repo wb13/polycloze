@@ -5,6 +5,8 @@
 <main>
 	<h1>Settings</h1>
 
+	<voice-settings></voice-settings>
+
 	<h2>Change password</h2>
 
 	<form class="signin" action="/settings" method="POST">
@@ -34,7 +36,9 @@
 		{{end}}
 
 		<p class="button-group">
-			<button type="submit">Change password</button>
+			<button type="submit">
+				<img src="/public/svg/key.svg?t=20221114"> Change password
+			</button>
 		</p>
 
 		<script>
