@@ -10,6 +10,8 @@ import {
     ItemsSchema,
     Language,
     LanguagesSchema,
+    RandomSentence,
+    RandomSentencesSchema,
     ReviewSchema,
     Word,
     VocabularySchema,
@@ -116,6 +118,35 @@ export async function fetchItems(options: FetchItemsOptions = {}): Promise<Item[
         mode: "cors" as RequestMode,
     });
     return json.items;
+}
+
+type FetchSentencesOptions = {
+    l1?: string;
+    l2?: string;
+    limit?: number;
+};
+
+function defaultFetchSentencesOptions(): FetchSentencesOptions {
+    return {
+        l1: getL1().code,
+        l2: getL2().code,
+        limit: 1,
+    };
+}
+
+export async function fetchSentences(options: FetchSentencesOptions = {}): Promise<RandomSentence[]> {
+    const { l1, l2, limit } = {...defaultFetchSentencesOptions(), ...options};
+    if (l1 == null || l2 == null) {
+        throw new Error("l1 and l2 required");
+    }
+
+    const url = resolve("/api/sentences");
+    setParams(url, {l1, l2, limit});
+
+    const json = await fetchJson<RandomSentencesSchema>(url, {
+        mode: "cors" as RequestMode,
+    });
+    return json.sentences;
 }
 
 type Params = {

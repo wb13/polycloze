@@ -12,10 +12,12 @@ import (
 )
 
 type Sentence struct {
-	ID        int
-	TatoebaID int64 // non-positive if none
-	Text      string
-	Tokens    []string
+	ID int `json:"id,omitempty"`
+
+	// Non-positive if none
+	TatoebaID int64    `json:"tatoebaID"`
+	Text      string   `json:"text"`
+	Tokens    []string `json:"tokens,omitempty"`
 }
 
 func findWordID[T database.Querier](q T, word string) (int, error) {
@@ -75,6 +77,42 @@ func PickSentence[T database.Querier](q T, word string) (*Sentence, error) {
 		return nil, err
 	}
 	return getSentence(q, sentence)
+}
+
+// Returns random sentence from the database.
+// The results don't include tokens.
+// NOTE Only picks random sentence from first 10,000 sentences in the DB for
+// speed.
+func RandomSentences[T database.Querier](q T, limit int) ([]Sentence, error) {
+	query := `
+		SELECT id, tatoeba_id, text
+		FROM (SELECT * FROM sentence LIMIT 10000)
+		ORDER BY random()
+		LIMIT ?
+	`
+	rows, err := q.Query(query, limit)
+	if err != nil {
+		return nil, fmt.Errorf("failed to pick random sentences: %v", err)
+	}
+	defer rows.Close()
+
+	var sentences []Sentence
+	for rows.Next() {
+		var sentence Sentence
+		var tatoebaID sql.NullInt64
+
+		if err := rows.Scan(&sentence.ID, &tatoebaID, &sentence.Text); err != nil {
+			return nil, fmt.Errorf("failed to pick random sentences: %v", err)
+		}
+
+		if tatoebaID.Valid {
+			sentence.TatoebaID = tatoebaID.Int64
+		} else {
+			sentence.TatoebaID = -1
+		}
+		sentences = append(sentences, sentence)
+	}
+	return sentences, nil
 }
 
 func Search[T database.Querier](q T, text string) (Sentence, error) {

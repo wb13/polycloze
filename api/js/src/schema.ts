@@ -56,3 +56,14 @@ export type ActivityHistory = {
   activities: Activity[]; // up to one year of activities
   aggregates: Activity;   // for > 1 year old
 };
+
+// Not to be confused with sentence.Sentence.
+export type RandomSentence = {
+  id: number;
+  tatoebaID?: number;
+  text: string;
+};
+
+export type RandomSentencesSchema = {
+  "sentences": RandomSentence[];
+}
