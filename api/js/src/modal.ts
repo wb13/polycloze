@@ -48,23 +48,13 @@ function createModalBackground(hide: () => void): HTMLDivElement {
 // Used for showing modal elements only.
 function showModalElement(element: HTMLElement) {
     element.classList.remove("modal-hidden");
-    document.body.style.overscrollBehavior = "contain";
-    document.body.style.height = "100vh";
-    document.body.style.overflowY = "hidden";
-    document.body.style.width = "100vw";
-    document.body.style.overflowX = "hidden";
-    document.body.style.position = "fixed";
+    document.body.style.overflow = "hidden";
 }
 
 // Used for hiding modal elements only.
 function hideModalElement(element: HTMLElement) {
     element.classList.add("modal-hidden");
-    document.body.style.overscrollBehavior = "";
-    document.body.style.height = "";
-    document.body.style.overflowY = "";
-    document.body.style.width = "";
-    document.body.style.overflowX = "";
-    document.body.style.position = "";
+    document.body.style.overflow = "";
 }
 
 type CreateModalOptions = {

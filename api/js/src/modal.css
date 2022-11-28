@@ -1,5 +1,5 @@
 .modal {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
@@ -8,6 +8,8 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
+
+	z-index: 2;	/* goes on top of navbar */
 }
 
 .modal.modal-hidden {
@@ -20,7 +22,7 @@
 }
 
 .modal-background {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
@@ -53,7 +55,7 @@
 	overflow-x: hidden;
 
 	/* Comment out the following to dialog to the center */
-	position: absolute;
+	position: fixed;
 	top: 5.5rem;
 	right: 1rem;
 }
