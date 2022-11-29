@@ -137,6 +137,10 @@ function createVoicePlayButton(tts: TTS): HTMLButtonElement {
     });
     button.type = "button";
     button.classList.add("button-tight");
+
+    if (!isEnabledTTS()) {
+        button.disabled = true;
+    }
     return button;
 }
 
@@ -151,8 +155,10 @@ function createVoiceDemo(tts: TTS): [HTMLDivElement, (checked: boolean) => void]
 
     const hook = (checked: boolean) => {
         if (checked) {
+            button.disabled = false;
             select.disabled = false;
         } else {
+            button.disabled = true;
             select.disabled = true;
         }
     };
