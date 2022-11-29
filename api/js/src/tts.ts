@@ -56,6 +56,8 @@ async function getVoicesForCurrentLanguage(): Promise<Map<string, SpeechSynthesi
 export class TTS {
     voices: Map<string, SpeechSynthesisVoice>;
     private initialized = false;
+    private startCallbacks: Array<() => void> = [];
+    private endCallbacks: Array<() =>  void> = [];
 
     constructor() {
         this.voices = new Map();
@@ -68,15 +70,18 @@ export class TTS {
 
     // Speaks text using the preferred voice if TTS is enabled.
     speak(text: string) {
+        // Make sure TTS was initialized.
         if (!this.initialized) {
             throw new Error("TTS object was not initialized");
         }
+
+        // Check if TTS is enabled.
         if (!isEnabledTTS()) {
             return;
         }
 
+        // Create utterance.
         const utterance = new SpeechSynthesisUtterance(text);
-
         const voice = this.voices.get(getPreferredVoice() || "");
         if (voice != null) {
             utterance.voice = voice;
@@ -85,7 +90,36 @@ export class TTS {
         } else {
             utterance.lang = getL2().bcp47;
         }
+
+        // Set utterance callbacks.
+        utterance.addEventListener("start", () => {
+            for (const callback of this.startCallbacks) {
+                callback();
+            }
+        });
+        utterance.addEventListener("end", () => {
+            for (const callback of this.endCallbacks) {
+                callback();
+            }
+        });
+
+        // Stop currently playing utterance and play the next one.
+        this.stop();
         speechSynthesis.speak(utterance);
+    }
+
+    stop() {
+        speechSynthesis.cancel();
+    }
+
+    // Add an utterance callback function.
+    onStart(callback: () => void) {
+        this.startCallbacks.push(callback);
+    }
+
+    // Add an utterance callback function.
+    onEnd(callback: () => void) {
+        this.endCallbacks.push(callback);
     }
 }
 
@@ -126,9 +160,26 @@ function createVoiceSelect(tts: TTS): HTMLSelectElement {
 }
 
 function createVoicePlayButton(tts: TTS): HTMLButtonElement {
-    const icon = createIcon("speaker-high");
+    let playing = false;
+    let icon = createIcon("speaker-high");
+    tts.onStart(() => {
+        const replacement = createIcon("stop");
+        icon.replaceWith(replacement);
+        icon = replacement;
+        playing = true;
+    });
+    tts.onEnd(() => {
+        const replacement = createIcon("speaker-high");
+        icon.replaceWith(replacement);
+        icon = replacement;
+        playing = false;
+    });
+
     const button = createButton(icon, async() => {
-        // Voice demo.
+        if (playing) {
+            tts.stop();
+            return;
+        }
         const sentences = await fetchSentences();
         if (sentences.length === 0) {
             return;
