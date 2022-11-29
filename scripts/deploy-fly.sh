@@ -3,5 +3,5 @@
 # Copyright (c) 2022 Levi Gruspe
 # License: MIT, or AGPLv3 or later
 
-sudo flyctl auth login --verbose
-sudo flyctl deploy .
+flyctl auth login --verbose
+flyctl deploy .
