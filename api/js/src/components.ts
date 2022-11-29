@@ -7,7 +7,7 @@ import { getL2 } from "./language";
 import { createResponsiveMenu } from "./menu";
 import { createOverviewPage } from "./overview";
 import { createCourseSelectButton } from "./select";
-import { createVoiceSettingsSection } from "./tts";
+import { createVoiceSettingsSection, TTS } from "./tts";
 import { createVocabularyList } from "./vocab";
 
 export class ClozeApp extends HTMLElement {
@@ -66,8 +66,19 @@ export class VocabularyList extends HTMLElement {
 }
 
 export class VoiceSettings extends HTMLElement {
-    connectedCallback() {
-        this.appendChild(createVoiceSettingsSection());
+    tts: TTS;
+    init: Promise<void>;
+    // Await `this.init` to make suer `tts` is initialized.
+
+    constructor() {
+        super();
+        this.tts = new TTS();
+        this.init = this.tts.init();
+    }
+
+    async connectedCallback() {
+        await this.init;
+        this.appendChild(createVoiceSettingsSection(this.tts));
     }
 }
 

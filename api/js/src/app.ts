@@ -5,6 +5,7 @@ import { TTS } from "./tts";
 
 export async function createApp(buffer: ItemBuffer): Promise<[HTMLDivElement, () => void]> {
     const tts = new TTS();
+    await tts.init();
 
     const div = document.createElement("div");
     const item = await buffer.take();

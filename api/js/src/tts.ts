@@ -22,12 +22,29 @@ function compareVoice(lang: string, voice: SpeechSynthesisVoice): boolean {
     return rawCompareVoice(lang, voice);
 }
 
+// Async wrapper around `speechSynthesis.getVoices`.
+// Returns empty array only if no voices are installed.
+function getVoices(): Promise<SpeechSynthesisVoice[]> {
+    return new Promise(resolve => {
+        const voices = speechSynthesis.getVoices();
+        if (voices.length > 0) {
+            return resolve(voices);
+        }
+
+        const listener = () => {
+            resolve(speechSynthesis.getVoices());
+            speechSynthesis.removeEventListener("voiceschanged", listener);
+        };
+        speechSynthesis.addEventListener("voiceschanged", listener);
+    });
+}
+
 // Returns Map of voices: voiceURI -> voice.
 // Includes only voices in the selected language.
-function getVoices(): Map<string, SpeechSynthesisVoice> {
+async function getVoicesForCurrentLanguage(): Promise<Map<string, SpeechSynthesisVoice>> {
     const lang = getL2().bcp47;
     const map = new Map();
-    for (const voice of speechSynthesis.getVoices()) {
+    for (const voice of await getVoices()) {
         if (compareVoice(lang, voice)) {
             map.set(voice.voiceURI, voice);
         }
@@ -35,15 +52,25 @@ function getVoices(): Map<string, SpeechSynthesisVoice> {
     return map;
 }
 
+// Usage: call `init()` after constructor.
 export class TTS {
     voices: Map<string, SpeechSynthesisVoice>;
+    private initialized = false;
 
     constructor() {
-        this.voices = getVoices();
+        this.voices = new Map();
+    }
+
+    async init() {
+        this.voices = await getVoicesForCurrentLanguage();
+        this.initialized = true;
     }
 
     // Speaks text using the preferred voice if TTS is enabled.
     speak(text: string) {
+        if (!this.initialized) {
+            throw new Error("TTS object was not initialized");
+        }
         if (!isEnabledTTS()) {
             return;
         }
@@ -179,9 +206,7 @@ function createVoiceCheckbox(callback: (checked: boolean) => void): HTMLDivEleme
     return div;
 }
 
-export function createVoiceSettingsSection(): HTMLFormElement {
-    const tts = new TTS();
-
+export function createVoiceSettingsSection(tts: TTS): HTMLFormElement {
     const form = document.createElement("form");
     form.classList.add("signin");
 
