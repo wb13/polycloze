@@ -60,8 +60,19 @@ export class ButtonLink extends HTMLButtonElement {
 }
 
 export class VocabularyList extends HTMLElement {
+    tts: TTS;
+    init: Promise<void>;
+    // Await `this.init` to make sure `tts` is initialized.
+
+    constructor() {
+        super();
+        this.tts = new TTS();
+        this.init = this.tts.init();
+    }
+
     async connectedCallback() {
-        this.appendChild(await createVocabularyList());
+        await this.init;
+        this.appendChild(await createVocabularyList(this.tts));
     }
 }
 
