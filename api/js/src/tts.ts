@@ -190,7 +190,7 @@ function isEnabledTTS(): boolean {
 
 // Takes a callback function that gets called when the checkbox gets clicked.
 // The callback function takes a boolean (checked or not).
-function createVoiceCheckbox(callback: (checked: boolean) => void): HTMLDivElement {
+function createVoiceCheckbox(disabled: boolean, callback: (checked: boolean) => void): HTMLDivElement {
     const div = document.createElement("div");
     div.innerHTML = `
         <input type="checkbox" id="enable-tts" name="enable-tts">
@@ -198,6 +198,10 @@ function createVoiceCheckbox(callback: (checked: boolean) => void): HTMLDivEleme
     `;
 
     const input = div.querySelector("input") as HTMLInputElement;
+    if (disabled) {
+        input.disabled = true;
+    }
+
     if (isEnabledTTS()) {
         input.checked = true;
     }
@@ -219,10 +223,15 @@ export function createVoiceSettingsSection(tts: TTS): HTMLFormElement {
     const h2 = document.createElement("h2");
     h2.textContent = `${getL2().name} from ${getL1().name} settings`;
 
+    const disabled = tts.voices.size === 0;
+    if (disabled) {
+        disableTTS();
+    }
+
     const [demo, hook] = createVoiceDemo(tts);
     form.append(
         h2,
-        createVoiceCheckbox(hook),
+        createVoiceCheckbox(disabled, hook),
         demo,
     );
     return form;
