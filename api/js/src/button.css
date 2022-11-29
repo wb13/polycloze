@@ -16,6 +16,18 @@ button:active, .button:active {
 	box-shadow: none;
 }
 
+button:disabled, .button:disabled {
+	opacity: 0.5;
+}
+
+button:disabled:hover, .button:disabled:hover {
+	background-color: inherit;
+}
+
+button:disabled:active, .button:disabled:active {
+	box-shadow: 1px 1px 1px gray;
+}
+
 a.button {
 	color: inherit;
 	text-decoration: none;
