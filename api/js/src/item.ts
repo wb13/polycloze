@@ -58,10 +58,14 @@ function createItemFooter(submitBtn: HTMLButtonElement): HTMLDivElement {
 
 function createSubmitButton(onClick?: (event: Event) => void): [HTMLButtonElement, (ok: boolean) => void] {
     const button = createButton("Check", onClick);
-    button.disabled = true;
+    button.classList.add("button-hidden");
 
     const enable = (ok = true) => {
-        button.disabled = !ok;
+        if (ok) {
+            button.classList.remove("button-hidden");
+        } else {
+            button.classList.add("button-hidden");
+        }
     };
     return [button, enable];
 }
