@@ -143,7 +143,8 @@ function createCourseMenu(courses: Course[]): [HTMLDivElement, () => void] {
     function save() {
         setL1(l1);
         setL2(l2);
-        location.reload();
+        window.location.href = window.location.href;    // eslint-disable-line no-self-assign
+        // Don't use `location.reload()`, because it resends POST data.
     }
 }
 
