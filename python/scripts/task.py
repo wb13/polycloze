@@ -86,7 +86,7 @@ def prepare_links() -> None:
     target = build/"links"
 
     for source in sources:
-        assert source.is_file()
+        assert source.is_file(), f"{source!s} is not a file"
 
     if is_outdated([target], sources):
         print("Preparing links")
@@ -167,7 +167,7 @@ class ComputeDifficultyTask:
         ]
 
         for source in sources:
-            assert source.is_file()
+            assert source.is_file(), f"{source!s} is not a file"
 
         if is_outdated(targets, sources):
             print(f"Computing word and sentence difficulty in {lang1}-{lang2}")
@@ -260,7 +260,7 @@ def create_empty_course() -> None:
     target = build/"test.db"
 
     for source in sources:
-        assert source.is_file()
+        assert source.is_file(), f"{source!s} is not a file"
 
     if is_outdated([target], sources):
         print("Creating test.db")
