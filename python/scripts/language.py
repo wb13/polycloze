@@ -47,6 +47,15 @@ languages = {}
 # source for bcp47 codes:
 # https://www.iana.org/assignments/language-subtag-registry/
 
+languages["cat"] = Language(
+    code="cat",
+    name="Catalan",
+    bcp47="ca",
+    tokenizer=lambda: import_tokenizer("spacy.lang.ca", "Catalan"),
+    alphabet=set("abcdefghijlmnopqrstuvxyzàéèíïóòúüçkw"),
+    symbols=set("-'0123456789"),
+)
+
 languages["dan"] = Language(
     code="dan",
     name="Danish",
@@ -62,6 +71,15 @@ languages["deu"] = Language(
     tokenizer=lambda: import_tokenizer("spacy.lang.de", "German"),
     alphabet=set("abcdefghijklmnopqrstuvwxyzäéöüß"),
     symbols=set("-.'0123456789"),
+)
+
+languages["ell"] = Language(
+    code="ell",
+    name="Greek",
+    bcp47="el",
+    tokenizer=lambda: import_tokenizer("spacy.lang.el", "Greek"),
+    alphabet=set("αβγδεζηθικλμνξοπρσςτυφχψω"),
+    symbols=set(","),
 )
 
 languages["eng"] = Language(
@@ -122,6 +140,15 @@ languages["lit"] = Language(
     alphabet=set("aąbcčdeęėfghiįyjklmnoprsštuųūvzž"),
 )
 
+languages["mkd"] = Language(
+    code="mkd",
+    name="Macedonian",
+    bcp47="mk",
+    tokenizer=lambda: import_tokenizer("spacy.lang.mk", "Macedonian"),
+    alphabet=set("абвгдѓежзѕијклљмнњопрстќуфхцчџшѐѝč"),
+    symbols=set("'"),
+)
+
 languages["nld"] = Language(
     code="nld",
     name="Dutch",
@@ -162,6 +189,14 @@ languages["ron"] = Language(
     alphabet=set("aăâbcdefghiîjklmnopqrsştţuvwxyz"),
 )
 
+languages["rus"] = Language(
+    code="rus",
+    name="Russian",
+    bcp47="ru",
+    tokenizer=lambda: import_tokenizer("spacy.lang.ru", "Russian"),
+    alphabet=set("бвгджзклмнпрстфхцчшщаеёиоуыэюяйьъ"),
+)
+
 languages["spa"] = Language(
     code="spa",
     name="Spanish",
@@ -184,6 +219,14 @@ languages["tgl"] = Language(
     name="Tagalog",
     bcp47="tl",
     tokenizer=lambda: import_tokenizer("spacy.lang.tl", "Tagalog"),
-    alphabet=set("abcdefghijklmnñopqrstuvwxyzáàâéèêëíìîóòôúùû"),
-    symbols=set("-.'0123456789"),
+    alphabet=set("abcdefghijklmnñopqrstuvwxyzáàâéèêëíìîóòôúùû'"),
+    symbols=set("-.0123456789"),
+)
+
+languages["ukr"] = Language(
+    code="ukr",
+    name="Ukrainian",
+    bcp47="uk",
+    tokenizer=lambda: import_tokenizer("spacy.lang.uk", "Ukrainian"),
+    alphabet=set("абвгґдеєжзиіїйклмнопрстуфхцчшщьюя'"),
 )
