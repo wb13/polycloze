@@ -87,7 +87,7 @@ func generateItem[T database.Querier](q T, word string) (Item, error) {
 		return item, err
 	}
 
-	translation, err := translator.Translate(q, *sentence)
+	translation, err := translator.Translate(q, sentence)
 	if err != nil {
 		panic(fmt.Errorf("could not translate sentence (%v): %v", sentence, err))
 	}

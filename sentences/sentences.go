@@ -29,36 +29,10 @@ func findWordID[T database.Querier](q T, word string) (int, error) {
 	return id, err
 }
 
-func getSentence[T database.Querier](q T, id int) (*Sentence, error) {
-	query := `select tatoeba_id, text, tokens from sentence where id = ?`
-	row := q.QueryRow(query, id)
-
-	var sentence Sentence
-	sentence.ID = id
-	var tatoebaID sql.NullInt64
-	var jsonStr string
-
-	err := row.Scan(&tatoebaID, &sentence.Text, &jsonStr)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := json.Unmarshal([]byte(jsonStr), &sentence.Tokens); err != nil {
-		return nil, err
-	}
-
-	if tatoebaID.Valid {
-		sentence.TatoebaID = tatoebaID.Int64
-	} else {
-		sentence.TatoebaID = -1
-	}
-	return &sentence, nil
-}
-
-func PickSentence[T database.Querier](q T, word string) (*Sentence, error) {
+func PickSentence[T database.Querier](q T, word string) (Sentence, error) {
 	id, err := findWordID(q, word)
 	if err != nil {
-		return nil, err
+		return Sentence{}, err
 	}
 
 	// The course builder guarantees that all words have example sentences that
@@ -66,17 +40,32 @@ func PickSentence[T database.Querier](q T, word string) (*Sentence, error) {
 	// Since the word scheduler only introduces words at the right difficulty,
 	// the example sentences are also at the right difficulty.
 	query := `
-		SELECT id FROM contains
+		SELECT id, tatoeba_id, text, tokens FROM contains
 		JOIN sentence ON (sentence = id)
 		WHERE word = ?
 		ORDER BY random() LIMIT 1
 	`
 	row := q.QueryRow(query, id)
-	var sentence int
-	if err := row.Scan(&sentence); err != nil {
-		return nil, err
+
+	var sentence Sentence
+	var tatoebaID sql.NullInt64
+	var tokens string
+
+	err = row.Scan(&sentence.ID, &tatoebaID, &sentence.Text, &tokens)
+	if err != nil {
+		return sentence, err
 	}
-	return getSentence(q, sentence)
+
+	if err := json.Unmarshal([]byte(tokens), &sentence.Tokens); err != nil {
+		return sentence, err
+	}
+
+	if tatoebaID.Valid {
+		sentence.TatoebaID = tatoebaID.Int64
+	} else {
+		sentence.TatoebaID = -1
+	}
+	return sentence, nil
 }
 
 // Returns random sentence from the database.
