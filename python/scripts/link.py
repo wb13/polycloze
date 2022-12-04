@@ -1,8 +1,10 @@
+# pylint: disable=too-many-locals
 """Partition Tatoeba links by language pair."""
 
 from argparse import ArgumentParser, Namespace
 from collections import deque
 from contextlib import contextmanager
+from os import utime
 from pathlib import Path
 from shutil import copytree
 import sys
@@ -115,6 +117,10 @@ def partition_links(links: Path, sentences: Path, outdir: Path) -> None:
             print(f"{source},{target}", file=outfile)
 
         copytree(tempdir, outdir, dirs_exist_ok=True)
+
+        for path in outdir.iterdir():
+            utime(path)
+        utime(outdir)
 
 
 def parse_args() -> Namespace:
