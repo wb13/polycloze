@@ -203,7 +203,9 @@ languages["spa"] = Language(
     bcp47="es",
     tokenizer=lambda: import_tokenizer("spacy.lang.es", "Spanish"),
     alphabet=set("abcdefghijklmnñopqrstuvwxyzáéíóúü"),
-    symbols=set("-.0123456789"),
+
+    # Space included because strings like "EE. UU." get tokenized as one word.
+    symbols=set("-.'0123456789 "),
 )
 
 languages["swe"] = Language(
