@@ -22,9 +22,28 @@ function resizeInput(input: HTMLInputElement, text: string) {
     input.style.setProperty("width", width);
 }
 
-// Remove surrounding whitespace and soft-hyphens.
+// Removes soft-hyphens and unnecessary surrounding characters (whitespace,
+// zero-width spaces, no-break spaces, etc.
 function normalize(word: string): string {
-    return word.trim().replace(/\xAD/g, "");
+    // Remove soft-hyphens.
+    word = word.trim().replace(/\u00AD/g, "");
+
+    const zeroWidthSpace = "\u200B";
+    while (word.startsWith(zeroWidthSpace)) {
+        word = word.slice(zeroWidthSpace.length);
+    }
+    while (word.endsWith(zeroWidthSpace)) {
+        word = word.slice(0, word.length - zeroWidthSpace.length);
+    }
+
+    const noBreakSpace = "\u00A0";
+    while (word.startsWith(noBreakSpace)) {
+        word = word.slice(noBreakSpace.length);
+    }
+    while (word.endsWith(noBreakSpace)) {
+        word = word.slice(0, word.length - noBreakSpace.length);
+    }
+    return word;
 }
 
 // Count number of errors in guess.

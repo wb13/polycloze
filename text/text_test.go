@@ -34,9 +34,50 @@ func TestRemoveSoftHyphen(t *testing.T) {
 	}
 
 	for _, s := range examples {
-		t.Log(s)
 		if s != "hello" {
 			t.Fatal("expected `s` to be 'hello':", s)
 		}
+	}
+}
+
+func TestRemoveZeroWidthSpace(t *testing.T) {
+	// Zero-width space at both ends should be removed, but not those in the middle.
+	t.Parallel()
+
+	examples := []string{
+		Casefold("\u200Bhello"),
+		Casefold("hello\u200B"),
+		Casefold("\u200Bhello\u200B\u200B"),
+	}
+
+	for _, s := range examples {
+		if s != "hello" {
+			t.Fatal("expected `s` to be 'hello':", s)
+		}
+	}
+
+	if Casefold("hell\u200Bo") == "hello" {
+		t.Fatal("expected zero-width space in the middle to be left alone")
+	}
+}
+
+func TestRemoveNoBreakSpace(t *testing.T) {
+	// No-break space at both ends should be removed, but not those in the middle.
+	t.Parallel()
+
+	examples := []string{
+		Casefold("\u00A0hello"),
+		Casefold("hello\u00A0"),
+		Casefold("\u00A0hello\u00A0\u00A0"),
+	}
+
+	for _, s := range examples {
+		if s != "hello" {
+			t.Fatal("expected `s` to be 'hello':", s)
+		}
+	}
+
+	if Casefold("hell\u00A0o") == "hello" {
+		t.Fatal("expected no-break space in the middle to be left alone")
 	}
 }
