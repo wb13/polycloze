@@ -20,6 +20,10 @@ if t.TYPE_CHECKING:
     from spacy.tokenizer import Tokenizer as SpacyTokenizer     # type: ignore
 
 
+LEFT_TO_RIGHT_MARK = "\u200E"
+RIGHT_TO_LEFT_MARK = "\u200F"
+
+
 @dataclass
 class Tokenizer:
     tokenizer: "SpacyTokenizer"
@@ -81,7 +85,13 @@ def write_sentences(
         writer.writerow(["tatoeba_id", "text", "tokens"])
         for line in file:
             id_, line = line.split("\t", maxsplit=1)
-            line = line.strip()
+            line = (
+                line.strip()
+                .removeprefix(LEFT_TO_RIGHT_MARK)
+                .removesuffix(LEFT_TO_RIGHT_MARK)
+                .removeprefix(RIGHT_TO_LEFT_MARK)
+                .removesuffix(RIGHT_TO_LEFT_MARK)
+            )
             sentence = Sentence(
                 id=int(id_),
                 text=line,
