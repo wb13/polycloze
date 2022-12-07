@@ -17,13 +17,13 @@ class Word(str):
         content = content.replace(SOFT_HYPHEN, "")
 
         while content.startswith(ZERO_WIDTH_SPACE):
-            content.removeprefix(ZERO_WIDTH_SPACE)
+            content = content.removeprefix(ZERO_WIDTH_SPACE)
         while content.endswith(ZERO_WIDTH_SPACE):
-            content.removesuffix(ZERO_WIDTH_SPACE)
+            content = content.removesuffix(ZERO_WIDTH_SPACE)
 
         while content.startswith(NO_BREAK_SPACE):
-            content.removeprefix(NO_BREAK_SPACE)
+            content = content.removeprefix(NO_BREAK_SPACE)
         while content.endswith(NO_BREAK_SPACE):
-            content.removesuffix(NO_BREAK_SPACE)
+            content = content.removesuffix(NO_BREAK_SPACE)
 
         return super().__new__(cls, content.casefold())
