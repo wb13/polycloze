@@ -71,7 +71,7 @@ def is_number(token: str) -> bool:
     if not token:
         return False
     for char in token:
-        if char in "-.,%:x+ºª" or char.isdigit():
+        if char in "-.,%:x+ºª€$₱¥£" or char.isdigit():
             continue
         return False
     return True
