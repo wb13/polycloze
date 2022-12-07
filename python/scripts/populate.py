@@ -46,10 +46,14 @@ def populate_sentence(con: Connection, course: Path) -> None:
         (str((course/"sentences.db").resolve()),),
     )
     con.execute("""
-        INSERT INTO sentence (tatoeba_id, text, tokens, frequency_class)
+        INSERT OR IGNORE
+        INTO sentence (tatoeba_id, text, tokens, frequency_class)
         SELECT tatoeba_id, text, tokens, difficulty
         FROM ts.sentence
     """)
+    # Tatoeba sometimes fails to detect duplicate sentences, so those should be
+    # ignored.
+
     con.commit()
 
 
@@ -78,7 +82,11 @@ def populate_translation(
     reverse: bool = False,
 ) -> None:
     _targets = targets(translations, reverse)
-    query = "insert into translation (tatoeba_id, text) values (?, ?)"
+    query = """
+        INSERT OR IGNORE INTO translation (tatoeba_id, text) VALUES (?, ?)
+    """
+    # Tatoeba sometimes fails to detect duplicate sentences, so those should be
+    # ignored.
 
     with open(language/"sentences.csv", encoding="utf-8") as file:
         reader = csv.reader(file)
