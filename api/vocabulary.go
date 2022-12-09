@@ -131,8 +131,8 @@ func queryIntervalStrengths(db *sql.DB) (map[int]int, error) {
 }
 
 // Lists words returned by query.
-// - limit should be between 10 and 100.
-// 	 Silently changes limit if not.
+//   - limit should be between 10 and 100.
+//     Silently changes limit if not.
 func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]Word, error) {
 	// Cap limit.
 	if limit < 10 {
