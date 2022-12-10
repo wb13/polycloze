@@ -1,14 +1,14 @@
 // Item buffer
 
 import { fetchItems } from "./api";
-import { Part } from "./blank";
+import { PartWithAnswers, hasAnswers } from "./blank";
 import { Item } from "./item";
 import { Sentence } from "./sentence";
 
-function * oddParts(sentence: Sentence): IterableIterator<Part> {
-    for (const [i, part] of sentence.parts.entries()) {
-        if (i % 2 === 1) {
-            yield part;
+function * getBlankParts(sentence: Sentence): IterableIterator<PartWithAnswers> {
+    for (const part of sentence.parts) {
+        if (hasAnswers(part)) {
+            yield part as PartWithAnswers;
         }
     }
 }
@@ -34,17 +34,11 @@ export class ItemBuffer {
 
     // Add item if it's not a duplicate.
     add(item: Item): boolean {
-        const parts = Array.from(oddParts(item.sentence));
+        const parts = Array.from(getBlankParts(item.sentence));
 
         const words: string[] = [];
         const isDuplicate = parts.some(part => {
-            const answers = part.answers;
-            if (answers == null || answers.length === 0) {
-                // Ignore part if not a blank.
-                // TODO don't do it like this
-                return true;
-            }
-            const word = answers[0].normalized;
+            const word = part.answers[0].normalized;
             words.push(word);
             return this.keys.has(word);
         });
