@@ -29,7 +29,7 @@ export class ItemBuffer {
         };
 
         // NOTE this never gets removed
-        window.addEventListener("polycloze-unbuffer", listener);
+        window.addEventListener("polycloze-review", listener);
     }
 
     // Add item if it's not a duplicate.
@@ -88,9 +88,10 @@ export class ItemBuffer {
     }
 }
 
-export function dispatchUnbuffer(word: string) {
-    const event = new CustomEvent("polycloze-unbuffer", {
-        detail: { word }
+// Dispatches custom event to tell item buffer about review result.
+export function announceResult(word: string, correct: boolean) {
+    const event = new CustomEvent("polycloze-review", {
+        detail: { word, correct }
     });
     window.dispatchEvent(event);
 }

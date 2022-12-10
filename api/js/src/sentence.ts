@@ -8,7 +8,7 @@ import {
     Part,
     PartWithAnswers,
 } from "./blank";
-import { dispatchUnbuffer } from "./buffer";
+import { announceResult } from "./buffer";
 import { dispatchUpdateCount } from "./counter";
 import { getL2 } from "./language";
 import { edit } from "./unsaved";
@@ -100,7 +100,7 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
                     }
                 }
 
-                dispatchUnbuffer(word);
+                announceResult(word, correct);
                 save();
                 clearBuffer(result.frequencyClass);
             });
