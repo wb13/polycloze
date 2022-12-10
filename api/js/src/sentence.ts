@@ -1,25 +1,27 @@
 import "./sentence.css";
 import { submitReview } from "./api";
-import { createBlank, evaluateInput } from "./blank";
+import { createBlank, evaluateInput, Part } from "./blank";
 import { dispatchUnbuffer } from "./buffer";
 import { dispatchUpdateCount } from "./counter";
 import { getL2 } from "./language";
 import { edit } from "./unsaved";
 
 export type Sentence = {
-  id: number
-  parts: string[]
-  tatoebaID?: number
-}
+    id: number
+    parts: Part[]
+    tatoebaID?: number
+};
 
-function createPart(part: string): HTMLSpanElement {
+function createPart(text: string): HTMLSpanElement {
     const span = document.createElement("span");
-    span.textContent = part;
+    span.textContent = text;
     return span;
 }
 
-function isBeginning(part: string): boolean {
-    switch (part.trim()) {
+// Check of text is the beginning of a sentence.
+// This is only a heuristic.
+function isBeginning(text: string): boolean {
+    switch (text.trim()) {
     case "":
     case "¿":
     case "¡":
@@ -52,9 +54,9 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
 
     for (const [i, part] of sentence.parts.entries()) {
         if (i % 2 === 0) {
-            div.appendChild(createPart(part));
+            div.appendChild(createPart(part.text));
         } else {
-            const autocapitalize = (i === 1) && isBeginning(sentence.parts[0]);
+            const autocapitalize = (i === 1) && isBeginning(sentence.parts[0].text);
             const [blank, resize] = createBlank(part, autocapitalize);
             div.appendChild(blank);
             resizeFns.push(resize);
@@ -79,8 +81,7 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
         // Time to check.
         for (let i = 0; i < inputs.length; i++) {
             const input = inputs[i];
-            const answer = sentence.parts[2 * i + 1];
-            evaluateInput(input as HTMLInputElement, answer);
+            evaluateInput(input as HTMLInputElement, sentence.parts[2 * i + 1]);
         }
 
         // Check if everything is correct.
@@ -96,8 +97,8 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
 
         // Upload results.
         for (let i = 0; i < inputs.length; i++) {
-            const input = inputs[i];
-            const answer = sentence.parts[2 * i + 1];
+            const input = inputs[i] as HTMLInputElement;
+            const answer = input.value;
 
             const correct = !input.classList.contains("incorrect");
             dispatchUpdateCount(correct);

@@ -1,10 +1,11 @@
 // Item buffer
 
 import { fetchItems } from "./api";
+import { Part } from "./blank";
 import { Item } from "./item";
 import { Sentence } from "./sentence";
 
-function * oddParts(sentence: Sentence): IterableIterator<string> {
+function * oddParts(sentence: Sentence): IterableIterator<Part> {
     for (const [i, part] of sentence.parts.entries()) {
         if (i % 2 === 1) {
             yield part;
@@ -24,6 +25,7 @@ export class ItemBuffer {
 
         const listener = (event: Event) => {
             const word = (event as CustomEvent).detail.word;
+            // TODO make sure something gets deleted
             this.keys.delete(word);
         };
 
@@ -34,11 +36,24 @@ export class ItemBuffer {
     // Add item if it's not a duplicate.
     add(item: Item): boolean {
         const parts = Array.from(oddParts(item.sentence));
-        if (parts.some(part => this.keys.has(part))) {
+
+        const words: string[] = [];
+        const isDuplicate = parts.some(part => {
+            const answers = part.answers;
+            if (answers == null || answers.length === 0) {
+                // Ignore part if not a blank.
+                // TODO don't do it like this
+                return true;
+            }
+            const word = answers[0].normalized;
+            words.push(word);
+            return this.keys.has(word);
+        });
+        if (isDuplicate) {
             return false;
         }
         this.buffer.push(item);
-        parts.forEach(part => this.keys.add(part));
+        words.forEach(word => this.keys.add(word));
         return true;
     }
 

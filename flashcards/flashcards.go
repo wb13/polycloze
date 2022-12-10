@@ -7,22 +7,19 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"math/rand"
-	"strings"
 	"sync"
 
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/sentences"
-	"github.com/lggruspe/polycloze/text"
 	"github.com/lggruspe/polycloze/translator"
 	"github.com/lggruspe/polycloze/word_scheduler"
 )
 
 // Different from sentences.Sentence
 type Sentence struct {
-	ID        int      `json:"id"`    // id in database
-	Parts     []string `json:"parts"` // Odd-numbered parts are blanks
-	TatoebaID int64    `json:"tatoebaID,omitempty"`
+	ID        int    `json:"id"`    // id in database
+	Parts     []Part `json:"parts"` // Odd-numbers parts are blanks
+	TatoebaID int64  `json:"tatoebaID,omitempty"`
 }
 
 type Item struct {
@@ -40,27 +37,6 @@ func NewItemGenerator(db *sql.DB, courseDB string) ItemGenerator {
 	return ItemGenerator{
 		db:       db,
 		courseDB: courseDB,
-	}
-}
-
-func getParts(tokens []string, word string) []string {
-	var indices []int
-	for i, token := range tokens {
-		if text.Casefold(token) == text.Casefold(word) {
-			indices = append(indices, i)
-		}
-	}
-
-	if len(indices) == 0 {
-		message := fmt.Sprintf("Python casefold different from golang x case folder: %s, %v", word, tokens)
-		panic(message)
-	}
-
-	index := indices[rand.Intn(len(indices))]
-	return []string{
-		strings.Join(tokens[:index], ""),
-		tokens[index],
-		strings.Join(tokens[index+1:], ""),
 	}
 }
 

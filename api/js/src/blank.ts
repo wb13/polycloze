@@ -6,6 +6,16 @@ import { distance } from "fastest-levenshtein";
 
 type Status = "correct" | "incorrect" | "almost";
 
+export type Answer = {
+    text: string;
+    normalized: string;
+};
+
+export type Part = {
+    text: string;
+    answers?: Answer[];
+};
+
 function changeStatus(input: HTMLInputElement, status: Status) {
     // input.classList.remove("correct");
     // input.classList.remove("almost");
@@ -51,7 +61,9 @@ function compare(guess: string, answer: string): number {
     return distance(normalize(guess), normalize(answer));
 }
 
-export function evaluateInput(input: HTMLInputElement, answer: string): Status {
+export function evaluateInput(input: HTMLInputElement, part: Part): Status {
+    // TODO compare with every possible answer
+    const answer = (part.answers as Answer[])[0].text;
     switch (compare(input.value, answer)) {
     case 0:
         changeStatus(input, "correct");
@@ -72,7 +84,7 @@ export function evaluateInput(input: HTMLInputElement, answer: string): Status {
 
 // Also returns a resize function, which should be called when the element is
 // connected to the DOM.
-export function createBlank(answer: string, autocapitalize: boolean): [HTMLInputElement, () => void] {
+export function createBlank(part: Part, autocapitalize: boolean): [HTMLInputElement, () => void] {
     const input = document.createElement("input");
     input.autocapitalize = autocapitalize ? "on" : "none";
     input.ariaLabel = "Blank";
@@ -81,5 +93,9 @@ export function createBlank(answer: string, autocapitalize: boolean): [HTMLInput
     input.addEventListener("input", () => {
         input.value = substituteDigraphs(input.value);
     });
-    return [input, () => resizeInput(input, answer)];
+
+    const answer = (part.answers || [])[0];
+    const text = answer?.text || "abcdef";
+    // TODO change input type to PartWithAnswers instead of using placeholder text
+    return [input, () => resizeInput(input, text)];
 }

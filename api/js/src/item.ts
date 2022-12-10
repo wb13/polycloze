@@ -74,7 +74,9 @@ export function createItem(tts: TTS, item: Item, next: () => void, clearBuffer: 
     const [submitBtn, enable] = createSubmitButton();
 
     const done = () => {
-        tts.speak(item.sentence.parts.join(""));
+        const text = item.sentence.parts.map(part => part.text).join("");
+        tts.speak(text);
+
         showTranslationLink(item.translation, getBody());
         const btn = createButton("Next", next);
         submitBtn.replaceWith(btn);
