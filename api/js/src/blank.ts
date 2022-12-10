@@ -16,6 +16,19 @@ export type Part = {
     answers?: Answer[];
 };
 
+export type PartWithAnswers = {
+    text: string;
+    answers: Answer[];
+};
+
+// Throws an exception if part has no answers.
+function requireAnswers(part: Part): PartWithAnswers {
+    if (part.answers == null || part.answers.length === 0) {
+        throw new Error("part.answers should be non-empty");
+    }
+    return part as PartWithAnswers;
+}
+
 function changeStatus(input: HTMLInputElement, status: Status) {
     // input.classList.remove("correct");
     // input.classList.remove("almost");
@@ -62,17 +75,17 @@ function compare(guess: string, answer: string): number {
 }
 
 // Sets input element status to `correct`, `almost` or `incorrect`.
+// May throw an exception if `part` doesn't have answers.
 //
 // Summary:
 // - Correct if matches exactly with a possible answer
 // - Almost correct if similar to preferred answer
 // - Incorrect otherwise
 export function evaluateInput(input: HTMLInputElement, part: Part): Status {
-    if (part.answers == null || part.answers.length === 0) {
-        throw new Error("part.answers should be non-empty");
-    }
+    const answers = requireAnswers(part).answers;
+
     const diffs = [];
-    for (const answer of part.answers) {
+    for (const answer of answers) {
         const diff = compare(input.value, answer.text);
         if (diff === 0) {
             // Return immediately if exact match is found.
@@ -89,7 +102,7 @@ export function evaluateInput(input: HTMLInputElement, part: Part): Status {
     }
 
     // Set status to incorrect.
-    input.placeholder = part.answers[0].text;
+    input.placeholder = answers[0].text;
     input.value = "";
     changeStatus(input, "incorrect");
     return "incorrect";
@@ -97,7 +110,10 @@ export function evaluateInput(input: HTMLInputElement, part: Part): Status {
 
 // Also returns a resize function, which should be called when the element is
 // connected to the DOM.
+// May throw an exception if `part` doesn't have answers.
 export function createBlank(part: Part, autocapitalize: boolean): [HTMLInputElement, () => void] {
+    const answers = requireAnswers(part).answers;
+
     const input = document.createElement("input");
     input.autocapitalize = autocapitalize ? "on" : "none";
     input.ariaLabel = "Blank";
@@ -107,8 +123,6 @@ export function createBlank(part: Part, autocapitalize: boolean): [HTMLInputElem
         input.value = substituteDigraphs(input.value);
     });
 
-    const answer = (part.answers || [])[0];
-    const text = answer?.text || "abcdef";
-    // TODO change input type to PartWithAnswers instead of using placeholder text
+    const text = answers[0].text;
     return [input, () => resizeInput(input, text)];
 }
