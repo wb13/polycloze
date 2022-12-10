@@ -25,7 +25,6 @@ export class ItemBuffer {
 
         const listener = (event: Event) => {
             const word = (event as CustomEvent).detail.word;
-            // TODO make sure something gets deleted
             this.keys.delete(word);
         };
 

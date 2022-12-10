@@ -1,6 +1,7 @@
 import "./sentence.css";
 import { submitReview } from "./api";
 import {
+    compare,
     createBlank,
     evaluateInput,
     hasAnswers,
@@ -104,15 +105,23 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
         render();
 
         // Upload results.
-        for (const input of inputs) {
+        for (const [i, input] of inputs.entries()) {
             const answer = input.value;
 
             const correct = !input.classList.contains("incorrect");
             dispatchUpdateCount(correct);
             const save = edit();
             submitReview(answer, correct).then(result => {
-                // TODO pass normalized word to `dispatchUnbuffer`
-                dispatchUnbuffer(answer);
+                // Normalize word.
+                let word = answer;
+                for (const answer of blankParts[i].answers) {
+                    if (compare(input.value, answer.text) === 0) {
+                        word = answer.normalized;
+                        break;
+                    }
+                }
+
+                dispatchUnbuffer(word);
                 save();
                 clearBuffer(result.frequencyClass);
             });

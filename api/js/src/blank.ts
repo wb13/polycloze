@@ -75,7 +75,7 @@ function normalize(word: string): string {
 }
 
 // Count number of errors in guess.
-function compare(guess: string, answer: string): number {
+export function compare(guess: string, answer: string): number {
     return distance(normalize(guess), normalize(answer));
 }
 
