@@ -61,25 +61,38 @@ function compare(guess: string, answer: string): number {
     return distance(normalize(guess), normalize(answer));
 }
 
+// Sets input element status to `correct`, `almost` or `incorrect`.
+//
+// Summary:
+// - Correct if matches exactly with a possible answer
+// - Almost correct if similar to preferred answer
+// - Incorrect otherwise
 export function evaluateInput(input: HTMLInputElement, part: Part): Status {
-    // TODO compare with every possible answer
-    const answer = (part.answers as Answer[])[0].text;
-    switch (compare(input.value, answer)) {
-    case 0:
-        changeStatus(input, "correct");
-        return "correct";
+    if (part.answers == null || part.answers.length === 0) {
+        throw new Error("part.answers should be non-empty");
+    }
+    const diffs = [];
+    for (const answer of part.answers) {
+        const diff = compare(input.value, answer.text);
+        if (diff === 0) {
+            // Return immediately if exact match is found.
+            changeStatus(input, "correct");
+            return "correct";
+        }
+        diffs.push(diff);
+    }
 
-    case 1:
-    case 2:
+    // Only allow typos in preferred answer.
+    if (diffs[0] <= 2) {
         changeStatus(input, "almost");
         return "almost";
-
-    default:
-        input.placeholder = answer;
-        input.value = "";
-        changeStatus(input, "incorrect");
-        return "incorrect";
     }
+
+    // Set status to incorrect.
+    input.placeholder = part.answers[0].text;
+    input.value = "";
+    changeStatus(input, "incorrect");
+    return "incorrect";
 }
 
 // Also returns a resize function, which should be called when the element is
