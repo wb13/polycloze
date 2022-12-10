@@ -1,6 +1,12 @@
 import "./sentence.css";
 import { submitReview } from "./api";
-import { createBlank, evaluateInput, Part } from "./blank";
+import {
+    createBlank,
+    evaluateInput,
+    hasAnswers,
+    Part,
+    PartWithAnswers,
+} from "./blank";
 import { dispatchUnbuffer } from "./buffer";
 import { dispatchUpdateCount } from "./counter";
 import { getL2 } from "./language";
@@ -53,14 +59,19 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
     div.lang = getL2().bcp47;
 
     for (const [i, part] of sentence.parts.entries()) {
-        if (i % 2 === 0) {
+        if (!hasAnswers(part)) {
             div.appendChild(createPart(part.text));
-        } else {
-            const autocapitalize = (i === 1) && isBeginning(sentence.parts[0].text);
-            const [blank, resize] = createBlank(part, autocapitalize);
-            div.appendChild(blank);
-            resizeFns.push(resize);
+            continue;
         }
+
+        // TODO fix autocapitalize check
+        const autocapitalize = (i === 1) && isBeginning(sentence.parts[0].text);
+        const [blank, resize] = createBlank(
+            part as PartWithAnswers,
+            autocapitalize,
+        );
+        div.appendChild(blank);
+        resizeFns.push(resize);
     }
 
     fixPunctuationWrap(div);
@@ -80,8 +91,12 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
 
         // Time to check.
         for (let i = 0; i < inputs.length; i++) {
+            // TODO don't assume blank parts are in odd positions
             const input = inputs[i];
-            evaluateInput(input as HTMLInputElement, sentence.parts[2 * i + 1]);
+            const part = sentence.parts[2 * i + 1];
+            if (hasAnswers(part)) {
+                evaluateInput(input as HTMLInputElement, part as PartWithAnswers);
+            }
         }
 
         // Check if everything is correct.

@@ -21,9 +21,14 @@ export type PartWithAnswers = {
     answers: Answer[];
 };
 
+// Check if Part has answers.
+export function hasAnswers(part: Part): boolean {
+    return part.answers != null && part.answers.length > 0;
+}
+
 // Throws an exception if part has no answers.
-function requireAnswers(part: Part): PartWithAnswers {
-    if (part.answers == null || part.answers.length === 0) {
+export function requireAnswers(part: Part): PartWithAnswers {
+    if (!hasAnswers(part)) {
         throw new Error("part.answers should be non-empty");
     }
     return part as PartWithAnswers;
@@ -81,9 +86,8 @@ function compare(guess: string, answer: string): number {
 // - Correct if matches exactly with a possible answer
 // - Almost correct if similar to preferred answer
 // - Incorrect otherwise
-export function evaluateInput(input: HTMLInputElement, part: Part): Status {
-    const answers = requireAnswers(part).answers;
-
+export function evaluateInput(input: HTMLInputElement, part: PartWithAnswers): Status {
+    const answers = part.answers;
     const diffs = [];
     for (const answer of answers) {
         const diff = compare(input.value, answer.text);
@@ -111,9 +115,7 @@ export function evaluateInput(input: HTMLInputElement, part: Part): Status {
 // Also returns a resize function, which should be called when the element is
 // connected to the DOM.
 // May throw an exception if `part` doesn't have answers.
-export function createBlank(part: Part, autocapitalize: boolean): [HTMLInputElement, () => void] {
-    const answers = requireAnswers(part).answers;
-
+export function createBlank(part: PartWithAnswers, autocapitalize: boolean): [HTMLInputElement, () => void] {
     const input = document.createElement("input");
     input.autocapitalize = autocapitalize ? "on" : "none";
     input.ariaLabel = "Blank";
@@ -123,6 +125,6 @@ export function createBlank(part: Part, autocapitalize: boolean): [HTMLInputElem
         input.value = substituteDigraphs(input.value);
     });
 
-    const text = answers[0].text;
+    const text = part.answers[0].text;
     return [input, () => resizeInput(input, text)];
 }
