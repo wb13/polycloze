@@ -58,23 +58,25 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
     div.classList.add("sentence");
     div.lang = getL2().bcp47;
 
+    // NOTE `inputs` and `blankParts` have the same length.
     const inputs: HTMLInputElement[] = [];
+    const blankParts: PartWithAnswers[] = [];
     for (const [i, part] of sentence.parts.entries()) {
         if (!hasAnswers(part)) {
             div.appendChild(createPart(part.text));
             continue;
         }
 
+        const checkedPart = part as PartWithAnswers;
+
         // TODO fix autocapitalize check
         const autocapitalize = (i === 1) && isBeginning(sentence.parts[0].text);
-        const [blank, resize] = createBlank(
-            part as PartWithAnswers,
-            autocapitalize,
-        );
+        const [blank, resize] = createBlank(checkedPart, autocapitalize);
         div.appendChild(blank);
         resizeFns.push(resize);
 
         inputs.push(blank);
+        blankParts.push(checkedPart);
     }
 
     fixPunctuationWrap(div);
@@ -88,13 +90,9 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
             return;
         }
 
-        // Get all blank parts.
-        const blankParts = sentence.parts.filter(hasAnswers);
-
         // Time to check.
-        // TODO Don't assume `inputs.length === blankParts.length`.
         for (const [i, input] of inputs.entries()) {
-            evaluateInput(input, blankParts[i] as PartWithAnswers);
+            evaluateInput(input, blankParts[i]);
         }
 
         // Check if everything is correct.
