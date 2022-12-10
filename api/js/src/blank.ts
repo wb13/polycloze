@@ -112,19 +112,26 @@ export function evaluateInput(input: HTMLInputElement, part: PartWithAnswers): S
     return "incorrect";
 }
 
+// Checks if text is capitalized.
+function isCapitalized(text: string): boolean {
+    text = text.trimStart();
+    const capitalized = text.toLocaleUpperCase();
+    return text.charAt(0) === capitalized.charAt(0);
+}
+
 // Also returns a resize function, which should be called when the element is
 // connected to the DOM.
 // May throw an exception if `part` doesn't have answers.
-export function createBlank(part: PartWithAnswers, autocapitalize: boolean): [HTMLInputElement, () => void] {
+export function createBlank(part: PartWithAnswers): [HTMLInputElement, () => void] {
+    const text = part.answers[0].text;
+
     const input = document.createElement("input");
-    input.autocapitalize = autocapitalize ? "on" : "none";
+    input.autocapitalize = isCapitalized(text) ? "on" : "none";
     input.ariaLabel = "Blank";
     input.classList.add("blank");
 
     input.addEventListener("input", () => {
         input.value = substituteDigraphs(input.value);
     });
-
-    const text = part.answers[0].text;
     return [input, () => resizeInput(input, text)];
 }

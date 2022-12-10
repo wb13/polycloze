@@ -25,24 +25,6 @@ function createPart(text: string): HTMLSpanElement {
     return span;
 }
 
-// Check of text is the beginning of a sentence.
-// This is only a heuristic.
-function isBeginning(text: string): boolean {
-    switch (text.trim()) {
-    case "":
-    case "¿":
-    case "¡":
-    case "„":
-    case "(":
-    case "\"":
-    case "'":
-        return true;
-
-    default:
-        return false;
-    }
-}
-
 // TODO document params
 // Note: takes two callback functions.
 // - done: ?
@@ -62,17 +44,14 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
     // NOTE `inputs` and `blankParts` have the same length.
     const inputs: HTMLInputElement[] = [];
     const blankParts: PartWithAnswers[] = [];
-    for (const [i, part] of sentence.parts.entries()) {
+    for (const part of sentence.parts) {
         if (!hasAnswers(part)) {
             div.appendChild(createPart(part.text));
             continue;
         }
 
         const checkedPart = part as PartWithAnswers;
-
-        // TODO fix autocapitalize check
-        const autocapitalize = (i === 1) && isBeginning(sentence.parts[0].text);
-        const [blank, resize] = createBlank(checkedPart, autocapitalize);
+        const [blank, resize] = createBlank(checkedPart);
         div.appendChild(blank);
         resizeFns.push(resize);
 
