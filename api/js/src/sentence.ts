@@ -58,6 +58,7 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
     div.classList.add("sentence");
     div.lang = getL2().bcp47;
 
+    const inputs: HTMLInputElement[] = [];
     for (const [i, part] of sentence.parts.entries()) {
         if (!hasAnswers(part)) {
             div.appendChild(createPart(part.text));
@@ -72,6 +73,8 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
         );
         div.appendChild(blank);
         resizeFns.push(resize);
+
+        inputs.push(blank);
     }
 
     fixPunctuationWrap(div);
@@ -81,41 +84,29 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
 
     const check = () => {
         // Make sure everything has been filled.
-        const inputs = div.querySelectorAll(".blank");
-        for (let i = 0; i < inputs.length; i++) {
-            const input = inputs[i] as HTMLInputElement;
-            if (input.value === "") {
-                return;
-            }
+        if (inputs.some(input => input.value === "")) {
+            return;
         }
 
         // Get all blank parts.
         const blankParts = sentence.parts.filter(hasAnswers);
 
         // Time to check.
-        // TODO Don't assume `inputs` only contain `HTMLInputElement`s.
         // TODO Don't assume `inputs.length === blankParts.length`.
-        for (let i = 0; i < inputs.length; i++) {
-            evaluateInput(
-                inputs[i] as HTMLInputElement,
-                blankParts[i] as PartWithAnswers,
-            );
+        for (const [i, input] of inputs.entries()) {
+            evaluateInput(input, blankParts[i] as PartWithAnswers);
         }
 
         // Check if everything is correct.
-        for (let i = 0; i < inputs.length; i++) {
-            const input = inputs[i];
-            if (!input.classList.contains("correct")) {
-                return;
-            }
+        if (inputs.some(input => !input.classList.contains("correct"))) {
+            return;
         }
 
         // Show sentence link.
         render();
 
         // Upload results.
-        for (let i = 0; i < inputs.length; i++) {
-            const input = inputs[i] as HTMLInputElement;
+        for (const input of inputs) {
             const answer = input.value;
 
             const correct = !input.classList.contains("incorrect");
