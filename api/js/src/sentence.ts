@@ -89,14 +89,17 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
             }
         }
 
+        // Get all blank parts.
+        const blankParts = sentence.parts.filter(hasAnswers);
+
         // Time to check.
+        // TODO Don't assume `inputs` only contain `HTMLInputElement`s.
+        // TODO Don't assume `inputs.length === blankParts.length`.
         for (let i = 0; i < inputs.length; i++) {
-            // TODO don't assume blank parts are in odd positions
-            const input = inputs[i];
-            const part = sentence.parts[2 * i + 1];
-            if (hasAnswers(part)) {
-                evaluateInput(input as HTMLInputElement, part as PartWithAnswers);
-            }
+            evaluateInput(
+                inputs[i] as HTMLInputElement,
+                blankParts[i] as PartWithAnswers,
+            );
         }
 
         // Check if everything is correct.
@@ -119,6 +122,7 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
             dispatchUpdateCount(correct);
             const save = edit();
             submitReview(answer, correct).then(result => {
+                // TODO pass normalized word to `dispatchUnbuffer`
                 dispatchUnbuffer(answer);
                 save();
                 clearBuffer(result.frequencyClass);
