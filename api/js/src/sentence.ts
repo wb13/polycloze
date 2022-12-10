@@ -9,7 +9,6 @@ import {
     PartWithAnswers,
 } from "./blank";
 import { announceResult } from "./buffer";
-import { dispatchUpdateCount } from "./counter";
 import { getL2 } from "./language";
 import { edit } from "./unsaved";
 
@@ -88,7 +87,6 @@ export function createSentence(sentence: Sentence, done: () => void, enable: (ok
             const answer = input.value;
 
             const correct = !input.classList.contains("incorrect");
-            dispatchUpdateCount(correct);
             const save = edit();
             submitReview(answer, correct).then(result => {
                 // Normalize word.
