@@ -7,7 +7,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"sync"
 
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/sentences"
@@ -97,28 +96,19 @@ func generateItemsIntoChannel(
 	words []string,
 	hooks ...database.ConnectionHook,
 ) {
-	var wg sync.WaitGroup
-	wg.Add(len(words))
-
 	// TODO use request context instead
 	ctx := context.TODO()
+	con, err := database.NewConnection(db, ctx, hooks...)
+	if err != nil {
+		return
+	}
+	defer con.Close()
 
 	for _, word := range words {
-		go func(word string) {
-			defer wg.Done()
-
-			con, err := database.NewConnection(db, ctx, hooks...)
-			if err != nil {
-				return
-			}
-			defer con.Close()
-
-			if item, err := generateItem(con, word); err == nil {
-				ch <- item
-			}
-		}(word)
+		if item, err := generateItem(con, word); err == nil {
+			ch <- item
+		}
 	}
-	wg.Wait()
 }
 
 // Returns list of flashcards to show.
