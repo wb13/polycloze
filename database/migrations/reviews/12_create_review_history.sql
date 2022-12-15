@@ -5,6 +5,7 @@
 -- +goose StatementBegin
 
 -- Append-only history of reviews.
+-- Shouldn't be updated nor deleted from.
 CREATE TABLE history (
 	word TEXT NOT NULL,
 	reviewed INTEGER NOT NULL DEFAULT (unixepoch('now')),
