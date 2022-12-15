@@ -17,6 +17,8 @@ CREATE TABLE vocabulary_size_history (
 	v INTEGER NOT NULL
 );
 
+CREATE INDEX index_vocabulary_size_history_t ON vocabulary_size_history (t);
+
 CREATE TRIGGER trigger_vocabulary_size_after_insert_on_history_case_decrease
 AFTER INSERT ON history
 FOR EACH ROW
@@ -65,6 +67,8 @@ DROP TRIGGER trigger_vocabulary_size_history_after_update_on_vocabulary_size;
 
 DROP TRIGGER trigger_vocabulary_size_after_insert_on_history_case_decrease;
 DROP TRIGGER trigger_vocabulary_size_after_insert_on_history_case_increase;
+
+DROP INDEX index_vocabulary_size_history_t;
 
 DROP TABLE vocabulary_size_history;
 DROP TABLE vocabulary_size;
