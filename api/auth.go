@@ -155,13 +155,9 @@ done:
 
 func initUserDirectory(userID int) error {
 	base := basedir.User(userID)
-	logs := path.Join(base, "logs")
 	reviews := path.Join(base, "reviews")
 
 	if err := os.MkdirAll(base, 0o700); err != nil {
-		return fmt.Errorf("failed to create user directory: %v", err)
-	}
-	if err := os.MkdirAll(logs, 0o700); err != nil {
 		return fmt.Errorf("failed to create user directory: %v", err)
 	}
 	if err := os.MkdirAll(reviews, 0o700); err != nil {

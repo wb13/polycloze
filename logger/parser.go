@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+const layout string = "2006-01-02 15:04:05"
+
 var ErrParseError = errors.New("parse error")
 
 type LogEvent struct {

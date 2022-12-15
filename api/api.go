@@ -19,7 +19,6 @@ import (
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/flashcards"
-	"github.com/lggruspe/polycloze/logger"
 	"github.com/lggruspe/polycloze/sessions"
 	"github.com/lggruspe/polycloze/text"
 	"github.com/lggruspe/polycloze/word_scheduler"
@@ -94,7 +93,6 @@ func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, s *s
 	}
 	defer con.Close()
 
-	userID := s.Data["userID"].(int)
 	var frequencyClass int
 	for _, review := range reviews.Reviews {
 		err := word_scheduler.UpdateWord(con, review.Word, review.Correct)
@@ -102,7 +100,6 @@ func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, s *s
 			log.Printf("failed to update word: '%v'\n\t%v\n", review.Word, err.Error())
 		}
 		frequencyClass = word_scheduler.Placement(con)
-		_ = logger.LogReview(basedir.Log(userID, l1, l2), review.Correct, review.Word)
 	}
 
 	if _, err := w.Write(success(frequencyClass)); err != nil {
