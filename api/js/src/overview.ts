@@ -1,8 +1,4 @@
-import {
-    computeVocabularySize,
-    createActivityChart,
-    createVocabularyChart,
-} from "./chart";
+import { createActivityChart, createVocabularyChart} from "./chart";
 import { getL1, getL2 } from "./language";
 import { createLink } from "./link";
 import {
@@ -163,6 +159,7 @@ export function createOverviewPage(
     activity: ActivitySummary[],
     vocabularySize: DataPoint[],
 ): DocumentFragment {
+    const size = vocabularySize[vocabularySize.length-1].value;
     const [streak, active] = computeActiveStreak(activity);
 
     const h2 = document.createElement("h2");
@@ -172,12 +169,8 @@ export function createOverviewPage(
     fragment.append(
         createOverviewHeader(),
         createVocabularyChart(activityHistory),
-        createVocabularySummary(
-            computeVocabularySize(activityHistory)[0],
-        ),
-        createActionButtons(
-            vocabularySize[vocabularySize.length-1].value,
-        ),
+        createVocabularySummary(size),
+        createActionButtons(size),
         h2,
         createActivityChart(activityHistory),
         createStreakSummary(streak, active),
