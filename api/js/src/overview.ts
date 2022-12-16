@@ -168,7 +168,7 @@ export function createOverviewPage(
     const fragment = document.createDocumentFragment();
     fragment.append(
         createOverviewHeader(),
-        createVocabularyChart(activityHistory),
+        createVocabularyChart(vocabularySize),
         createVocabularySummary(size),
         createActionButtons(size),
         h2,

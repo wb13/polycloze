@@ -1,4 +1,4 @@
-import { ActivityHistory } from "./schema";
+import { ActivityHistory, DataPoint } from "./schema";
 
 import {
     CategoryScale,
@@ -45,29 +45,13 @@ function dateNDaysAgo(n: number): Date {
     return new Date(daysSinceEpoch * 24 * 60 * 60 * 1000);
 }
 
-// Computes vocabulary size at each day this year.
-export function computeVocabularySize({ activities, aggregates }: ActivityHistory): number[] {
-    const vocab = new Array(367).fill(0);
-
-    // Set increments
-    for (let i = 0; i < activities.length; i++) {
-        const { learned, forgotten } = activities[i];
-        vocab[i] = learned - forgotten;
-    }
-    vocab[vocab.length - 1] = aggregates.learned - aggregates.forgotten;
-
-    // Accumulate vocab size
-    for (let i = vocab.length - 2; i >= 0; i--) {
-        vocab[i] += vocab[i + 1];
-    }
-    return vocab;
-}
-
 // Returns vocabulary size data over the past week.
-function vocabularyData(activityHistory: ActivityHistory): ChartData {
-    const week = activityHistory.activities.slice(0, 7);
-    const labels = week.map((_, i) => dayLabels[dateNDaysAgo(i).getDay()]).reverse();
-    const data = computeVocabularySize(activityHistory).slice(0, labels.length).reverse();
+// Assumes that `vocabularySize` has a data point for each day in the past
+// week.
+function vocabularyData(vocabularySize: DataPoint[]): ChartData {
+    const points = vocabularySize.slice(-7);
+    const data = points.map(point => point.value);
+    const labels = points.map(point => dayLabels[point.time.getDay()]);
     return {
         labels,
         datasets: [
@@ -101,7 +85,10 @@ function activityData(activityHistory: ActivityHistory): ChartData {
     };
 }
 
-function createChart(canvas: HTMLCanvasElement, activityHistory: ActivityHistory): Chart {
+function createChart(
+    canvas: HTMLCanvasElement,
+    vocabularySize: DataPoint[],
+): Chart {
     return new Chart(canvas, {
         type: "line",
         options: {
@@ -121,7 +108,7 @@ function createChart(canvas: HTMLCanvasElement, activityHistory: ActivityHistory
                 },
             },
         },
-        data: vocabularyData(activityHistory),
+        data: vocabularyData(vocabularySize),
     });
 }
 
@@ -134,9 +121,11 @@ function createChartContainer(chart: HTMLCanvasElement): HTMLDivElement {
     return div;
 }
 
-export function createVocabularyChart(activityHistory: ActivityHistory): HTMLDivElement {
+export function createVocabularyChart(
+    vocabularySize: DataPoint[],
+): HTMLDivElement {
     const canvas = document.createElement("canvas");
-    createChart(canvas, activityHistory);
+    createChart(canvas, vocabularySize);
     return createChartContainer(canvas);
 }
 
