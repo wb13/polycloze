@@ -3,7 +3,6 @@ import { getL1, getL2 } from "./language";
 import { createLink } from "./link";
 import {
     Activity,
-    ActivityHistory,
     ActivitySummary,
     DataPoint,
 } from "./schema";
@@ -155,7 +154,6 @@ function createStreakSummary(streak: number, active: boolean): HTMLParagraphElem
 }
 
 export function createOverviewPage(
-    activityHistory: ActivityHistory,
     activity: ActivitySummary[],
     vocabularySize: DataPoint[],
 ): DocumentFragment {
@@ -172,7 +170,7 @@ export function createOverviewPage(
         createVocabularySummary(size),
         createActionButtons(size),
         h2,
-        createActivityChart(activityHistory),
+        createActivityChart(activity),
         createStreakSummary(streak, active),
     );
     return fragment;

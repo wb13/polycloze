@@ -1,6 +1,5 @@
 import {
     fetchActivity,
-    fetchActivityHistory,
     fetchCourses,
     fetchVocabularySize,
 } from "./api";
@@ -42,16 +41,11 @@ export class ResponsiveMenu extends HTMLElement {
 export class Overview extends HTMLElement {
     async connectedCallback() {
         const resolved = await Promise.all([
-            fetchActivityHistory(),
             fetchActivity(),
             fetchVocabularySize(),
         ]);
-        const [activityHistory, activity, vocabularySize] = resolved;
-        const page = createOverviewPage(
-            activityHistory,
-            activity,
-            vocabularySize,
-        );
+        const [activity, vocabularySize] = resolved;
+        const page = createOverviewPage(activity, vocabularySize);
         this.appendChild(page);
     }
 }

@@ -1,4 +1,4 @@
-import { ActivityHistory, DataPoint } from "./schema";
+import { ActivitySummary, DataPoint } from "./schema";
 
 import {
     CategoryScale,
@@ -39,12 +39,6 @@ const dayLabels = [
     "Sat",
 ];
 
-// Returns date n days ago.
-function dateNDaysAgo(n: number): Date {
-    const daysSinceEpoch = Date.now() / 1000 / 60 / 60 / 24 - n;
-    return new Date(daysSinceEpoch * 24 * 60 * 60 * 1000);
-}
-
 // Returns vocabulary size data over the past week.
 // Assumes that `vocabularySize` has a data point for each day in the past
 // week.
@@ -70,17 +64,19 @@ function createDataset(label: string, data: number[]): ChartDataset {
     return {data, label, cubicInterpolationMode: "monotone"};
 }
 
-function activityData(activityHistory: ActivityHistory): ChartData {
-    const week = activityHistory.activities.slice(0, 7);
-    const labels = week.map((_, i) => dayLabels[dateNDaysAgo(i).getDay()]).reverse();
+// Formats activity data so it can be used with chart.js.
+// Assumes `activity` has a record for each day in the past week.
+function activityData(activity: ActivitySummary[]): ChartData {
+    const points = activity.slice(-7);
+    const labels = points.map(point => dayLabels[point.from.getDay()]);
     return {
         labels,
         datasets: [
-            createDataset("Learned", week.map(a => a.learned).reverse()),
-            createDataset("Forgotten", week.map(a => a.forgotten).reverse()),
-            createDataset("Unimproved", week.map(a => a.unimproved).reverse()),
-            createDataset("Crammed", week.map(a => a.crammed).reverse()),
-            createDataset("Strengthened", week.map(a => a.strengthened).reverse()),
+            createDataset("Learned", points.map(p => p.learned)),
+            createDataset("Forgotten", points.map(p => p.forgotten)),
+            createDataset("Unimproved", points.map(p => p.unimproved)),
+            createDataset("Crammed", points.map(p => p.crammed)),
+            createDataset("Strengthened", points.map(p => p.strengthened)),
         ],
     };
 }
@@ -129,7 +125,7 @@ export function createVocabularyChart(
     return createChartContainer(canvas);
 }
 
-export function createActivityChart(activityHistory: ActivityHistory): HTMLDivElement {
+export function createActivityChart(activity: ActivitySummary[]): HTMLDivElement {
     const canvas = document.createElement("canvas");
     new Chart(canvas, {
         type: "line",
@@ -149,7 +145,7 @@ export function createActivityChart(activityHistory: ActivityHistory): HTMLDivEl
                 },
             },
         },
-        data: activityData(activityHistory),
+        data: activityData(activity),
     });
     return createChartContainer(canvas);
 }
