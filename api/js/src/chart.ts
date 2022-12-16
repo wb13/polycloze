@@ -17,6 +17,7 @@ import {
 
 Chart.register(
   CategoryScale,
+  // @ts-ignore
   Colors,
   Filler,
   Legend,
