@@ -51,12 +51,6 @@ export type Activity = {
   strengthened: number;
 };
 
-// from /<l1>/<l2>/activity
-export type ActivityHistory = {
-  activities: Activity[]; // up to one year of activities
-  aggregates: Activity;   // for > 1 year old
-};
-
 export type ActivitySummary = {
   from: Date;
   to: Date;

@@ -83,6 +83,7 @@ func handleStatsActivity(w http.ResponseWriter, r *http.Request) {
 
 	sendJSON(w, map[string]any{
 		"activity": result,
+		// TODO use unix timestamps?
 	})
 }
 
