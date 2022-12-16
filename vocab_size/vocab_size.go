@@ -10,8 +10,8 @@ import (
 )
 
 type Metric struct {
-	Time  time.Time
-	Value float64
+	Time  time.Time `json:"time"`
+	Value float64   `json:"value"`
 
 	initialized bool
 }

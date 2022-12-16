@@ -19,14 +19,14 @@ type Review struct {
 
 // Summary of reviews within an interval of time.
 type Summary struct {
-	From time.Time
-	To   time.Time
+	From time.Time `json:"from"`
+	To   time.Time `json:"to"`
 
-	Unimproved   int
-	Learned      int
-	Forgotten    int
-	Crammed      int
-	Strengthened int
+	Unimproved   int `json:"unimproved"`
+	Learned      int `json:"learned"`
+	Forgotten    int `json:"forgotten"`
+	Crammed      int `json:"crammed"`
+	Strengthened int `json:"strengthened"`
 }
 
 // Summarizes review activity during the given range.
