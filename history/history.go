@@ -58,7 +58,7 @@ func Summarize(db *sql.DB, from, to time.Time, step time.Duration) ([]Summary, e
 		query,
 		sql.Named("from", from.Unix()),
 		sql.Named("to", to.Unix()),
-		sql.Named("step", step/time.Hour),
+		sql.Named("step", step/time.Second),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to summarize review history: %v", err)
