@@ -1,4 +1,8 @@
-import { fetchActivityHistory, fetchCourses } from "./api";
+import {
+    fetchActivity,
+    fetchActivityHistory,
+    fetchCourses,
+} from "./api";
 import { createApp } from "./app";
 import { ItemBuffer } from "./buffer";
 import { setButtonLink } from "./button";
@@ -43,8 +47,9 @@ export class Overview extends HTMLElement {
 
 export class ScoreCounter extends HTMLElement {
     async connectedCallback() {
-        const activityHistory = await fetchActivityHistory();
-        const today = activityHistory.activities[0];
+        // TODO only fetch activity today
+        const activity = await fetchActivity();
+        const today = activity[activity.length - 1];
         const { crammed, learned, strengthened } = today;
         const score = crammed + learned + strengthened;
         this.appendChild(createScoreCounter(score));
