@@ -5,7 +5,12 @@ import {
 } from "./chart";
 import { getL1, getL2 } from "./language";
 import { createLink } from "./link";
-import { Activity, ActivityHistory } from "./schema";
+import {
+    Activity,
+    ActivityHistory,
+    ActivitySummary,
+    DataPoint,
+} from "./schema";
 
 function createOverviewHeader(): HTMLHeadingElement {
     const l1 = getL1();
@@ -65,33 +70,74 @@ function hasActivity({ crammed, learned, strengthened }: Activity): boolean {
     return crammed > 0 || learned > 0 || strengthened > 0;
 }
 
-// Tries to compute streak.
-// Since ActivityHistory only keeps track of activity in the past year,
-// result may be less than the real streak.
-// Returns length of streak and boolean value (whether or not streak is active).
-function computeStreak(activityHistory: ActivityHistory): [number, boolean] {
-    if (activityHistory.activities.length === 0) {
-        return [0, false];
+// Checks if the date intervals overlap.
+// Intervals are assumed to be half-open: [start, end).
+function isOverlapping(a1: Date, a2: Date, b1: Date, b2: Date): boolean {
+    // Rearrange args so that x1 < x2.
+    if (a2 < a1) {
+        [a1, a2] = [a2, a1];
+    }
+    if (b2 < b1) {
+        [b1, b2] = [b2, b1];
     }
 
-    let streak = 0;
+    // Check for overlaps.
+    if (a2 <= b1) {
+        return false;
+    }
+    if (b2 <= a1) {
+        return false;
+    }
+    return true;
+}
+
+// Tries to compute current streak and if it's active or not.
+// The returned value may be shorter than the actual streak, if the streak
+// started before the earliest day in `activity`.
+function computeActiveStreak(activity: ActivitySummary[]): [number, boolean] {
     let active = false;
-    for (let i = 1; i < activityHistory.activities.length; i++) {
-        if (!hasActivity(activityHistory.activities[i])) {
+
+    // Construct range for today.
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    const date = now.getDate();
+    const todayStart = new Date(year, month, date);
+    const todayEnd = new Date(year, month, date+1);
+
+    // Find start of streak by looking for last day without activity,
+    // excluding today.
+    let start = now;
+    for (let i = activity.length - 1; i >= 0; i--) {
+        const summary = activity[i];
+        const isToday = isOverlapping(
+            todayStart,
+            todayEnd,
+            summary.from,
+            summary.to,
+        );
+        if (isToday) {
+            if (hasActivity(summary)) {
+                active = true;
+                start = summary.from;
+            }
+            continue;
+        }
+        if (!hasActivity(summary)) {
             break;
         }
-        streak = i;
+        start = summary.from;
     }
-    if (hasActivity(activityHistory.activities[0])) {
+
+    const diff = now.valueOf() - start.valueOf();
+    let streak = Math.max(0, Math.floor(diff/1000/60/60/24));
+    if (active) {
         streak++;
-        active = true;
     }
     return [streak, active];
 }
 
-function createStreakSummary(activityHistory: ActivityHistory): HTMLParagraphElement {
-    const [streak, active] = computeStreak(activityHistory);
-
+function createStreakSummary(streak: number, active: boolean): HTMLParagraphElement {
     let icon: string;
     let message: string;
     if (streak <= 0) {
@@ -112,8 +158,12 @@ function createStreakSummary(activityHistory: ActivityHistory): HTMLParagraphEle
     return p;
 }
 
-export function createOverviewPage(activityHistory: ActivityHistory): DocumentFragment {
-    const size = computeVocabularySize(activityHistory)[0];
+export function createOverviewPage(
+    activityHistory: ActivityHistory,
+    activity: ActivitySummary[],
+    vocabularySize: DataPoint[],
+): DocumentFragment {
+    const [streak, active] = computeActiveStreak(activity);
 
     const h2 = document.createElement("h2");
     h2.textContent = "Recent activity";
@@ -122,11 +172,15 @@ export function createOverviewPage(activityHistory: ActivityHistory): DocumentFr
     fragment.append(
         createOverviewHeader(),
         createVocabularyChart(activityHistory),
-        createVocabularySummary(size),
-        createActionButtons(size),
+        createVocabularySummary(
+            computeVocabularySize(activityHistory)[0],
+        ),
+        createActionButtons(
+            vocabularySize[vocabularySize.length-1].value,
+        ),
         h2,
         createActivityChart(activityHistory),
-        createStreakSummary(activityHistory),
+        createStreakSummary(streak, active),
     );
     return fragment;
 }
