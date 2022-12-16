@@ -112,15 +112,16 @@ func UpdateReviewAt[T database.Querier](q T, item string, correct bool, now time
 
 	query := `
 		INSERT INTO review (item, interval, learned, reviewed)
-		VALUES (?, ?, unixepoch('now'), unixepoch('now'))
+		VALUES (@item, @interval, @now, @now)
 		ON CONFLICT (item) DO UPDATE SET
 			interval = excluded.interval,
 			reviewed = excluded.reviewed
 	`
 	_, err = tx.Exec(
 		query,
-		item,
-		int64(next.Interval.Hours()),
+		sql.Named("item", item),
+		sql.Named("interval", int64(next.Interval.Hours())),
+		sql.Named("now", now.Unix()),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to update review: %v", err)

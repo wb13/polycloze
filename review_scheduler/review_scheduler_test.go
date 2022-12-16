@@ -34,19 +34,19 @@ func TestUpdate(t *testing.T) {
 	defer db.Close()
 
 	if err := UpdateReview(db, "foo", false); err != nil {
-		t.Fatal("expected err to be nil", err)
+		t.Fatal("expected err to be nil:", err)
 	}
 	if err := UpdateReview(db, "bar", true); err != nil {
-		t.Fatal("expected err to be nil", err)
+		t.Fatal("expected err to be nil:", err)
 	}
 
 	items, err := ScheduleReviewNow(db, 100)
 	if err != nil {
-		t.Fatal("expected err to be nil", err)
+		t.Fatal("expected err to be nil:", err)
 	}
 
 	if len(items) != 1 {
-		t.Log("expected different number of results", items)
+		t.Log("expected different number of results:", items)
 	}
 	if items[0] != "foo" {
 		t.Error("expected scheduled items to contain \"foo\"", items[0])
@@ -207,5 +207,34 @@ func TestReviewTimestampType(t *testing.T) {
 		if due < 10000 {
 			t.Fatal("expected due to be a UNIX timestamp:", due)
 		}
+	}
+}
+
+func TestUpdateReviewAt(t *testing.T) {
+	// Review timestamp should be the same as argument.
+	t.Parallel()
+
+	db := utils.TestingDatabase()
+	defer db.Close()
+
+	now := time.Now().AddDate(0, 0, -1)
+	if err := UpdateReviewAt(db, "foo", true, now); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Query review from database.
+	var reviewed int64
+	query := `SELECT reviewed FROM review`
+	if err := db.QueryRow(query).Scan(&reviewed); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Compare output with input timestamp.
+	if reviewed != now.Unix() {
+		t.Fatal(
+			"expected timestamp to be the same as inserted value:",
+			reviewed,
+			now.Unix(),
+		)
 	}
 }
