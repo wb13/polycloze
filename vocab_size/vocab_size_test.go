@@ -96,4 +96,11 @@ func TestVocabSizeIncrease(t *testing.T) {
 	if len(series) != 1 {
 		t.Fatal("expected result to contain one partition:", series)
 	}
+
+	// Check output values.
+	for _, metric := range series {
+		if metric.Value != 1 {
+			t.Fatal("expected vocab size to be 1:", metric.Value)
+		}
+	}
 }
