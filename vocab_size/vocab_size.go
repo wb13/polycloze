@@ -32,12 +32,11 @@ func VocabSize(db *sql.DB, from, to time.Time, step time.Duration) ([]Metric, er
 
 	// Compute vocab size.
 	query := `
-		SELECT (t - @from)/@step AS i, coalesce(last_value(v), lag(v))
+		SELECT (t - @from)/@step, last_value(v) OVER win
 		FROM vocabulary_size_history
 		WHERE t >= @from AND t < @to
-		ORDER BY t
-		OVER (
-			PARTITION BY i
+		WINDOW win AS (
+			PARTITION BY (t - @from)/@step
 			ORDER BY id ASC
 		)
 	`
