@@ -5,6 +5,8 @@ import { getL1, getL2 } from "./language";
 import { fetchJson, resolve, submitJson } from "./request";
 import {
     ActivityHistory,
+    ActivitySchema,
+    ActivitySummary,
     Course,
     CoursesSchema,
     ItemsSchema,
@@ -69,6 +71,38 @@ export async function fetchActivityHistory(options: FetchActivityHistoryOptions 
     return await fetchJson<ActivityHistory>(url, {
         mode: "cors" as RequestMode,
     });
+}
+
+type FetchActivityOptions = {
+    l1?: string;
+    l2?: string;
+    from?: Date;
+    to?: Date;
+    step?: number;
+};
+
+function defaultFetchActivityOptions(): FetchActivityOptions {
+    return {
+        l1: getL1().code,
+        l2: getL2().code,
+        // TODO from and to
+        step: 86400,    // 1 day
+    };
+}
+
+// Fetches student's recent activity.
+export async function fetchActivity(options: FetchActivityOptions = {}): Promise<ActivitySummary[]> {
+    const {l1, l2} = {...defaultFetchActivityOptions(), ...options};
+    const url = resolve(`/api/stats/activity/${l1}/${l2}`);
+    setParams(url, {
+        from: options.from ? options.from.getTime() / 1000 : undefined,
+        to: options.to ? options.to.getTime() / 1000 : undefined,
+        step: options.step || undefined,
+    });
+    const json = await fetchJson<ActivitySchema>(url, {
+        mode: "cors" as RequestMode,
+    });
+    return json.activity;
 }
 
 export async function fetchCourses(): Promise<Course[]> {

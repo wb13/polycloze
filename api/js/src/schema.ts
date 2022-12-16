@@ -57,6 +57,22 @@ export type ActivityHistory = {
   aggregates: Activity;   // for > 1 year old
 };
 
+export type ActivitySummary = {
+  from: Date;
+  to: Date;
+
+  unimproved: number;
+  learned: number;
+  forgotten: number;
+  crammed: number;
+  strengthened: number;
+};
+
+// from /api/stats/activity/<l1>/<l2>?from=<from>&to=<to>&step=<step>
+export type ActivitySchema = {
+  activity: ActivitySummary[];
+};
+
 // Not to be confused with sentence.Sentence.
 export type RandomSentence = {
   id: number;
