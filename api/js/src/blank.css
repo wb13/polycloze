@@ -1,16 +1,16 @@
 .blank {
-	font-family: inherit;
-	font-size: inherit;
+  font-family: inherit;
+  font-size: inherit;
 }
 
 .correct {
-	color: green;
+  color: green;
 }
 
 .almost {
-	color: orange;
+  color: orange;
 }
 
 .incorrect {
-	color: red;
+  color: red;
 }

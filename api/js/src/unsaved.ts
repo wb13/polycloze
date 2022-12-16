@@ -10,19 +10,19 @@ let unsaved = 0;
 // save();
 // ```
 export function edit(): () => void {
-    let done = false;
-    ++unsaved;
-    return () => {
-        if (!done) {
-            --unsaved;
-            done = true;
-        }
-    };
+  let done = false;
+  ++unsaved;
+  return () => {
+    if (!done) {
+      --unsaved;
+      done = true;
+    }
+  };
 }
 
-addEventListener("beforeunload", event => {
-    if (unsaved > 0) {
-        event.preventDefault();
-        return event.returnValue = "";
-    }
+addEventListener("beforeunload", (event) => {
+  if (unsaved > 0) {
+    event.preventDefault();
+    return (event.returnValue = "");
+  }
 });

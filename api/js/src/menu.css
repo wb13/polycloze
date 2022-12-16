@@ -1,29 +1,29 @@
 .menu-wide {
-	display: inline-block;
+  display: inline-block;
 }
 
 .menu-narrow {
-	display: none;
+  display: none;
 }
 
 .menu-list-button {
-	display: none;
+  display: none;
 }
 
 @media (max-width: 750px) {
-	.menu-wide {
-		display: none;
-	}
+  .menu-wide {
+    display: none;
+  }
 
-	.menu-narrow {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
+  .menu-narrow {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 
-		padding: 1rem;
-	}
+    padding: 1rem;
+  }
 
-	.menu-list-button {
-		display: inline;
-	}
+  .menu-list-button {
+    display: inline;
+  }
 }

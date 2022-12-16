@@ -1,142 +1,146 @@
-@import './normalize.css';
+@import "./normalize.css";
 
 @font-face {
-	font-family: 'Nunito';
-	src: url("../public/fonts/Nunito/Nunito-VariableFont_wght.ttf?t=20221114") format("truetype");
-	font-display: fallback;
+  font-family: "Nunito";
+  src: url("../public/fonts/Nunito/Nunito-VariableFont_wght.ttf?t=20221114")
+    format("truetype");
+  font-display: fallback;
 }
 
 :root {
-	--monospace: _, monospace;	/* 2nd monospace makes monospace font larger */
-	--sans-serif: 'Nunito', sans-serif;
+  --monospace: _, monospace; /* 2nd monospace makes monospace font larger */
+  --sans-serif: "Nunito", sans-serif;
 
-	--small: 0.75em;
-	--medium: 1.5em;
-	--large: 2em;
+  --small: 0.75em;
+  --medium: 1.5em;
+  --large: 2em;
 
-	--primary-color-light: lightseagreen;
-	--primary-color: mediumseagreen;
-	--primary-color-dark: seagreen;
-	--primary-color-darker: darkseagreen;
+  --primary-color-light: lightseagreen;
+  --primary-color: mediumseagreen;
+  --primary-color-dark: seagreen;
+  --primary-color-darker: darkseagreen;
 }
 
 body {
-	font-family: var(--sans-serif);
+  font-family: var(--sans-serif);
 }
 
 main {
-	max-width: 640px;
-	padding: 1em;
-	margin: 0 auto;
+  max-width: 640px;
+  padding: 1em;
+  margin: 0 auto;
 }
 
-h1, h2, h3, h4, h5, h6 {
-	font-weight: 500;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 500;
 }
 
 /* For all form related styling */
 
 form.signin {
-	display: flex;
-	flex-direction: column;
-	align-items: start;
-	gap: 1em;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 1em;
 }
-
 
 /* For all navigation related styling */
 
 nav.primary {
-	position: sticky;
-	top: 0;
-	background-color: white;
-	z-index: 1;	/* so this goes on top of chart.js chart, which has z-index 0 */
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 1; /* so this goes on top of chart.js chart, which has z-index 0 */
 
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	column-gap: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  column-gap: 1rem;
 
-	padding: 1rem;
+  padding: 1rem;
 
-	border: 1px solid lightgray;
-	box-shadow: 1px 1px 1px gray;
+  border: 1px solid lightgray;
+  box-shadow: 1px 1px 1px gray;
 }
 
 nav.primary > .logo {
-	font-size: var(--large);
-	font-weight: 500;
+  font-size: var(--large);
+  font-weight: 500;
 }
 
 nav.footer {
-	display: flex;
-	justify-content: center;
-	column-gap: 1.5em;
+  display: flex;
+  justify-content: center;
+  column-gap: 1.5em;
 
-	margin: 1em;
+  margin: 1em;
 }
-
 
 /* Inline element styling */
 
 a {
-	text-decoration: none;
+  text-decoration: none;
 }
 
 a:hover {
-	text-decoration: underline;
+  text-decoration: underline;
 }
 
 input {
-	background-color: lightgray;
-	border: none;
-	border-bottom: 2.5px solid gray;
+  background-color: lightgray;
+  border: none;
+  border-bottom: 2.5px solid gray;
 }
 
 input:focus {
-	outline: none;
+  outline: none;
 }
-
 
 /* Classes */
 
 .card {
-	border: 1px solid lightgray;
-	box-shadow: 1px 1px 1px gray;
-	border-radius: 5px;
+  border: 1px solid lightgray;
+  box-shadow: 1px 1px 1px gray;
+  border-radius: 5px;
 
-	margin-top: 1em;
-	padding: 0 1em;
+  margin-top: 1em;
+  padding: 0 1em;
 
-	background-color: whitesmoke;
+  background-color: whitesmoke;
 }
 
 .small {
-	font-size: var(--small);
+  font-size: var(--small);
 }
 
 .medium {
-	font-size: var(--medium);
+  font-size: var(--medium);
 }
 
 .large {
-	font-size: var(--large);
-	font-weight: 500;
+  font-size: var(--large);
+  font-weight: 500;
 }
 
 .row {
-	display: flex;
-	justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
 }
 
 .colorless {
-	color: inherit;
+  color: inherit;
 }
 
 .transparent {
-	opacity: 0;
+  opacity: 0;
 }
 
-.underline, a.logo:hover {
-	text-decoration: underline 2px;
+.underline,
+a.logo:hover {
+  text-decoration: underline 2px;
 }

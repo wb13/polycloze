@@ -3,12 +3,12 @@
 import { Item } from "./item";
 
 export type ItemsSchema = {
-    items: Item[];
+  items: Item[];
 };
 
 export type ReviewSchema = {
-    success: boolean;
-    frequencyClass: number;    // describes student's level
+  success: boolean;
+  frequencyClass: number; // describes student's level
 };
 
 export type Language = {
@@ -22,12 +22,12 @@ export type LanguagesSchema = {
 };
 
 export type Course = {
-    l1: Language;
-    l2: Language;
+  l1: Language;
+  l2: Language;
 };
 
 export type CoursesSchema = {
-    courses: Course[];
+  courses: Course[];
 };
 
 export type Word = {
@@ -87,8 +87,8 @@ export type RandomSentence = {
 };
 
 export type RandomSentencesSchema = {
-  "sentences": RandomSentence[];
-}
+  sentences: RandomSentence[];
+};
 
 export type DataPoint = {
   time: Date;

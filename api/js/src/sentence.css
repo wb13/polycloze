@@ -1,14 +1,14 @@
 .sentence {
-	font-size: 2.5rem;
-	margin: 1.5rem 0;
+  font-size: 2.5rem;
+  margin: 1.5rem 0;
 }
 
 .sentence-link {
-	font-size: 1.5rem;
-	margin-bottom: 0.25rem;
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .sentence-link a {
-	color: gray;
-	text-decoration: none;
+  color: gray;
+  text-decoration: none;
 }
