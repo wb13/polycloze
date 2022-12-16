@@ -9,6 +9,7 @@ import {
     ActivitySummary,
     Course,
     CoursesSchema,
+    DataPoint,
     ItemsSchema,
     Language,
     LanguagesSchema,
@@ -17,6 +18,7 @@ import {
     ReviewSchema,
     Word,
     VocabularySchema,
+    VocabularySizeSchema,
 } from "./schema";
 
 type FetchVocabularyOptions = {
@@ -103,6 +105,38 @@ export async function fetchActivity(options: FetchActivityOptions = {}): Promise
         mode: "cors" as RequestMode,
     });
     return json.activity;
+}
+
+type FetchVocabularySizeOptions = {
+    l1?: string;
+    l2?: string;
+    from?: Date;
+    to?: Date;
+    step?: number;
+};
+
+function defaultFetchVocabularySizeOptions(): FetchVocabularySizeOptions {
+    return {
+        l1: getL1().code,
+        l2: getL2().code,
+        // TODO from and to
+        step: 86400,    // 1 day
+    };
+}
+
+// Fetches student's vocab size over time.
+export async function fetchVocabularySize(options: FetchVocabularySizeOptions = {}): Promise<DataPoint[]> {
+    const {l1, l2} = {...defaultFetchVocabularySizeOptions(), ...options};
+    const url = resolve(`/api/stats/vocab/${l1}/${l2}`);
+    setParams(url, {
+        from: options.from ? options.from.getTime() / 1000 : undefined,
+        to: options.to ? options.to.getTime() / 1000 : undefined,
+        step: options.step || undefined,
+    });
+    const json = await fetchJson<VocabularySizeSchema>(url, {
+        mode: "cors" as RequestMode,
+    });
+    return json.vocabSize;
 }
 
 export async function fetchCourses(): Promise<Course[]> {

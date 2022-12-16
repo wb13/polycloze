@@ -83,3 +83,13 @@ export type RandomSentence = {
 export type RandomSentencesSchema = {
   "sentences": RandomSentence[];
 }
+
+export type DataPoint = {
+  time: Date;
+  value: number;
+};
+
+// from /api/stats/vocab/<l1>/<l2>?from=<from>&to=<to>&step=<step>
+export type VocabularySizeSchema = {
+  vocabSize: DataPoint[];
+};
