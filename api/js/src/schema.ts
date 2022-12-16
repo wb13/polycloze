@@ -62,9 +62,21 @@ export type ActivitySummary = {
   strengthened: number;
 };
 
+// Same as ActivitySummary, but with unparsed timestamps.
+export type ActivitySummarySchema = {
+  from: string;
+  to: string;
+
+  unimproved: number;
+  learned: number;
+  forgotten: number;
+  crammed: number;
+  strengthened: number;
+};
+
 // from /api/stats/activity/<l1>/<l2>?from=<from>&to=<to>&step=<step>
 export type ActivitySchema = {
-  activity: ActivitySummary[];
+  activity: ActivitySummarySchema[];
 };
 
 // Not to be confused with sentence.Sentence.
@@ -83,7 +95,13 @@ export type DataPoint = {
   value: number;
 };
 
+// Same as DataPoint, but with unparsed timestamp.
+export type DataPointSchema = {
+  time: string;
+  value: number;
+};
+
 // from /api/stats/vocab/<l1>/<l2>?from=<from>&to=<to>&step=<step>
 export type VocabularySizeSchema = {
-  vocabSize: DataPoint[];
+  vocabSize: DataPointSchema[];
 };

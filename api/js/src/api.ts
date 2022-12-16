@@ -81,7 +81,13 @@ export async function fetchActivity(options: FetchActivityOptions = {}): Promise
     const json = await fetchJson<ActivitySchema>(url, {
         mode: "cors" as RequestMode,
     });
-    return json.activity;
+    return json.activity.map(s => {
+        return {
+            ...s,
+            from: new Date(s.from),
+            to: new Date(s.to),
+        };
+    });
 }
 
 type FetchVocabularySizeOptions = {
@@ -113,7 +119,12 @@ export async function fetchVocabularySize(options: FetchVocabularySizeOptions = 
     const json = await fetchJson<VocabularySizeSchema>(url, {
         mode: "cors" as RequestMode,
     });
-    return json.vocabSize;
+    return json.vocabSize.map(p => {
+        return {
+            time: new Date(p.time),
+            value: p.value,
+        };
+    });
 }
 
 export async function fetchCourses(): Promise<Course[]> {
