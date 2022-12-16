@@ -107,10 +107,180 @@ func TestSummarizeLearn(t *testing.T) {
 	// Check summary values.
 	summary := result[0]
 	ok := summary.Unimproved == 0 &&
-		summary.Learned == 1 &&
+		summary.Learned == 1 && // for reviewing previously unseen word
 		summary.Forgotten == 0 &&
 		summary.Crammed == 0 &&
 		summary.Strengthened == 0
+	if !ok {
+		t.Fatal("incorrect summary:", summary)
+	}
+}
+
+func TestSummarizeCram(t *testing.T) {
+	// Some of the summary values should be non-zero.
+	t.Parallel()
+
+	db := utils.TestingDatabase()
+	defer db.Close()
+
+	to := time.Now()
+	from := to.AddDate(0, 0, -1)
+
+	// Review a word.
+	at := from.Add(time.Hour)
+	if err := review_scheduler.UpdateReviewAt(db, "foo", true, at); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Cram.
+	at = at.Add(time.Hour)
+	if err := review_scheduler.UpdateReviewAt(db, "foo", true, at); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Get summary.
+	result, err := Summarize(db, from, to, 24*time.Hour)
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	if len(result) != 1 {
+		t.Fatal("expected result to contain one partition:", result)
+	}
+
+	// Check summary values.
+	summary := result[0]
+	ok := summary.Unimproved == 0 &&
+		summary.Learned == 1 && // 1 for initial
+		summary.Forgotten == 0 &&
+		summary.Crammed == 1 && // 1 for crammed review
+		summary.Strengthened == 0
+	if !ok {
+		t.Fatal("incorrect summary:", summary)
+	}
+}
+
+func TestSummarizeUnimproved(t *testing.T) {
+	// Some of the summary values should be non-zero.
+	t.Parallel()
+
+	db := utils.TestingDatabase()
+	defer db.Close()
+
+	to := time.Now()
+	from := to.AddDate(0, 0, -1)
+
+	// Review a word.
+	at := from.Add(time.Hour)
+	if err := review_scheduler.UpdateReviewAt(db, "foo", false, at); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Get summary.
+	result, err := Summarize(db, from, to, 24*time.Hour)
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	if len(result) != 1 {
+		t.Fatal("expected result to contain one partition:", result)
+	}
+
+	// Check summary values.
+	summary := result[0]
+	ok := summary.Unimproved == 1 && // for failed review
+		summary.Learned == 0 &&
+		summary.Forgotten == 0 &&
+		summary.Crammed == 0 &&
+		summary.Strengthened == 0
+	if !ok {
+		t.Fatal("incorrect summary:", summary)
+	}
+}
+
+func TestSummarizeForgotten(t *testing.T) {
+	// Some of the summary values should be non-zero.
+	t.Parallel()
+
+	db := utils.TestingDatabase()
+	defer db.Close()
+
+	to := time.Now()
+	from := to.AddDate(0, 0, -1)
+
+	// Review a word.
+	at := from.Add(time.Hour)
+	if err := review_scheduler.UpdateReviewAt(db, "foo", true, at); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Forget the word.
+	at = from.Add(time.Hour)
+	if err := review_scheduler.UpdateReviewAt(db, "foo", false, at); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Get summary.
+	result, err := Summarize(db, from, to, 24*time.Hour)
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	if len(result) != 1 {
+		t.Fatal("expected result to contain one partition:", result)
+	}
+
+	// Check summary values.
+	summary := result[0]
+	ok := summary.Unimproved == 0 &&
+		summary.Learned == 1 && // for initial review
+		summary.Forgotten == 1 && // for second review
+		summary.Crammed == 0 &&
+		summary.Strengthened == 0
+	if !ok {
+		t.Fatal("incorrect summary:", summary)
+	}
+}
+
+func TestSummarizeStrengthened(t *testing.T) {
+	// Some of the summary values should be non-zero.
+	t.Parallel()
+
+	db := utils.TestingDatabase()
+	defer db.Close()
+
+	to := time.Now()
+	from := to.AddDate(0, 0, -2)
+
+	// Review a word.
+	at := from.Add(time.Hour)
+	if err := review_scheduler.UpdateReviewAt(db, "foo", true, at); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Strengthen the word after the due date.
+	at = from.Add(25 * time.Hour)
+	if err := review_scheduler.UpdateReviewAt(db, "foo", true, at); err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	// Get summary.
+	result, err := Summarize(db, from, to, 48*time.Hour)
+	if err != nil {
+		t.Fatal("expected err to be nil:", err)
+	}
+
+	if len(result) != 1 {
+		t.Fatal("expected result to contain one partition:", result)
+	}
+
+	// Check summary values.
+	summary := result[0]
+	ok := summary.Unimproved == 0 &&
+		summary.Learned == 1 && // for initial review
+		summary.Forgotten == 0 &&
+		summary.Crammed == 0 &&
+		summary.Strengthened == 1 // for second review
 	if !ok {
 		t.Fatal("incorrect summary:", summary)
 	}
