@@ -46,6 +46,7 @@ See `python -m scripts.build -h` for details.
 - spa (Spanish)
 - swe (Swedish)
 - tgl (Tagalog)
+- tok (toki pona)
 
 You can add more by making the appropriate changes in `scripts/language.py`.
 

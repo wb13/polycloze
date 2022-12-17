@@ -225,6 +225,14 @@ languages["tgl"] = Language(
     symbols=set("-.0123456789"),
 )
 
+languages["tok"] = Language(
+    code="tok",
+    name="toki pona",
+    bcp47="tok",
+    tokenizer=lambda: import_tokenizer("spacy.language", "Language"),
+    alphabet=set("aeijklmnopstuw"),
+)
+
 languages["ukr"] = Language(
     code="ukr",
     name="Ukrainian",
