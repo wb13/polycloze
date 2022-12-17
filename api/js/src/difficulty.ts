@@ -2,19 +2,53 @@
 
 import { isTooEasy, isTooHard } from "./wilson";
 
+export type Difficulty = {
+  level?: number;
+  correct?: number;
+  incorrect?: number;
+  min?: number;
+  max?: number;
+};
+
 export class DifficultyTuner {
+  // @ts-ignore because typescript can't see initializer in `this.reset`.
   level: number;
+  // @ts-ignore
   correct: number;
+  // @ts-ignore
   incorrect: number;
+  // @ts-ignore
   min: number;
+  // @ts-ignore
   max: number;
 
-  constructor(level = 0, correct = 0, incorrect = 0, min = 0, max = 0) {
+  constructor(difficulty: Difficulty = {}) {
+    this.reset(difficulty);
+  }
+
+  reset(difficulty: Difficulty) {
+    let { level, correct, incorrect, min, max } = difficulty;
+    if (min == null || min < 0) {
+      min = 0;
+    }
+    if (max == null || max < 0) {
+      max = Infinity;
+    }
+    if (correct == null || correct < 0) {
+      correct = 0;
+    }
+    if (incorrect == null || incorrect < 0) {
+      incorrect = 0;
+    }
+    if (level == null || level < 0) {
+      level = min;
+    }
+
+    this.min = min;
+    this.max = max;
     this.level = level;
     this.correct = correct;
     this.incorrect = incorrect;
-    this.min = min;
-    this.max = max;
   }
 
   // Updates level statistics.

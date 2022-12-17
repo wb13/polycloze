@@ -42,16 +42,10 @@ function createTranslation(translation: Translation): HTMLParagraphElement {
 function createItemBody(
   item: Item,
   done: () => void,
-  enable: (ok: boolean) => void,
-  clearBuffer: (frequencyClass: number) => void
+  enable: (ok: boolean) => void
 ): [HTMLDivElement, () => void, () => void] {
   const div = document.createElement("div");
-  const [sentence, check, resize] = createSentence(
-    item.sentence,
-    done,
-    enable,
-    clearBuffer
-  );
+  const [sentence, check, resize] = createSentence(item.sentence, done, enable);
   div.append(sentence, createTranslation(item.translation));
   return [div, check, resize];
 }
@@ -82,8 +76,7 @@ function createSubmitButton(
 export function createItem(
   tts: TTS,
   item: Item,
-  next: () => void,
-  clearBuffer: (frequencyClass: number) => void
+  next: () => void
 ): [HTMLDivElement, () => void] {
   const [submitBtn, enable] = createSubmitButton();
 
@@ -96,7 +89,7 @@ export function createItem(
     submitBtn.replaceWith(btn);
     btn.focus();
   };
-  const [body, check, resize] = createItemBody(item, done, enable, clearBuffer);
+  const [body, check, resize] = createItemBody(item, done, enable);
   const footer = createItemFooter(submitBtn);
 
   submitBtn.addEventListener("click", check);

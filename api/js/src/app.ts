@@ -23,12 +23,7 @@ export async function createApp(
     });
   };
 
-  const [child, resize] = createItem(
-    tts,
-    item,
-    next,
-    (frequencyClass: number) => buffer.clearIfStale(frequencyClass)
-  );
+  const [child, resize] = createItem(tts, item, next);
   div.appendChild(child);
 
   const ready = () => {

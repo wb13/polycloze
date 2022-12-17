@@ -1,9 +1,11 @@
 // Item buffer
 
-import { fetchItems } from "./api";
+import { fetchItems, submitReview } from "./api";
 import { PartWithAnswers, hasAnswers } from "./blank";
+import { Difficulty, DifficultyTuner } from "./difficulty";
 import { Item } from "./item";
 import { Sentence } from "./sentence";
+import { edit } from "./unsaved";
 
 function* getBlankParts(sentence: Sentence): IterableIterator<PartWithAnswers> {
   for (const part of sentence.parts) {
@@ -16,17 +18,23 @@ function* getBlankParts(sentence: Sentence): IterableIterator<PartWithAnswers> {
 export class ItemBuffer {
   buffer: Item[];
   keys: Set<string>;
-
-  frequencyClass?: number;
+  difficultyTuner: DifficultyTuner;
 
   constructor() {
+    // TODO pass difficulty arg to DifficultyTuner
+    this.difficultyTuner = new DifficultyTuner();
     this.buffer = [];
     this.keys = new Set();
 
-    const listener = (event: Event) => {
-      const word = (event as CustomEvent).detail.word;
+    const listener = async (event: Event) => {
+      const { word, correct } = (event as CustomEvent).detail;
+
+      const save = edit();
+      await submitReview(word, correct);
       this.keys.delete(word);
-      // TODO submit review result from here
+      save();
+
+      await this.clearStale(correct);
     };
 
     // NOTE this never gets removed
@@ -80,15 +88,17 @@ export class ItemBuffer {
     return this.buffer.shift();
   }
 
-  clearIfStale(frequencyClass: number) {
-    if (
-      this.frequencyClass != undefined &&
-      this.frequencyClass != frequencyClass
-    ) {
+  // Removes stale flashcards (e.g. when placement level changes).
+  // `correct`: whether or not most recently reviewed card was answered
+  // correctly.
+  async clearStale(correct: boolean) {
+    const changed = this.difficultyTuner.update(correct);
+    // TODO trigger refetch of items on change
+    if (changed) {
       // Leaves some items in the buffer so flashcards come continuously.
+      // TODO reduce number of items to keep in the buffer.
       this.buffer.splice(3);
     }
-    this.frequencyClass = frequencyClass;
   }
 }
 
