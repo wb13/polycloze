@@ -6,6 +6,7 @@ package api
 
 import (
 	"embed"
+	"fmt"
 	"io/fs"
 	"net/http"
 	"path/filepath"
@@ -58,9 +59,18 @@ func cacheUntilBusted(next http.Handler) http.HandlerFunc {
 	})
 }
 
+// Sets ETag header to data version found in `$DATA_DIR/polycloze/version.txt`.
+func versioned(next http.Handler) http.HandlerFunc {
+	etag := fmt.Sprintf(`"%s"`, dataVersion)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("ETag", etag)
+		next.ServeHTTP(w, r)
+	})
+}
+
 // Serve files from data directory.
 func serveShare() http.Handler {
-	return cacheUntilBusted(http.FileServer(http.Dir(basedir.DataDir)))
+	return versioned(cacheUntilBusted(http.FileServer(http.Dir(basedir.DataDir))))
 }
 
 func serveLanguagesJSON() http.HandlerFunc {
