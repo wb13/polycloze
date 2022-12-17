@@ -26,6 +26,7 @@ export class ItemBuffer {
     const listener = (event: Event) => {
       const word = (event as CustomEvent).detail.word;
       this.keys.delete(word);
+      // TODO submit review result from here
     };
 
     // NOTE this never gets removed
