@@ -44,7 +44,7 @@ func generateWords(
 	n int,
 	pred func(word string) bool,
 	hooks ...database.ConnectionHook,
-) ([]string, error) {
+) ([]word_scheduler.Word, error) {
 	ctx := context.TODO()
 	con, err := database.NewConnection(db, ctx, hooks...)
 	if err != nil {
@@ -54,10 +54,10 @@ func generateWords(
 	return word_scheduler.GetWordsWith(con, n, pred)
 }
 
-func generateItem[T database.Querier](q T, word string) (Item, error) {
+func generateItem[T database.Querier](q T, word word_scheduler.Word) (Item, error) {
 	var item Item
 
-	sentence, err := sentences.PickSentence(q, word)
+	sentence, err := sentences.PickSentence(q, word.Word)
 	if err != nil {
 		return item, err
 	}
@@ -77,7 +77,7 @@ func generateItem[T database.Querier](q T, word string) (Item, error) {
 }
 
 // Creates a cloze item for each word.
-func generateItems(db *sql.DB, words []string, hooks ...database.ConnectionHook) []Item {
+func generateItems(db *sql.DB, words []word_scheduler.Word, hooks ...database.ConnectionHook) []Item {
 	ch := make(chan Item, len(words))
 	generateItemsIntoChannel(db, ch, words, hooks...)
 	close(ch)
@@ -93,7 +93,7 @@ func generateItems(db *sql.DB, words []string, hooks ...database.ConnectionHook)
 func generateItemsIntoChannel(
 	db *sql.DB,
 	ch chan Item,
-	words []string,
+	words []word_scheduler.Word,
 	hooks ...database.ConnectionHook,
 ) {
 	// TODO use request context instead

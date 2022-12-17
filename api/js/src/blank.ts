@@ -9,6 +9,8 @@ type Status = "correct" | "incorrect" | "almost";
 export type Answer = {
   text: string;
   normalized: string;
+  new: boolean;
+  difficulty: number;
 };
 
 export type Part = {

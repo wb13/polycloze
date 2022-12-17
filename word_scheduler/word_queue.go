@@ -10,28 +10,37 @@ import (
 	"github.com/lggruspe/polycloze/database"
 )
 
-// NOTE Does not close Rows.
-func getNRows(rows *sql.Rows, n int, pred func(word string) bool) ([]string, error) {
-	var words []string
+// Scans rows in query (each row has `word` and `frequency_class`).
+// Does not close Rows.
+func getNRows(rows *sql.Rows, n int, pred func(word string) bool) ([]Word, error) {
+	var words []Word
 	for rows.Next() && len(words) < n {
 		var word string
-		if err := rows.Scan(&word); err != nil {
+		var frequencyClass int
+		if err := rows.Scan(&word, &frequencyClass); err != nil {
 			return nil, err
 		}
 		if pred(word) {
-			words = append(words, word)
+			words = append(words, Word{
+				Word:       word,
+				New:        true,
+				Difficulty: frequencyClass,
+			})
 		}
 	}
 	return words, nil
 }
 
-func getWordsAboveDifficultyWith[T database.Querier](q T, n, preferredDifficulty int, pred func(word string) bool) ([]string, error) {
+func getWordsAboveDifficultyWith[T database.Querier](q T, n, preferredDifficulty int, pred func(word string) bool) ([]Word, error) {
 	query := `
-select word from word where frequency_class >= ? and word not in
-(select item from review)
-order by id asc
+		SELECT word, frequency_class
+		FROM word
+		WHERE frequency_class >= ? AND word NOT IN (
+			SELECT item FROM review
+		)
+		ORDER BY id ASC
 `
-	rows, err := q.Query(query, preferredDifficulty, n)
+	rows, err := q.Query(query, preferredDifficulty)
 	if err != nil {
 		return nil, err
 	}
@@ -39,13 +48,16 @@ order by id asc
 	return getNRows(rows, n, pred)
 }
 
-func getWordsBelowDifficultyWith[T database.Querier](q T, n, preferredDifficulty int, pred func(word string) bool) ([]string, error) {
+func getWordsBelowDifficultyWith[T database.Querier](q T, n, preferredDifficulty int, pred func(word string) bool) ([]Word, error) {
 	query := `
-select word from word where frequency_class < ? and word not in
-(select item from review)
-order by id desc
+		SELECT word, frequency_class
+		FROM word
+		WHERE frequency_class < ? AND word NOT IN (
+			SELECT item FROM review
+		)
+		ORDER BY id DESC
 `
-	rows, err := q.Query(query, preferredDifficulty, n)
+	rows, err := q.Query(query, preferredDifficulty)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +71,7 @@ order by id desc
 // If there are not enough words in query result, will also include words below
 // the preferredDifficulty.
 // Only words that satisfy the predicate are included in the result.
-func GetNewWordsWith[T database.Querier](q T, n, preferredDifficulty int, pred func(word string) bool) ([]string, error) {
+func GetNewWordsWith[T database.Querier](q T, n, preferredDifficulty int, pred func(word string) bool) ([]Word, error) {
 	words, err := getWordsAboveDifficultyWith(q, n, preferredDifficulty, pred)
 	if err != nil {
 		return nil, err
@@ -72,6 +84,5 @@ func GetNewWordsWith[T database.Querier](q T, n, preferredDifficulty int, pred f
 	if err != nil {
 		return nil, err
 	}
-	words = append(words, more...)
-	return words, nil
+	return append(words, more...), nil
 }

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/lggruspe/polycloze/text"
+	"github.com/lggruspe/polycloze/word_scheduler"
 )
 
 type Answer struct {
@@ -17,6 +18,12 @@ type Answer struct {
 
 	// Normalized form of the word
 	Normalized string `json:"normalized"`
+
+	// Is the word new/previously unseen?
+	New bool `json:"new"`
+
+	// Only has to be meaningful for new words.
+	Difficulty int `json:"difficulty"`
 }
 
 // Parts of a sentence.
@@ -27,13 +34,14 @@ type Part struct {
 }
 
 // Returns parts of cloze item.
-func getParts(tokens []string, word string) []Part {
-	word = text.Casefold(word)
+func getParts(tokens []string, word word_scheduler.Word) []Part {
+	// TODO word: string -> Word
+	normalized := text.Casefold(word.Word)
 
 	// Find all matching tokens.
 	var indices []int
 	for i, token := range tokens {
-		if text.Casefold(token) == word {
+		if text.Casefold(token) == normalized {
 			indices = append(indices, i)
 		}
 	}
@@ -41,7 +49,7 @@ func getParts(tokens []string, word string) []Part {
 	if len(indices) == 0 {
 		message := fmt.Sprintf(
 			"Python casefold different from golang casefold: %s, %v",
-			word,
+			normalized,
 			tokens,
 		)
 		panic(message)
@@ -63,7 +71,9 @@ func getParts(tokens []string, word string) []Part {
 		Answers: []Answer{
 			{
 				Text:       tokens[index],
-				Normalized: word,
+				Normalized: normalized,
+				New:        word.New,
+				Difficulty: word.Difficulty,
 			},
 		},
 	}
