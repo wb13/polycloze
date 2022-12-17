@@ -74,6 +74,7 @@ func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, s *s
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "Could not read request.", http.StatusInternalServerError)
 		return
 	}

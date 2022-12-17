@@ -4,6 +4,7 @@
 package api
 
 import (
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -43,6 +44,7 @@ func handleSentences(w http.ResponseWriter, r *http.Request) {
 
 	db, err := database.Open(basedir.Course(l1, l2))
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
@@ -51,6 +53,7 @@ func handleSentences(w http.ResponseWriter, r *http.Request) {
 	limit := getSentencesLimit(q)
 	result, err := sentences.RandomSentences(db, limit)
 	if err != nil {
+		log.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
