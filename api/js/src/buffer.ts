@@ -20,9 +20,8 @@ export class ItemBuffer {
   keys: Set<string>;
   difficultyTuner: DifficultyTuner;
 
-  constructor() {
-    // TODO pass difficulty arg to DifficultyTuner
-    this.difficultyTuner = new DifficultyTuner();
+  constructor(difficulty: Difficulty = {}) {
+    this.difficultyTuner = new DifficultyTuner(difficulty);
     this.buffer = [];
     this.keys = new Set();
 

@@ -13,7 +13,10 @@ import { createVocabularyList } from "./vocab";
 export class ClozeApp extends HTMLElement {
   async connectedCallback() {
     const l2 = getL2().name;
-    const [app, ready] = await createApp(new ItemBuffer());
+
+    // TODO pass difficulty arg to ItemBuffer (for DifficultyTuner)
+    const buffer = new ItemBuffer();
+    const [app, ready] = await createApp(buffer);
     this.appendChild(app);
     ready();
     document.title = `${await l2} | polycloze`;
