@@ -39,21 +39,6 @@ func NewItemGenerator(db *sql.DB, courseDB string) ItemGenerator {
 	}
 }
 
-func generateWords(
-	db *sql.DB,
-	n int,
-	pred func(word string) bool,
-	hooks ...database.ConnectionHook,
-) ([]word_scheduler.Word, error) {
-	ctx := context.TODO()
-	con, err := database.NewConnection(db, ctx, hooks...)
-	if err != nil {
-		return nil, err
-	}
-	defer con.Close()
-	return word_scheduler.GetWordsWith(con, n, pred)
-}
-
 func generateItem[T database.Querier](q T, word word_scheduler.Word) (Item, error) {
 	var item Item
 
@@ -78,38 +63,15 @@ func generateItem[T database.Querier](q T, word word_scheduler.Word) (Item, erro
 }
 
 // Creates a cloze item for each word.
-func generateItems(db *sql.DB, words []word_scheduler.Word, hooks ...database.ConnectionHook) []Item {
-	ch := make(chan Item, len(words))
-	generateItemsIntoChannel(db, ch, words, hooks...)
-	close(ch)
-
+func generateItems(con *database.Connection, words []word_scheduler.Word) []Item {
+	// To make sure JSON encoding is not nil:
 	items := make([]Item, 0)
-	for item := range ch {
-		items = append(items, item)
-	}
-	return items
-}
-
-// Enter functions are invoked in a FIFO manner, while Exit functions are deferred.
-func generateItemsIntoChannel(
-	db *sql.DB,
-	ch chan Item,
-	words []word_scheduler.Word,
-	hooks ...database.ConnectionHook,
-) {
-	// TODO use request context instead
-	ctx := context.TODO()
-	con, err := database.NewConnection(db, ctx, hooks...)
-	if err != nil {
-		return
-	}
-	defer con.Close()
-
 	for _, word := range words {
 		if item, err := generateItem(con, word); err == nil {
-			ch <- item
+			items = append(items, item)
 		}
 	}
+	return items
 }
 
 // Returns list of flashcards to show.
@@ -120,9 +82,16 @@ func Get(
 	pred func(word string) bool,
 	hooks ...database.ConnectionHook,
 ) []Item {
-	words, err := generateWords(db, n, pred, hooks...)
+	ctx := context.TODO()
+	con, err := database.NewConnection(db, ctx, hooks...)
 	if err != nil {
 		return nil
 	}
-	return generateItems(db, words, hooks...)
+	defer con.Close()
+
+	words, err := word_scheduler.GetWordsWith(con, n, pred)
+	if err != nil {
+		return nil
+	}
+	return generateItems(con, words)
 }
