@@ -90,7 +90,7 @@ func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, s *s
 		return
 	}
 
-	var reviews Reviews
+	var reviews FlashcardsRequest
 	if err := json.Unmarshal(body, &reviews); err != nil {
 		http.Error(w, "could not parse json", http.StatusBadRequest)
 		return
