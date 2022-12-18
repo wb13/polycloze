@@ -25,10 +25,16 @@ bench:
 	cd flashcards; go test -cpuprofile ../build/cpu.prof -bench .
 	go tool pprof build/cpu.prof
 
-.PHONY:	lint
-lint:	format
+.PHONY:	lint-js
+lint-js:
 	cd api/js; npm run check
+
+.PHONY:	lint-go
+lint-go:	format
 	golangci-lint run
+
+.PHONY:	lint
+lint:	lint-js | lint-go
 
 .PHONY:	run
 run:	build-js
