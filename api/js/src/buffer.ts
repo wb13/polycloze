@@ -61,31 +61,26 @@ export class ItemBuffer {
     return true;
   }
 
-  backgroundFetch(count: number) {
-    setTimeout(async () => {
-      const { items } = await fetchFlashcards({
-        limit: count,
-        exclude: Array.from(this.keys),
-      });
-      items.forEach((item) => this.add(item));
+  // Fetches flashcards from the server and stores them in the buffer.
+  async fetch(count: number): Promise<Item[]> {
+    const { items } = await fetchFlashcards({
+      limit: count,
+      exclude: Array.from(this.keys),
     });
+    items.forEach((item) => this.add(item));
+    return items;
   }
 
   // Returns Promise<Item>.
   // May return undefined if there are no items left for review and there are
   // no new items left.
   async take(): Promise<Item | undefined> {
-    if (this.buffer.length === 0) {
-      const { items } = await fetchFlashcards({
-        limit: 2,
-        exclude: Array.from(this.keys),
-      });
-      this.backgroundFetch(2);
-      items.forEach((item) => this.add(item));
-      return this.buffer.shift();
+    let promise = null;
+    if (this.buffer.length < 3) {
+      promise = this.fetch(50);
     }
-    if (this.buffer.length < 10) {
-      this.backgroundFetch(10);
+    if (this.buffer.length <= 0) {
+      await promise;
     }
     return this.buffer.shift();
   }
