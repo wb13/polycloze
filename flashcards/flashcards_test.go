@@ -4,6 +4,7 @@
 package flashcards
 
 import (
+	"context"
 	"testing"
 
 	"github.com/lggruspe/polycloze/basedir"
@@ -21,8 +22,13 @@ func BenchmarkGetFlashcards(b *testing.B) {
 	}
 	defer db.Close()
 
+	hook := database.AttachCourse(basedir.Course("eng", "deu"))
+	con, err := database.NewConnection(db, context.Background(), hook)
+	if err != nil {
+		b.Fatal("expected err to be nil:", err)
+	}
+
 	for i := 0; i < b.N; i++ {
-		hook := database.AttachCourse(basedir.Course("eng", "deu"))
-		Get(db, 10, pred, hook)
+		Get(con, 10, pred)
 	}
 }

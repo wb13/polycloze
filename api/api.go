@@ -48,8 +48,17 @@ func excludeWords(r *http.Request) func(string) bool {
 func generateFlashcards(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	l1 := chi.URLParam(r, "l1")
 	l2 := chi.URLParam(r, "l2")
+
 	hook := database.AttachCourse(basedir.Course(l1, l2))
-	items := flashcards.Get(db, getN(r), excludeWords(r), hook)
+	con, err := database.NewConnection(db, r.Context(), hook)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	defer con.Close()
+
+	items := flashcards.Get(con, getN(r), excludeWords(r))
 	sendJSON(w, map[string][]flashcards.Item{
 		"items": items,
 	})

@@ -4,6 +4,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"math/rand"
@@ -39,7 +40,13 @@ func main() {
 	start := time.Now()
 
 	hook := database.AttachCourse(basedir.Course("eng", "spa"))
-	items := flashcards.Get(db, n, pred, hook)
+	con, err := database.NewConnection(db, context.Background(), hook)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer con.Close()
+
+	items := flashcards.Get(con, n, pred)
 	for _, item := range items {
 		fmt.Println(item)
 	}

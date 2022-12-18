@@ -4,7 +4,6 @@
 package flashcards
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 
@@ -76,19 +75,12 @@ func generateItems(con *database.Connection, words []word_scheduler.Word) []Item
 
 // Returns list of flashcards to show.
 // n: max number of flashcards to return.
+// Database connection should have access to course and review data.
 func Get(
-	db *sql.DB,
+	con *database.Connection,
 	n int,
 	pred func(word string) bool,
-	hooks ...database.ConnectionHook,
 ) []Item {
-	ctx := context.TODO()
-	con, err := database.NewConnection(db, ctx, hooks...)
-	if err != nil {
-		return nil
-	}
-	defer con.Close()
-
 	words, err := word_scheduler.GetWordsWith(con, n, pred)
 	if err != nil {
 		return nil
