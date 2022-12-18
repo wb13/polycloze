@@ -22,9 +22,9 @@ import (
 )
 
 // Returns predicate to pass to item generator.
-func excludeWords(r *http.Request) func(string) bool {
+func excludeWords(words []string) func(string) bool {
 	exclude := make(map[string]bool)
-	for _, word := range r.URL.Query()["x"] {
+	for _, word := range words {
 		exclude[text.Casefold(word)] = true
 	}
 	return func(word string) bool {
@@ -51,49 +51,14 @@ func saveReviewResults[T database.Querier](q T, reviews []ReviewResult) error {
 	return err
 }
 
-func handleReviewUpdate(con *database.Connection, w http.ResponseWriter, r *http.Request, s *sessions.Session) {
-	if r.Header.Get("Content-Type") != "application/json" {
-		http.Error(w, "expected json body in POST request", http.StatusBadRequest)
-		return
-	}
-
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, "Could not read request.", http.StatusInternalServerError)
-		return
-	}
-
-	var reviews FlashcardsRequest
-	if err := parseJSON(w, body, &reviews); err != nil {
-		return
-	}
-
-	if len(reviews.Reviews) > 0 {
-		// Check csrf token in HTTP headers.
-		if !sessions.CheckCSRFToken(s.ID, r.Header.Get("X-CSRF-Token")) {
-			http.Error(w, "Forbidden.", http.StatusForbidden)
-			return
-		}
-
-		if err := saveReviewResults(con, reviews.Reviews); err != nil {
-			log.Println(err)
-		}
-	}
-
-	sendJSON(w, FlashcardsResponse{
-		Difficulty: difficulty.GetLatest(con),
-	})
-}
-
 func handleFlashcards(w http.ResponseWriter, r *http.Request) {
-	db := auth.GetDB(r)
-	s, err := sessions.ResumeSession(db, w, r)
-	if err != nil || !isSignedIn(s) {
-		http.NotFound(w, r)
+	// Check request method and content type.
+	if r.Method != "POST" || r.Header.Get("Content-Type") != "application/json" {
+		http.Error(w, "expected JSON body in POST request", http.StatusBadRequest)
 		return
 	}
 
+	// Check of course exists.
 	l1 := chi.URLParam(r, "l1")
 	l2 := chi.URLParam(r, "l2")
 	if !courseExists(l1, l2) {
@@ -101,6 +66,15 @@ func handleFlashcards(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Sign in.
+	db := auth.GetDB(r)
+	s, err := sessions.ResumeSession(db, w, r)
+	if err != nil || !isSignedIn(s) {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Open user's review DB.
 	userID := s.Data["userID"].(int)
 	db, err = database.New(basedir.Review(userID, l1, l2))
 	if err != nil {
@@ -120,14 +94,36 @@ func handleFlashcards(w http.ResponseWriter, r *http.Request) {
 	}
 	defer con.Close()
 
-	switch r.Method {
-	case "POST":
-		handleReviewUpdate(con, w, r, s)
-	case "GET":
-		items := flashcards.Get(con, getN(r), excludeWords(r))
-		sendJSON(w, FlashcardsResponse{
-			Items:      items,
-			Difficulty: difficulty.GetLatest(con),
-		})
+	// Read request data.
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Could not read request.", http.StatusInternalServerError)
+		return
 	}
+
+	var data FlashcardsRequest
+	if err := parseJSON(w, body, &data); err != nil {
+		return
+	}
+
+	// Save uploaded reviews.
+	if len(data.Reviews) > 0 {
+		// Check csrf token in HTTP headers.
+		if !sessions.CheckCSRFToken(s.ID, r.Header.Get("X-CSRF-Token")) {
+			http.Error(w, "Forbidden.", http.StatusForbidden)
+			return
+		}
+
+		if err := saveReviewResults(con, data.Reviews); err != nil {
+			log.Println(err)
+		}
+	}
+
+	// Generate flashcards.
+	items := flashcards.Get(con, data.Limit, excludeWords(data.Exclude))
+	sendJSON(w, FlashcardsResponse{
+		Items:      items,
+		Difficulty: difficulty.GetLatest(con),
+	})
 }

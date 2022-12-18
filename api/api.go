@@ -6,7 +6,6 @@ package api
 import (
 	"database/sql"
 	"net/http"
-	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -14,15 +13,6 @@ import (
 	"github.com/lggruspe/polycloze/auth"
 	"github.com/lggruspe/polycloze/sessions"
 )
-
-func getN(r *http.Request) int {
-	n := 10
-	q := r.URL.Query()
-	if i, err := strconv.Atoi(q.Get("n")); err == nil && i > 0 {
-		n = i
-	}
-	return n
-}
 
 // Middleware
 func cors(next http.Handler) http.Handler {

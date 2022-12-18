@@ -19,6 +19,7 @@ type FlashcardsRequest struct {
 	Limit      int                   `json:"limit"`
 	Difficulty difficulty.Difficulty `json:"difficulty"`
 	Reviews    []ReviewResult        `json:"reviews"`
+	Exclude    []string              `json:"exclude"`
 }
 
 // JSON response schema.

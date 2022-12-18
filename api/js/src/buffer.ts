@@ -1,6 +1,6 @@
 // Item buffer
 
-import { fetchItems, submitReview } from "./api";
+import { fetchFlashcards } from "./api";
 import { PartWithAnswers, hasAnswers } from "./blank";
 import { Difficulty, DifficultyTuner } from "./difficulty";
 import { Item } from "./item";
@@ -29,7 +29,10 @@ export class ItemBuffer {
       const { word, correct } = (event as CustomEvent).detail;
 
       const save = edit();
-      await submitReview(word, correct);
+      // TODO batch server updates
+      await fetchFlashcards({
+        reviews: [{ word, correct }],
+      });
       this.keys.delete(word);
       save();
 
@@ -60,9 +63,9 @@ export class ItemBuffer {
 
   backgroundFetch(count: number) {
     setTimeout(async () => {
-      const items = await fetchItems({
-        n: count,
-        x: Array.from(this.keys),
+      const { items } = await fetchFlashcards({
+        limit: count,
+        exclude: Array.from(this.keys),
       });
       items.forEach((item) => this.add(item));
     });
@@ -73,9 +76,9 @@ export class ItemBuffer {
   // no new items left.
   async take(): Promise<Item | undefined> {
     if (this.buffer.length === 0) {
-      const items = await fetchItems({
-        n: 2,
-        x: Array.from(this.keys),
+      const { items } = await fetchFlashcards({
+        limit: 2,
+        exclude: Array.from(this.keys),
       });
       this.backgroundFetch(2);
       items.forEach((item) => this.add(item));

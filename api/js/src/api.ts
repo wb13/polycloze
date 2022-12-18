@@ -1,5 +1,6 @@
 // Wrappers for api calls.
 
+import { Difficulty } from "./difficulty";
 import { Item } from "./item";
 import { getL1, getL2 } from "./language";
 import { fetchJson, resolve, submitJson } from "./request";
@@ -10,7 +11,6 @@ import {
   CoursesSchema,
   DataPoint,
   FlashcardsResponse,
-  ItemsSchema,
   Language,
   LanguagesSchema,
   RandomSentence,
@@ -155,36 +155,44 @@ export async function fetchLanguages(): Promise<Language[]> {
   return json.languages;
 }
 
-type FetchItemsOptions = {
+type FetchFlashcardsOptions = {
   // Path params
   l1?: string; // L1 code
   l2?: string; // L2 code
 
-  // Search params
-  n?: number; // Max number of items to fetch
-  x?: string[]; // Words to exclude
+  // Body params
+  limit?: number; // Max number of flashcards to fetch
+  exclude?: string[]; // Words to exclude in flashcards
+  reviews?: {
+    word: string;
+    correct: boolean;
+  }[];
+  difficulty?: Difficulty;
 };
 
-function defaultFetchItemsOptions(): FetchItemsOptions {
+function defaultFetchFlashcardsOptions(): FetchFlashcardsOptions {
   return {
     l1: getL1().code,
     l2: getL2().code,
-    n: 10,
-    x: [],
+    limit: 10,
+    exclude: [],
+    reviews: [],
   };
 }
 
-export async function fetchItems(
-  options: FetchItemsOptions = {}
-): Promise<Item[]> {
-  const { l1, l2, n, x } = { ...defaultFetchItemsOptions(), ...options };
+export function fetchFlashcards(
+  options: FetchFlashcardsOptions = {}
+): Promise<FlashcardsResponse> {
+  options = { ...defaultFetchFlashcardsOptions(), ...options };
+  const { l1, l2 } = options;
   const url = resolve(`/api/flashcards/${l1}/${l2}`);
-  setParams(url, { n, x });
-
-  const json = await fetchJson<ItemsSchema>(url, {
-    mode: "cors" as RequestMode,
-  });
-  return json.items;
+  const data = {
+    limit: options.limit,
+    exclude: options.exclude,
+    reviews: options.reviews,
+    difficulty: options.difficulty,
+  };
+  return submitJson<FlashcardsResponse>(url, data);
 }
 
 type FetchSentencesOptions = {
@@ -236,18 +244,4 @@ function setParams(url: URL, params: Params) {
     }
     url.searchParams.set(name, String(value));
   }
-}
-
-export function submitReview(
-  word: string,
-  correct: boolean
-): Promise<FlashcardsResponse> {
-  const l1 = getL1().code;
-  const l2 = getL2().code;
-
-  const url = resolve(`/api/flashcards/${l1}/${l2}`);
-  const data = {
-    reviews: [{ word, correct }],
-  };
-  return submitJson<FlashcardsResponse>(url, data);
 }
