@@ -7,6 +7,11 @@ import { Item } from "./item";
 import { Sentence } from "./sentence";
 import { edit } from "./unsaved";
 
+type ReviewResult = {
+  word: string;
+  correct: boolean;
+};
+
 function* getBlankParts(sentence: Sentence): IterableIterator<PartWithAnswers> {
   for (const part of sentence.parts) {
     if (hasAnswers(part)) {
@@ -19,24 +24,38 @@ export class ItemBuffer {
   buffer: Item[];
   keys: Set<string>;
   difficultyTuner: DifficultyTuner;
+  reviews: ReviewResult[];
 
   constructor(difficulty: Difficulty = {}) {
     this.difficultyTuner = new DifficultyTuner(difficulty);
     this.buffer = [];
     this.keys = new Set();
+    this.reviews = [];
 
-    const listener = async (event: Event) => {
-      const { word, correct } = (event as CustomEvent).detail;
+    const listener = (event: Event) => {
+      const review = (event as CustomEvent).detail;
+      this.reviews.push(review);
 
-      const save = edit();
-      // TODO batch server updates
-      await fetchFlashcards({
-        reviews: [{ word, correct }],
-      });
-      this.keys.delete(word);
-      save();
-
-      await this.clearStale(correct);
+      const changed = this.difficultyTuner.update(review.correct);
+      if (changed) {
+        // Buffered flashcards become stale when user's estimated level
+        // changes.
+        // Reduce number of flashcards in the buffer to trigger a refill.
+        // Leaves some items in the buffer to avoid waiting for new flashcards.
+        for (const key of this.buffer.splice(3)) {
+          // Find word.
+          let word: string = "";
+          const parts = key.sentence.parts;
+          for (const part of key.sentence.parts) {
+            const answers = part.answers;
+            if (answers != null && answers.length > 0) {
+              word = answers[0].normalized;
+              break;
+            }
+          }
+          this.keys.delete(word);
+        }
+      }
     };
 
     // NOTE this never gets removed
@@ -63,11 +82,18 @@ export class ItemBuffer {
 
   // Fetches flashcards from the server and stores them in the buffer.
   async fetch(count: number): Promise<Item[]> {
+    const save = edit();
+
+    const reviews = this.reviews.splice(0);
     const { items } = await fetchFlashcards({
       limit: count,
+      reviews,
       exclude: Array.from(this.keys),
     });
     items.forEach((item) => this.add(item));
+    this.reviews.forEach((review) => this.keys.delete(review.word));
+
+    save();
     return items;
   }
 
@@ -84,25 +110,12 @@ export class ItemBuffer {
     }
     return this.buffer.shift();
   }
-
-  // Removes stale flashcards (e.g. when placement level changes).
-  // `correct`: whether or not most recently reviewed card was answered
-  // correctly.
-  async clearStale(correct: boolean) {
-    const changed = this.difficultyTuner.update(correct);
-    // TODO trigger refetch of items on change
-    if (changed) {
-      // Leaves some items in the buffer so flashcards come continuously.
-      // TODO reduce number of items to keep in the buffer.
-      this.buffer.splice(3);
-    }
-  }
 }
 
 // Dispatches custom event to tell item buffer about review result.
-export function announceResult(word: string, correct: boolean) {
+export function announceResult(result: ReviewResult) {
   const event = new CustomEvent("polycloze-review", {
-    detail: { word, correct },
+    detail: result,
   });
   window.dispatchEvent(event);
 }

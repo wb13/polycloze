@@ -97,7 +97,7 @@ export function createSentence(
       }
 
       const correct = !input.classList.contains("incorrect");
-      announceResult(word, correct);
+      announceResult({ word, correct });
     }
     div.removeEventListener("change", check);
     done();
