@@ -105,15 +105,11 @@ func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, s *s
 	}
 	defer con.Close()
 
-	var frequencyClass int
-	for _, review := range reviews.Reviews {
-		err := word_scheduler.UpdateWord(con, review.Word, review.Correct)
-		if err != nil {
-			log.Printf("failed to update word: '%v'\n\t%v\n", review.Word, err.Error())
-		}
-		frequencyClass = word_scheduler.Placement(con)
+	if err := saveReviewResults(con, reviews.Reviews); err != nil {
+		log.Println(err)
 	}
 
+	frequencyClass := word_scheduler.Placement(con)
 	if _, err := w.Write(success(frequencyClass)); err != nil {
 		log.Println(err)
 	}
