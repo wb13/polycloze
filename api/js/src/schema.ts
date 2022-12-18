@@ -1,5 +1,6 @@
 // JSON schemas used by server.
 
+import { Difficulty } from "./difficulty";
 import { Item } from "./item";
 
 export type ItemsSchema = {
@@ -9,6 +10,11 @@ export type ItemsSchema = {
 export type ReviewSchema = {
   success: boolean;
   frequencyClass: number; // describes student's level
+};
+
+export type FlashcardsResponse = {
+  items: Item[];
+  difficulty: Difficulty;
 };
 
 export type Language = {

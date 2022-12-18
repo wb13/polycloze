@@ -22,7 +22,6 @@ import (
 	"github.com/lggruspe/polycloze/flashcards"
 	"github.com/lggruspe/polycloze/sessions"
 	"github.com/lggruspe/polycloze/text"
-	"github.com/lggruspe/polycloze/word_scheduler"
 )
 
 func getN(r *http.Request) int {
@@ -60,15 +59,10 @@ func generateFlashcards(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	defer con.Close()
 
 	items := flashcards.Get(con, getN(r), excludeWords(r))
-	sendJSON(w, map[string]any{
-		"items":      items,
-		"difficulty": difficulty.GetLatest(con),
+	sendJSON(w, FlashcardsResponse{
+		Items:      items,
+		Difficulty: difficulty.GetLatest(con),
 	})
-}
-
-// frequencyClass is the student's estimated level (see word_scheduler.Placement).
-func success(frequencyClass int) []byte {
-	return []byte(fmt.Sprintf("{\"success\": true, \"frequencyClass\": %v}", frequencyClass))
 }
 
 func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, s *sessions.Session) {
@@ -108,11 +102,9 @@ func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, s *s
 	if err := saveReviewResults(con, reviews.Reviews); err != nil {
 		log.Println(err)
 	}
-
-	frequencyClass := word_scheduler.Placement(con)
-	if _, err := w.Write(success(frequencyClass)); err != nil {
-		log.Println(err)
-	}
+	sendJSON(w, FlashcardsResponse{
+		Difficulty: difficulty.GetLatest(con),
+	})
 }
 
 // Middleware

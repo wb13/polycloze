@@ -9,12 +9,12 @@ import {
   Course,
   CoursesSchema,
   DataPoint,
+  FlashcardsResponse,
   ItemsSchema,
   Language,
   LanguagesSchema,
   RandomSentence,
   RandomSentencesSchema,
-  ReviewSchema,
   Word,
   VocabularySchema,
   VocabularySizeSchema,
@@ -241,7 +241,7 @@ function setParams(url: URL, params: Params) {
 export function submitReview(
   word: string,
   correct: boolean
-): Promise<ReviewSchema> {
+): Promise<FlashcardsResponse> {
   const l1 = getL1().code;
   const l2 = getL2().code;
 
@@ -249,5 +249,5 @@ export function submitReview(
   const data = {
     reviews: [{ word, correct }],
   };
-  return submitJson<ReviewSchema>(url, data);
+  return submitJson<FlashcardsResponse>(url, data);
 }
