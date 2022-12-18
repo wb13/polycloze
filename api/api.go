@@ -5,7 +5,6 @@ package api
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -85,8 +84,7 @@ func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, s *s
 	}
 
 	var reviews FlashcardsRequest
-	if err := json.Unmarshal(body, &reviews); err != nil {
-		http.Error(w, "could not parse json", http.StatusBadRequest)
+	if err := parseJSON(w, body, &reviews); err != nil {
 		return
 	}
 

@@ -46,3 +46,13 @@ func writeJSON(name string, data any) error {
 	}
 	return nil
 }
+
+// Parses JSON.
+// Writes error to ResponseWriter on error (caller shouldn't write more data).
+func parseJSON(w http.ResponseWriter, data []byte, v any) error {
+	if err := json.Unmarshal(data, v); err != nil {
+		http.Error(w, "could not parse JSON", http.StatusBadRequest)
+		return fmt.Errorf("could not parse JSON: %v", err)
+	}
+	return nil
+}
