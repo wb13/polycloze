@@ -4,7 +4,7 @@
 package difficulty
 
 import (
-	"database/sql"
+	"github.com/lggruspe/polycloze/database"
 )
 
 type Difficulty struct {
@@ -16,8 +16,8 @@ type Difficulty struct {
 }
 
 // Returns min difficulty (frequency class of easiest unseen word).
-// `db` should have access to `review` and `word` tables.
-func minDifficulty(db *sql.DB) int {
+// `Querier` should have access to `review` and `word` tables.
+func minDifficulty[T database.Querier](q T) int {
 	query := `
 		SELECT coalesce(min(frequency_class), 0)
 		FROM word
@@ -26,13 +26,13 @@ func minDifficulty(db *sql.DB) int {
 		)
 	`
 	var difficulty int
-	_ = db.QueryRow(query).Scan(&difficulty)
+	_ = q.QueryRow(query).Scan(&difficulty)
 	return difficulty
 }
 
 // Returns max difficulty (frequency class of hardest unseen word).
-// `db` should have access to `review` and `word` tables.
-func maxDifficulty(db *sql.DB) int {
+// `Querier` should have access to `review` and `word` tables.
+func maxDifficulty[T database.Querier](q T) int {
 	query := `
 		SELECT coalesce(max(frequency_class), 0)
 		FROM word
@@ -41,26 +41,25 @@ func maxDifficulty(db *sql.DB) int {
 		)
 	`
 	var difficulty int
-	_ = db.QueryRow(query).Scan(&difficulty)
+	_ = q.QueryRow(query).Scan(&difficulty)
 	return difficulty
 }
 
 // Gets most recent record in difficulty table.
 // Returns default values if there is none.
-func GetLatest(db *sql.DB) Difficulty {
-	min := minDifficulty(db)
+func GetLatest[T database.Querier](q T) Difficulty {
+	min := minDifficulty(q)
 	difficulty := Difficulty{
 		Level: min,
 		Min:   min,
-		Max:   maxDifficulty(db),
+		Max:   maxDifficulty(q),
 	}
 
 	query := `SELECT v, correct, incorrect FROM estimated_level`
-	_ = db.QueryRow(query).Scan(
+	_ = q.QueryRow(query).Scan(
 		&difficulty.Level,
 		&difficulty.Correct,
 		&difficulty.Incorrect,
 	)
 	return difficulty
-
 }
