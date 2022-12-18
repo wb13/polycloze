@@ -4,6 +4,8 @@
 package difficulty
 
 import (
+	"fmt"
+
 	"github.com/lggruspe/polycloze/database"
 )
 
@@ -62,4 +64,22 @@ func GetLatest[T database.Querier](q T) Difficulty {
 		&difficulty.Incorrect,
 	)
 	return difficulty
+}
+
+// Updates difficulty table.
+func Update[T database.Querier](q T, difficulty Difficulty) error {
+	query := `
+		INSERT OR REPLACE INTO estimated_level (v, correct, incorrect)
+		VALUES (?, ?, ?)
+	`
+	_, err := q.Exec(
+		query,
+		difficulty.Level,
+		difficulty.Correct,
+		difficulty.Incorrect,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to update difficulty table: %v", err)
+	}
+	return nil
 }

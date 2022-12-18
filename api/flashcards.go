@@ -107,7 +107,7 @@ func handleFlashcards(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Save uploaded reviews.
+	// Save uploaded reviews and difficulty stats.
 	if len(data.Reviews) > 0 {
 		// Check csrf token in HTTP headers.
 		if !sessions.CheckCSRFToken(s.ID, r.Header.Get("X-CSRF-Token")) {
@@ -118,12 +118,21 @@ func handleFlashcards(w http.ResponseWriter, r *http.Request) {
 		if err := saveReviewResults(con, data.Reviews); err != nil {
 			log.Println(err)
 		}
+
+		if data.Difficulty != nil {
+			if err := difficulty.Update(con, *data.Difficulty); err != nil {
+				log.Println(err)
+				http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+				return
+			}
+		}
 	}
 
 	// Generate flashcards.
 	items := flashcards.Get(con, data.Limit, excludeWords(data.Exclude))
+	newDiff := difficulty.GetLatest(con)
 	sendJSON(w, FlashcardsResponse{
 		Items:      items,
-		Difficulty: difficulty.GetLatest(con),
+		Difficulty: &newDiff,
 	})
 }

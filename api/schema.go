@@ -16,14 +16,14 @@ type ReviewResult struct {
 
 // JSON request schema.
 type FlashcardsRequest struct {
-	Limit      int                   `json:"limit"`
-	Difficulty difficulty.Difficulty `json:"difficulty"`
-	Reviews    []ReviewResult        `json:"reviews"`
-	Exclude    []string              `json:"exclude"`
+	Limit      int                    `json:"limit"`
+	Difficulty *difficulty.Difficulty `json:"difficulty"`
+	Reviews    []ReviewResult         `json:"reviews"`
+	Exclude    []string               `json:"exclude"`
 }
 
 // JSON response schema.
 type FlashcardsResponse struct {
-	Items      []flashcards.Item     `json:"items"`
-	Difficulty difficulty.Difficulty `json:"difficulty"`
+	Items      []flashcards.Item      `json:"items"`
+	Difficulty *difficulty.Difficulty `json:"difficulty"`
 }
