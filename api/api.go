@@ -18,6 +18,7 @@ import (
 	"github.com/lggruspe/polycloze/auth"
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
+	"github.com/lggruspe/polycloze/difficulty"
 	"github.com/lggruspe/polycloze/flashcards"
 	"github.com/lggruspe/polycloze/sessions"
 	"github.com/lggruspe/polycloze/text"
@@ -59,8 +60,9 @@ func generateFlashcards(db *sql.DB, w http.ResponseWriter, r *http.Request) {
 	defer con.Close()
 
 	items := flashcards.Get(con, getN(r), excludeWords(r))
-	sendJSON(w, map[string][]flashcards.Item{
-		"items": items,
+	sendJSON(w, map[string]any{
+		"items":      items,
+		"difficulty": difficulty.GetLatest(con),
 	})
 }
 
