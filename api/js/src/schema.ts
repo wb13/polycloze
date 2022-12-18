@@ -7,11 +7,6 @@ export type ItemsSchema = {
   items: Item[];
 };
 
-export type ReviewSchema = {
-  success: boolean;
-  frequencyClass: number; // describes student's level
-};
-
 export type FlashcardsResponse = {
   items: Item[];
   difficulty: Difficulty;
