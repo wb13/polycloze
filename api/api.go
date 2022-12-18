@@ -221,11 +221,10 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 	// serviceworker has to be at the root.
 	r.Handle("/serviceworker.js*", http.StripPrefix("/", serveDist()))
 
-	r.HandleFunc("/{l1}/{l2}", handleFlashcards)
-
 	r.HandleFunc("/{l1}/{l2}/vocab", handleVocabulary)
 	r.HandleFunc("/api/sentences", handleSentences)
 
+	r.HandleFunc("/api/flashcards/{l1}/{l2}", handleFlashcards)
 	r.HandleFunc("/api/stats/activity/{l1}/{l2}", handleStatsActivity)
 	r.HandleFunc("/api/stats/vocab/{l1}/{l2}", handleStatsVocab)
 

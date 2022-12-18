@@ -178,7 +178,7 @@ export async function fetchItems(
   options: FetchItemsOptions = {}
 ): Promise<Item[]> {
   const { l1, l2, n, x } = { ...defaultFetchItemsOptions(), ...options };
-  const url = resolve(`/${l1}/${l2}`);
+  const url = resolve(`/api/flashcards/${l1}/${l2}`);
   setParams(url, { n, x });
 
   const json = await fetchJson<ItemsSchema>(url, {
@@ -245,7 +245,7 @@ export function submitReview(
   const l1 = getL1().code;
   const l2 = getL2().code;
 
-  const url = resolve(`/${l1}/${l2}`);
+  const url = resolve(`/api/flashcards/${l1}/${l2}`);
   const data = {
     reviews: [{ word, correct }],
   };
