@@ -81,12 +81,12 @@ export class ItemBuffer {
   }
 
   // Fetches flashcards from the server and stores them in the buffer.
-  async fetch(count: number): Promise<Item[]> {
+  async fetch(limit: number): Promise<Item[]> {
     const save = edit();
 
     const reviews = this.reviews.splice(0);
     const { items } = await fetchFlashcards({
-      limit: count,
+      limit,
       reviews,
       exclude: Array.from(this.keys),
     });
@@ -103,7 +103,9 @@ export class ItemBuffer {
   async take(): Promise<Item | undefined> {
     let promise = null;
     if (this.buffer.length < 3) {
-      promise = this.fetch(50);
+      // Could be up to 50 (fewer requests sent to server), but let's leep it
+      // at 10 to minimize lost progress in case the browser closes abruptly.
+      promise = this.fetch(10);
     }
     if (this.buffer.length <= 0) {
       await promise;
