@@ -5,9 +5,6 @@ package api
 
 import (
 	"database/sql"
-	"fmt"
-	"io"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -15,12 +12,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/lggruspe/polycloze/auth"
-	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/database"
-	"github.com/lggruspe/polycloze/difficulty"
-	"github.com/lggruspe/polycloze/flashcards"
 	"github.com/lggruspe/polycloze/sessions"
-	"github.com/lggruspe/polycloze/text"
 )
 
 func getN(r *http.Request) int {
@@ -32,53 +24,6 @@ func getN(r *http.Request) int {
 	return n
 }
 
-// Returns predicate to pass to item generator.
-func excludeWords(r *http.Request) func(string) bool {
-	exclude := make(map[string]bool)
-	for _, word := range r.URL.Query()["x"] {
-		exclude[text.Casefold(word)] = true
-	}
-	return func(word string) bool {
-		_, found := exclude[text.Casefold(word)]
-		return !found
-	}
-}
-
-func handleReviewUpdate(con *database.Connection, w http.ResponseWriter, r *http.Request, s *sessions.Session) {
-	if r.Header.Get("Content-Type") != "application/json" {
-		http.Error(w, "expected json body in POST request", http.StatusBadRequest)
-		return
-	}
-
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, "Could not read request.", http.StatusInternalServerError)
-		return
-	}
-
-	var reviews FlashcardsRequest
-	if err := parseJSON(w, body, &reviews); err != nil {
-		return
-	}
-
-	if len(reviews.Reviews) > 0 {
-		// Check csrf token in HTTP headers.
-		if !sessions.CheckCSRFToken(s.ID, r.Header.Get("X-CSRF-Token")) {
-			http.Error(w, "Forbidden.", http.StatusForbidden)
-			return
-		}
-
-		if err := saveReviewResults(con, reviews.Reviews); err != nil {
-			log.Println(err)
-		}
-	}
-
-	sendJSON(w, FlashcardsResponse{
-		Difficulty: difficulty.GetLatest(con),
-	})
-}
-
 // Middleware
 func cors(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -86,52 +31,6 @@ func cors(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type")
 		next.ServeHTTP(w, r)
 	})
-}
-
-func handleFlashcards(w http.ResponseWriter, r *http.Request) {
-	db := auth.GetDB(r)
-	s, err := sessions.ResumeSession(db, w, r)
-	if err != nil || !isSignedIn(s) {
-		http.NotFound(w, r)
-		return
-	}
-
-	l1 := chi.URLParam(r, "l1")
-	l2 := chi.URLParam(r, "l2")
-	if !courseExists(l1, l2) {
-		http.NotFound(w, r)
-		return
-	}
-
-	userID := s.Data["userID"].(int)
-	db, err = database.New(basedir.Review(userID, l1, l2))
-	if err != nil {
-		log.Println(fmt.Errorf("could not open review database (%v-%v): %v", l1, l2, err))
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-		return
-	}
-	defer db.Close()
-
-	// Create database connection with access to review and course DB.
-	hook := database.AttachCourse(basedir.Course(l1, l2))
-	con, err := database.NewConnection(db, r.Context(), hook)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-		return
-	}
-	defer con.Close()
-
-	switch r.Method {
-	case "POST":
-		handleReviewUpdate(con, w, r, s)
-	case "GET":
-		items := flashcards.Get(con, getN(r), excludeWords(r))
-		sendJSON(w, FlashcardsResponse{
-			Items:      items,
-			Difficulty: difficulty.GetLatest(con),
-		})
-	}
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
