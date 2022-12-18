@@ -44,27 +44,7 @@ func excludeWords(r *http.Request) func(string) bool {
 	}
 }
 
-func generateFlashcards(db *sql.DB, w http.ResponseWriter, r *http.Request) {
-	l1 := chi.URLParam(r, "l1")
-	l2 := chi.URLParam(r, "l2")
-
-	hook := database.AttachCourse(basedir.Course(l1, l2))
-	con, err := database.NewConnection(db, r.Context(), hook)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-		return
-	}
-	defer con.Close()
-
-	items := flashcards.Get(con, getN(r), excludeWords(r))
-	sendJSON(w, FlashcardsResponse{
-		Items:      items,
-		Difficulty: difficulty.GetLatest(con),
-	})
-}
-
-func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, s *sessions.Session) {
+func handleReviewUpdate(con *database.Connection, w http.ResponseWriter, r *http.Request, s *sessions.Session) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		http.Error(w, "expected json body in POST request", http.StatusBadRequest)
 		return
@@ -87,15 +67,6 @@ func handleReviewUpdate(db *sql.DB, w http.ResponseWriter, r *http.Request, s *s
 	if err := parseJSON(w, body, &reviews); err != nil {
 		return
 	}
-
-	l1 := chi.URLParam(r, "l1")
-	l2 := chi.URLParam(r, "l2")
-	hook := database.AttachCourse(basedir.Course(l1, l2))
-	con, err := database.NewConnection(db, r.Context(), hook)
-	if err != nil {
-		log.Fatal("could not connect to database:", err)
-	}
-	defer con.Close()
 
 	if err := saveReviewResults(con, reviews.Reviews); err != nil {
 		log.Println(err)
@@ -138,11 +109,25 @@ func handleFlashcards(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
+	// Create database connection with access to review and course DB.
+	hook := database.AttachCourse(basedir.Course(l1, l2))
+	con, err := database.NewConnection(db, r.Context(), hook)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	defer con.Close()
+
 	switch r.Method {
 	case "POST":
-		handleReviewUpdate(db, w, r, s)
+		handleReviewUpdate(con, w, r, s)
 	case "GET":
-		generateFlashcards(db, w, r)
+		items := flashcards.Get(con, getN(r), excludeWords(r))
+		sendJSON(w, FlashcardsResponse{
+			Items:      items,
+			Difficulty: difficulty.GetLatest(con),
+		})
 	}
 }
 
