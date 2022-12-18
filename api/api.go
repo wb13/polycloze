@@ -50,12 +50,6 @@ func handleReviewUpdate(con *database.Connection, w http.ResponseWriter, r *http
 		return
 	}
 
-	// Check csrf token in HTTP headers.
-	if !sessions.CheckCSRFToken(s.ID, r.Header.Get("X-CSRF-Token")) {
-		http.Error(w, "Forbidden.", http.StatusForbidden)
-		return
-	}
-
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Println(err)
@@ -68,9 +62,18 @@ func handleReviewUpdate(con *database.Connection, w http.ResponseWriter, r *http
 		return
 	}
 
-	if err := saveReviewResults(con, reviews.Reviews); err != nil {
-		log.Println(err)
+	if len(reviews.Reviews) > 0 {
+		// Check csrf token in HTTP headers.
+		if !sessions.CheckCSRFToken(s.ID, r.Header.Get("X-CSRF-Token")) {
+			http.Error(w, "Forbidden.", http.StatusForbidden)
+			return
+		}
+
+		if err := saveReviewResults(con, reviews.Reviews); err != nil {
+			log.Println(err)
+		}
 	}
+
 	sendJSON(w, FlashcardsResponse{
 		Difficulty: difficulty.GetLatest(con),
 	})
