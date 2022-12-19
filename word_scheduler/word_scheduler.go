@@ -4,11 +4,10 @@
 package word_scheduler
 
 import (
-	"database/sql"
-	"errors"
 	"time"
 
 	"github.com/lggruspe/polycloze/database"
+	"github.com/lggruspe/polycloze/difficulty"
 	rs "github.com/lggruspe/polycloze/review_scheduler"
 	"github.com/lggruspe/polycloze/text"
 )
@@ -27,7 +26,8 @@ func GetWordsAt[T database.Querier](q T, n int, due time.Time) ([]Word, error) {
 		})
 	}
 
-	words, err := GetNewWordsWith(q, n-len(reviews), Placement(q), func(_ string) bool {
+	level := difficulty.GetLatest(q).Level
+	words, err := GetNewWordsWith(q, n-len(reviews), level, func(_ string) bool {
 		return true
 	})
 	if err != nil {
@@ -52,7 +52,8 @@ func GetWordsWith[T database.Querier](q T, n int, pred func(word string) bool) (
 		})
 	}
 
-	words, err := GetNewWordsWith(q, n-len(reviews), Placement(q), pred)
+	level := difficulty.GetLatest(q).Level
+	words, err := GetNewWordsWith(q, n-len(reviews), level, pred)
 	if err != nil {
 		return nil, err
 	}
@@ -68,33 +69,12 @@ func frequencyClass[T database.Querier](q T, word string) int {
 	return result
 }
 
-func isNewWord[T database.Querier](q T, word string) bool {
-	query := `select rowid from review where item = ?`
-	row := q.QueryRow(query, text.Casefold(word))
-
-	var rowid int
-	err := row.Scan(&rowid)
-	return err != nil && errors.Is(err, sql.ErrNoRows)
-}
-
 func UpdateWord[T database.Querier](q T, word string, correct bool) error {
-	if isNewWord(q, word) {
-		class := frequencyClass(q, word)
-		if err := updateNewWordStat(q, class, correct); err != nil {
-			return err
-		}
-	}
 	return rs.UpdateReview(q, text.Casefold(word), correct)
 }
 
 // See UpdateReviewAt.
 func UpdateWordAt[T database.Querier](q T, word string, correct bool, at time.Time) error {
-	if isNewWord(q, word) {
-		class := frequencyClass(q, word)
-		if err := updateNewWordStat(q, class, correct); err != nil {
-			return err
-		}
-	}
 	return rs.UpdateReviewAt(q, text.Casefold(word), correct, at)
 }
 
