@@ -84,4 +84,14 @@ export class DifficultyTuner {
 
     return false;
   }
+
+  get difficulty(): Difficulty {
+    return {
+      level: this.level,
+      correct: this.correct,
+      incorrect: this.incorrect,
+      min: this.min,
+      max: this.max,
+    };
+  }
 }

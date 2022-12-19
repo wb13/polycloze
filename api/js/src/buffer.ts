@@ -1,16 +1,11 @@
 // Item buffer
 
-import { fetchFlashcards } from "./api";
+import { fetchFlashcards, sendReviewResults } from "./api";
 import { PartWithAnswers, hasAnswers } from "./blank";
 import { Difficulty, DifficultyTuner } from "./difficulty";
 import { Item } from "./item";
+import { ReviewResult } from "./schema";
 import { Sentence } from "./sentence";
-import { edit } from "./unsaved";
-
-type ReviewResult = {
-  word: string;
-  correct: boolean;
-};
 
 function* getBlankParts(sentence: Sentence): IterableIterator<PartWithAnswers> {
   for (const part of sentence.parts) {
@@ -60,6 +55,14 @@ export class ItemBuffer {
 
     // NOTE this never gets removed
     window.addEventListener("polycloze-review", listener);
+
+    // MDN recommends `visibilitychange` instead of `unload` and `beforeunload`
+    // because `visibilitychange` is more reliable on mobile.
+    window.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden" && this.reviews.length > 0) {
+        sendReviewResults(this.reviews, this.difficultyTuner.difficulty);
+      }
+    });
   }
 
   // Add item if it's not a duplicate.
@@ -82,8 +85,6 @@ export class ItemBuffer {
 
   // Fetches flashcards from the server and stores them in the buffer.
   async fetch(limit: number): Promise<Item[]> {
-    const save = edit();
-
     const reviews = this.reviews.splice(0);
     const { items } = await fetchFlashcards({
       limit,
@@ -91,9 +92,8 @@ export class ItemBuffer {
       exclude: Array.from(this.keys),
     });
     items.forEach((item) => this.add(item));
-    this.reviews.forEach((review) => this.keys.delete(review.word));
+    reviews.forEach((review) => this.keys.delete(review.word));
 
-    save();
     return items;
   }
 

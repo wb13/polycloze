@@ -1,5 +1,6 @@
 // Wrappers for api calls.
 
+import { csrf } from "./csrf";
 import { Difficulty } from "./difficulty";
 import { Item } from "./item";
 import { getL1, getL2 } from "./language";
@@ -15,6 +16,7 @@ import {
   LanguagesSchema,
   RandomSentence,
   RandomSentencesSchema,
+  ReviewResult,
   Word,
   VocabularySchema,
   VocabularySizeSchema,
@@ -163,10 +165,7 @@ type FetchFlashcardsOptions = {
   // Body params
   limit?: number; // Max number of flashcards to fetch
   exclude?: string[]; // Words to exclude in flashcards
-  reviews?: {
-    word: string;
-    correct: boolean;
-  }[];
+  reviews?: ReviewResult[];
   difficulty?: Difficulty;
 };
 
@@ -193,6 +192,30 @@ export function fetchFlashcards(
     difficulty: options.difficulty,
   };
   return submitJson<FlashcardsResponse>(url, data);
+}
+
+// Sends review results to the server.
+// It uses the `sendBeacon` function to make sure the data gets sent to the
+// server.
+// This can be safely used inside a `visibilitychange` listener to upload
+// review results before the browser gets closed.
+export function sendReviewResults(
+  reviews: ReviewResult[],
+  difficulty: Difficulty
+) {
+  const l1 = getL1().code;
+  const l2 = getL2().code;
+  const url = resolve(`/api/flashcards/${l1}/${l2}`);
+  const data = {
+    limit: 0,
+    reviews,
+    difficulty,
+    csrfToken: csrf(),
+  };
+  const blob = new Blob([JSON.stringify(data)], {
+    type: "application/json",
+  });
+  navigator.sendBeacon(url, blob);
 }
 
 type FetchSentencesOptions = {

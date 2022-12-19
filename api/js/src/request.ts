@@ -20,7 +20,6 @@ export function submitJson<T>(url: string | URL, data: unknown): Promise<T> {
   const options = {
     body: JSON.stringify(data),
     headers: {
-      Accept: "application/json",
       "Content-Type": "application/json",
       "X-CSRF-Token": csrf(),
     },

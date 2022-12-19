@@ -106,3 +106,8 @@ export type DataPointSchema = {
 export type VocabularySizeSchema = {
   vocabSize: DataPointSchema[];
 };
+
+export type ReviewResult = {
+  word: string;
+  correct: boolean;
+};
