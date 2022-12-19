@@ -86,26 +86,21 @@ func mostRecentReview(tx *sql.Tx, item string) (*Review, error) {
 	return &review, nil
 }
 
-// Updates review status of item.
-func UpdateReviewAt[T database.Querier](q T, item string, correct bool, now time.Time) error {
-	tx, err := q.Begin()
-	if err != nil {
-		return fmt.Errorf("failed to update review: %v", err)
-	}
-
-	review, err := mostRecentReview(tx, item)
+// Same as `UpdateReviewAt`, but explicitly takes an `*sql.Tx`.
+func UpdateReviewAtTx(tx *sql.Tx, result Result, now time.Time) error {
+	review, err := mostRecentReview(tx, result.Word)
 	if err != nil {
 		return fmt.Errorf("failed to update review: %v", err)
 	}
 
 	if review == nil || !now.Before(review.Due()) {
 		// Only update interval stats if the student didn't cram
-		if err := updateIntervalStats(tx, review, correct); err != nil {
+		if err := updateIntervalStats(tx, review, result.Correct); err != nil {
 			return fmt.Errorf("failed to update review: %v", err)
 		}
 	}
 
-	next, err := nextReview(tx, review, correct, now)
+	next, err := nextReview(tx, review, result.Correct, now)
 	if err != nil {
 		return fmt.Errorf("failed to update review: %v", err)
 	}
@@ -119,7 +114,7 @@ func UpdateReviewAt[T database.Querier](q T, item string, correct bool, now time
 	`
 	_, err = tx.Exec(
 		query,
-		sql.Named("item", item),
+		sql.Named("item", result.Word),
 		sql.Named("interval", int64(next.Interval.Hours())),
 		sql.Named("now", now.Unix()),
 	)
@@ -129,9 +124,49 @@ func UpdateReviewAt[T database.Querier](q T, item string, correct bool, now time
 	if err := autoTune(tx); err != nil {
 		return fmt.Errorf("failed to update review: %v", err)
 	}
-	return tx.Commit()
+
+	return nil
+}
+
+// Updates review status of item.
+func UpdateReviewAt[T database.Querier](q T, item string, correct bool, now time.Time) error {
+	tx, err := q.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to update review: %v", err)
+	}
+
+	result := Result{
+		Word:    item,
+		Correct: correct,
+	}
+	if err := UpdateReviewAtTx(tx, result, now); err != nil {
+		return fmt.Errorf("failed to update review: %v", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to update review: %v", err)
+	}
+	return nil
 }
 
 func UpdateReview[T database.Querier](q T, item string, correct bool) error {
 	return UpdateReviewAt(q, item, correct, time.Now().UTC())
+}
+
+// Saves reviews in bulk.
+func BulkSaveReviews[T database.Querier](q T, reviews []Result, now time.Time) error {
+	tx, err := q.Begin()
+	if err != nil {
+		return fmt.Errorf("failed to save reviews in bulk: %v", err)
+	}
+
+	// Best-effort save.
+	for _, review := range reviews {
+		_ = UpdateReviewAtTx(tx, review, now)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to save reviews in bulk: %v", err)
+	}
+	return nil
 }

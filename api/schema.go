@@ -7,12 +7,10 @@ package api
 import (
 	"github.com/lggruspe/polycloze/difficulty"
 	"github.com/lggruspe/polycloze/flashcards"
+	"github.com/lggruspe/polycloze/review_scheduler"
 )
 
-type ReviewResult struct {
-	Word    string `json:"word"`
-	Correct bool   `json:"correct"`
-}
+type ReviewResult = review_scheduler.Result
 
 // JSON request schema.
 type FlashcardsRequest struct {
