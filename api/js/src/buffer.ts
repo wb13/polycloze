@@ -86,14 +86,15 @@ export class ItemBuffer {
   // Fetches flashcards from the server and stores them in the buffer.
   async fetch(limit: number): Promise<Item[]> {
     const reviews = this.reviews.splice(0);
-    const { items } = await fetchFlashcards({
+    const { items, difficulty } = await fetchFlashcards({
       limit,
       reviews,
+      difficulty: this.difficultyTuner.difficulty,
       exclude: Array.from(this.keys),
     });
     items.forEach((item) => this.add(item));
     reviews.forEach((review) => this.keys.delete(review.word));
-
+    this.difficultyTuner.reset(difficulty);
     return items;
   }
 
