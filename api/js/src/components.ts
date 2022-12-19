@@ -13,8 +13,6 @@ import { createVocabularyList } from "./vocab";
 export class ClozeApp extends HTMLElement {
   async connectedCallback() {
     const l2 = getL2().name;
-
-    // TODO pass difficulty arg to ItemBuffer (for DifficultyTuner)
     const buffer = new ItemBuffer();
     const [app, ready] = await createApp(buffer);
     this.appendChild(app);
