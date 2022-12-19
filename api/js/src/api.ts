@@ -190,6 +190,7 @@ export function fetchFlashcards(
     exclude: options.exclude,
     reviews: options.reviews,
     difficulty: options.difficulty,
+    timestamp: Math.floor(Date.now() / 1000),
   };
   return submitJson<FlashcardsResponse>(url, data);
 }
@@ -211,6 +212,7 @@ export function sendReviewResults(
     reviews,
     difficulty,
     csrfToken: csrf(),
+    timestamp: Math.floor(Date.now() / 1000),
   };
   const blob = new Blob([JSON.stringify(data)], {
     type: "application/json",

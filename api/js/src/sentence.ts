@@ -97,7 +97,11 @@ export function createSentence(
       }
 
       const correct = !input.classList.contains("incorrect");
-      announceResult({ word, correct });
+      announceResult({
+        word,
+        correct,
+        timestamp: Math.floor(Date.now() / 1000),
+      });
     }
     div.removeEventListener("change", check);
     done();

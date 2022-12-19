@@ -110,4 +110,5 @@ export type VocabularySizeSchema = {
 export type ReviewResult = {
   word: string;
   correct: boolean;
+  timestamp: number;
 };
