@@ -31,6 +31,7 @@ export class ItemBuffer {
       const review = (event as CustomEvent).detail;
       this.reviews.push(review);
 
+      // TODO only call update if word is new.
       const changed = this.difficultyTuner.update(review.correct);
       if (changed) {
         // Buffered flashcards become stale when user's estimated level

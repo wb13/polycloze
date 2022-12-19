@@ -54,6 +54,7 @@ export class DifficultyTuner {
   // Updates level statistics.
   // Returns true if level changed.
   // Also resets `correct` and `incorrect` counters if so.
+  // This method should only be called for newly seen words.
   update(correct: boolean): boolean {
     if (correct) {
       this.correct++;
