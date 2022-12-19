@@ -109,8 +109,14 @@ func handleFlashcards(w http.ResponseWriter, r *http.Request) {
 
 	// Save uploaded reviews and difficulty stats.
 	if len(data.Reviews) > 0 {
-		// Check csrf token in HTTP headers.
-		if !sessions.CheckCSRFToken(s.ID, r.Header.Get("X-CSRF-Token")) {
+		// Look for csrf token in request headers or in the request body.
+		token := r.Header.Get("X-CSRF-Token")
+		if token == "" {
+			token = data.CSRFToken
+		}
+
+		// Check csrf token.
+		if !sessions.CheckCSRFToken(s.ID, token) {
 			http.Error(w, "Forbidden.", http.StatusForbidden)
 			return
 		}

@@ -20,6 +20,10 @@ type FlashcardsRequest struct {
 	Difficulty *difficulty.Difficulty `json:"difficulty"`
 	Reviews    []ReviewResult         `json:"reviews"`
 	Exclude    []string               `json:"exclude"`
+
+	// Sometimes used by client if for some reason they can't pass the token via
+	// HTTP headers (e.g. `sendBeacon`).
+	CSRFToken string `json:"csrfToken"`
 }
 
 // JSON response schema.
