@@ -179,6 +179,12 @@ function defaultFetchFlashcardsOptions(): FetchFlashcardsOptions {
   };
 }
 
+// Returns a copy of the review result containing only the necessary fields.
+function minimizeReviewResult(review: ReviewResult): ReviewResult {
+  const { word, correct, timestamp } = review;
+  return { word, correct, timestamp };
+}
+
 export function fetchFlashcards(
   options: FetchFlashcardsOptions = {}
 ): Promise<FlashcardsResponse> {
@@ -188,7 +194,10 @@ export function fetchFlashcards(
   const data = {
     limit: options.limit,
     exclude: options.exclude,
-    reviews: options.reviews,
+    reviews:
+      options.reviews != null
+        ? options.reviews.map(minimizeReviewResult)
+        : undefined,
     difficulty: options.difficulty,
     timestamp: Math.floor(Date.now() / 1000),
   };

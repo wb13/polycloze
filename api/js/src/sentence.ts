@@ -89,9 +89,11 @@ export function createSentence(
 
       // Normalize word.
       let word = answer;
+      let new_ = false;
       for (const answer of blankParts[i].answers) {
         if (compare(input.value, answer.text) === 0) {
           word = answer.normalized;
+          new_ = answer.new;
           break;
         }
       }
@@ -100,6 +102,7 @@ export function createSentence(
       announceResult({
         word,
         correct,
+        new: new_,
         timestamp: Math.floor(Date.now() / 1000),
       });
     }

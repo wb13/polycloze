@@ -111,4 +111,7 @@ export type ReviewResult = {
   word: string;
   correct: boolean;
   timestamp: number;
+
+  // This field doesn't need to be sent to the server.
+  new?: boolean;
 };
