@@ -97,3 +97,14 @@ func UpdateWordAt[T database.Querier](q T, word string, correct bool, at time.Ti
 	}
 	return rs.UpdateReviewAt(q, text.Casefold(word), correct, at)
 }
+
+type ReviewResult = rs.Result
+
+// Saves word review results in bulk.
+func BulkSaveWords[T database.Querier](q T, reviews []ReviewResult, at time.Time) error {
+	// Client already casefolds words, but let's casefold again to be sure.
+	for i, review := range reviews {
+		reviews[i].Word = text.Casefold(review.Word)
+	}
+	return rs.BulkSaveReviews(q, reviews, at)
+}

@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -31,24 +32,6 @@ func excludeWords(words []string) func(string) bool {
 		_, found := exclude[text.Casefold(word)]
 		return !found
 	}
-}
-
-// Saves review results to the db.
-// Returns an error if it fails to save one or more of the review results.
-// The caller may choose to ignore the error.
-func saveReviewResults[T database.Querier](q T, reviews []ReviewResult) error {
-	var err error
-	for _, review := range reviews {
-		_err := word_scheduler.UpdateWord(q, review.Word, review.Correct)
-		if _err != nil {
-			err = _err
-		}
-	}
-
-	if err != nil {
-		return fmt.Errorf("failed to save some reviews: %v", err)
-	}
-	return err
 }
 
 func handleFlashcards(w http.ResponseWriter, r *http.Request) {
@@ -121,8 +104,11 @@ func handleFlashcards(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := saveReviewResults(con, data.Reviews); err != nil {
+		// Save review results.
+		if err := word_scheduler.BulkSaveWords(con, data.Reviews, time.Now()); err != nil {
 			log.Println(err)
+			http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+			return
 		}
 
 		if data.Difficulty != nil {
