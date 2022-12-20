@@ -1,0 +1,84 @@
+{{template "_header.html" .}}
+<title>Welcome | polycloze</title>
+{{template "_nav-min.html" .}}
+
+<main>
+<h1>Welcome, {{.username}}!</h1>
+
+<p>
+	Thanks for signing up.
+	Your polycloze account has been created successfully.
+	Please answer a few more questions to start learning.
+</p>
+
+<form class="signin" action="/welcome" method="POST">
+	{{template "_csrf.html" .}}
+
+	<div>
+		<label for="l2" style="display:block">
+			Which language do you want to learn?
+		</label>
+		<br>
+		<select id="l2" name="l2" required>
+			<option value="">Choose a language</option>
+			{{range .l2Options}}
+			<option value="{{.Code}}">{{.Name}}</option>
+			{{end}}
+		</select>
+	</div>
+
+	<div>
+		<label for="l1" style="display:block">
+			Which language do you want to see translations in?
+		</label>
+		<br>
+		<select id="l1" name="l1" required>
+			<option value="">Choose a language</option>
+			{{range .l1Options}}
+			<option value="{{.Code}}">{{.Name}}</option>
+			{{end}}
+		</select>
+	</div>
+
+	<p class="button-group">
+		<button type="submit">
+			<img src="/public/svg/brain.svg?t=20221114"> Start learning
+		</button>
+	</p>
+
+	<script>
+		const courses = new Map([
+			{{range .courses}}
+			["{{.L1.Code}}", "{{.L2.Code}}"],
+			{{end}}
+		]);
+
+		const selectL1 = document.getElementById("l1");
+		const selectL2 = document.getElementById("l2");
+
+		selectL1.addEventListener("change", () => {
+			const options = selectL2.querySelectorAll("option");
+			for (let i = 0; i < options.length; i++) {
+				const option = options[i];
+				option.hidden = false;
+				if (selectL1.value === option.value) {
+					option.hidden = true;
+				}
+			}
+		});
+
+		selectL2.addEventListener("change", () => {
+			const options = selectL1.querySelectorAll("option");
+			for (let i = 0; i < options.length; i++) {
+				const option = options[i];
+				option.hidden = false;
+				if (selectL2.value === option.value) {
+					option.hidden = true;
+				}
+			}
+		});
+	</script>
+</form>
+</main>
+
+{{template "_footer.html"}}
