@@ -15,8 +15,8 @@ import (
 func experiment(ns, nf int, z float64) {
 	lower := wilson.Wilson(ns, nf, z)
 	upper := wilson.Wilson(ns, nf, -z)
-	fmt.Printf("%.4f <= p\n", lower)
-	fmt.Printf("p <= %.4f\n", upper)
+	fmt.Printf("%.4f <= p, z = %.4f\n", lower, z)
+	fmt.Printf("p <= %.4f, z = %.4f\n", upper, -z)
 	fmt.Println()
 }
 
@@ -36,8 +36,8 @@ func parseArgs() (int, int) {
 
 func main() {
 	ns, nf := parseArgs()
-	confidence := []float64{0.8, 0.9, 0.95, 0.99, 0.999}
-	zs := []float64{-0.845, -1.285, -1.645, -2.325, -3.1}
+	confidence := []float64{0.8, 0.85, 0.9, 0.95, 0.99, 0.999}
+	zs := []float64{-0.845, -1.035, -1.285, -1.645, -2.325, -3.1}
 	// z scores are for one-sided lower bounds.
 	// Negate for one-sided upper bound z-scores.
 

@@ -32,6 +32,7 @@ import (
 // confidence	significance (a)	one-sided lower-bound z-score	upper bound
 // ----------	----------------	-----------------------------	-----------
 // 0.80				0.20							-0.845												0.845
+// 0.85				0.15							-1.035												1.035
 // 0.90				0.10							-1.285												1.285
 // 0.95				0.05							-1.645												1.645
 // 0.99				0.01							-2.325												2.325
@@ -46,14 +47,16 @@ func Wilson(success, fail int, z float64) float64 {
 
 func IsTooEasy(correct, incorrect int) bool {
 	// Threshold can't be too high or the tuner will be too conservative.
-	// Only uses 0.80 confidence, higher values require too many samples.
+	// Only uses 0.85 confidence, higher values require too many samples.
 
-	z := -0.845 // z-score for one-sided confidence interval (80% confidence)
+	z := -1.035 // z-score for one-sided confidence interval (85% confidence)
 	lower := Wilson(correct, incorrect, z)
 
-	// 80% likelihood that the true proportion is bounded below by `lower`.
-	// It's too hard to level up with a > 0.9 test when incorrect > 0.
-	return lower > 0.875
+	// 85% likelihood that the true proportion is bounded below by `lower`.
+	// It's too hard to level up with a 0.9 test when incorrect > 0.
+	return lower > 0.85
+
+	// 0.85 threshold is chosen so tuner won't trigger with < 5 samples.
 }
 
 func IsTooHard(correct, incorrect int) bool {

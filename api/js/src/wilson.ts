@@ -16,15 +16,17 @@ function wilson(success: number, fail: number, z: number): number {
 
 export function isTooEasy(correct: number, incorrect: number): boolean {
   // Threshold can't be too high or the tuner will be too conservative.
-  // Only uses 0.80 confidence, higher values require too many samples.
+  // Only uses 0.85 confidence, higher values require too many samples.
 
-  // z-score for one-sided confidence interval (80% confidence)
-  const z = -0.845;
+  // z-score for one-sided confidence interval (85% confidence)
+  const z = -1.035;
   const lower = wilson(correct, incorrect, z);
 
-  // 80% likelihood that the true proportion is bounded below by `lower`.
+  // 85% likelihood that the true proportion is bounded below by `lower`.
   // It's too hard to level up with a 0.9 test when incorrect > 0.
-  return lower > 0.875;
+  return lower > 0.85;
+
+  // 0.85 threshold is chosen so tuner won't trigger with < 5 samples.
 }
 
 export function isTooHard(correct: number, incorrect: number): boolean {
