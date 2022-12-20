@@ -5,7 +5,6 @@ ENV XDG_STATE_HOME=/home/.local/state
 RUN mkdir -p $XDG_DATA_HOME/polycloze/courses
 
 # Copy some course files
-
 COPY python/build/polycloze/courses/eng-dan.db $XDG_DATA_HOME/polycloze/courses
 COPY python/build/polycloze/courses/eng-deu.db $XDG_DATA_HOME/polycloze/courses
 COPY python/build/polycloze/courses/eng-epo.db $XDG_DATA_HOME/polycloze/courses
@@ -54,6 +53,9 @@ COPY python/build/polycloze/courses/tgl-por.db $XDG_DATA_HOME/polycloze/courses
 COPY python/build/polycloze/courses/tgl-ron.db $XDG_DATA_HOME/polycloze/courses
 COPY python/build/polycloze/courses/tgl-spa.db $XDG_DATA_HOME/polycloze/courses
 COPY python/build/polycloze/courses/tgl-swe.db $XDG_DATA_HOME/polycloze/courses
+
+# Copy version file
+COPY python/build/polycloze/version.txt $XDG_DATA_HOME/polycloze
 
 # Copy executable
 COPY polycloze /

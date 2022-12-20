@@ -1,5 +1,6 @@
 **
 
+!python/build/polycloze/version.txt
 !python/build/polycloze/courses/eng-*.db
 !python/build/polycloze/courses/hrv-*.db
 !python/build/polycloze/courses/tgl-*.db
