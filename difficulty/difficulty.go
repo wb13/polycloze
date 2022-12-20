@@ -50,6 +50,8 @@ func maxDifficulty[T database.Querier](q T) int {
 // Gets most recent record in difficulty table.
 // Returns default values if there is none.
 func GetLatest[T database.Querier](q T) Difficulty {
+	// TODO find way to avoid querying min and max difficulties, because they get
+	// slower and slower (eventually O(nlg(n)) even with indexed columns).
 	min := minDifficulty(q)
 	difficulty := Difficulty{
 		Level: min,
