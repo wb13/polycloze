@@ -109,9 +109,12 @@ export class ItemBuffer {
   async take(): Promise<Item | undefined> {
     let promise = null;
     if (this.buffer.length < 3) {
-      // Could be up to 50 (fewer requests sent to server), but let's leep it
-      // at 10 to minimize lost progress in case the browser closes abruptly.
-      promise = this.fetch(10);
+      // How many flashcards to fetch?
+      // The fewer flashcards you fetch, the fewer the flashcards that get
+      // wasted when the student's estimated level changes.
+      // But if you fetch more flashcards per batch, you have to contact the
+      // server less frequently...
+      promise = this.fetch(30);
     }
     if (this.buffer.length <= 0) {
       await promise;
