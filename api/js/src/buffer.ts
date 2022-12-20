@@ -36,6 +36,8 @@ export class ItemBuffer {
         return;
       }
 
+      // TODO new word might have frequencyClass < current level
+      // But does it matter if all difficult words have already been seen?
       const changed = this.difficultyTuner.update(review.correct);
       if (changed) {
         // Buffered flashcards become stale when user's estimated level
