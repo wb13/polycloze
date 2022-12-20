@@ -12,9 +12,16 @@ build:	build-js
 	go build .
 	go build -v -o build/ ./...
 
-.PHONY:	test
-test:	build-js
+.PHONY:	test-js
+test-js:
+	cd api/js; npm test
+
+.PHONY:	test-go
+test-go:	build-js
 	go test -cover ./...
+
+.PHONY:	test
+test:	test-js test-go
 
 .PHONY:	format
 format:
