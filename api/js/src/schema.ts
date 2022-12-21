@@ -12,6 +12,15 @@ export type FlashcardsResponse = {
   difficulty: Difficulty;
 };
 
+export type SetCourseRequest = {
+  l1Code: string;
+  l2Code: string;
+};
+
+export type SetCourseResponse = {
+  ok: boolean;
+};
+
 export type Language = {
   code: string;
   name: string;

@@ -17,6 +17,7 @@ import {
   RandomSentence,
   RandomSentencesSchema,
   ReviewResult,
+  SetCourseResponse,
   Word,
   VocabularySchema,
   VocabularySizeSchema,
@@ -258,6 +259,19 @@ export async function fetchSentences(
     mode: "cors" as RequestMode,
   });
   return json.sentences;
+}
+
+export async function setActiveCourse(
+  l1: string,
+  l2: string
+): Promise<boolean> {
+  const url = resolve("/api/actions/set-course");
+  const data = {
+    l1Code: l1,
+    l2Code: l2,
+  };
+  const resp = await submitJson<SetCourseResponse>(url, data);
+  return resp.ok;
 }
 
 type Params = {
