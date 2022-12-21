@@ -4,7 +4,10 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -13,16 +16,53 @@ import (
 
 	"github.com/lggruspe/polycloze/auth"
 	"github.com/lggruspe/polycloze/basedir"
+	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/sessions"
 )
 
+// Gets user's active course.
+// The result is <l1>-<l2>.
+// Returns an empty string without errors if the user hasn't set a course.
+func getActiveCourse(db *sql.DB) (string, error) {
+	query := `SELECT value FROM user_data WHERE name = 'course'`
+
+	var course string
+	err := db.QueryRow(query).Scan(&course)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", nil
+		}
+		return "", fmt.Errorf("failed to get active course: %v", err)
+	}
+	return course, nil
+}
+
 // Shows welcome page to new user.
 func handleWelcome(w http.ResponseWriter, r *http.Request) {
-	// TODO don't show if user isn't new
+	// Check if user is signed in.
 	db := auth.GetDB(r)
 	s, err := sessions.ResumeSession(db, w, r)
 	if err != nil || !isSignedIn(s) {
 		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
+		return
+	}
+
+	// Open user data DB.
+	userID := s.Data["userID"].(int)
+	db, err = database.OpenUserDB(basedir.UserData(userID))
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	// Redirect if the user has already been welcomed (i.e. course has been set).
+	if course, err := getActiveCourse(db); err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+	} else if course != "" {
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
 
