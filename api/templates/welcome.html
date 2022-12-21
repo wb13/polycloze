@@ -15,28 +15,24 @@
 	{{template "_csrf.html" .}}
 
 	<div>
+		<label for="l1" style="display:block">
+			Pick a language that you know.
+		</label>
+		<br>
+		<select id="l1" name="l1" required>
+			<option value="">Choose a language</option>
+			{{range .l1Options}}<option value="{{.Code}}">{{.Name}}</option>{{end}}
+		</select>
+	</div>
+
+	<div>
 		<label for="l2" style="display:block">
 			Which language do you want to learn?
 		</label>
 		<br>
 		<select id="l2" name="l2" required>
 			<option value="">Choose a language</option>
-			{{range .l2Options}}
-			<option value="{{.Code}}">{{.Name}}</option>
-			{{end}}
-		</select>
-	</div>
-
-	<div>
-		<label for="l1" style="display:block">
-			Which language do you want to see translations in?
-		</label>
-		<br>
-		<select id="l1" name="l1" required>
-			<option value="">Choose a language</option>
-			{{range .l1Options}}
-			<option value="{{.Code}}">{{.Name}}</option>
-			{{end}}
+			{{range .l2Options}}<option value="{{.Code}}">{{.Name}}</option>{{end}}
 		</select>
 	</div>
 
@@ -48,9 +44,7 @@
 
 	<script>
 		const courses = new Map([
-			{{range .courses}}
-			["{{.L1.Code}}", "{{.L2.Code}}"],
-			{{end}}
+			{{range .courses}}["{{.L1.Code}}", "{{.L2.Code}}"],{{end}}
 		]);
 
 		const selectL1 = document.getElementById("l1");
