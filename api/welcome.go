@@ -38,12 +38,21 @@ func getActiveCourse(db *sql.DB) (string, error) {
 }
 
 // Sets user's active course.
-func setActiveCourse(db *sql.DB, l1, l2 string) error {
+// Also initializes user's review DB for the course.
+func setActiveCourse(db *sql.DB, userID int, l1, l2 string) error {
 	course := fmt.Sprintf("%v-%v", l1, l2)
 	if !courseExists(l1, l2) {
 		return fmt.Errorf("failed to set active course: %v does not exist", course)
 	}
 
+	// Initialize course
+	reviewDB, err := database.New(basedir.Review(userID, l1, l2))
+	if err != nil {
+		return fmt.Errorf("failed to set active course: %v", err)
+	}
+	defer reviewDB.Close()
+
+	// Set active course.
 	query := `
 		INSERT OR REPLACE INTO user_data (name, value)
 		VALUES ('course', ?)
@@ -100,7 +109,7 @@ func handleWelcome(w http.ResponseWriter, r *http.Request) {
 			goto show
 		}
 
-		if err := setActiveCourse(db, selectedL1, selectedL2); err != nil {
+		if err := setActiveCourse(db, userID, selectedL1, selectedL2); err != nil {
 			s.Data["message"] = "Something went wrong. Please try again."
 			goto show
 		}

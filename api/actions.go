@@ -66,7 +66,7 @@ func handleSetCourse(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	// Set active course.
-	if err := setActiveCourse(db, data.L1Code, data.L2Code); err != nil {
+	if err := setActiveCourse(db, userID, data.L1Code, data.L2Code); err != nil {
 		log.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
