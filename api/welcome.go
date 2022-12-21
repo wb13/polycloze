@@ -78,6 +78,7 @@ func handleWelcome(w http.ResponseWriter, r *http.Request) {
 	if course, err := getActiveCourse(db); err != nil {
 		log.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
 	} else if course != "" {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
