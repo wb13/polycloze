@@ -37,6 +37,19 @@ func getActiveCourse(db *sql.DB) (string, error) {
 	return course, nil
 }
 
+// Sets user's active course.
+func setActiveCourse(db *sql.DB, l1, l2 string) error {
+	course := fmt.Sprintf("%v-%v", l1, l2)
+	query := `
+		INSERT OR REPLACE INTO user_data (name, value)
+		VALUES ('course', ?)
+	`
+	if _, err := db.Exec(query, course); err != nil {
+		return fmt.Errorf("failed to set active course: %v", err)
+	}
+	return nil
+}
+
 // Shows welcome page to new user.
 func handleWelcome(w http.ResponseWriter, r *http.Request) {
 	// Check if user is signed in.
@@ -65,6 +78,28 @@ func handleWelcome(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
+
+	// Handle form submission.
+	if r.Method == "POST" {
+		selectedL1 := r.FormValue("l1")
+		selectedL2 := r.FormValue("l2")
+		csrfToken := r.FormValue("csrf-token")
+
+		if !sessions.CheckCSRFToken(s.ID, csrfToken) {
+			s.Data["message"] = "Something went wrong. Please try again."
+			goto show
+		}
+
+		if err := setActiveCourse(db, selectedL1, selectedL2); err != nil {
+			s.Data["message"] = "Something went wrong. Please try again."
+			goto show
+		}
+
+		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		return
+	}
+
+show:
 
 	// Read and parse courses.json to get list of courses.
 	path := filepath.Join(basedir.StateDir, "courses.json")

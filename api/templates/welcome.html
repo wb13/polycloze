@@ -36,6 +36,10 @@
 		</select>
 	</div>
 
+	{{if .message}}
+	<div class="incorrect">{{.message}}</div>
+	{{end}}
+
 	<p class="button-group">
 		<button type="submit">
 			<img src="/public/svg/brain.svg?t=20221114"> Start learning
