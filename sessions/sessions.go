@@ -14,6 +14,42 @@ type Session struct {
 	Data map[string]any
 }
 
+// Checks if session data contains a user ID.
+func hasUserID(data map[string]any) bool {
+	val, ok := data["userID"]
+	if !ok {
+		return false
+	}
+	switch val := val.(type) {
+	case int:
+		return val >= 0
+	default:
+		return false
+	}
+}
+
+// Checks if session data contains a username.
+func hasUsername(data map[string]any) bool {
+	val, ok := data["username"]
+	if !ok {
+		return false
+	}
+	switch val := val.(type) {
+	case string:
+		return len(val) > 0
+	default:
+		return false
+	}
+}
+
+// Checks if user is signed in.
+func (s *Session) IsSignedIn() bool {
+	if s == nil {
+		return false
+	}
+	return hasUserID(s.Data) && hasUsername(s.Data)
+}
+
 // Starts a new session.
 // Overwrites existing sessions, if any.
 func StartSession(db *sql.DB, w http.ResponseWriter, r *http.Request) (*Session, error) {

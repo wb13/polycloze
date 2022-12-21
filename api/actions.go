@@ -24,7 +24,7 @@ func handleSetCourse(w http.ResponseWriter, r *http.Request) {
 	// Sign in.
 	db := auth.GetDB(r)
 	s, err := sessions.ResumeSession(db, w, r)
-	if err != nil || !isSignedIn(s) {
+	if err != nil || !s.IsSignedIn() {
 		http.Error(w, "Unauthorized.", http.StatusUnauthorized)
 		return
 	}

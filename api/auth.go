@@ -15,37 +15,6 @@ import (
 	"github.com/lggruspe/polycloze/sessions"
 )
 
-func hasUserID(data map[string]any) bool {
-	val, ok := data["userID"]
-	if !ok {
-		return false
-	}
-	switch val := val.(type) {
-	case int:
-		return val >= 0
-	default:
-		return false
-	}
-}
-
-func hasUsername(data map[string]any) bool {
-	val, ok := data["username"]
-	if !ok {
-		return false
-	}
-	switch val := val.(type) {
-	case string:
-		return len(val) > 0
-	default:
-		return false
-	}
-}
-
-// Checks if user is authenticated.
-func isSignedIn(s *sessions.Session) bool {
-	return hasUserID(s.Data) && hasUsername(s.Data)
-}
-
 // HandlerFunc for user registrations.
 func handleRegister(w http.ResponseWriter, r *http.Request) {
 	// Redirect to home page if already signed in.
@@ -56,7 +25,7 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
-	if isSignedIn(s) {
+	if s.IsSignedIn() {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
@@ -90,7 +59,7 @@ func handleSignIn(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
-	if isSignedIn(s) {
+	if s.IsSignedIn() {
 		goto success
 	}
 
@@ -140,7 +109,7 @@ func handleSignOut(w http.ResponseWriter, r *http.Request) {
 
 	db := auth.GetDB(r)
 	s, err := sessions.ResumeSession(db, w, r)
-	if err != nil || !isSignedIn(s) {
+	if err != nil || !s.IsSignedIn() {
 		goto done
 	}
 

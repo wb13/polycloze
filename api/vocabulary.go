@@ -31,7 +31,7 @@ type Word struct {
 func handleVocabulary(w http.ResponseWriter, r *http.Request) {
 	db := auth.GetDB(r)
 	s, err := sessions.ResumeSession(db, w, r)
-	if err != nil || !isSignedIn(s) {
+	if err != nil || !s.IsSignedIn() {
 		http.NotFound(w, r)
 		return
 	}

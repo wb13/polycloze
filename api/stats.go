@@ -49,7 +49,7 @@ func CountTotal(l1, l2 string) (int, error) {
 func handleStatsActivity(w http.ResponseWriter, r *http.Request) {
 	db := auth.GetDB(r)
 	s, err := sessions.ResumeSession(db, w, r)
-	if err != nil || !isSignedIn(s) {
+	if err != nil || !s.IsSignedIn() {
 		http.NotFound(w, r)
 		return
 	}
@@ -92,7 +92,7 @@ func handleStatsActivity(w http.ResponseWriter, r *http.Request) {
 func handleStatsVocab(w http.ResponseWriter, r *http.Request) {
 	db := auth.GetDB(r)
 	s, err := sessions.ResumeSession(db, w, r)
-	if err != nil || !isSignedIn(s) {
+	if err != nil || !s.IsSignedIn() {
 		http.NotFound(w, r)
 		return
 	}

@@ -16,7 +16,7 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 	var data map[string]any
 	db := auth.GetDB(r)
 	s, err := sessions.ResumeSession(db, w, r)
-	if err != nil || !isSignedIn(s) {
+	if err != nil || !s.IsSignedIn() {
 		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
 		return
 	}

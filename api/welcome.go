@@ -68,7 +68,7 @@ func handleWelcome(w http.ResponseWriter, r *http.Request) {
 	// Check if user is signed in.
 	db := auth.GetDB(r)
 	s, err := sessions.ResumeSession(db, w, r)
-	if err != nil || !isSignedIn(s) {
+	if err != nil || !s.IsSignedIn() {
 		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
 		return
 	}

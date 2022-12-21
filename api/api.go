@@ -29,7 +29,7 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 	db := auth.GetDB(r)
 	s, err := sessions.StartOrResumeSession(db, w, r)
 
-	if err != nil || !isSignedIn(s) {
+	if err != nil || !s.IsSignedIn() {
 		http.Redirect(w, r, "/about", http.StatusTemporaryRedirect)
 		return
 	}
@@ -53,7 +53,7 @@ func handleAbout(w http.ResponseWriter, r *http.Request) {
 	if s, err := sessions.StartOrResumeSession(db, w, r); err == nil {
 		data = s.Data
 
-		if isSignedIn(s) {
+		if s.IsSignedIn() {
 			// Get active course.
 			userID := data["userID"].(int)
 			course, err := getUserActiveCourse(userID)
@@ -71,7 +71,7 @@ func handleAbout(w http.ResponseWriter, r *http.Request) {
 func handleStudy(w http.ResponseWriter, r *http.Request) {
 	db := auth.GetDB(r)
 	s, err := sessions.ResumeSession(db, w, r)
-	if err != nil || !isSignedIn(s) {
+	if err != nil || !s.IsSignedIn() {
 		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
 		return
 	}
@@ -93,7 +93,7 @@ func handleStudy(w http.ResponseWriter, r *http.Request) {
 func handleVocabularyPage(w http.ResponseWriter, r *http.Request) {
 	db := auth.GetDB(r)
 	s, err := sessions.ResumeSession(db, w, r)
-	if err != nil || !isSignedIn(s) {
+	if err != nil || !s.IsSignedIn() {
 		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
 		return
 	}
