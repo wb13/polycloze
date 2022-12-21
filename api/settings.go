@@ -36,9 +36,6 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 		id, err := auth.Authenticate(db, username, currentPassword)
 		if err != nil {
 			log.Println(err)
-			log.Println(username)
-			log.Println(currentPassword)
-			log.Println(newPassword)
 			data["message"] = "Incorrect password."
 			goto fail
 		}
