@@ -128,7 +128,7 @@ success:
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, "/welcome", http.StatusTemporaryRedirect)
 }
 
 // HandlerFunc for signing out.

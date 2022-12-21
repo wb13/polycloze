@@ -40,6 +40,10 @@ func getActiveCourse(db *sql.DB) (string, error) {
 // Sets user's active course.
 func setActiveCourse(db *sql.DB, l1, l2 string) error {
 	course := fmt.Sprintf("%v-%v", l1, l2)
+	if !courseExists(l1, l2) {
+		return fmt.Errorf("failed to set active course: %v does not exist", course)
+	}
+
 	query := `
 		INSERT OR REPLACE INTO user_data (name, value)
 		VALUES ('course', ?)
@@ -84,6 +88,11 @@ func handleWelcome(w http.ResponseWriter, r *http.Request) {
 		selectedL1 := r.FormValue("l1")
 		selectedL2 := r.FormValue("l2")
 		csrfToken := r.FormValue("csrf-token")
+
+		if !courseExists(selectedL1, selectedL2) {
+			// This happens when user gets redirected from the sign-in page.
+			goto show
+		}
 
 		if !sessions.CheckCSRFToken(s.ID, csrfToken) {
 			s.Data["message"] = "Something went wrong. Please try again."

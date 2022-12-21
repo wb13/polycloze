@@ -69,6 +69,7 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 	r.HandleFunc("/study", handleStudy)
 	r.HandleFunc("/vocab", handleVocabularyPage)
 	r.HandleFunc("/about", showPage("about.html"))
+	r.HandleFunc("/welcome", handleWelcome)
 
 	r.HandleFunc("/settings", handleSettings)
 
@@ -93,8 +94,5 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 
 	r.HandleFunc("/api/languages", serveLanguagesJSON())
 	r.HandleFunc("/api/courses", serveCoursesJSON())
-
-	// Testing
-	r.HandleFunc("/welcome", handleWelcome)
 	return r, nil
 }
