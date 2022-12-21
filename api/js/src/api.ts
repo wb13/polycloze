@@ -1,6 +1,7 @@
 // Wrappers for api calls.
 
 import { csrf } from "./csrf";
+import { day, endOfDay } from "./datetime";
 import { Difficulty } from "./difficulty";
 import { Item } from "./item";
 import { getL1, getL2 } from "./language";
@@ -69,10 +70,13 @@ type FetchActivityOptions = {
 };
 
 function defaultFetchActivityOptions(): FetchActivityOptions {
+  const to = endOfDay();
+  const from = new Date(to.valueOf() - 7 * day);
   return {
     l1: getL1().code,
     l2: getL2().code,
-    // TODO from and to
+    from,
+    to,
     step: 86400, // 1 day
   };
 }
@@ -109,10 +113,13 @@ type FetchVocabularySizeOptions = {
 };
 
 function defaultFetchVocabularySizeOptions(): FetchVocabularySizeOptions {
+  const to = endOfDay();
+  const from = new Date(to.valueOf() - 7 * day);
   return {
     l1: getL1().code,
     l2: getL2().code,
-    // TODO from and to
+    from,
+    to,
     step: 86400, // 1 day
   };
 }

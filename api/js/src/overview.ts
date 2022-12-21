@@ -1,4 +1,5 @@
 import { createActivityChart, createVocabularyChart } from "./chart";
+import { startOfDay, endOfDay } from "./datetime";
 import { getL1, getL2 } from "./language";
 import { createLink } from "./link";
 import { Activity, ActivitySummary, DataPoint } from "./schema";
@@ -83,11 +84,8 @@ function computeActiveStreak(activity: ActivitySummary[]): [number, boolean] {
 
   // Construct range for today.
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const date = now.getDate();
-  const todayStart = new Date(year, month, date);
-  const todayEnd = new Date(year, month, date + 1);
+  const todayStart = startOfDay(now);
+  const todayEnd = endOfDay(now);
 
   // Find start of streak by looking for last day without activity,
   // excluding today.

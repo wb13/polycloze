@@ -1,11 +1,11 @@
-const millisecond = 1;
-const second = 1000 * millisecond;
-const minute = 60 * second;
-const hour = 60 * minute;
-const day = 24 * hour;
-const week = 7 * day;
-const month = (365 / 12) * day;
-const year = 365 * day;
+export const millisecond = 1;
+export const second = 1000 * millisecond;
+export const minute = 60 * second;
+export const hour = 60 * minute;
+export const day = 24 * hour;
+export const week = 7 * day;
+export const month = (365 / 12) * day;
+export const year = 365 * day;
 
 export function relative(date: Date): string {
   const now = new Date(Date.now());
@@ -142,4 +142,18 @@ function howFarInTheFuture(now: Date, date: Date): string {
     return "In 1 second";
   }
   return "Now";
+}
+
+export function startOfDay(now: Date = new Date()): Date {
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const date = now.getDate();
+  return new Date(year, month, date);
+}
+
+export function endOfDay(now: Date = new Date()): Date {
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const date = now.getDate();
+  return new Date(year, month, date + 1);
 }
