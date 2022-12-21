@@ -1,4 +1,4 @@
-// Contains functions for getting data from the server and from localStorage.
+// Contains functions for getting data from the server.
 
 import { csrf } from "./csrf";
 

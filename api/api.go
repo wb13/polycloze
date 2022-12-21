@@ -43,6 +43,7 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.Data["course"] = course
+	s.Data["csrfToken"] = sessions.CSRFToken(s.ID)
 	renderTemplate(w, "home.html", s.Data)
 }
 

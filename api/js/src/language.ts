@@ -1,50 +1,23 @@
-// Language info in localStorage.
+// Language info stored in meta tags.
 
 import { Language } from "./schema";
 
+// Returns L1 metadata stored in meta tags.
 export function getL1(): Language {
-  return {
-    code: localStorage.getItem("l1.code") || "eng",
-    name: localStorage.getItem("l1.name") || "English",
-    bcp47: localStorage.getItem("l1.bcp47") || "en",
-  };
+  // Guaranteed by the server to exist.
+  const meta = document.querySelector(
+    "meta[name='polycloze-l1']"
+  ) as HTMLMetaElement;
+  const { code, name, bcp47 } = meta.dataset;
+  return { code: code as string, name: name as string, bcp47: bcp47 as string };
 }
 
+// Returns L2 metadata stored in meta tags.
 export function getL2(): Language {
-  return {
-    code: localStorage.getItem("l2.code") || "spa",
-    name: localStorage.getItem("l2.name") || "Spanish",
-    bcp47: localStorage.getItem("l2.bcp47") || "es",
-  };
-}
-
-function setLanguage(prefix: "l1" | "l2", language: Language) {
-  localStorage.setItem(`${prefix}.code`, language.code);
-  localStorage.setItem(`${prefix}.name`, language.name);
-  localStorage.setItem(`${prefix}.bcp47`, language.bcp47);
-}
-
-function swapL1L2() {
-  const l1 = getL1();
-  const l2 = getL2();
-  setLanguage("l1", l2);
-  setLanguage("l2", l1);
-}
-
-// Swaps L1 and L2 if needed to make sure that L1 != L2.
-export function setL1(language: Language) {
-  if (language.code !== getL2().code) {
-    setLanguage("l1", language);
-  } else {
-    swapL1L2();
-  }
-}
-
-// Swaps L1 and L2 if needed to make sure that L1 != L2.
-export function setL2(language: Language) {
-  if (language.code !== getL1().code) {
-    setLanguage("l2", language);
-  } else {
-    swapL1L2();
-  }
+  // Guaranteed by the server to exist.
+  const meta = document.querySelector(
+    "meta[name='polycloze-l2']"
+  ) as HTMLMetaElement;
+  const { code, name, bcp47 } = meta.dataset;
+  return { code: code as string, name: name as string, bcp47: bcp47 as string };
 }

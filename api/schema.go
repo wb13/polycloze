@@ -36,5 +36,5 @@ type SetCourseRequest struct {
 }
 
 type SetCourseResponse struct {
-	Ok bool `json"ok"`
+	Ok bool `json:"ok"`
 }

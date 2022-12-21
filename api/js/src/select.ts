@@ -1,7 +1,8 @@
 import "./select.css";
+import { setActiveCourse } from "./api";
 import { createButton } from "./button";
 import { createIcon } from "./icon";
-import { getL1, getL2, setL1, setL2 } from "./language";
+import { getL1, getL2 } from "./language";
 import { createModal } from "./modal";
 import { Course, Language } from "./schema";
 
@@ -158,9 +159,8 @@ function createCourseMenu(courses: Course[]): [HTMLDivElement, () => void] {
     selectL2 = replacement;
   }
 
-  function save() {
-    setL1(l1);
-    setL2(l2);
+  async function save() {
+    await setActiveCourse(l1.code, l2.code);
     window.location.href = window.location.href; // eslint-disable-line no-self-assign
     // Don't use `location.reload()`, because it resends POST data.
   }
