@@ -29,3 +29,12 @@ type FlashcardsResponse struct {
 	Items      []flashcards.Item      `json:"items"`
 	Difficulty *difficulty.Difficulty `json:"difficulty"`
 }
+
+type SetCourseRequest struct {
+	L1Code string `json:"l1Code"`
+	L2Code string `json:"l2Code"`
+}
+
+type SetCourseResponse struct {
+	Ok bool `json"ok"`
+}

@@ -41,7 +41,7 @@ func handleFlashcards(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check of course exists.
+	// Check if course exists.
 	l1 := chi.URLParam(r, "l1")
 	l2 := chi.URLParam(r, "l2")
 	if !courseExists(l1, l2) {

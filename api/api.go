@@ -148,5 +148,7 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 
 	r.HandleFunc("/api/languages", serveLanguagesJSON())
 	r.HandleFunc("/api/courses", serveCoursesJSON())
+
+	r.HandleFunc("/api/actions/set-course", handleSetCourse)
 	return r, nil
 }
