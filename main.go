@@ -47,7 +47,7 @@ func main() {
 	args := parseArgs()
 	config := api.Config{AllowCORS: args.cors, Port: args.port}
 
-	db, err := database.OpenUsersDB(basedir.Users())
+	db, err := database.OpenAuthDB(basedir.Auth())
 	if err != nil {
 		log.Fatal(err)
 	}

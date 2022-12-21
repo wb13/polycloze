@@ -19,7 +19,7 @@ import (
 // Creates user DB in memory for testing.
 // Caller has to close the database after use.
 func testDB() *sql.DB {
-	db, err := database.OpenUsersDB(":memory:")
+	db, err := database.OpenAuthDB(":memory:")
 	if err != nil {
 		panic(err)
 	}

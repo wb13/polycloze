@@ -16,7 +16,7 @@ const (
 	keyUserDB contextValueKey = iota
 )
 
-// Stuffs pointer to database of users into request context.
+// Stuffs pointer to auth database into request context.
 func Middleware(db *sql.DB) func(http.Handler) http.Handler {
 	// Gets user session and stuffs it in the request context.
 	return func(next http.Handler) http.Handler {

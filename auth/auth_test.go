@@ -13,7 +13,7 @@ import (
 
 // NOTE Caller should close DB.
 func openDB() *sql.DB {
-	db, err := database.OpenUsersDB(":memory:")
+	db, err := database.OpenAuthDB(":memory:")
 	if err != nil {
 		panic(err)
 	}

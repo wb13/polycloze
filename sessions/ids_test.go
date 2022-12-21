@@ -12,7 +12,7 @@ import (
 )
 
 func testDB() *sql.DB {
-	db, err := database.OpenUsersDB(":memory:")
+	db, err := database.OpenAuthDB(":memory:")
 	if err != nil {
 		panic(err)
 	}
