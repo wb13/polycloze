@@ -53,7 +53,7 @@ func readTestSQL() []string {
 // Returns DB for testing.
 // NOTE Caller has to Close the db.
 func TestingDatabase() *sql.DB {
-	db, err := database.New(":memory:")
+	db, err := database.OpenReviewDB(":memory:")
 	if err != nil {
 		panic(err)
 	}

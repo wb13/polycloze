@@ -8,7 +8,6 @@ import (
 	"context"
 	"database/sql"
 	"embed"
-	"fmt"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pressly/goose/v3"
@@ -28,24 +27,6 @@ func init() {
 // NOTE Caller has to Close the db.
 func Open(path string) (*sql.DB, error) {
 	return sql.Open("sqlite3", path)
-}
-
-// Convenience function for creating upgraded sqlite DB.
-func New(path string) (*sql.DB, error) {
-	db, err := Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open database: %v", err)
-	}
-	if err := Upgrade(db); err != nil {
-		db.Close()
-		return nil, fmt.Errorf("failed to upgrade database: %v", err)
-	}
-	return db, nil
-}
-
-// Upgrades database to the latest version.
-func Upgrade(db *sql.DB) error {
-	return goose.Up(db, "migrations/reviews")
 }
 
 // Attaches database to the connection.

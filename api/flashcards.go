@@ -59,7 +59,7 @@ func handleFlashcards(w http.ResponseWriter, r *http.Request) {
 
 	// Open user's review DB.
 	userID := s.Data["userID"].(int)
-	db, err = database.New(basedir.Review(userID, l1, l2))
+	db, err = database.OpenReviewDB(basedir.Review(userID, l1, l2))
 	if err != nil {
 		log.Println(fmt.Errorf("could not open review database (%v-%v): %v", l1, l2, err))
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)

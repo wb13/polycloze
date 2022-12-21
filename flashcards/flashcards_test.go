@@ -16,7 +16,7 @@ func pred(_ string) bool {
 }
 
 func BenchmarkGetFlashcards(b *testing.B) {
-	db, err := database.New(":memory:")
+	db, err := database.OpenReviewDB(":memory:")
 	if err != nil {
 		b.Fatal("expected err to be nil:", err)
 	}

@@ -31,7 +31,7 @@ func queryInt(path, query string, upgrade ...bool) (int, error) {
 	defer db.Close()
 
 	if len(upgrade) > 0 {
-		if err := database.Upgrade(db); err != nil {
+		if err := database.UpgradeReviewDB(db); err != nil {
 			return result, err
 		}
 	}
@@ -62,7 +62,7 @@ func handleStatsActivity(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := s.Data["userID"].(int)
-	db, err = database.New(basedir.Review(userID, l1, l2))
+	db, err = database.OpenReviewDB(basedir.Review(userID, l1, l2))
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
@@ -105,7 +105,7 @@ func handleStatsVocab(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := s.Data["userID"].(int)
-	db, err = database.New(basedir.Review(userID, l1, l2))
+	db, err = database.OpenReviewDB(basedir.Review(userID, l1, l2))
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)

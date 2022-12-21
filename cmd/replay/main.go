@@ -50,7 +50,7 @@ func main() {
 		replay.SetVerbosity(true)
 	}
 
-	db, err := database.New(args.dbFile)
+	db, err := database.OpenReviewDB(args.dbFile)
 	if err != nil {
 		log.Fatal(err)
 	}

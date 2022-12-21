@@ -46,7 +46,7 @@ func setActiveCourse(db *sql.DB, userID int, l1, l2 string) error {
 	}
 
 	// Initialize course
-	reviewDB, err := database.New(basedir.Review(userID, l1, l2))
+	reviewDB, err := database.OpenReviewDB(basedir.Review(userID, l1, l2))
 	if err != nil {
 		return fmt.Errorf("failed to set active course: %v", err)
 	}

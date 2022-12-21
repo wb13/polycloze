@@ -33,7 +33,7 @@ func main() {
 
 	rand.Seed(time.Now().UnixNano())
 
-	db, err := database.New(":memory:")
+	db, err := database.OpenReviewDB(":memory:")
 	if err != nil {
 		log.Fatal(err)
 	}
