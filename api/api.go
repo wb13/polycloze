@@ -36,15 +36,13 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 
 	// Get active course.
 	userID := s.Data["userID"].(int)
-	l1Code, l2Code, err := getUserActiveCourse(userID)
+	course, err := getUserActiveCourse(userID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
-
-	s.Data["l1Code"] = l1Code
-	s.Data["l2Code"] = l2Code
+	s.Data["course"] = course
 	renderTemplate(w, "home.html", s.Data)
 }
 
@@ -57,14 +55,13 @@ func handleAbout(w http.ResponseWriter, r *http.Request) {
 		if isSignedIn(s) {
 			// Get active course.
 			userID := data["userID"].(int)
-			l1Code, l2Code, err := getUserActiveCourse(userID)
+			course, err := getUserActiveCourse(userID)
 			if err != nil {
 				log.Println(err)
 				http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 				return
 			}
-			data["l1Code"] = l1Code
-			data["l2Code"] = l2Code
+			data["course"] = course
 		}
 	}
 	renderTemplate(w, "about.html", data)
@@ -80,15 +77,14 @@ func handleStudy(w http.ResponseWriter, r *http.Request) {
 
 	// Get active course.
 	userID := s.Data["userID"].(int)
-	l1Code, l2Code, err := getUserActiveCourse(userID)
+	course, err := getUserActiveCourse(userID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
 
-	s.Data["l1Code"] = l1Code
-	s.Data["l2Code"] = l2Code
+	s.Data["course"] = course
 	s.Data["csrfToken"] = sessions.CSRFToken(s.ID)
 	renderTemplate(w, "study.html", s.Data)
 }
@@ -103,15 +99,14 @@ func handleVocabularyPage(w http.ResponseWriter, r *http.Request) {
 
 	// Get active course.
 	userID := s.Data["userID"].(int)
-	l1Code, l2Code, err := getUserActiveCourse(userID)
+	course, err := getUserActiveCourse(userID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
 
-	s.Data["l1Code"] = l1Code
-	s.Data["l2Code"] = l2Code
+	s.Data["course"] = course
 	s.Data["csrfToken"] = sessions.CSRFToken(s.ID)
 	renderTemplate(w, "vocab.html", s.Data)
 }

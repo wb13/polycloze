@@ -7,11 +7,21 @@
 <meta name="csrf-token" content="{{.csrfToken}}">
 {{end}}
 
-<meta name="application-name"
-			content="polycloze"
-			{{if .l1Code}}data-l1-code="{{.l1Code}}"{{end}}
-			{{if .l2Code}}data-l2-code="{{.l2Code}}"{{end}}
+<meta name="application-name" content="polycloze">
+{{if .course}}
+<meta name="polycloze-l1"
+			content="{{.course.L1.Code}}"
+			data-code="{{.course.L1.Code}}"
+			data-name="{{.course.L1.Name}}"
+			data-bcp47="{{.course.L1.BCP47}}"
 			>
+<meta name="polycloze-l2"
+			content="{{.course.L2.Code}}"
+			data-code="{{.course.L2.Code}}"
+			data-name="{{.course.L2.Name}}"
+			data-bcp47="{{.course.L2.BCP47}}"
+			>
+{{end}}
 
 <link rel="icon" type="icon" href="/public/favicon.ico?t=20221114">
 <link rel="apple-touch-icon" sizes="180x180" href="/public/apple-touch-icon.png?t=20221114">

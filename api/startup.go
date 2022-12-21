@@ -37,11 +37,6 @@ func (a ByCode) Less(i, j int) bool {
 	return a[i].Code < a[j].Code
 }
 
-type Course struct {
-	L1 Language `json:"l1"`
-	L2 Language `json:"l2"`
-}
-
 // Look for installed languages and courses.
 func Startup() {
 	// Set version string.

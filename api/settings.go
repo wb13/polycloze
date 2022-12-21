@@ -51,15 +51,14 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 fail:
 	// Get active course.
 	userID := s.Data["userID"].(int)
-	l1Code, l2Code, err := getUserActiveCourse(userID)
+	course, err := getUserActiveCourse(userID)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
 
-	data["l1Code"] = l1Code
-	data["l2Code"] = l2Code
+	data["course"] = course
 	data["csrfToken"] = sessions.CSRFToken(s.ID)
 	renderTemplate(w, "settings.html", data)
 }
