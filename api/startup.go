@@ -22,6 +22,21 @@ type Language struct {
 	BCP47 string `json:"bcp47"`
 }
 
+// For sorting languages by code.
+type ByCode []Language
+
+func (a ByCode) Len() int {
+	return len(a)
+}
+
+func (a ByCode) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
+
+func (a ByCode) Less(i, j int) bool {
+	return a[i].Code < a[j].Code
+}
+
 type Course struct {
 	L1 Language `json:"l1"`
 	L2 Language `json:"l2"`

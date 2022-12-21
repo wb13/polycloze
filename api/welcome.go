@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"github.com/lggruspe/polycloze/auth"
 	"github.com/lggruspe/polycloze/basedir"
@@ -66,7 +67,9 @@ func handleWelcome(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// TODO sort languages
+	// Sort languages by code.
+	sort.Sort(ByCode(l1Options))
+	sort.Sort(ByCode(l2Options))
 
 	// Set template data.
 	s.Data["csrfToken"] = sessions.CSRFToken(s.ID)
