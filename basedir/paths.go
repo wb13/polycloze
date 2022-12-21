@@ -14,6 +14,11 @@ func User(userID int) string {
 	return path.Join(StateDir, "users", fmt.Sprintf("%v", userID))
 }
 
+// Returns path to user's database.
+func UserData(userID int) string {
+	return path.Join(User(userID), "user.db")
+}
+
 // Returns path to review database.
 // l1 and l2: ISO 639-3 code
 func Review(userID int, l1, l2 string) string {

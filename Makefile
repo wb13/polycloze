@@ -43,6 +43,9 @@ lint-go:	format
 .PHONY:	lint
 lint:	lint-js | lint-go
 
+.PHONY:	check-go
+check-go:	test-go lint-go
+
 .PHONY:	run
 run:	build-js
 	go run .

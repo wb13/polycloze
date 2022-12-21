@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Levi Gruspe
 // License: GNU AGPLv3 or later
 
-// For managing authentication database.
+// For managing user DBs.
 package database
 
 import (
@@ -11,23 +11,24 @@ import (
 	"github.com/pressly/goose/v3"
 )
 
-// Upgrades auth database to the latest version.
-func upgradeAuthDB(db *sql.DB) error {
-	return goose.Up(db, "migrations/auth")
+// Upgrades user DB to the latest version.
+func upgradeUserDB(db *sql.DB) error {
+	if err := goose.Up(db, "migrations/users"); err != nil {
+		return fmt.Errorf("failed to upgrade user database: %v", err)
+	}
+	return nil
 }
 
-// NOTE Caller has to Close the db.
-func OpenAuthDB(path string) (*sql.DB, error) {
+// Opens database for one user.
+// The caller has to Close the db.
+func OpenUserDB(path string) (*sql.DB, error) {
 	db, err := Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open auth database: %v", err)
+		return nil, fmt.Errorf("failed to open user database: %v", err)
 	}
-	if err := upgradeAuthDB(db); err != nil {
+	if err := upgradeUserDB(db); err != nil {
 		db.Close()
-		return nil, fmt.Errorf("failed to upgrade auth database: %v", err)
+		return nil, fmt.Errorf("failed to open user database: %v", err)
 	}
-
-	db.SetMaxOpenConns(1)
-	_, _ = db.Exec("PRAGMA journal_mode=WAL")
 	return db, nil
 }
