@@ -85,7 +85,8 @@ function defaultFetchActivityOptions(): FetchActivityOptions {
 export async function fetchActivity(
   options: FetchActivityOptions = {}
 ): Promise<ActivitySummary[]> {
-  const { l1, l2 } = { ...defaultFetchActivityOptions(), ...options };
+  options = { ...defaultFetchActivityOptions(), ...options };
+  const { l1, l2 } = options;
   const url = resolve(`/api/stats/activity/${l1}/${l2}`);
   setParams(url, {
     from: options.from ? options.from.getTime() / 1000 : undefined,
@@ -128,7 +129,8 @@ function defaultFetchVocabularySizeOptions(): FetchVocabularySizeOptions {
 export async function fetchVocabularySize(
   options: FetchVocabularySizeOptions = {}
 ): Promise<DataPoint[]> {
-  const { l1, l2 } = { ...defaultFetchVocabularySizeOptions(), ...options };
+  options = { ...defaultFetchVocabularySizeOptions(), ...options };
+  const { l1, l2 } = options;
   const url = resolve(`/api/stats/vocab/${l1}/${l2}`);
   setParams(url, {
     from: options.from ? options.from.getTime() / 1000 : undefined,
