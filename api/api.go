@@ -54,17 +54,18 @@ func handleAbout(w http.ResponseWriter, r *http.Request) {
 	if s, err := sessions.StartOrResumeSession(db, w, r); err == nil {
 		data = s.Data
 
-		// Get active course.
-		userID := data["userID"].(int)
-		l1Code, l2Code, err := getUserActiveCourse(userID)
-		if err != nil {
-			log.Println(err)
-			http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-			return
+		if isSignedIn(s) {
+			// Get active course.
+			userID := data["userID"].(int)
+			l1Code, l2Code, err := getUserActiveCourse(userID)
+			if err != nil {
+				log.Println(err)
+				http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+				return
+			}
+			data["l1Code"] = l1Code
+			data["l2Code"] = l2Code
 		}
-
-		data["l1Code"] = l1Code
-		data["l2Code"] = l2Code
 	}
 	renderTemplate(w, "about.html", data)
 }
