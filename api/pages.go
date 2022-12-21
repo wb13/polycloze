@@ -10,7 +10,7 @@ import (
 	"github.com/lggruspe/polycloze/sessions"
 )
 
-func showPage(name string) func(http.ResponseWriter, *http.Request) {
+func ShowPage(name string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var data map[string]any
 		db := auth.GetDB(r)

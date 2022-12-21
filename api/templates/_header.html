@@ -7,6 +7,12 @@
 <meta name="csrf-token" content="{{.csrfToken}}">
 {{end}}
 
+<meta name="application-name"
+			content="polycloze"
+			{{if .l1Code}}data-l1-code="{{.l1Code}}"{{end}}
+			{{if .l2Code}}data-l2-code="{{.l2Code}}"{{end}}
+			>
+
 <link rel="icon" type="icon" href="/public/favicon.ico?t=20221114">
 <link rel="apple-touch-icon" sizes="180x180" href="/public/apple-touch-icon.png?t=20221114">
 <link rel="icon" type="image/png" sizes="32x32" href="/public/favicon-32x32.png?t=20221114">

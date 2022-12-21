@@ -5,6 +5,7 @@ package api
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -24,6 +25,7 @@ func cors(next http.Handler) http.Handler {
 }
 
 func handleHome(w http.ResponseWriter, r *http.Request) {
+	// Check if user is signed in.
 	db := auth.GetDB(r)
 	s, err := sessions.StartOrResumeSession(db, w, r)
 
@@ -31,7 +33,40 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/about", http.StatusTemporaryRedirect)
 		return
 	}
+
+	// Get active course.
+	userID := s.Data["userID"].(int)
+	l1Code, l2Code, err := getUserActiveCourse(userID)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	s.Data["l1Code"] = l1Code
+	s.Data["l2Code"] = l2Code
 	renderTemplate(w, "home.html", s.Data)
+}
+
+func handleAbout(w http.ResponseWriter, r *http.Request) {
+	var data map[string]any
+	db := auth.GetDB(r)
+	if s, err := sessions.StartOrResumeSession(db, w, r); err == nil {
+		data = s.Data
+
+		// Get active course.
+		userID := data["userID"].(int)
+		l1Code, l2Code, err := getUserActiveCourse(userID)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+			return
+		}
+
+		data["l1Code"] = l1Code
+		data["l2Code"] = l2Code
+	}
+	renderTemplate(w, "about.html", data)
 }
 
 func handleStudy(w http.ResponseWriter, r *http.Request) {
@@ -41,6 +76,18 @@ func handleStudy(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
 		return
 	}
+
+	// Get active course.
+	userID := s.Data["userID"].(int)
+	l1Code, l2Code, err := getUserActiveCourse(userID)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	s.Data["l1Code"] = l1Code
+	s.Data["l2Code"] = l2Code
 	s.Data["csrfToken"] = sessions.CSRFToken(s.ID)
 	renderTemplate(w, "study.html", s.Data)
 }
@@ -52,6 +99,18 @@ func handleVocabularyPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
 		return
 	}
+
+	// Get active course.
+	userID := s.Data["userID"].(int)
+	l1Code, l2Code, err := getUserActiveCourse(userID)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	s.Data["l1Code"] = l1Code
+	s.Data["l2Code"] = l2Code
 	s.Data["csrfToken"] = sessions.CSRFToken(s.ID)
 	renderTemplate(w, "vocab.html", s.Data)
 }
@@ -68,9 +127,8 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 	r.HandleFunc("/", handleHome)
 	r.HandleFunc("/study", handleStudy)
 	r.HandleFunc("/vocab", handleVocabularyPage)
-	r.HandleFunc("/about", showPage("about.html"))
+	r.HandleFunc("/about", handleAbout)
 	r.HandleFunc("/welcome", handleWelcome)
-
 	r.HandleFunc("/settings", handleSettings)
 
 	r.HandleFunc("/register", handleRegister)
