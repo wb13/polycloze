@@ -94,9 +94,28 @@ def delete_orphans(con: Connection) -> None:
     delete_orphaned_sentences(con)
     delete_orphaned_translations(con)
 
-    # There may be orphaned words, not because sentences were removed,
-    # but because they originally didn't belong to any sentence.
-    # This happens with words that appear in untranslated sentences.
+    # Some sentences might have a tatoeba translation, but the translation is
+    # too long.
+    con.execute("""
+        DELETE FROM translates
+        WHERE target NOT IN (
+            SELECT tatoeba_id from translation
+        )
+    """)
+    con.execute("""
+        DELETE FROM sentence
+        WHERE tatoeba_id NOT IN (
+            SELECT source FROM translates
+        )
+    """)
+    con.execute("""
+        DELETE FROM contains
+        WHERE sentence NOT IN (
+            SELECT id FROM sentence
+        )
+    """)
+    # Delete words that appear in untranslated sentences (e.g. including
+    # sentences that do have a translation, but the translation is too long).
     query = """
         DELETE FROM word
         WHERE id NOT IN (
