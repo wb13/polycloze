@@ -146,6 +146,7 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 	r.HandleFunc("/api/flashcards/{l1}/{l2}", handleFlashcards)
 	r.HandleFunc("/api/stats/activity/{l1}/{l2}", handleStatsActivity)
 	r.HandleFunc("/api/stats/vocab/{l1}/{l2}", handleStatsVocab)
+	r.HandleFunc("/api/stats/estimate/{l1}/{l2}", handleStatsEstimatedLevel)
 
 	r.HandleFunc("/api/languages", serveLanguagesJSON())
 	r.HandleFunc("/api/courses", serveCoursesJSON())

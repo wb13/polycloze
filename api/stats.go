@@ -131,6 +131,48 @@ func handleStatsVocab(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Responds with user's estimated level over time.
+func handleStatsEstimatedLevel(w http.ResponseWriter, r *http.Request) {
+	db := auth.GetDB(r)
+	s, err := sessions.ResumeSession(db, w, r)
+	if err != nil || !s.IsSignedIn() {
+		http.NotFound(w, r)
+		return
+	}
+
+	l1 := chi.URLParam(r, "l1")
+	l2 := chi.URLParam(r, "l2")
+	if !courseExists(l1, l2) {
+		http.NotFound(w, r)
+		return
+	}
+
+	userID := s.Data["userID"].(int)
+	db, err = database.OpenReviewDB(basedir.Review(userID, l1, l2))
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	result, err := history.EstimatedLevel(
+		db,
+		getFrom(r),
+		getTo(r),
+		getStep(r),
+	)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	sendJSON(w, map[string]any{
+		"estimatedLevel": result,
+	})
+}
+
 // Gets `from` UNIX timestamp from URL search params.
 // Default value: last week.
 func getFrom(r *http.Request) time.Time {

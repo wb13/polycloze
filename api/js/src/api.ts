@@ -12,6 +12,7 @@ import {
   Course,
   CoursesSchema,
   DataPoint,
+  EstimatedLevelSchema,
   FlashcardsResponse,
   Language,
   LanguagesSchema,
@@ -105,7 +106,7 @@ export async function fetchActivity(
   });
 }
 
-type FetchVocabularySizeOptions = {
+type FetchHistoricalDataOptions = {
   l1?: string;
   l2?: string;
   from?: Date;
@@ -113,7 +114,7 @@ type FetchVocabularySizeOptions = {
   step?: number;
 };
 
-function defaultFetchVocabularySizeOptions(): FetchVocabularySizeOptions {
+function defaultFetchHistoricalDataOptions(): FetchHistoricalDataOptions {
   const to = endOfDay();
   const from = new Date(to.valueOf() - 7 * day);
   return {
@@ -127,9 +128,9 @@ function defaultFetchVocabularySizeOptions(): FetchVocabularySizeOptions {
 
 // Fetches student's vocab size over time.
 export async function fetchVocabularySize(
-  options: FetchVocabularySizeOptions = {}
+  options: FetchHistoricalDataOptions = {}
 ): Promise<DataPoint[]> {
-  options = { ...defaultFetchVocabularySizeOptions(), ...options };
+  options = { ...defaultFetchHistoricalDataOptions(), ...options };
   const { l1, l2 } = options;
   const url = resolve(`/api/stats/vocab/${l1}/${l2}`);
   setParams(url, {
@@ -141,6 +142,29 @@ export async function fetchVocabularySize(
     mode: "cors" as RequestMode,
   });
   return json.vocabSize.map((p) => {
+    return {
+      time: new Date(p.time),
+      value: p.value,
+    };
+  });
+}
+
+// Fetches student's estimated level over time.
+export async function fetchEstimatedLevel(
+  options: FetchHistoricalDataOptions = {}
+): Promise<DataPoint[]> {
+  options = { ...defaultFetchHistoricalDataOptions(), ...options };
+  const { l1, l2 } = options;
+  const url = resolve(`/api/stats/estimate/${l1}/${l2}`);
+  setParams(url, {
+    from: options.from ? options.from.getTime() / 1000 : undefined,
+    to: options.to ? options.to.getTime() / 1000 : undefined,
+    step: options.step || undefined,
+  });
+  const json = await fetchJson<EstimatedLevelSchema>(url, {
+    mode: "cors" as RequestMode,
+  });
+  return json.estimatedLevel.map((p) => {
     return {
       time: new Date(p.time),
       value: p.value,

@@ -116,6 +116,11 @@ export type VocabularySizeSchema = {
   vocabSize: DataPointSchema[];
 };
 
+// from /api/stats/estimate/<l1>/<l2>
+export type EstimatedLevelSchema = {
+  estimatedLevel: DataPointSchema[];
+};
+
 export type ReviewResult = {
   word: string;
   correct: boolean;

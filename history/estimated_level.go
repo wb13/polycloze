@@ -1,7 +1,8 @@
 // Copyright (c) 2022 Levi Gruspe
 // License: GNU AGPLv3 or later
 
-package vocab_size
+// Historical records of user's estimated level.
+package history
 
 import (
 	"database/sql"
@@ -9,31 +10,14 @@ import (
 	"time"
 )
 
-type Metric struct {
-	Time  time.Time `json:"time"`
-	Value float64   `json:"value"`
+// Returns estimated level (frequency class at various points in the given
+// range).
+func EstimatedLevel(db *sql.DB, from, to time.Time, step time.Duration) ([]Metric[int], error) {
+	series := Zeros[int](from, to, step)
 
-	initialized bool
-}
-
-// Returns vocab size at various points in the given range.
-func VocabSize(db *sql.DB, from, to time.Time, step time.Duration) ([]Metric, error) {
-	if step < time.Second {
-		panic("only supports up to second precision")
-	}
-
-	// Initialize return value.
-	var series []Metric
-	for current := from; current.Before(to); current = current.Add(step) {
-		series = append(series, Metric{
-			Time: current,
-		})
-	}
-
-	// Compute vocab size.
 	query := `
 		SELECT (t - @from)/@step, last_value(v) OVER win
-		FROM vocabulary_size_history
+		FROM estimated_level_history
 		WHERE t >= @from AND t < @to
 		WINDOW win AS (
 			PARTITION BY (t - @from)/@step
@@ -47,15 +31,14 @@ func VocabSize(db *sql.DB, from, to time.Time, step time.Duration) ([]Metric, er
 		sql.Named("step", step/time.Second),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to compute vocabulary size: %v", err)
+		return nil, fmt.Errorf("failed to compute estimated level: %v", err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var i int
-		var value float64
+		var i, value int
 		if err := rows.Scan(&i, &value); err != nil {
-			return nil, fmt.Errorf("failed to compute vocabulary size: %v", err)
+			return nil, fmt.Errorf("failed to compute estimated level: %v", err)
 		}
 		series[i].Value = value
 		series[i].initialized = true
@@ -67,13 +50,13 @@ func VocabSize(db *sql.DB, from, to time.Time, step time.Duration) ([]Metric, er
 			SELECT coalesce(v, 0)
 			FROM (
 				SELECT max(id), v
-				FROM vocabulary_size_history
+				FROM estimated_level_history
 				WHERE t <= ?
 			)
 		`
-		err = db.QueryRow(query, from.Unix()).Scan(&series[0].Value)
+		err := db.QueryRow(query, from.Unix()).Scan(&series[0].Value)
 		if err != nil {
-			return nil, fmt.Errorf("failed to compute vocabulary size: %v", err)
+			return nil, fmt.Errorf("failed to compute estimated level: %v", err)
 		}
 		series[0].initialized = true
 	}
