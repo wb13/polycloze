@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Levi Gruspe
 // License: GNU AGPLv3 or later
 
-package vocab_size
+package history
 
 import (
 	"database/sql"
@@ -9,28 +9,9 @@ import (
 	"time"
 )
 
-type Metric struct {
-	Time  time.Time `json:"time"`
-	Value float64   `json:"value"`
-
-	initialized bool
-}
-
 // Returns vocab size at various points in the given range.
-func VocabSize(db *sql.DB, from, to time.Time, step time.Duration) ([]Metric, error) {
-	if step < time.Second {
-		panic("only supports up to second precision")
-	}
-
-	// Initialize return value.
-	var series []Metric
-	for current := from; current.Before(to); current = current.Add(step) {
-		series = append(series, Metric{
-			Time: current,
-		})
-	}
-
-	// Compute vocab size.
+func VocabSize(db *sql.DB, from, to time.Time, step time.Duration) ([]Metric[float64], error) {
+	series := Zeros[float64](from, to, step)
 	query := `
 		SELECT (t - @from)/@step, last_value(v) OVER win
 		FROM vocabulary_size_history

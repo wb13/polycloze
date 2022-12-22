@@ -14,7 +14,6 @@ import (
 // range).
 func EstimatedLevel(db *sql.DB, from, to time.Time, step time.Duration) ([]Metric[int], error) {
 	series := Zeros[int](from, to, step)
-
 	query := `
 		SELECT (t - @from)/@step, last_value(v) OVER win
 		FROM estimated_level_history

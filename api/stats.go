@@ -17,7 +17,6 @@ import (
 	"github.com/lggruspe/polycloze/database"
 	"github.com/lggruspe/polycloze/history"
 	"github.com/lggruspe/polycloze/sessions"
-	"github.com/lggruspe/polycloze/vocab_size"
 )
 
 // If upgrade is non-empty, upgrades the database.
@@ -113,7 +112,7 @@ func handleStatsVocab(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	result, err := vocab_size.VocabSize(
+	result, err := history.VocabSize(
 		db,
 		getFrom(r),
 		getTo(r),
