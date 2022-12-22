@@ -2,8 +2,22 @@
 -- License: MIT, or AGPLv3 or later
 
 -- +goose Up
+
+DROP TABLE activity;
+DROP TRIGGER activity_trigger_after_insert_correct_review;
+DROP TRIGGER activity_trigger_after_insert_incorrect_review;
+DROP TRIGGER activity_trigger_after_update_forgotten_review;
+DROP TRIGGER activity_trigger_after_update_unimproved_review;
+DROP TRIGGER activity_trigger_after_update_crammed_review;
+DROP TRIGGER activity_trigger_after_update_learned_review;
+DROP TRIGGER activity_trigger_after_update_strengthened_review;
+DROP TRIGGER activity_trigger_after_delete_correct_review;
+DROP TRIGGER activity_trigger_after_delete_incorrect_review;
+
+-- +goose Down
 -- +goose StatementBegin
 
+--- (Copied from `10_create_activity_table.sql`)
 CREATE TABLE activity (
 	-- Number of days since UNIX epoch
 	days_since_epoch INTEGER UNIQUE NOT NULL DEFAULT (unixepoch('now') / 60 / 60 / 24),
@@ -115,15 +129,4 @@ FOR EACH ROW
 
 -- +goose StatementEnd
 
--- +goose Down
 
-DROP TABLE activity;
-DROP TRIGGER activity_trigger_after_insert_correct_review;
-DROP TRIGGER activity_trigger_after_insert_incorrect_review;
-DROP TRIGGER activity_trigger_after_update_forgotten_review;
-DROP TRIGGER activity_trigger_after_update_unimproved_review;
-DROP TRIGGER activity_trigger_after_update_crammed_review;
-DROP TRIGGER activity_trigger_after_update_learned_review;
-DROP TRIGGER activity_trigger_after_update_strengthened_review;
-DROP TRIGGER activity_trigger_after_delete_correct_review;
-DROP TRIGGER activity_trigger_after_delete_incorrect_review;
