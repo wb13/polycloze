@@ -1,4 +1,9 @@
-import { fetchActivity, fetchCourses, fetchVocabularySize } from "./api";
+import {
+  fetchActivity,
+  fetchCourses,
+  fetchEstimatedLevel,
+  fetchVocabularySize,
+} from "./api";
 import { createApp } from "./app";
 import { ItemBuffer } from "./buffer";
 import { setButtonLink } from "./button";
@@ -40,9 +45,10 @@ export class Overview extends HTMLElement {
     const resolved = await Promise.all([
       fetchActivity(),
       fetchVocabularySize(),
+      fetchEstimatedLevel(),
     ]);
-    const [activity, vocabularySize] = resolved;
-    const page = createOverviewPage(activity, vocabularySize);
+    const [activity, vocabularySize, estimatedLevel] = resolved;
+    const page = createOverviewPage(activity, vocabularySize, estimatedLevel);
     this.appendChild(page);
   }
 }

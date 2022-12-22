@@ -35,16 +35,30 @@ const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 // Returns vocabulary size data over the past week.
 // Assumes that `vocabularySize` has a data point for each day in the past
 // week.
-function vocabularyData(vocabularySize: DataPoint[]): ChartData {
+function vocabularyData(
+  vocabularySize: DataPoint[],
+  estimatedLevel: DataPoint[]
+): ChartData {
   const points = vocabularySize.slice(-7);
-  const data = points.map((point) => point.value);
+  const dataVocab = points.map((point) => point.value);
+  const dataEstimate = estimatedLevel
+    .slice(-7)
+    .map((point) => Math.floor(0.85 * 2 ** (point.value - 1)));
+  // Difficulty tuner increases difficulty when it's 85% confident that the
+  // student already knows 85% of all words in the current difficulty.
   const labels = points.map((point) => dayLabels[point.time.getDay()]);
   return {
     labels,
     datasets: [
       {
-        data,
-        label: "Vocabulary size",
+        data: dataVocab,
+        label: "Observed vocabulary size",
+        cubicInterpolationMode: "monotone",
+        fill: true,
+      },
+      {
+        data: dataEstimate,
+        label: "Estimated vocabulary size",
         cubicInterpolationMode: "monotone",
         fill: true,
       },
@@ -91,7 +105,8 @@ function activityData(activity: ActivitySummary[]): ChartData {
 
 function createChart(
   canvas: HTMLCanvasElement,
-  vocabularySize: DataPoint[]
+  vocabularySize: DataPoint[],
+  estimatedLevel: DataPoint[]
 ): Chart {
   return new Chart(canvas, {
     type: "line",
@@ -112,7 +127,7 @@ function createChart(
         },
       },
     },
-    data: vocabularyData(vocabularySize),
+    data: vocabularyData(vocabularySize, estimatedLevel),
   });
 }
 
@@ -126,10 +141,11 @@ function createChartContainer(chart: HTMLCanvasElement): HTMLDivElement {
 }
 
 export function createVocabularyChart(
-  vocabularySize: DataPoint[]
+  vocabularySize: DataPoint[],
+  estimatedLevel: DataPoint[]
 ): HTMLDivElement {
   const canvas = document.createElement("canvas");
-  createChart(canvas, vocabularySize);
+  createChart(canvas, vocabularySize, estimatedLevel);
   return createChartContainer(canvas);
 }
 

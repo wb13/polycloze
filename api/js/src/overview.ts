@@ -145,7 +145,8 @@ function createStreakSummary(
 
 export function createOverviewPage(
   activity: ActivitySummary[],
-  vocabularySize: DataPoint[]
+  vocabularySize: DataPoint[],
+  estimatedLevel: DataPoint[]
 ): DocumentFragment {
   const size = vocabularySize[vocabularySize.length - 1].value;
   const [streak, active] = computeActiveStreak(activity);
@@ -156,7 +157,7 @@ export function createOverviewPage(
   const fragment = document.createDocumentFragment();
   fragment.append(
     createOverviewHeader(),
-    createVocabularyChart(vocabularySize),
+    createVocabularyChart(vocabularySize, estimatedLevel),
     createVocabularySummary(size),
     createActionButtons(size),
     h2,
