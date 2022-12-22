@@ -68,6 +68,7 @@ class WordCounter:
 
 def write_sentences(
     outfile: Path,
+    logfile: Path,  # for skipped sentences
     infile: Path | None,
     tokenizer: Tokenizer,
     word_counter: WordCounter,
@@ -79,10 +80,14 @@ def write_sentences(
     """
     with (
         open(outfile, "w", encoding="utf-8") as csvfile,
+        open(logfile, "w", encoding="utf-8") as skipfile,
         fileinput.input(files=infile or "-") as file,
     ):
         writer = csv.writer(csvfile)
         writer.writerow(["tatoeba_id", "text", "tokens"])
+
+        skipped = csv.writer(skipfile)
+        skipped.writerow(["tatoeba_id", "text", "reason_for_exclusion"])
         for line in file:
             id_, line = line.split("\t", maxsplit=1)
             line = (
@@ -98,7 +103,13 @@ def write_sentences(
                 tokens=tokenizer.tokenize(line),
             )
             word_counter.update(sentence.tokens)
-            writer.writerow(sentence.row())
+
+            # Tokenize all sentences for the word count, but don't include
+            # sentences that are too long.
+            if len(line) <= 100:
+                writer.writerow(sentence.row())
+            else:
+                skipped.writerow([id_, line, "too long"])
 
 
 def write_words(
@@ -140,7 +151,13 @@ def process_language(
     language = languages[language_code]
     tokenizer = Tokenizer(language.tokenizer())
     word_counter = WordCounter()
-    write_sentences(output/"sentences.csv", file, tokenizer, word_counter)
+    write_sentences(
+        output/"sentences.csv",
+        output/"skipped.csv",
+        file,
+        tokenizer,
+        word_counter,
+    )
     write_words(
         output/"words.csv",
         word_counter,

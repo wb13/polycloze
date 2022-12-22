@@ -110,6 +110,7 @@ class LanguageTokenizerTask:
         outdir = build/"languages"/lang
         targets = [
             outdir/"sentences.csv",
+            outdir/"skipped.csv",
             outdir/"words.csv",
             outdir/"nonwords.txt",
         ]
