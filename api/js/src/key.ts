@@ -2,21 +2,18 @@
 
 import { createButton } from "./button";
 
-function announceCharacterClick(value: string) {
-  const event = new CustomEvent("polycloze-special-character", {
-    detail: value,
-  });
-  window.dispatchEvent(event);
-}
-
 // Creates a button that allows user to input special characters.
 // Returns a button element.
-// Emits a `polycloze-special-character` event when clicked.
-function createSpecialKey(name: string): HTMLButtonElement {
+function createSpecialKey(
+  name: string,
+  onClick: (name: string) => void
+): HTMLButtonElement {
   // TODO show equivalent digraph key presses in title tooltip
   // TODO toggle between uppercase and lowercase when shift or caps lock is
   // pressed.
-  return createButton(name, () => announceCharacterClick(name));
+  const button = createButton(name, () => onClick(name));
+  button.classList.add("button-tight");
+  return button;
 }
 
 // Returns array of characters to create special keys for.
@@ -48,14 +45,21 @@ function specialCharacters(languageCode: string): string[] {
   }
 }
 
-// Returns button group of special keys for given language.
-// Emits a `polycloze-special-character` custom event when one of the buttons
-// is clicked.
-export function createSpecialKeys(languageCode: string): HTMLParagraphElement {
+// Returns button group of special keys for given language, or `undefined` if
+// the language is not supported.
+export function createSpecialKeys(
+  languageCode: string,
+  onClick: (name: string) => void
+): HTMLParagraphElement | undefined {
+  const chars = specialCharacters(languageCode);
+  if (chars.length <= 0) {
+    return undefined;
+  }
+
   const p = document.createElement("p");
   p.classList.add("button-group");
-  for (const char of specialCharacters(languageCode)) {
-    p.appendChild(createSpecialKey(char));
+  for (const char of chars) {
+    p.appendChild(createSpecialKey(char, onClick));
   }
   return p;
 }

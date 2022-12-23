@@ -27,15 +27,16 @@ function createPart(text: string): HTMLSpanElement {
 // - done: ?
 // - enable: Enables submit button.
 //
-// In addition to a div element, also returns two functions to be called by the
+// In addition to a div element, also returns functions to be called by the
 // caller.
 // - check: ?
 // - resize: ?
+// - `inputKey`: append a special character to the last input element in focus.
 export function createSentence(
   sentence: Sentence,
   done: () => void,
   enable: (ok: boolean) => void
-): [HTMLDivElement, () => void, () => void] {
+): [HTMLDivElement, () => void, () => void, (char: string) => void] {
   const resizeFns: Array<() => void> = [];
   const div = document.createElement("div");
   div.classList.add("sentence");
@@ -128,21 +129,19 @@ export function createSentence(
     enable(input.value !== "");
   });
 
-  div.addEventListener("polycloze-special-character", (event: Event) => {
-    // Append special character to last focused input element.
-    if (lastFocused != null) {
-      const char = (event as CustomEvent).detail;
-      lastFocused.value += char;
-      lastFocused.focus();
-    }
-  });
-
   const resizeAll = () => {
     for (const fn of resizeFns) {
       fn();
     }
   };
-  return [div, check, resizeAll];
+  const inputKey = (char: string) => {
+    // Append special character to last focused input element.
+    if (lastFocused != null) {
+      lastFocused.value += char;
+      lastFocused.focus();
+    }
+  };
+  return [div, check, resizeAll, inputKey];
 }
 
 // Prevents punctuation symbols from starting a new line.
