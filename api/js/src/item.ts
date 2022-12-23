@@ -1,6 +1,7 @@
 import "./item.css";
 import { createButton } from "./button";
-import { getL1 } from "./language";
+import { createSpecialKeys } from "./key";
+import { getL1, getL2 } from "./language";
 import { Sentence, createSentence } from "./sentence";
 import { TTS } from "./tts";
 
@@ -45,8 +46,17 @@ function createItemBody(
   enable: (ok: boolean) => void
 ): [HTMLDivElement, () => void, () => void] {
   const div = document.createElement("div");
-  const [sentence, check, resize] = createSentence(item.sentence, done, enable);
+  const [sentence, check, resize, inputKey] = createSentence(
+    item.sentence,
+    done,
+    enable
+  );
   div.append(sentence, createTranslation(item.translation));
+
+  const child = createSpecialKeys(getL2().code, inputKey);
+  if (child != null) {
+    div.appendChild(child);
+  }
   return [div, check, resize];
 }
 
