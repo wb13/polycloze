@@ -1,4 +1,10 @@
 .special-key {
 }
+
 .special-keys {
+  flex-direction: row;
+  align-items: start;
+  gap: 1rem;
+  flex-flow: row wrap;
+  justify-content: flex-start;
 }

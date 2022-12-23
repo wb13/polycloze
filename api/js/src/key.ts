@@ -60,7 +60,6 @@ export function createSpecialKeys(
 
   const p = document.createElement("p");
   p.classList.add("button-group");
-  p.classList.add("button-group-dont-stretch");
   p.classList.add("special-keys");
   p.style.justifyContent = "flex-start";
   for (const char of chars) {

@@ -54,14 +54,6 @@ a.button {
     align-items: stretch;
     gap: 1rem;
   }
-
-  /* Alternative responsive style to the other one */
-  .button-group.button-group-dont-stretch {
-    flex-direction: row;
-    align-items: start;
-    gap: 1rem;
-    flex-flow: row wrap;
-  }
 }
 
 .button-borderless {
