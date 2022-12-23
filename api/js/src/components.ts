@@ -8,6 +8,7 @@ import { createApp } from "./app";
 import { ItemBuffer } from "./buffer";
 import { setButtonLink } from "./button";
 import { createScoreCounter } from "./counter";
+import { createDiacriticButtonSettingsSection } from "./diacritic";
 import { getL2 } from "./language";
 import { createResponsiveMenu } from "./menu";
 import { createOverviewPage } from "./overview";
@@ -89,7 +90,7 @@ export class VocabularyList extends HTMLElement {
   }
 }
 
-export class VoiceSettings extends HTMLElement {
+export class CourseSettings extends HTMLElement {
   tts: TTS;
   init: Promise<void>;
   // Await `this.init` to make suer `tts` is initialized.
@@ -102,7 +103,11 @@ export class VoiceSettings extends HTMLElement {
 
   async connectedCallback() {
     await this.init;
-    this.appendChild(createVoiceSettingsSection(this.tts));
+    this.append(
+      createDiacriticButtonSettingsSection(),
+      document.createElement("br"),
+      createVoiceSettingsSection(this.tts)
+    );
   }
 }
 
@@ -113,4 +118,4 @@ customElements.define("polycloze-overview", Overview);
 customElements.define("score-counter", ScoreCounter);
 customElements.define("button-link", ButtonLink, { extends: "button" });
 customElements.define("vocabulary-list", VocabularyList);
-customElements.define("voice-settings", VoiceSettings);
+customElements.define("course-settings", CourseSettings);

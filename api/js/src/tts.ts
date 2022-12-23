@@ -280,15 +280,12 @@ export function createVoiceSettingsSection(tts: TTS): HTMLFormElement {
   const form = document.createElement("form");
   form.classList.add("signin");
 
-  const h2 = document.createElement("h2");
-  h2.textContent = `${getL2().name} from ${getL1().name} settings`;
-
   const disabled = tts.voices.size === 0;
   if (disabled) {
     disableTTS();
   }
 
   const [demo, hook] = createVoiceDemo(tts);
-  form.append(h2, createVoiceCheckbox(disabled, hook), demo);
+  form.append(createVoiceCheckbox(disabled, hook), demo);
   return form;
 }

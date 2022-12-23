@@ -95,3 +95,28 @@ export function createDiacriticButtonGroup(
   }
   return p;
 }
+
+export function createDiacriticButtonSettingsSection(): HTMLFormElement {
+  const form = document.createElement("form");
+  form.classList.add("signin");
+
+  form.innerHTML = `
+    <div>
+      <input type="checkbox" id="enable-diacritic-buttons" name="enable-diacritic-buttons">
+      <label for="enable-diacritic-buttons">Enable diacritic buttons</label>
+    </div>
+  `;
+
+  const input = form.querySelector("input") as HTMLInputElement;
+  if (areEnabledDiacriticButtons()) {
+    input.checked = true;
+  }
+  input.addEventListener("click", () => {
+    if (input.checked) {
+      enableDiacriticButtons();
+    } else {
+      disableDiacriticButtons();
+    }
+  });
+  return form;
+}
