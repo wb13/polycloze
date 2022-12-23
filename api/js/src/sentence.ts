@@ -41,6 +41,10 @@ export function createSentence(
   div.classList.add("sentence");
   div.lang = getL2().bcp47;
 
+  // Last focused blank. Special character buttons append to this
+  // input element if not null.
+  let lastFocused: HTMLInputElement | null = null;
+
   // NOTE `inputs` and `blankParts` have the same length.
   const inputs: HTMLInputElement[] = [];
   const blankParts: PartWithAnswers[] = [];
@@ -57,6 +61,11 @@ export function createSentence(
 
     inputs.push(blank);
     blankParts.push(checkedPart);
+
+    // Add event listener to input element to update `lastFocused`.
+    blank.addEventListener("focus", () => {
+      lastFocused = blank;
+    });
   }
 
   fixPunctuationWrap(div);
@@ -117,6 +126,15 @@ export function createSentence(
     }
     const input = event.target as HTMLInputElement;
     enable(input.value !== "");
+  });
+
+  div.addEventListener("polycloze-special-character", (event: Event) => {
+    // Append special character to last focused input element.
+    if (lastFocused != null) {
+      const char = (event as CustomEvent).detail;
+      lastFocused.value += char;
+      lastFocused.focus();
+    }
   });
 
   const resizeAll = () => {
