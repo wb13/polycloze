@@ -31,7 +31,7 @@ function createPart(text: string): HTMLSpanElement {
 // caller.
 // - check: ?
 // - resize: ?
-// - `inputKey`: append a special character to the last input element in focus.
+// - `inputChar`: append a character to the last input element in focus.
 export function createSentence(
   sentence: Sentence,
   done: () => void,
@@ -42,8 +42,8 @@ export function createSentence(
   div.classList.add("sentence");
   div.lang = getL2().bcp47;
 
-  // Last focused blank. Special character buttons append to this
-  // input element if not null.
+  // Last focused blank. Diacritic buttons append to this input element if not
+  // null.
   let lastFocused: HTMLInputElement | null = null;
 
   // NOTE `inputs` and `blankParts` have the same length.
@@ -75,7 +75,7 @@ export function createSentence(
   div.prepend(link);
 
   const check = () => {
-    // False-positive event if a special char button is active.
+    // False-positive event if a diacritic button is active.
     // This happens because clicking on these buttons removes the focus from
     // the input element, which triggers a "change" event.
     const activeElement = document.activeElement;
@@ -85,7 +85,7 @@ export function createSentence(
     if (
       activeElement != null &&
       activeElement.tagName === "BUTTON" &&
-      activeElement.classList.contains("special-key")
+      activeElement.classList.contains("diacritic-button")
     ) {
       return;
     }
@@ -149,14 +149,14 @@ export function createSentence(
       fn();
     }
   };
-  const inputKey = (char: string) => {
-    // Append special character to last focused input element.
+  const inputChar = (char: string) => {
+    // Append character to last focused input element.
     if (lastFocused != null) {
       lastFocused.value += char;
       lastFocused.focus();
     }
   };
-  return [div, check, resizeAll, inputKey];
+  return [div, check, resizeAll, inputChar];
 }
 
 // Prevents punctuation symbols from starting a new line.

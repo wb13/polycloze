@@ -1,6 +1,6 @@
 import "./item.css";
 import { createButton } from "./button";
-import { createSpecialKeys } from "./key";
+import { createDiacriticButtonGroup } from "./diacritic";
 import { getL1, getL2 } from "./language";
 import { Sentence, createSentence } from "./sentence";
 import { TTS } from "./tts";
@@ -32,9 +32,9 @@ function showTranslationLink(translation: Translation, body: HTMLDivElement) {
   }
 }
 
-// Hides special chars button group.
-function hideSpecialKeys(body: HTMLDivElement) {
-  const p = body.querySelector("p.special-keys");
+// Hides diacritic buttons.
+function hideDiacriticButtonGroup(body: HTMLDivElement) {
+  const p = body.querySelector("p.diacritic-button-group");
   if (p != null) {
     (p as HTMLParagraphElement).style.display = "none";
   }
@@ -54,14 +54,14 @@ function createItemBody(
   enable: (ok: boolean) => void
 ): [HTMLDivElement, () => void, () => void] {
   const div = document.createElement("div");
-  const [sentence, check, resize, inputKey] = createSentence(
+  const [sentence, check, resize, inputChar] = createSentence(
     item.sentence,
     done,
     enable
   );
   div.append(sentence, createTranslation(item.translation));
 
-  const child = createSpecialKeys(getL2().code, inputKey);
+  const child = createDiacriticButtonGroup(getL2().code, inputChar);
   if (child != null) {
     div.appendChild(child);
   }
@@ -102,7 +102,7 @@ export function createItem(
     const text = item.sentence.parts.map((part) => part.text).join("");
     tts.speak(text);
 
-    hideSpecialKeys(getBody());
+    hideDiacriticButtonGroup(getBody());
     showTranslationLink(item.translation, getBody());
     const btn = createButton("Next", next);
     submitBtn.replaceWith(btn);

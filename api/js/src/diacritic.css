@@ -1,7 +1,7 @@
-.special-key {
+.diacritic-button {
 }
 
-.special-keys {
+.diacritic-button-group {
   flex-direction: row;
   align-items: start;
   gap: 1rem;

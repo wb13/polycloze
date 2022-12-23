@@ -1,11 +1,11 @@
-// Special keys.
+// Buttons for entering letters with diacritics.
 
-import "./key.css";
+import "./diacritic.css";
 import { createButton } from "./button";
 
-// Creates a button that allows user to input special characters.
+// Creates a button that allows user to input characters with diacritics.
 // Returns a button element.
-function createSpecialKey(
+function createDiacriticButton(
   name: string,
   onClick: (name: string) => void
 ): HTMLButtonElement {
@@ -13,13 +13,13 @@ function createSpecialKey(
   // TODO toggle between uppercase and lowercase when shift or caps lock is
   // pressed.
   const button = createButton(name, () => onClick(name));
-  button.classList.add("special-key");
+  button.classList.add("diacritic-button");
   button.classList.add("button-tight");
   return button;
 }
 
-// Returns array of characters to create special keys for.
-function specialCharacters(languageCode: string): string[] {
+// Returns array of characters to create buttons for.
+function lettersWithDiacritics(languageCode: string): string[] {
   switch (languageCode) {
     case "deu":
       return ["Ä", "Ö", "Ü", "ß", "ä", "é", "ö", "ü"];
@@ -47,23 +47,23 @@ function specialCharacters(languageCode: string): string[] {
   }
 }
 
-// Returns button group of special keys for given language, or `undefined` if
+// Returns group of diacritic buttons for the given language, or `undefined` if
 // the language is not supported.
-export function createSpecialKeys(
+export function createDiacriticButtonGroup(
   languageCode: string,
   onClick: (name: string) => void
 ): HTMLParagraphElement | undefined {
-  const chars = specialCharacters(languageCode);
+  const chars = lettersWithDiacritics(languageCode);
   if (chars.length <= 0) {
     return undefined;
   }
 
   const p = document.createElement("p");
   p.classList.add("button-group");
-  p.classList.add("special-keys");
+  p.classList.add("diacritic-button-group");
   p.style.justifyContent = "flex-start";
   for (const char of chars) {
-    p.appendChild(createSpecialKey(char, onClick));
+    p.appendChild(createDiacriticButton(char, onClick));
   }
   return p;
 }
