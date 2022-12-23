@@ -160,6 +160,14 @@ function lettersWithDiacritics(languageCode: string): Letter[] {
         { uppercase: "Ú", lowercase: "ú", recipe: "\\U' or \\u'" },
         { uppercase: "Ü", lowercase: "ü", recipe: "\\U: or \\u:" },
       ];
+    case "tgl":
+      return [
+        {
+          uppercase: "Ñ",
+          lowercase: "ñ",
+          recipe: "\\N? or \\ N~ or \\n? or \\n~",
+        },
+      ];
     default:
       return [];
   }
