@@ -116,9 +116,6 @@ function createChart(
       scales: {
         y: {
           min: 0,
-          ticks: {
-            stepSize: 1,
-          },
         },
       },
       plugins: {
@@ -158,16 +155,14 @@ export function createActivityChart(
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      scales: {
+        y: {
+          min: 0,
+        },
+      },
       plugins: {
         legend: {
           position: "bottom",
-        },
-      },
-      scales: {
-        y: {
-          ticks: {
-            stepSize: 1,
-          },
         },
       },
     },
