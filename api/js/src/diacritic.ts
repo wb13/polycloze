@@ -57,6 +57,10 @@ function createDiacriticButton(
     } else if (event.key === "CapsLock") {
       const previousState = event.getModifierState("CapsLock");
       capsLock = !previousState;
+    } else {
+      // Can't detect if caps lock is on outside of event, so just set the
+      // correct value as early as possible instead.
+      capsLock = event.getModifierState("CapsLock");
     }
     button.textContent = currentValue();
   };
