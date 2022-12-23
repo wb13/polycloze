@@ -1,5 +1,6 @@
 // Special keys.
 
+import "./key.css";
 import { createButton } from "./button";
 
 // Creates a button that allows user to input special characters.
@@ -12,6 +13,7 @@ function createSpecialKey(
   // TODO toggle between uppercase and lowercase when shift or caps lock is
   // pressed.
   const button = createButton(name, () => onClick(name));
+  button.classList.add("special-key");
   button.classList.add("button-tight");
   return button;
 }

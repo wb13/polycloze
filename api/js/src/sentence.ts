@@ -75,6 +75,21 @@ export function createSentence(
   div.prepend(link);
 
   const check = () => {
+    // False-positive event if a special char button is active.
+    // This happens because clicking on these buttons removes the focus from
+    // the input element, which triggers a "change" event.
+    const activeElement = document.activeElement;
+    if (activeElement?.tagName === "BODY") {
+      return;
+    }
+    if (
+      activeElement != null &&
+      activeElement.tagName === "BUTTON" &&
+      activeElement.classList.contains("special-key")
+    ) {
+      return;
+    }
+
     // Make sure everything has been filled.
     if (inputs.some((input) => input.value === "")) {
       return;
