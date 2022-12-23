@@ -2,6 +2,7 @@
 
 import "./diacritic.css";
 import { createButton } from "./button";
+import { createIcon } from "./icon";
 import { getL2 } from "./language";
 
 // Enables diacritic buttons.
@@ -57,8 +58,12 @@ function createDiacriticButton(
     if (event.key === "Shift") {
       shift = true;
     } else if (event.key === "CapsLock") {
-      const previousState = event.getModifierState("CapsLock");
-      capsLock = !previousState;
+      if (event instanceof FakeKeyDownEvent) {
+        capsLock = !capsLock;
+      } else {
+        const previousState = event.getModifierState("CapsLock");
+        capsLock = !previousState;
+      }
     } else {
       // Can't detect if caps lock is on outside of event, so just set the
       // correct value as early as possible instead.
@@ -129,6 +134,22 @@ function lettersWithDiacritics(languageCode: string): Letter[] {
   }
 }
 
+class FakeKeyDownEvent extends KeyboardEvent {
+  constructor(key: string) {
+    super("keydown", { key });
+  }
+}
+
+// Returns an on-screen caps lock toggle button.
+function createCapsLockButton(): HTMLButtonElement {
+  const button = createButton(createIcon("arrow-fat-up"));
+  button.addEventListener("click", () => {
+    // Simulate a real caps lock key press.
+    window.dispatchEvent(new FakeKeyDownEvent("CapsLock"));
+  });
+  return button;
+}
+
 // Returns group of diacritic buttons for the given language, or `undefined` if
 // the language is not supported.
 // Also returns `undefined` if diacritic buttons are disabled.
@@ -153,7 +174,7 @@ export function createDiacriticButtonGroup(
   p.classList.add("button-group");
   p.classList.add("diacritic-button-group");
   p.style.justifyContent = "flex-start";
-  p.append(...buttons);
+  p.append(createCapsLockButton(), ...buttons);
   return p;
 }
 
