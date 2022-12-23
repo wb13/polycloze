@@ -39,8 +39,11 @@ function createDiacriticButton(
 ): HTMLButtonElement {
   // TODO show equivalent digraph key presses in title tooltip
   const { lowercase, uppercase } = letter;
-  let value = lowercase;
-  const button = createButton(lowercase, () => onClick(value));
+
+  let capsLock = false;
+  let shift = false;
+
+  const button = createButton(lowercase, () => onClick(currentValue()));
   button.classList.add("diacritic-button");
   button.classList.add("button-tight");
 
@@ -50,9 +53,12 @@ function createDiacriticButton(
       return;
     }
     if (event.key === "Shift") {
-      value = uppercase;
+      shift = true;
+    } else if (event.key === "CapsLock") {
+      const previousState = event.getModifierState("CapsLock");
+      capsLock = !previousState;
     }
-    button.textContent = value;
+    button.textContent = currentValue();
   };
 
   const keyupCallback = (event: KeyboardEvent) => {
@@ -61,13 +67,17 @@ function createDiacriticButton(
       return;
     }
     if (event.key === "Shift") {
-      value = lowercase;
+      shift = false;
     }
-    button.textContent = value;
+    button.textContent = currentValue();
   };
   window.addEventListener("keydown", keydownCallback);
   window.addEventListener("keyup", keyupCallback);
   return button;
+
+  function currentValue(): string {
+    return capsLock != shift ? uppercase : lowercase;
+  }
 }
 
 // Returns array of characters to create buttons for.
