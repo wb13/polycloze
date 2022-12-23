@@ -26,44 +26,79 @@ function areEnabledDiacriticButtons(): boolean {
     : true;
 }
 
+type Letter = {
+  lowercase: string;
+  uppercase: string;
+};
+
 // Creates a button that allows user to input characters with diacritics.
 // Returns a button element.
 function createDiacriticButton(
-  name: string,
-  onClick: (name: string) => void
+  letter: Letter,
+  onClick: (letter: string) => void
 ): HTMLButtonElement {
   // TODO show equivalent digraph key presses in title tooltip
-  // TODO toggle between uppercase and lowercase when shift or caps lock is
-  // pressed.
-  const button = createButton(name, () => onClick(name));
+  const { lowercase, uppercase } = letter;
+  let value = lowercase;
+  const button = createButton(lowercase, () => onClick(value));
   button.classList.add("diacritic-button");
   button.classList.add("button-tight");
+
+  const keydownCallback = (event: KeyboardEvent) => {
+    if (!button.isConnected) {
+      window.removeEventListener("keydown", keydownCallback);
+      return;
+    }
+    if (event.key === "Shift") {
+      value = uppercase;
+    }
+    button.textContent = value;
+  };
+
+  const keyupCallback = (event: KeyboardEvent) => {
+    if (!button.isConnected) {
+      window.removeEventListener("keyup", keyupCallback);
+      return;
+    }
+    if (event.key === "Shift") {
+      value = lowercase;
+    }
+    button.textContent = value;
+  };
+  window.addEventListener("keydown", keydownCallback);
+  window.addEventListener("keyup", keyupCallback);
   return button;
 }
 
 // Returns array of characters to create buttons for.
-function lettersWithDiacritics(languageCode: string): string[] {
+function lettersWithDiacritics(languageCode: string): Letter[] {
   switch (languageCode) {
     case "deu":
-      return ["Ä", "Ö", "Ü", "ß", "ä", "é", "ö", "ü"];
+      return [
+        { uppercase: "Ä", lowercase: "ä" },
+        { uppercase: "É", lowercase: "é" },
+        { uppercase: "Ö", lowercase: "ö" },
+        { uppercase: "Ü", lowercase: "ü" },
+        { uppercase: "ß", lowercase: "ß" },
+      ];
     case "epo":
-      return ["Ĉ", "ĉ", "Ĝ", "ĝ", "Ĥ", "ĥ", "Ĵ", "ĵ", "Ŝ", "ŝ", "Ŭ", "ŭ"];
+      return [
+        { uppercase: "Ĉ", lowercase: "ĉ" },
+        { uppercase: "Ĝ", lowercase: "ĝ" },
+        { uppercase: "Ĥ", lowercase: "ĥ" },
+        { uppercase: "Ĵ", lowercase: "ĵ" },
+        { uppercase: "Ŝ", lowercase: "ŝ" },
+        { uppercase: "Ŭ", lowercase: "ŭ" },
+      ];
     case "spa":
       return [
-        "Á",
-        "É",
-        "Í",
-        "Ñ",
-        "Ó",
-        "Ú",
-        "Ü",
-        "á",
-        "é",
-        "í",
-        "ñ",
-        "ó",
-        "ú",
-        "ü",
+        { uppercase: "Á", lowercase: "á" },
+        { uppercase: "É", lowercase: "é" },
+        { uppercase: "Í", lowercase: "í" },
+        { uppercase: "Ñ", lowercase: "ñ" },
+        { uppercase: "Ó", lowercase: "ó" },
+        { uppercase: "Ú", lowercase: "ú" },
+        { uppercase: "Ü", lowercase: "ü" },
       ];
     default:
       return [];
@@ -81,18 +116,20 @@ export function createDiacriticButtonGroup(
     return undefined;
   }
 
-  const chars = lettersWithDiacritics(languageCode);
-  if (chars.length <= 0) {
+  const letters = lettersWithDiacritics(languageCode);
+  if (letters.length <= 0) {
     return undefined;
   }
+
+  const buttons = letters.map((letter) =>
+    createDiacriticButton(letter, onClick)
+  );
 
   const p = document.createElement("p");
   p.classList.add("button-group");
   p.classList.add("diacritic-button-group");
   p.style.justifyContent = "flex-start";
-  for (const char of chars) {
-    p.appendChild(createDiacriticButton(char, onClick));
-  }
+  p.append(...buttons);
   return p;
 }
 
