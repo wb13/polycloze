@@ -30,6 +30,7 @@ function areEnabledDiacriticButtons(): boolean {
 type Letter = {
   lowercase: string;
   uppercase: string;
+  recipe?: string;
 };
 
 // Creates a button that allows user to input characters with diacritics.
@@ -38,7 +39,6 @@ function createDiacriticButton(
   letter: Letter,
   onClick: (letter: string) => void
 ): HTMLButtonElement {
-  // TODO show equivalent digraph key presses in title tooltip
   const { lowercase, uppercase } = letter;
 
   let capsLock = false;
@@ -47,6 +47,9 @@ function createDiacriticButton(
   const button = createButton(lowercase, () => onClick(currentValue()));
   button.classList.add("diacritic-button");
   button.classList.add("button-tight");
+  if (letter.recipe != null) {
+    button.title = letter.recipe;
+  }
 
   const keydownCallback = (event: KeyboardEvent) => {
     if (!button.isConnected) {
@@ -104,30 +107,58 @@ function lettersWithDiacritics(languageCode: string): Letter[] {
   switch (languageCode) {
     case "deu":
       return [
-        { uppercase: "Ä", lowercase: "ä" },
-        { uppercase: "É", lowercase: "é" },
-        { uppercase: "Ö", lowercase: "ö" },
-        { uppercase: "Ü", lowercase: "ü" },
-        { uppercase: "ß", lowercase: "ß" },
+        { uppercase: "Ä", lowercase: "ä", recipe: "\\A: or \\a:" },
+        { uppercase: "É", lowercase: "é", recipe: "\\E' or \\e'" },
+        { uppercase: "Ö", lowercase: "ö", recipe: "\\O: or \\o:" },
+        { uppercase: "Ü", lowercase: "ü", recipe: "\\U: or \\u:" },
+        { uppercase: "ß", lowercase: "ß", recipe: "\\ss" },
       ];
     case "epo":
       return [
-        { uppercase: "Ĉ", lowercase: "ĉ" },
-        { uppercase: "Ĝ", lowercase: "ĝ" },
-        { uppercase: "Ĥ", lowercase: "ĥ" },
-        { uppercase: "Ĵ", lowercase: "ĵ" },
-        { uppercase: "Ŝ", lowercase: "ŝ" },
-        { uppercase: "Ŭ", lowercase: "ŭ" },
+        {
+          uppercase: "Ĉ",
+          lowercase: "ĉ",
+          recipe: "\\C> or \\Cx or \\c> or \\cx",
+        },
+        {
+          uppercase: "Ĝ",
+          lowercase: "ĝ",
+          recipe: "\\G> or \\Gx or \\g> or \\gx",
+        },
+        {
+          uppercase: "Ĥ",
+          lowercase: "ĥ",
+          recipe: "\\H> or \\Hx or \\h> or \\hx",
+        },
+        {
+          uppercase: "Ĵ",
+          lowercase: "ĵ",
+          recipe: "\\J> or \\Jx or \\j> or \\jx",
+        },
+        {
+          uppercase: "Ŝ",
+          lowercase: "ŝ",
+          recipe: "\\S> or \\Sx or \\s> or \\sx",
+        },
+        {
+          uppercase: "Ŭ",
+          lowercase: "ŭ",
+          recipe: "\\U( or \\Ux or \\u( or \\ux",
+        },
       ];
     case "spa":
       return [
-        { uppercase: "Á", lowercase: "á" },
-        { uppercase: "É", lowercase: "é" },
-        { uppercase: "Í", lowercase: "í" },
-        { uppercase: "Ñ", lowercase: "ñ" },
-        { uppercase: "Ó", lowercase: "ó" },
-        { uppercase: "Ú", lowercase: "ú" },
-        { uppercase: "Ü", lowercase: "ü" },
+        { uppercase: "Á", lowercase: "á", recipe: "\\A' or \\a'" },
+        { uppercase: "É", lowercase: "é", recipe: "\\E' or \\e'" },
+        { uppercase: "Í", lowercase: "í", recipe: "\\I' or \\i'" },
+        {
+          uppercase: "Ñ",
+          lowercase: "ñ",
+          recipe: "\\N? or \\ N~ or \\n? or \\n~",
+        },
+        { uppercase: "Ó", lowercase: "ó", recipe: "\\O' or \\o'" },
+        { uppercase: "Ú", lowercase: "ú", recipe: "\\U' or \\u'" },
+        { uppercase: "Ü", lowercase: "ü", recipe: "\\U: or \\u:" },
       ];
     default:
       return [];
