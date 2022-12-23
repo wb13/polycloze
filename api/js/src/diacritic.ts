@@ -52,6 +52,8 @@ function createDiacriticButton(
       window.removeEventListener("keydown", keydownCallback);
       return;
     }
+
+    const before = currentValue();
     if (event.key === "Shift") {
       shift = true;
     } else if (event.key === "CapsLock") {
@@ -62,7 +64,10 @@ function createDiacriticButton(
       // correct value as early as possible instead.
       capsLock = event.getModifierState("CapsLock");
     }
-    button.textContent = currentValue();
+    const after = currentValue();
+    if (before !== after) {
+      button.textContent = after;
+    }
   };
 
   const keyupCallback = (event: KeyboardEvent) => {
@@ -70,10 +75,15 @@ function createDiacriticButton(
       window.removeEventListener("keyup", keyupCallback);
       return;
     }
+
+    const before = currentValue();
     if (event.key === "Shift") {
       shift = false;
     }
-    button.textContent = currentValue();
+    const after = currentValue();
+    if (before !== after) {
+      button.textContent = after;
+    }
   };
   window.addEventListener("keydown", keydownCallback);
   window.addEventListener("keyup", keyupCallback);
