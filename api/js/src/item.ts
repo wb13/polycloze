@@ -32,6 +32,14 @@ function showTranslationLink(translation: Translation, body: HTMLDivElement) {
   }
 }
 
+// Hides special chars button group.
+function hideSpecialKeys(body: HTMLDivElement) {
+  const p = body.querySelector("p.special-keys");
+  if (p != null) {
+    (p as HTMLParagraphElement).style.display = "none";
+  }
+}
+
 function createTranslation(translation: Translation): HTMLParagraphElement {
   const p = document.createElement("p");
   p.classList.add("translation");
@@ -94,6 +102,7 @@ export function createItem(
     const text = item.sentence.parts.map((part) => part.text).join("");
     tts.speak(text);
 
+    hideSpecialKeys(getBody());
     showTranslationLink(item.translation, getBody());
     const btn = createButton("Next", next);
     submitBtn.replaceWith(btn);

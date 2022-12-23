@@ -59,6 +59,7 @@ export function createSpecialKeys(
   const p = document.createElement("p");
   p.classList.add("button-group");
   p.classList.add("button-group-dont-stretch");
+  p.classList.add("special-keys");
   for (const char of chars) {
     p.appendChild(createSpecialKey(char, onClick));
   }
