@@ -2,6 +2,29 @@
 
 import "./diacritic.css";
 import { createButton } from "./button";
+import { getL2 } from "./language";
+
+// Enables diacritic buttons.
+export function enableDiacriticButtons() {
+  const lang = getL2();
+
+  // Default value is falsy if not set, so we check the `disabled` field.
+  localStorage.setItem(`diacritic.${lang.code}.disabled`, "false");
+}
+
+// Hides diacritic buttons.
+export function disableDiacriticButtons() {
+  const lang = getL2();
+  localStorage.setItem(`diacritic.${lang.code}.disabled`, "true");
+}
+
+// Checks if diacritic buttons are enabled.
+function areEnabledDiacriticButtons(): boolean {
+  const lang = getL2();
+  return localStorage.getItem(`diacritic.${lang.code}.disabled`) === "true"
+    ? false
+    : true;
+}
 
 // Creates a button that allows user to input characters with diacritics.
 // Returns a button element.
@@ -49,10 +72,15 @@ function lettersWithDiacritics(languageCode: string): string[] {
 
 // Returns group of diacritic buttons for the given language, or `undefined` if
 // the language is not supported.
+// Also returns `undefined` if diacritic buttons are disabled.
 export function createDiacriticButtonGroup(
   languageCode: string,
   onClick: (name: string) => void
 ): HTMLParagraphElement | undefined {
+  if (!areEnabledDiacriticButtons()) {
+    return undefined;
+  }
+
   const chars = lettersWithDiacritics(languageCode);
   if (chars.length <= 0) {
     return undefined;

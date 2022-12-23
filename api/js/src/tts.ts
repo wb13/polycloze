@@ -223,6 +223,8 @@ function createVoiceDemo(
 // Enables TTS in the selected language.
 function enableTTS() {
   const lang = getL2();
+
+  // Default value is falsy if not set, so we use the `disabled` field.
   localStorage.setItem(`tts.${lang.code}.disabled`, "false");
 }
 
