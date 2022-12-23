@@ -11,7 +11,9 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/lggruspe/polycloze/auth"
 	"github.com/lggruspe/polycloze/basedir"
+	"github.com/lggruspe/polycloze/sessions"
 )
 
 //go:embed js/dist
@@ -87,4 +89,24 @@ func serveCoursesJSON() http.HandlerFunc {
 		http.ServeFile(w, r, name)
 	}
 	return cacheUntilBusted(http.HandlerFunc(handler))
+}
+
+func serveUserData(w http.ResponseWriter, r *http.Request) {
+	// Page redirects to itself recursively without this check...
+	if r.URL.Path == "" || r.URL.Path == "/" {
+		http.NotFound(w, r)
+		return
+	}
+
+	// Check if user is signed in.
+	db := auth.GetDB(r)
+	s, err := sessions.ResumeSession(db, w, r)
+	if err != nil || !s.IsSignedIn() {
+		http.NotFound(w, r)
+		return
+	}
+
+	userID := s.Data["userID"].(int)
+	name := filepath.Join(basedir.User(userID), r.URL.Path)
+	http.ServeFile(w, r, name)
 }
