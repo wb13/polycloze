@@ -4,6 +4,8 @@ Scripts for generating course files used by [polycloze](https://github.com/lggru
 
 ## Usage
 
+Note: requires a Rust compiler for Japanese.
+
 ```bash
 # Install requirements in a virtual environment.
 python -m venv env
@@ -37,6 +39,7 @@ See `python -m scripts.build -h` for details.
 - fra (French)
 - hrv (Croatian)
 - ita (Italian)
+- jpn (Japanese)
 - lit (Lithuanian)
 - nld (Dutch)
 - nob (Norwegian Bokmål)

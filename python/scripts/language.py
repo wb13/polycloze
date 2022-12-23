@@ -24,6 +24,20 @@ def import_tokenizer(module: str, name: str) -> "Tokenizer":
     return nlp.tokenizer
 
 
+class CharacterRange(t.NamedTuple):
+    """Unicode codepoints at the boundaries of a character range.
+
+    `start` is included in the range, `end` is not.
+    Assumes `start` <= `end`.
+    """
+    start: str
+    end: str
+
+    def contains(self, char: str) -> bool:
+        """Check if the character range contains the given character."""
+        return ord(self.start) <= ord(char) < ord(self.end)
+
+
 @dataclass
 class Language:
     code: str
@@ -34,9 +48,26 @@ class Language:
     alphabet: set[str]
     symbols: set[str] = field(default_factory=set)
 
+    # If this field is not empty, overrides `alphabet` and `symbols`.
+    character_ranges: set[CharacterRange] = field(default_factory=set)
+
     def is_word(self, word: Word) -> bool:
         if not word:
             return False
+
+        if self.character_ranges:
+            for char_range in self.character_ranges:
+                pass
+
+            for char in word:
+                for char_range in self.character_ranges:
+                    if char_range.contains(char):
+                        return True
+
+                if any(not r.contains(char) for r in self.character_ranges):
+                    return False
+            return True
+
         if word[0] not in self.alphabet:
             return False
         return all(a in self.alphabet or a in self.symbols for a in word)
@@ -130,6 +161,45 @@ languages["ita"] = Language(
     bcp47="it",
     tokenizer=lambda: import_tokenizer("spacy.lang.it", "Italian"),
     alphabet=set("abcdefghilmnopqrstuvzàèéìíîòóùú"),
+)
+
+# https://www.localizingjapan.com/blog/2012/01/20/regular-expressions-for-japanese-text/    # noqa; pylint: disable=line-too-long
+languages["jpn"] = Language(
+    code="jpn",
+    name="Japanese",
+    bcp47="ja",
+    tokenizer=lambda: import_tokenizer("spacy.lang.ja", "Japanese"),
+    alphabet=set(),
+
+    character_ranges={
+        # Hiragana
+        CharacterRange("\u3041", "\u3096"),
+
+        # Full-width katakana
+        CharacterRange("\u30a0", "\u30ff"),
+
+        # Kanji
+        CharacterRange("\u3400", "\u4db5"),
+        CharacterRange("\u4e00", "\u9fcb"),
+        CharacterRange("\uf900", "\ufa6a"),
+
+        # Kanji radicals
+        CharacterRange("\u2e80", "\u2fd5"),
+
+        # Katakana and punctuation (half-width)
+        CharacterRange("\uff5f", "\uff9f"),
+
+        # Symbols and punctuation
+        CharacterRange("\u3000", "\u303f"),
+
+        # Misc.
+        CharacterRange("\u31f0", "\u31ff"),
+        CharacterRange("\u3220", "\u3243"),
+        CharacterRange("\u3280", "\u337f"),
+
+        # Alphanumeric and punctuation (full-width)
+        CharacterRange("\uff01", "\uff5e"),
+    },
 )
 
 languages["lit"] = Language(
