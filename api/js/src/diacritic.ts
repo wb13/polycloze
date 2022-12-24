@@ -105,8 +105,29 @@ function createDiacriticButton(
 // Returns array of characters to create buttons for.
 function lettersWithDiacritics(languageCode: string): Letter[] {
   switch (languageCode) {
+    case "cat":
+      return [
+        { uppercase: "À", lowercase: "à", recipe: "\\A` or \\a`" },
+        { uppercase: "Ç", lowercase: "ç", recipe: "\\C, or \\c," },
+        { uppercase: "È", lowercase: "è", recipe: "\\E` or \\e`" },
+        { uppercase: "É", lowercase: "é", recipe: "\\E' or \\e'" },
+        { uppercase: "Í", lowercase: "í", recipe: "\\I' or \\i'" },
+        { uppercase: "Ï", lowercase: "ï", recipe: "\\I: or \\i:" },
+        { uppercase: "Ò", lowercase: "ò", recipe: "\\O` or \\o`" },
+        { uppercase: "Ó", lowercase: "ó", recipe: "\\O' or \\o'" },
+        { uppercase: "Ú", lowercase: "ú", recipe: "\\U' or \\u'" },
+        { uppercase: "Ü", lowercase: "ü", recipe: "\\U: or \\u:" },
+      ];
+    case "dan":
+      return [
+        { uppercase: "Å", lowercase: "å", recipe: "\\AA or \\aa" },
+        { uppercase: "Æ", lowercase: "æ", recipe: "\\AE or \\ae" },
+        { uppercase: "É", lowercase: "é", recipe: "\\E' or \\e'" },
+        { uppercase: "Ø", lowercase: "ø", recipe: "\\O/ or \\o/" },
+      ];
     case "deu":
       return [
+        { uppercase: "À", lowercase: "à", recipe: "\\A` or \\a`" },
         { uppercase: "Ä", lowercase: "ä", recipe: "\\A: or \\a:" },
         { uppercase: "É", lowercase: "é", recipe: "\\E' or \\e'" },
         { uppercase: "Ö", lowercase: "ö", recipe: "\\O: or \\o:" },
@@ -146,6 +167,125 @@ function lettersWithDiacritics(languageCode: string): Letter[] {
           recipe: "\\U( or \\Ux or \\u( or \\ux",
         },
       ];
+    case "fin":
+      return [
+        { uppercase: "Å", lowercase: "å", recipe: "\\AA or \\aa" },
+        { uppercase: "Ä", lowercase: "ä", recipe: "\\A: or \\a:" },
+        { uppercase: "Ö", lowercase: "ö", recipe: "\\O: or \\o:" },
+        { uppercase: "Š", lowercase: "š", recipe: "\\S< or \\s<" },
+        { uppercase: "Ž", lowercase: "ž", recipe: "\\Z< or \\z<" },
+      ];
+    case "fra":
+      return [
+        { uppercase: "À", lowercase: "à", recipe: "\\A` or \\a`" },
+        { uppercase: "Â", lowercase: "â", recipe: "\\A> or \\a>" },
+        { uppercase: "Æ", lowercase: "æ", recipe: "\\AE or \\ae" },
+        { uppercase: "Ç", lowercase: "ç", recipe: "\\C, or \\c," },
+        { uppercase: "È", lowercase: "è", recipe: "\\E` or \\e`" },
+        { uppercase: "É", lowercase: "é", recipe: "\\E' or \\e'" },
+        { uppercase: "Ê", lowercase: "ê", recipe: "\\E> or \\e>" },
+        { uppercase: "Ë", lowercase: "ë", recipe: "\\E: or \\e:" },
+        { uppercase: "Î", lowercase: "î", recipe: "\\I> or \\i>" },
+        { uppercase: "Ï", lowercase: "ï", recipe: "\\I: or \\i:" },
+        { uppercase: "Ô", lowercase: "ô", recipe: "\\O> or \\o>" },
+        { uppercase: "Ù", lowercase: "ù", recipe: "\\U` or \\u`" },
+        { uppercase: "Û", lowercase: "û", recipe: "\\U> or \\u>" },
+        { uppercase: "Ü", lowercase: "ü", recipe: "\\U: or \\u:" },
+        { uppercase: "Ÿ", lowercase: "ÿ", recipe: "\\Y: or \\y:" },
+        { uppercase: "Œ", lowercase: "œ", recipe: "\\OE or \\oe" },
+      ];
+    case "hrv":
+      return [
+        { uppercase: "Ć", lowercase: "ć", recipe: "\\C' or \\c'" },
+        { uppercase: "Č", lowercase: "č", recipe: "\\C< or \\c<" },
+        { uppercase: "Đ", lowercase: "đ", recipe: "\\D/ or \\d/" },
+        { uppercase: "Š", lowercase: "š", recipe: "\\S< or \\s<" },
+        { uppercase: "Ž", lowercase: "ž", recipe: "\\Z< or \\z<" },
+      ];
+    case "ita":
+      return [
+        { uppercase: "À", lowercase: "à", recipe: "\\A` or \\a`" },
+        { uppercase: "È", lowercase: "è", recipe: "\\E` or \\e`" },
+        { uppercase: "É", lowercase: "é", recipe: "\\E' or \\e'" },
+        { uppercase: "Ì", lowercase: "ì", recipe: "\\I` or \\i`" },
+        { uppercase: "Í", lowercase: "í", recipe: "\\I' or \\i'" },
+        { uppercase: "Î", lowercase: "î", recipe: "\\I> or \\i>" },
+        { uppercase: "Ò", lowercase: "ò", recipe: "\\O` or \\o`" },
+        { uppercase: "Ó", lowercase: "ó", recipe: "\\O' or \\o'" },
+        { uppercase: "Ù", lowercase: "ù", recipe: "\\U` or \\u`" },
+        { uppercase: "Ú", lowercase: "ú", recipe: "\\U' or \\u'" },
+      ];
+    case "lit":
+      return [
+        { uppercase: "Ą", lowercase: "ą", recipe: "\\A; or \\a;" },
+        { uppercase: "Č", lowercase: "č", recipe: "\\C< or \\c<" },
+        { uppercase: "Ę", lowercase: "ę", recipe: "\\E; or \\e;" },
+        { uppercase: "Ė", lowercase: "ė", recipe: "\\E. or \\e." },
+        { uppercase: "Į", lowercase: "į", recipe: "\\I; or \\i;" },
+        { uppercase: "Š", lowercase: "š", recipe: "\\S< or \\s<" },
+        { uppercase: "Ų", lowercase: "ų", recipe: "\\U; or \\u;" },
+        { uppercase: "Ū", lowercase: "ū", recipe: "\\U- or \\u-" },
+        { uppercase: "Ž", lowercase: "ž", recipe: "\\Z< or \\z<" },
+      ];
+    case "nld":
+      return [
+        { uppercase: "Ĳ", lowercase: "ĳ", recipe: "\\IJ or \\ij " },
+        { uppercase: "Ä", lowercase: "ä", recipe: "\\A: or \\a: " },
+        { uppercase: "Ë", lowercase: "ë", recipe: "\\E: or \\e: " },
+        { uppercase: "Ï", lowercase: "ï", recipe: "\\I: or \\i: " },
+        { uppercase: "Ö", lowercase: "ö", recipe: "\\O: or \\o: " },
+        { uppercase: "Ü", lowercase: "ü", recipe: "\\U: or \\u: " },
+        { uppercase: "Á", lowercase: "á", recipe: "\\A' or \\a' " },
+        { uppercase: "É", lowercase: "é", recipe: "\\E' or \\e' " },
+        { uppercase: "Í", lowercase: "í", recipe: "\\I' or \\i' " },
+        { uppercase: "Ó", lowercase: "ó", recipe: "\\O' or \\o' " },
+        { uppercase: "Ú", lowercase: "ú", recipe: "\\U' or \\u' " },
+      ];
+    case "nob":
+      return [
+        { uppercase: "Å", lowercase: "å", recipe: "\\AA or \\aa" },
+        { uppercase: "Æ", lowercase: "æ", recipe: "\\AE or \\ae" },
+        { uppercase: "É", lowercase: "é", recipe: "\\E' or \\e'" },
+        { uppercase: "Ô", lowercase: "ô", recipe: "\\O> or \\o>" },
+        { uppercase: "Ø", lowercase: "ø", recipe: "\\O/ or \\o/" },
+      ];
+    case "pol":
+      return [
+        { uppercase: "Ą", lowercase: "ą", recipe: "\\A; or \\a;" },
+        { uppercase: "Ć", lowercase: "ć", recipe: "\\C' or \\c'" },
+        { uppercase: "Ę", lowercase: "ę", recipe: "\\E; or \\e;" },
+        { uppercase: "Ł", lowercase: "ł", recipe: "\\L/ or \\l/" },
+        { uppercase: "Ń", lowercase: "ń", recipe: "\\N' or \\n'" },
+        { uppercase: "Ó", lowercase: "ó", recipe: "\\O' or \\o'" },
+        { uppercase: "Ś", lowercase: "ś", recipe: "\\S' or \\s'" },
+        { uppercase: "Ź", lowercase: "ź", recipe: "\\Z' or \\z'" },
+        { uppercase: "Ż", lowercase: "ż", recipe: "\\Z. or \\z." },
+      ];
+    case "por":
+      return [
+        { uppercase: "Á", lowercase: "á", recipe: "\\A' or \\a'" },
+        { uppercase: "Â", lowercase: "â", recipe: "\\A> or \\a>" },
+        { uppercase: "Ã", lowercase: "ã", recipe: "\\A~ or \\a~" },
+        { uppercase: "À", lowercase: "à", recipe: "\\A` or \\a`" },
+        { uppercase: "Ç", lowercase: "ç", recipe: "\\C, or \\c," },
+        { uppercase: "É", lowercase: "é", recipe: "\\E' or \\e'" },
+        { uppercase: "Ê", lowercase: "ê", recipe: "\\E> or \\e>" },
+        { uppercase: "Í", lowercase: "í", recipe: "\\I' or \\i'" },
+        { uppercase: "Ó", lowercase: "ó", recipe: "\\O' or \\o'" },
+        { uppercase: "Ô", lowercase: "ô", recipe: "\\O> or \\o>" },
+        { uppercase: "Õ", lowercase: "õ", recipe: "\\O~ or \\o~" },
+        { uppercase: "Ú", lowercase: "ú", recipe: "\\U' or \\u'" },
+      ];
+    case "ron":
+      return [
+        { uppercase: "Ă", lowercase: "ă", recipe: "\\A( or \\a(" },
+        { uppercase: "Â", lowercase: "â", recipe: "\\A> or \\a>" },
+        { uppercase: "Î", lowercase: "î", recipe: "\\I> or \\i>" },
+        { uppercase: "Ș", lowercase: "ș" },
+        { uppercase: "Ț", lowercase: "ț" },
+        { uppercase: "Ş", lowercase: "ş", recipe: "\\S, or \\s," },
+        { uppercase: "Ţ", lowercase: "ţ", recipe: "\\T, or \\t," },
+      ];
     case "spa":
       return [
         { uppercase: "Á", lowercase: "á", recipe: "\\A' or \\a'" },
@@ -158,6 +298,16 @@ function lettersWithDiacritics(languageCode: string): Letter[] {
         },
         { uppercase: "Ó", lowercase: "ó", recipe: "\\O' or \\o'" },
         { uppercase: "Ú", lowercase: "ú", recipe: "\\U' or \\u'" },
+        { uppercase: "Ü", lowercase: "ü", recipe: "\\U: or \\u:" },
+      ];
+    case "swe":
+      return [
+        { uppercase: "Á", lowercase: "á", recipe: "\\A' or \\a'" },
+        { uppercase: "Ä", lowercase: "ä", recipe: "\\A: or \\a:" },
+        { uppercase: "Å", lowercase: "å", recipe: "\\AA or \\aa" },
+        { uppercase: "È", lowercase: "è", recipe: "\\E` or \\e`" },
+        { uppercase: "É", lowercase: "é", recipe: "\\E' or \\e'" },
+        { uppercase: "Ö", lowercase: "ö", recipe: "\\O: or \\o:" },
         { uppercase: "Ü", lowercase: "ü", recipe: "\\U: or \\u:" },
       ];
     case "tgl":

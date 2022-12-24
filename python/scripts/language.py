@@ -92,7 +92,8 @@ languages["dan"] = Language(
     name="Danish",
     bcp47="da",
     tokenizer=lambda: import_tokenizer("spacy.lang.da", "Danish"),
-    alphabet=set("abcdefghijklmnopqrstuvwxyzæøå"),
+    alphabet=set("abcdefghijklmnopqrstuvwxyzæøåé"),
+    # é for café, diarré, idé
 )
 
 languages["deu"] = Language(
@@ -100,8 +101,25 @@ languages["deu"] = Language(
     name="German",
     bcp47="de",
     tokenizer=lambda: import_tokenizer("spacy.lang.de", "German"),
-    alphabet=set("abcdefghijklmnopqrstuvwxyzäéöüß"),
+    alphabet=set("abcdefghijklmnopqrstuvwxyzàäéöüß"),
     symbols=set("-.'0123456789"),
+    # Included
+    # à for voilà, à la carte, à jour, Déjà-vu
+    # é for Café
+
+    # Excluded (because names):
+    # á for Bogotá, Guzmán
+    # ã for São
+    # ç for Curaçao
+    # í for Medellín, Brasília
+    # ñ for Piña Colada
+    # ó for Córdoba
+    # ô for Rhône
+
+    # Excluded (too few examples):
+    # è for Crème, Gruyère
+    # ê for Crêpe
+    # û for Croûton
 )
 
 languages["ell"] = Language(
@@ -144,7 +162,7 @@ languages["fra"] = Language(
     name="French",
     bcp47="fr",
     tokenizer=lambda: import_tokenizer("spacy.lang.fr", "French"),
-    alphabet=set("abcdefghijklmnopqrstuvwxyzàâæçéèêëîïôœùûüÿ"),
+    alphabet=set("abcdefghijklmnopqrstuvwxyzàâæçèéêëîïôùûüÿœ"),
 )
 
 languages["hrv"] = Language(
@@ -161,6 +179,7 @@ languages["ita"] = Language(
     bcp47="it",
     tokenizer=lambda: import_tokenizer("spacy.lang.it", "Italian"),
     alphabet=set("abcdefghilmnopqrstuvzàèéìíîòóùú"),
+    # j, k, w, x and y excluded because they only appear in loanwords?
 )
 
 # https://www.localizingjapan.com/blog/2012/01/20/regular-expressions-for-japanese-text/    # noqa; pylint: disable=line-too-long
@@ -224,7 +243,11 @@ languages["nld"] = Language(
     name="Dutch",
     bcp47="nl",
     tokenizer=lambda: import_tokenizer("spacy.lang.nl", "Dutch"),
-    alphabet=set("abcdefghijklmnopqrstuvwxyzĳäëïöüáéíóú"),
+    alphabet=set("abcdefghijklmnopqrstuvwxyzĳäëïöüáéíóú'"),
+    # ' for contractions
+    # Dutch uses diaeresis and acute accents?
+    # Grave accents are only for french loanwords?
+    # ç for curaçao, Française, façade
 )
 
 languages["nob"] = Language(
@@ -232,7 +255,11 @@ languages["nob"] = Language(
     name="Norwegian Bokmål",
     bcp47="nb",
     tokenizer=lambda: import_tokenizer("spacy.lang.nb", "Norwegian"),
-    alphabet=set("abcdefghijklmnopqrstuvwxyzæøå"),
+    alphabet=set("abcdefghijklmnopqrstuvwxyzæøåôé"),
+    # ô for fôr, dyrefôr
+    # accute accents: allé, diaré, kafé, idé, entré, komité, kupé
+    # moské, supé, trofé, diskré
+    # ç for provençalsk (loan words only; excluded)
 )
 
 languages["pol"] = Language(
@@ -248,7 +275,11 @@ languages["por"] = Language(
     name="Portuguese",
     bcp47="pt",
     tokenizer=lambda: import_tokenizer("spacy.lang.pt", "Portuguese"),
-    alphabet=set("abcdefghijklmnopqrstuvwxyzáâãàçéêíóôõú"),
+    alphabet=set("abcdefghijlmnopqrstuvwxyzáâãàçéêíóôõú"),
+    # w for watt
+    # y for hobby
+    # è for ampère (excluded because no other words found)
+    # ü excluded because no longer used?
 )
 
 languages["ron"] = Language(
@@ -256,7 +287,8 @@ languages["ron"] = Language(
     name="Romanian",
     bcp47="ro",
     tokenizer=lambda: import_tokenizer("spacy.lang.ro", "Romanian"),
-    alphabet=set("aăâbcdefghiîjklmnopqrsştţuvwxyz"),
+    alphabet=set("aăâbcdefghiîjklmnopqrsștțuvwxyzşţ"),
+    # NOTE ş and ţ are used because ș and ț are hard to type
 )
 
 languages["rus"] = Language(
@@ -283,7 +315,9 @@ languages["swe"] = Language(
     name="Swedish",
     bcp47="sv",
     tokenizer=lambda: import_tokenizer("spacy.lang.sv", "Swedish"),
-    alphabet=set("abcdefghijklmnopqrstuvwxyzåäöáüè"),
+    alphabet=set("abcdefghijklmnopqrstuvwxyzåäöáüèé"),
+    # é for words like idé and armé (integrated; included)
+    # à for french loanwords (non-integrated; excluded)
 )
 
 languages["tgl"] = Language(
