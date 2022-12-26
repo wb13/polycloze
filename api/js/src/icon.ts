@@ -3,8 +3,7 @@ import "./icon.css";
 // Creates SVG icon from ../public
 export function createIcon(name: string): HTMLImageElement {
   const img = document.createElement("img");
-  img.src = `/public/svg/${name}.svg?t=20221114`;
-  // Update t value to bust cache (e.g. new version of icon library).
+  img.src = `/svg/ph@1.4.0/${name}.svg`;
   return img;
 }
 

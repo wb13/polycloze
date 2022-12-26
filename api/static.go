@@ -42,11 +42,19 @@ func servePublic() http.Handler {
 
 // Usage: http.Handle("/svg/*", http.StripPrefix("/svg/", serveSVG()))
 func serveSVG() http.Handler {
-	sub, err := fs.Sub(dist, "js/dist/svg")
+	sub, err := fs.Sub(public, "js/public/svg")
 	if err != nil {
 		panic(err)
 	}
-	return cacheUntilBusted(http.FileServer(http.FS(sub)))
+	return cacheForever(http.FileServer(http.FS(sub)))
+}
+
+// Caches responses for a long time.
+func cacheForever(next http.Handler) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "public, max-age=3153600, immutable")
+		next.ServeHTTP(w, r)
+	})
 }
 
 // Caches responses that contain search params until cache gets busted.
