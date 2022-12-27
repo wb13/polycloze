@@ -85,3 +85,13 @@ func computeHashes() error {
 	})
 	return nil
 }
+
+// Returns URL of file with the content hash as its version.
+// If the file hasn't been hashed, simply returns the input URL.
+func versionedURL(url string) string {
+	hash, ok := fileHashes[url]
+	if ok {
+		return url + "?v=" + hash
+	}
+	return url
+}
