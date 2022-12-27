@@ -62,7 +62,8 @@ func cacheForever(next http.Handler) http.HandlerFunc {
 // Requests without search params won't set caching instructions.
 func cacheUntilBusted(next http.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if len(r.URL.RawQuery) > 0 {
+		values := r.URL.Query()
+		if values.Has("v") {
 			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
 		}
 		next.ServeHTTP(w, r)
