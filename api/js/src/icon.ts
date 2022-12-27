@@ -11,10 +11,10 @@ export function createLabeledIcon(
   name: string,
   label: string
 ): DocumentFragment {
+  const icon = createIcon(name);
   const fragment = document.createDocumentFragment();
-  fragment.append(createIcon(name));
-  if (label) {
-    fragment.append(` ${label}`);
-  }
+  fragment.append(icon);
+  icon.alt = ""; // Because the icon is already described by the label.
+  fragment.append(` ${label}`);
   return fragment;
 }

@@ -49,7 +49,11 @@ function createMenuListButton(signedIn: boolean): HTMLButtonElement {
   const [modal, show] = createMenuModal(signedIn);
   document.body.appendChild(modal);
 
-  const button = createButton(createIcon("list"), show);
+  const icon = createIcon("list");
+  icon.alt = "Menu";
+
+  const button = createButton(icon, show);
+  button.ariaLabel = "Menu";
   button.classList.add("menu-list-button");
   button.classList.add("button-borderless");
   button.classList.add("button-tight");

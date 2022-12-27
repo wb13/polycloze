@@ -1,7 +1,7 @@
 import "./select.css";
 import { setActiveCourse } from "./api";
 import { createButton } from "./button";
-import { createIcon } from "./icon";
+import { createIcon, createLabeledIcon } from "./icon";
 import { getL1, getL2 } from "./language";
 import { createModal } from "./modal";
 import { Course, Language } from "./schema";
@@ -173,7 +173,7 @@ export function createCourseSelectButton(courses: Course[]): HTMLButtonElement {
   const l1 = getL1();
   const l2 = getL2();
   const content = document.createElement("span");
-  content.append(createIcon("translate"), ` ${l1.code}-${l2.code}`);
+  content.append(createLabeledIcon("translate", ` ${l1.code}-${l2.code}`));
 
   const button = createButton(content, show);
   button.classList.add("button-borderless");
