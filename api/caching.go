@@ -14,6 +14,7 @@ import (
 )
 
 // Content hash of various files
+// fileHashes: file URL -> hash.
 var fileHashes map[string]string
 
 // Returns hash of file contents.
@@ -25,11 +26,9 @@ func hashFile(file fs.File) (string, error) {
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
-func cachedHashFile(filename string, file fs.File) (string, error) {
-	// Uses `filename` instead of `file.Stat()`, because `file` may be in a
-	// subdirectory.
-	name := filename
-	hash, ok := fileHashes[name]
+// `path` is a URL path rather than a file path.
+func cachedHashFile(path string, file fs.File) (string, error) {
+	hash, ok := fileHashes[path]
 	if ok {
 		return hash, nil
 	}
@@ -37,7 +36,7 @@ func cachedHashFile(filename string, file fs.File) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to hash file: %v", err)
 	}
-	fileHashes[name] = hash
+	fileHashes[path] = hash
 	return hash, nil
 }
 
@@ -46,19 +45,25 @@ func computeHashes() error {
 	fileHashes = make(map[string]string)
 
 	// Hash files in js/dist/.
-	_ = fs.WalkDir(dist, "js/dist", func(path string, d fs.DirEntry, _ error) error {
-		file, err := dist.Open(path)
+	sub, err := fs.Sub(dist, "js/dist")
+	if err != nil {
+		// This shouldn't happen.
+		panic(err)
+	}
+	_ = fs.WalkDir(sub, ".", func(path string, d fs.DirEntry, _ error) error {
+		file, err := sub.Open(path)
 		if err != nil {
 			// Ignore error.
 			return nil
 		}
 		defer file.Close()
-		_, _ = cachedHashFile(path, file)
+
+		_, _ = cachedHashFile(filepath.Join("/dist", path), file)
 		return nil
 	})
 
 	// Hash some public files.
-	sub, err := fs.Sub(public, "js/public")
+	sub, err = fs.Sub(public, "js/public")
 	if err != nil {
 		// This shouldn't happen.
 		panic(err)
@@ -75,7 +80,7 @@ func computeHashes() error {
 			return nil
 		}
 		defer file.Close()
-		_, _ = cachedHashFile(filepath.Join("js", "public", path), file)
+		_, _ = cachedHashFile(filepath.Join("/public", path), file)
 		return nil
 	})
 	return nil
