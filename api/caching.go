@@ -5,7 +5,7 @@ package api
 
 import (
 	"crypto/sha256"
-	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"io/fs"
@@ -22,7 +22,7 @@ func hashFile(file fs.File) (string, error) {
 	if _, err := io.Copy(h, file); err != nil {
 		return "", fmt.Errorf("failed to hash file: %v", err)
 	}
-	return base64.StdEncoding.EncodeToString(h.Sum(nil)), nil
+	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
 func cachedHashFile(filename string, file fs.File) (string, error) {
