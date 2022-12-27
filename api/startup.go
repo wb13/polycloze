@@ -70,6 +70,9 @@ func Startup() {
 	if err != nil {
 		log.Fatal("failed to write languages.json:", err)
 	}
+
+	// Compute hashes of static files.
+	_ = computeHashes()
 }
 
 // Input: path to course db file.
