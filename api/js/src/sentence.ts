@@ -150,9 +150,12 @@ export function createSentence(
     }
   };
   const inputChar = (char: string) => {
-    // Append character to last focused input element.
+    // Replace selection with character.
     if (lastFocused != null) {
-      lastFocused.value += char;
+      const value = lastFocused.value;
+      const start = lastFocused.selectionStart || value.length;
+      const end = lastFocused.selectionEnd || value.length;
+      lastFocused.value = value.slice(0, start) + char + value.slice(end);
       lastFocused.focus();
     }
   };
