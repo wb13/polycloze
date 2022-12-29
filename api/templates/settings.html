@@ -18,11 +18,30 @@
 		enctype="multipart/form-data"
 		>
 		{{template "_csrf.html" .}}
-		<input name="csv-upload" type="file" accept=".csv" required>
+		<input id="csv-upload" name="csv-upload" type="file" accept=".csv" required>
 
 		<p class="button-group">
 			<button type="submit">Upload CSV file</button>
 		</p>
+
+		<script>
+			// Checks if the file is too big (>8MB).
+			function isTooBig(file) {
+				return file.size > 8 * 1024 * 1024;
+			}
+
+			const csvUpload = document.getElementById("csv-upload");
+			csvUpload.addEventListener("change", () => {
+				for (const file of csvUpload.files) {
+					if (isTooBig(file)) {
+						csvUpload.setCustomValidity("The file is too big.");
+						csvUpload.reportValidity()
+					} else {
+						csvUpload.setCustomValidity("");
+					}
+				}
+			});
+		</script>
 	</form>
 
 	<h2>Export data</h2>
