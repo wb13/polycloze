@@ -89,6 +89,10 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Respond.
-	_, _ = w.Write([]byte(":)"))
+	// Redirect to settings page.
+	// Returns 303 status instead of 307 to prevent client from resending POST
+	// data.
+	// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/303.
+	// TODO show success message.
+	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
