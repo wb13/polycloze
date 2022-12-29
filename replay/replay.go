@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/lggruspe/polycloze/database"
-	"github.com/lggruspe/polycloze/logger"
 	ws "github.com/lggruspe/polycloze/word_scheduler"
 )
 
@@ -31,7 +30,7 @@ func Tomorrow() time.Time {
 	return Today().Add(day).UTC()
 }
 
-func Replay(c *database.Connection, events []logger.LogEvent) error {
+func Replay(c *database.Connection, events []LogEvent) error {
 	for _, event := range events {
 		err := ws.UpdateWordAt(c, event.Word, event.Correct, event.Timestamp)
 		if err != nil {
@@ -48,7 +47,7 @@ func Replay(c *database.Connection, events []logger.LogEvent) error {
 }
 
 func ReplayFile(c *database.Connection, reviews string) error {
-	events, err := logger.ParseFile(reviews)
+	events, err := ParseFile(reviews)
 	if err != nil {
 		return err
 	}

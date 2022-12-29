@@ -1,8 +1,7 @@
 // Copyright (c) 2022 Levi Gruspe
 // License: GNU AGPLv3 or later
 
-// Log parser
-package logger
+package replay
 
 import (
 	"errors"
