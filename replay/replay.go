@@ -5,7 +5,9 @@ package replay
 
 import (
 	"bufio"
+	"database/sql"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -24,9 +26,25 @@ func isEOF(r io.Reader) bool {
 	return scanner.Err() == nil
 }
 
+// Checks if there are existing reviews in the DB.
+// Returns an error if there are existing reviews.
+func hasExistingReviews[T database.Querier](q T) error {
+	var item string
+	query := `SELECT item FROM review LIMIT 1`
+	err := q.QueryRow(query).Scan(&item)
+	if err == nil || errors.Is(err, sql.ErrNoRows) {
+		return nil
+	}
+	return fmt.Errorf("found existing reviews: %v", err)
+}
+
 // Imports review data from CSV file.
+// This operation is not allowed if there are existing reviews in the DB.
 func Replay[T database.Querier](q T, r io.Reader) error {
-	// TODO don't allow this operation if there are existing reviews in the DB.
+	if err := hasExistingReviews(q); err != nil {
+		return fmt.Errorf("failed to import review: %v", err)
+	}
+
 	reader := NewReviewReader(csv.NewReader(r))
 
 	// Ignore first error (it may be a header row), but don't ignore further
