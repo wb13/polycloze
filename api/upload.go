@@ -4,13 +4,16 @@
 package api
 
 import (
-	"bufio"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/lggruspe/polycloze/auth"
+	"github.com/lggruspe/polycloze/basedir"
+	"github.com/lggruspe/polycloze/database"
+	"github.com/lggruspe/polycloze/replay"
 	"github.com/lggruspe/polycloze/sessions"
 )
 
@@ -67,10 +70,23 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Read uploaded file.
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		log.Println(scanner.Text())
+	// Open user's review DB.
+	// TODO import into a new db instead?
+	userID := s.Data["userID"].(int)
+	db, err = database.OpenReviewDB(basedir.Review(userID, l1, l2))
+	if err != nil {
+		log.Println(fmt.Errorf("could not open review database (%v-%v): %v", l1, l2, err))
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	defer db.Close()
+
+	// TODO connect to course db to filter out reviews that are not in the course
+	// database?
+	if err := replay.Replay(db, file); err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
 	}
 
 	// Respond.
