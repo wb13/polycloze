@@ -32,10 +32,13 @@ func hasExistingReviews[T database.Querier](q T) error {
 	var item string
 	query := `SELECT item FROM review LIMIT 1`
 	err := q.QueryRow(query).Scan(&item)
-	if err == nil || errors.Is(err, sql.ErrNoRows) {
-		return nil
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil
+		}
+		return fmt.Errorf("found existing reviews: %v", err)
 	}
-	return fmt.Errorf("found existing reviews: %v", err)
+	return errors.New("found existing reviews")
 }
 
 // Imports review data from CSV file.
