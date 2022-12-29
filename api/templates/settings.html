@@ -9,6 +9,22 @@
 
 	<course-settings></course-settings>
 
+	<h2>Import data</h2>
+
+	<form
+		class="signin"
+		action="/test/api/upload/{{.course.L1.Code}}/{{.course.L2.Code}}"
+		method="POST"
+		enctype="multipart/form-data"
+		>
+		{{template "_csrf.html" .}}
+		<input name="csv-upload" type="file" accept=".csv" required>
+
+		<p class="button-group">
+			<button type="submit">Upload CSV file</button>
+		</p>
+	</form>
+
 	<h2>Export data</h2>
 
 	<div>
