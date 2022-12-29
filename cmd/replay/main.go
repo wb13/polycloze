@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"path"
+	"time"
 
 	"github.com/lggruspe/polycloze/basedir"
 	"github.com/lggruspe/polycloze/database"
@@ -20,13 +21,11 @@ type Args struct {
 	logFile string
 	dbFile  string
 
-	verbose bool
-	steps   int // number of reviews to schedule after replay
+	steps int // number of reviews to schedule after replay
 }
 
 func parseArgs() Args {
 	var args Args
-	flag.BoolVar(&args.verbose, "v", false, "verbose")
 	flag.IntVar(&args.steps, "n", 0, "number of reviews to schedule after replay")
 	flag.Parse()
 
@@ -46,9 +45,6 @@ func parseArgs() Args {
 
 func main() {
 	args := parseArgs()
-	if args.verbose {
-		replay.SetVerbosity(true)
-	}
 
 	db, err := database.OpenReviewDB(args.dbFile)
 	if err != nil {
@@ -69,7 +65,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	words, err := ws.GetWordsAt(con, args.steps, replay.Tomorrow())
+	tomorrow := time.Now().Add(24 * time.Hour)
+	words, err := ws.GetWordsAt(con, args.steps, tomorrow)
 	if err != nil {
 		log.Fatal(err)
 	}

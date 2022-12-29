@@ -63,7 +63,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if isTooBig(header.Size) {
-		http.Error(w, "file too big (> 8MB)", http.StatusBadRequest)
+		http.Error(w, "file too big (>8MB)", http.StatusBadRequest)
 		return
 	}
 

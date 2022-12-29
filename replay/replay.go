@@ -1,55 +1,77 @@
 // Copyright (c) 2022 Levi Gruspe
 // License: GNU AGPLv3 or later
 
-// For replaying reviews in log files
 package replay
 
 import (
+	"bufio"
+	"encoding/csv"
 	"fmt"
-	"time"
+	"io"
+	"os"
 
 	"github.com/lggruspe/polycloze/database"
-	ws "github.com/lggruspe/polycloze/word_scheduler"
+	"github.com/lggruspe/polycloze/word_scheduler"
 )
 
-var (
-	verbose bool      = false
-	today   time.Time = time.Now().UTC()
-)
-
-func SetVerbosity(verbosity bool) {
-	verbose = verbosity
+// Checks if `io.Reader` has reached the EOF.
+// Assumes the reader will no longer be used.
+func isEOF(r io.Reader) bool {
+	scanner := bufio.NewScanner(r)
+	if scanner.Scan() {
+		return false
+	}
+	return scanner.Err() == nil
 }
 
-func Today() time.Time {
-	return today.UTC()
-}
+// Imports review data from CSV file.
+func Replay[T database.Querier](q T, r io.Reader) error {
+	// TODO don't allow this operation if there are existing reviews in the DB.
+	reader := NewReviewReader(csv.NewReader(r))
 
-func Tomorrow() time.Time {
-	day, _ := time.ParseDuration("24h")
-	return Today().Add(day).UTC()
-}
+	// Ignore first error (it may be a header row), but don't ignore further
+	// errors.
+	if review, err := reader.ReadReview(); err == nil {
+		if err := word_scheduler.UpdateWordAt(
+			q,
+			review.Word,
+			review.Correct,
+			review.Reviewed,
+		); err != nil {
+			return fmt.Errorf("failed to import review: %v", err)
+		}
+	}
 
-func Replay(c *database.Connection, events []LogEvent) error {
-	for _, event := range events {
-		err := ws.UpdateWordAt(c, event.Word, event.Correct, event.Timestamp)
+	var review ReviewEvent
+	var err error
+	for {
+		review, err = reader.ReadReview()
 		if err != nil {
-			return err
+			break
 		}
-
-		today = event.Timestamp
-
-		if verbose {
-			fmt.Println(event)
+		if err := word_scheduler.UpdateWordAt(
+			q,
+			review.Word,
+			review.Correct,
+			review.Reviewed,
+		); err != nil {
+			return fmt.Errorf("failed to import review: %v", err)
 		}
+	}
+
+	if !isEOF(r) {
+		return fmt.Errorf("failed to import review: %v", err)
 	}
 	return nil
 }
 
-func ReplayFile(c *database.Connection, reviews string) error {
-	events, err := ParseFile(reviews)
+func ReplayFile[T database.Querier](q T, path string) error {
+	f, err := os.Open(path)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to import reviews from file: %v", err)
 	}
-	return Replay(c, events)
+	if err := Replay(q, f); err != nil {
+		return fmt.Errorf("failed to import reviews from file: %v", err)
+	}
+	return nil
 }
