@@ -9,9 +9,12 @@ import (
 	"net/http"
 )
 
+// Represents a user session.
+// Shouldn't be used as a constructor.
 type Session struct {
 	ID   string
 	Data map[string]any
+	db   *sql.DB // Reference to auth/session DB.
 }
 
 // Checks if session data contains a user ID.
@@ -67,6 +70,7 @@ func StartSession(db *sql.DB, w http.ResponseWriter, r *http.Request) (*Session,
 	s := Session{
 		ID:   id,
 		Data: make(map[string]any),
+		db:   db,
 	}
 	return &s, nil
 }
@@ -87,6 +91,7 @@ func ResumeSession(db *sql.DB, w http.ResponseWriter, r *http.Request) (*Session
 	s := Session{
 		ID:   c.Value,
 		Data: getData(db, c.Value),
+		db:   db,
 	}
 	return &s, nil
 }
