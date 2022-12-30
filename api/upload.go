@@ -4,6 +4,7 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -96,6 +97,14 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	// TODO connect to course db to filter out reviews that are not in the course
 	// database?
 	if err := replay.Replay(db, file); err != nil {
+		if errors.Is(err, replay.ErrHasExistingReviews) {
+			_ = s.ErrorMessage(
+				"Can't import data. Existing reviews were found.",
+				"csv-upload",
+			)
+			goto fail
+		}
+
 		log.Println(err)
 		_ = s.ErrorMessage(
 			"Something went wrong. Please try again.",

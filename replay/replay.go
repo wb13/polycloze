@@ -16,6 +16,8 @@ import (
 	"github.com/lggruspe/polycloze/word_scheduler"
 )
 
+var ErrHasExistingReviews = errors.New("found existing reviews")
+
 // Checks if `io.Reader` has reached the EOF.
 // Assumes the reader will no longer be used.
 func isEOF(r io.Reader) bool {
@@ -28,6 +30,7 @@ func isEOF(r io.Reader) bool {
 
 // Checks if there are existing reviews in the DB.
 // Returns an error if there are existing reviews.
+// Also returns an error if the database query fails.
 func hasExistingReviews[T database.Querier](q T) error {
 	var item string
 	query := `SELECT item FROM review LIMIT 1`
@@ -36,9 +39,9 @@ func hasExistingReviews[T database.Querier](q T) error {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil
 		}
-		return fmt.Errorf("found existing reviews: %w", err)
+		return fmt.Errorf("couldn't find existing reviews: %w", err)
 	}
-	return errors.New("found existing reviews")
+	return ErrHasExistingReviews
 }
 
 // Imports review data from CSV file.
