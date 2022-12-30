@@ -17,6 +17,14 @@ func timestamp(db *sql.DB, id string) (int, error) {
 	return updated, err
 }
 
+// Disables foreign keys in test DB.
+func disableForeignKeys(db *sql.DB) {
+	query := "PRAGMA foreign_keys = OFF"
+	if _, err := db.Exec(query); err != nil {
+		panic(err)
+	}
+}
+
 func TestGetDataNonExistentID(t *testing.T) {
 	// The result should be a non-nil empty map.
 	t.Parallel()
@@ -65,6 +73,11 @@ func TestGetSaveNonEmptyData(t *testing.T) {
 	db := testDB()
 	defer db.Close()
 
+	// Disable foreign keys, because it's not needed in this test.
+	// This test would fail with foreign keys enabled, because the `user_session`
+	// isn't populated.
+	disableForeignKeys(db)
+
 	s := Session{
 		ID: id,
 		Data: map[string]any{
@@ -106,6 +119,11 @@ func TestGetSaveEmptyData(t *testing.T) {
 	id := "abcdefg"
 	db := testDB()
 	defer db.Close()
+
+	// Disable foreign keys, because it's not needed in this test.
+	// This test would fail with foreign keys enabled, because the `user_session`
+	// isn't populated.
+	disableForeignKeys(db)
 
 	// First, insert data into DB.
 	s := Session{
