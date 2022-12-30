@@ -27,23 +27,29 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 		csrfToken := r.FormValue("csrf-token")
 
 		if !sessions.CheckCSRFToken(s.ID, csrfToken) {
-			_ = s.ErrorMessage("Something went wrong. Please try again.")
+			_ = s.ErrorMessage(
+				"Something went wrong. Please try again.",
+				"change-password",
+			)
 			goto fail
 		}
 
 		id, err := auth.Authenticate(db, username, currentPassword)
 		if err != nil {
 			log.Println(err)
-			_ = s.ErrorMessage("Incorrect password.")
+			_ = s.ErrorMessage("Incorrect password.", "change-password")
 			goto fail
 		}
 
 		if err := auth.ChangePassword(db, id, newPassword); err != nil {
-			_ = s.ErrorMessage("Something went wrong. Please try again.")
+			_ = s.ErrorMessage(
+				"Something went wrong. Please try again.",
+				"change-password",
+			)
 			goto fail
 		}
 
-		_ = s.SuccessMessage("Password updated.")
+		_ = s.SuccessMessage("Password updated.", "change-password")
 	}
 
 fail:
@@ -56,7 +62,7 @@ fail:
 		return
 	}
 
-	messages, _ := s.Messages()
+	messages, _ := s.Messages("change-password")
 	s.Data["course"] = course
 	s.Data["csrfToken"] = sessions.CSRFToken(s.ID)
 	s.Data["messages"] = messages

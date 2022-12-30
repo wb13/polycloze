@@ -105,12 +105,12 @@ func handleWelcome(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if !sessions.CheckCSRFToken(s.ID, csrfToken) {
-			_ = s.ErrorMessage("Something went wrong. Please try again.")
+			_ = s.ErrorMessage("Something went wrong. Please try again.", "welcome")
 			goto show
 		}
 
 		if err := setActiveCourse(db, userID, selectedL1, selectedL2); err != nil {
-			_ = s.ErrorMessage("Something went wrong. Please try again.")
+			_ = s.ErrorMessage("Something went wrong. Please try again.", "welcome")
 			goto show
 		}
 
@@ -166,7 +166,7 @@ show:
 	sort.Sort(ByCode(l2Options))
 
 	// Set template data.
-	messages, _ := s.Messages()
+	messages, _ := s.Messages("welcome")
 	s.Data["csrfToken"] = sessions.CSRFToken(s.ID)
 	s.Data["l1Options"] = l1Options
 	s.Data["l2Options"] = l2Options
