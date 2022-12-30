@@ -1,5 +1,13 @@
 {{if .messages}}
 {{range .messages}}
+{{if eq .Kind "error"}}
 {{template "_message-error.html" .}}
+{{else if eq .Kind "warning"}}
+{{template "_message-warning.html" .}}
+{{else if eq .Kind "success"}}
+{{template "_message-success.html" .}}
+{{else}}
+{{template "_message-info.html" .}}
+{{end}}
 {{end}}
 {{end}}
