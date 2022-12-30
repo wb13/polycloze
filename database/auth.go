@@ -22,7 +22,8 @@ func upgradeAuthDB(db *sql.DB) error {
 // Opens the authentication database.
 // The caller has to Close the db.
 func OpenAuthDB(path string) (*sql.DB, error) {
-	db, err := Open(path)
+	// Open DB with foreign key enforcement.
+	db, err := Open(path + "?_fk=1")
 	if err != nil {
 		return nil, fmt.Errorf("failed to open auth database: %v", err)
 	}
