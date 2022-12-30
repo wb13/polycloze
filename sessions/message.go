@@ -10,16 +10,26 @@ import (
 	"time"
 )
 
+type MessageKind int
+
+const (
+	Success MessageKind = iota
+	Info
+	Warning
+	Error
+)
+
 type Message struct {
 	// Excludes sessionID field, because caller should already have it.
 	Created time.Time
 	Message string
+	Kind    MessageKind
 }
 
 // Gets all recent messages to the user.
 func getMessages(tx *sql.Tx, sessionID string) ([]Message, error) {
 	query := `
-		SELECT created, message
+		SELECT created, message, kind
 		FROM message
 		WHERE session_id = ?
 		ORDER BY created ASC
@@ -35,10 +45,21 @@ func getMessages(tx *sql.Tx, sessionID string) ([]Message, error) {
 	for rows.Next() {
 		var created int64
 		var message Message
-		if err := rows.Scan(&created, message.Message); err != nil {
+		var kind string
+		if err := rows.Scan(&created, &message.Message, &kind); err != nil {
 			return nil, fmt.Errorf("failed to get messages from the database: %v", err)
 		}
 		message.Created = time.Unix(created, 0)
+		switch kind {
+		case "info":
+			message.Kind = Info
+		case "error":
+			message.Kind = Error
+		case "warning":
+			message.Kind = Warning
+		case "success":
+			message.Kind = Success
+		}
 		messages = append(messages, message)
 	}
 	return messages, nil
@@ -77,9 +98,21 @@ func (s *Session) Messages() ([]Message, error) {
 }
 
 // Saves message for user into the database.
-func (s *Session) Message(message string) error {
-	query := `INSERT INTO message (session_id, message) VALUES (?, ?)`
-	if _, err := s.db.Exec(query, s.ID, message); err != nil {
+func (s *Session) Message(kind MessageKind, message string) error {
+	kindText := "info"
+	switch kind {
+	case Success:
+		kindText = "success"
+	case Info:
+		kindText = "info"
+	case Warning:
+		kindText = "warning"
+	case Error:
+		kindText = "error"
+	}
+
+	query := `INSERT INTO message (session_id, message, kind) VALUES (?, ?, ?)`
+	if _, err := s.db.Exec(query, s.ID, message, kindText); err != nil {
 		return fmt.Errorf("failed to save message for user: %v", err)
 	}
 	return nil
