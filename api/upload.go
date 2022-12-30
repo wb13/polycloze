@@ -44,6 +44,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	userID := s.Data["userID"].(int)
 
 	// Check CSRF token.
 	csrfToken := r.FormValue("csrf-token")
@@ -56,28 +57,39 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	file, header, err := r.FormFile("csv-upload")
 	if err != nil {
 		log.Println(err)
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-		return
+		_ = s.ErrorMessage(
+			"Something went wrong. Please try again.",
+			"csv-upload",
+		)
+		goto fail
 	}
 
 	if header.Header.Get("Content-Type") != "text/csv" {
-		http.Error(w, "expected CSV file upload", http.StatusBadRequest)
-		return
+		_ = s.ErrorMessage(
+			"Not a CSV file.",
+			"csv-upload",
+		)
+		goto fail
 	}
 
 	if isTooBig(header.Size) {
-		http.Error(w, "file too big (>8MB)", http.StatusBadRequest)
-		return
+		_ = s.ErrorMessage(
+			"File is too big (>8MB).",
+			"csv-upload",
+		)
+		goto fail
 	}
 
 	// Open user's review DB.
 	// TODO import into a new db instead?
-	userID := s.Data["userID"].(int)
 	db, err = database.OpenReviewDB(basedir.Review(userID, l1, l2))
 	if err != nil {
 		log.Println(fmt.Errorf("could not open review database (%v-%v): %v", l1, l2, err))
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-		return
+		_ = s.ErrorMessage(
+			"Something went wrong. Please try again.",
+			"csv-upload",
+		)
+		goto fail
 	}
 	defer db.Close()
 
@@ -85,8 +97,11 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	// database?
 	if err := replay.Replay(db, file); err != nil {
 		log.Println(err)
-		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
-		return
+		_ = s.ErrorMessage(
+			"Something went wrong. Please try again.",
+			"csv-upload",
+		)
+		goto fail
 	}
 
 	// Redirect to settings page.
@@ -94,5 +109,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	// data.
 	// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/303.
 	_ = s.SuccessMessage("File uploaded.", "csv-upload")
+
+fail:
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }
