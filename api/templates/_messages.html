@@ -1,5 +1,5 @@
-{{if .messages}}
-{{range .messages}}
+{{if .}}
+{{range .}}
 {{if eq .Kind "error"}}
 {{template "_message-error.html" .}}
 {{else if eq .Kind "warning"}}
