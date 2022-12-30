@@ -34,7 +34,7 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 		csrfToken := r.FormValue("csrf-token")
 
 		if !sessions.CheckCSRFToken(s.ID, csrfToken) {
-			_ = s.Message(sessions.Error, "Something went wrong. Please try again.")
+			_ = s.ErrorMessage("Something went wrong. Please try again.")
 			goto fail
 		}
 		if auth.Register(db, username, password) == nil {
@@ -42,7 +42,7 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
 			return
 		}
-		_ = s.Message(sessions.Error, "This username is unavailable. Try another one.")
+		_ = s.ErrorMessage("This username is unavailable. Try another one.")
 	}
 
 fail:
@@ -74,19 +74,19 @@ func handleSignIn(w http.ResponseWriter, r *http.Request) {
 		csrfToken := r.FormValue("csrf-token")
 
 		if !sessions.CheckCSRFToken(s.ID, csrfToken) {
-			_ = s.Message(sessions.Error, "Authentication failed.")
+			_ = s.ErrorMessage("Authentication failed.")
 			goto fail
 		}
 		userID, err := auth.Authenticate(db, username, password)
 		if err != nil {
-			_ = s.Message(sessions.Error, "Incorrect username or password.")
+			_ = s.ErrorMessage("Incorrect username or password.")
 			goto fail
 		}
 
 		s.Data["userID"] = userID
 		s.Data["username"] = username
 		if sessions.SaveData(db, s) != nil {
-			_ = s.Message(sessions.Error, "Authentication failed.")
+			_ = s.ErrorMessage("Authentication failed.")
 			goto fail
 		}
 		goto success

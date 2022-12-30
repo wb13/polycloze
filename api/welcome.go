@@ -105,12 +105,12 @@ func handleWelcome(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if !sessions.CheckCSRFToken(s.ID, csrfToken) {
-			_ = s.Message(sessions.Error, "Something went wrong. Please try again.")
+			_ = s.ErrorMessage("Something went wrong. Please try again.")
 			goto show
 		}
 
 		if err := setActiveCourse(db, userID, selectedL1, selectedL2); err != nil {
-			_ = s.Message(sessions.Error, "Something went wrong. Please try again.")
+			_ = s.ErrorMessage("Something went wrong. Please try again.")
 			goto show
 		}
 
