@@ -20,6 +20,8 @@
 		{{template "_csrf.html" .}}
 		<input id="csv-upload" name="csv-upload" type="file" accept=".csv" required>
 
+		{{template "_messages.html" .csvUploadMessages}}
+
 		<p class="button-group">
 			<button type="submit">Upload CSV file</button>
 		</p>
@@ -78,7 +80,7 @@
 			<input id="confirm-password" name="confirm-password" type="password" required>
 		</div>
 
-		{{template "_messages.html" .messages}}
+		{{template "_messages.html" .changePasswordMessages}}
 
 		<p class="button-group">
 			<button type="submit">

@@ -166,11 +166,10 @@ show:
 	sort.Sort(ByCode(l2Options))
 
 	// Set template data.
-	messages, _ := s.Messages("welcome")
 	s.Data["csrfToken"] = sessions.CSRFToken(s.ID)
 	s.Data["l1Options"] = l1Options
 	s.Data["l2Options"] = l2Options
 	s.Data["courses"] = courses
-	s.Data["messages"] = messages
+	s.Data["messages"], _ = s.Messages("welcome")
 	renderTemplate(w, "welcome.html", s.Data)
 }

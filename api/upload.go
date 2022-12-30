@@ -93,6 +93,6 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	// Returns 303 status instead of 307 to prevent client from resending POST
 	// data.
 	// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/303.
-	// TODO show success message.
+	_ = s.SuccessMessage("File uploaded.", "csv-upload")
 	http.Redirect(w, r, "/settings", http.StatusSeeOther)
 }

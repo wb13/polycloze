@@ -62,9 +62,9 @@ fail:
 		return
 	}
 
-	messages, _ := s.Messages("change-password")
 	s.Data["course"] = course
 	s.Data["csrfToken"] = sessions.CSRFToken(s.ID)
-	s.Data["messages"] = messages
+	s.Data["changePasswordMessages"], _ = s.Messages("change-password")
+	s.Data["csvUploadMessages"], _ = s.Messages("csv-upload")
 	renderTemplate(w, "settings.html", s.Data)
 }
