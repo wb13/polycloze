@@ -84,7 +84,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	// TODO import into a new db instead?
 	db, err = database.OpenReviewDB(basedir.Review(userID, l1, l2))
 	if err != nil {
-		log.Println(fmt.Errorf("could not open review database (%v-%v): %v", l1, l2, err))
+		log.Println(fmt.Errorf("could not open review database (%v-%v): %w", l1, l2, err))
 		_ = s.ErrorMessage(
 			"Something went wrong. Please try again.",
 			"csv-upload",

@@ -71,7 +71,7 @@ func setInterval(tx *sql.Tx, before, after time.Duration) error {
 	query := `UPDATE review SET interval = ? WHERE interval = ?`
 	_, err := tx.Exec(query, int64(after.Hours()), int64(before.Hours()))
 	if err != nil {
-		return fmt.Errorf("failed to update interval: %v", err)
+		return fmt.Errorf("failed to update interval: %w", err)
 	}
 
 	// Insert new interval.
@@ -80,13 +80,13 @@ func setInterval(tx *sql.Tx, before, after time.Duration) error {
 		VALUES (?, 0, 0)
 	`
 	if _, err := tx.Exec(query, int64(after.Hours())); err != nil {
-		return fmt.Errorf("failed to update interval: %v", err)
+		return fmt.Errorf("failed to update interval: %w", err)
 	}
 
 	// Delete old interval.
 	query = `DELETE FROM interval WHERE interval = ?`
 	if _, err := tx.Exec(query, int64(before.Hours())); err != nil {
-		return fmt.Errorf("failed to update interval: %v", err)
+		return fmt.Errorf("failed to update interval: %w", err)
 	}
 	return nil
 }

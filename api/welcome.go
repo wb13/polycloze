@@ -32,7 +32,7 @@ func getActiveCourse(db *sql.DB) (string, error) {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", nil
 		}
-		return "", fmt.Errorf("failed to get active course: %v", err)
+		return "", fmt.Errorf("failed to get active course: %w", err)
 	}
 	return course, nil
 }
@@ -48,7 +48,7 @@ func setActiveCourse(db *sql.DB, userID int, l1, l2 string) error {
 	// Initialize course
 	reviewDB, err := database.OpenReviewDB(basedir.Review(userID, l1, l2))
 	if err != nil {
-		return fmt.Errorf("failed to set active course: %v", err)
+		return fmt.Errorf("failed to set active course: %w", err)
 	}
 	defer reviewDB.Close()
 
@@ -58,7 +58,7 @@ func setActiveCourse(db *sql.DB, userID int, l1, l2 string) error {
 		VALUES ('course', ?)
 	`
 	if _, err := db.Exec(query, course); err != nil {
-		return fmt.Errorf("failed to set active course: %v", err)
+		return fmt.Errorf("failed to set active course: %w", err)
 	}
 	return nil
 }

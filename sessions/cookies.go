@@ -29,7 +29,7 @@ func validateCookie(db *sql.DB, c *http.Cookie) error {
 	// TODO scan expiry date for checking
 	query := `SELECT session_id FROM user_session WHERE session_id = ?`
 	if err := db.QueryRow(query, c.Value).Scan(&id); err != nil {
-		return fmt.Errorf("invalid session ID: %v", err)
+		return fmt.Errorf("invalid session ID: %w", err)
 	}
 	return nil
 }

@@ -81,14 +81,14 @@ func getCourseInfo(path string) (Course, error) {
 
 	db, err := database.Open(path)
 	if err != nil {
-		return course, fmt.Errorf("could not open db to get course info: %v", err)
+		return course, fmt.Errorf("could not open db to get course info: %w", err)
 	}
 	defer db.Close()
 
 	query := `select id, code, name, bcp47 from language`
 	rows, err := db.Query(query)
 	if err != nil {
-		return course, fmt.Errorf("could not get course info: %v", err)
+		return course, fmt.Errorf("could not get course info: %w", err)
 	}
 	defer rows.Close()
 

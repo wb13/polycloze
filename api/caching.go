@@ -21,7 +21,7 @@ var fileHashes map[string]string
 func hashFile(file fs.File) (string, error) {
 	h := sha256.New()
 	if _, err := io.Copy(h, file); err != nil {
-		return "", fmt.Errorf("failed to hash file: %v", err)
+		return "", fmt.Errorf("failed to hash file: %w", err)
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
 }
@@ -34,7 +34,7 @@ func cachedHashFile(path string, file fs.File) (string, error) {
 	}
 	hash, err := hashFile(file)
 	if err != nil {
-		return "", fmt.Errorf("failed to hash file: %v", err)
+		return "", fmt.Errorf("failed to hash file: %w", err)
 	}
 	fileHashes[path] = hash
 	return hash, nil

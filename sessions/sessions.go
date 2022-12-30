@@ -57,12 +57,12 @@ func (s *Session) IsSignedIn() bool {
 // Overwrites existing sessions, if any.
 func StartSession(db *sql.DB, w http.ResponseWriter, r *http.Request) (*Session, error) {
 	if err := EndSession(db, w, r); err != nil {
-		return nil, fmt.Errorf("failed to start session: %v", err)
+		return nil, fmt.Errorf("failed to start session: %w", err)
 	}
 
 	id, err := generateUniqueID(db)
 	if err != nil {
-		return nil, fmt.Errorf("failed to start session: %v", err)
+		return nil, fmt.Errorf("failed to start session: %w", err)
 	}
 
 	setCookie(w, id)
@@ -80,12 +80,12 @@ func StartSession(db *sql.DB, w http.ResponseWriter, r *http.Request) (*Session,
 func ResumeSession(db *sql.DB, w http.ResponseWriter, r *http.Request) (*Session, error) {
 	c, err := getCookie(r)
 	if err != nil {
-		return nil, fmt.Errorf("failed to resume session: %v", err)
+		return nil, fmt.Errorf("failed to resume session: %w", err)
 	}
 
 	if err := validateCookie(db, c); err != nil {
 		_ = EndSession(db, w, r)
-		return nil, fmt.Errorf("failed to resume session: %v", err)
+		return nil, fmt.Errorf("failed to resume session: %w", err)
 	}
 
 	s := Session{
@@ -116,7 +116,7 @@ func EndSession(db *sql.DB, w http.ResponseWriter, r *http.Request) error {
 
 	// Deleting empty ID doesn't delete any specific session, but deletes stale sessions.
 	if err := deleteID(db, id); err != nil {
-		return fmt.Errorf("failed to end session: %v", err)
+		return fmt.Errorf("failed to end session: %w", err)
 	}
 
 	// Deletes the cookie whether valid or not.

@@ -14,7 +14,7 @@ import (
 // Upgrades review DB to the latest version.
 func UpgradeReviewDB(db *sql.DB) error {
 	if err := goose.Up(db, "migrations/reviews"); err != nil {
-		return fmt.Errorf("failed to upgrade review database: %v", err)
+		return fmt.Errorf("failed to upgrade review database: %w", err)
 	}
 	return nil
 }
@@ -24,11 +24,11 @@ func UpgradeReviewDB(db *sql.DB) error {
 func OpenReviewDB(path string) (*sql.DB, error) {
 	db, err := Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open review database: %v", err)
+		return nil, fmt.Errorf("failed to open review database: %w", err)
 	}
 	if err := UpgradeReviewDB(db); err != nil {
 		db.Close()
-		return nil, fmt.Errorf("failed to open review database: %v", err)
+		return nil, fmt.Errorf("failed to open review database: %w", err)
 	}
 	return db, nil
 }

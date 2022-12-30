@@ -33,20 +33,20 @@ func getUserActiveCourse(userID int) (Course, error) {
 	// Open the user DB.
 	db, err := database.OpenUserDB(basedir.UserData(userID))
 	if err != nil {
-		return Course{}, fmt.Errorf("failed to get active course: %v", err)
+		return Course{}, fmt.Errorf("failed to get active course: %w", err)
 	}
 	defer db.Close()
 
 	// Get the course code.
 	code, err := getActiveCourse(db)
 	if err != nil {
-		return Course{}, fmt.Errorf("failed to get active course: %v", err)
+		return Course{}, fmt.Errorf("failed to get active course: %w", err)
 	}
 
 	path := filepath.Join(basedir.DataDir, "courses", fmt.Sprintf("%v.db", code))
 	course, err := getCourseInfo(path)
 	if err != nil {
-		return Course{}, fmt.Errorf("failed to get active course: %v", err)
+		return Course{}, fmt.Errorf("failed to get active course: %w", err)
 	}
 	return course, nil
 }

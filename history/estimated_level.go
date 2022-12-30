@@ -30,14 +30,14 @@ func EstimatedLevel(db *sql.DB, from, to time.Time, step time.Duration) ([]Metri
 		sql.Named("step", step/time.Second),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to compute estimated level: %v", err)
+		return nil, fmt.Errorf("failed to compute estimated level: %w", err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var i, value int
 		if err := rows.Scan(&i, &value); err != nil {
-			return nil, fmt.Errorf("failed to compute estimated level: %v", err)
+			return nil, fmt.Errorf("failed to compute estimated level: %w", err)
 		}
 		series[i].Value = value
 		series[i].initialized = true
@@ -55,7 +55,7 @@ func EstimatedLevel(db *sql.DB, from, to time.Time, step time.Duration) ([]Metri
 		`
 		err := db.QueryRow(query, from.Unix()).Scan(&series[0].Value)
 		if err != nil {
-			return nil, fmt.Errorf("failed to compute estimated level: %v", err)
+			return nil, fmt.Errorf("failed to compute estimated level: %w", err)
 		}
 		series[0].initialized = true
 	}

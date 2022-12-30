@@ -36,7 +36,7 @@ func hasExistingReviews[T database.Querier](q T) error {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil
 		}
-		return fmt.Errorf("found existing reviews: %v", err)
+		return fmt.Errorf("found existing reviews: %w", err)
 	}
 	return errors.New("found existing reviews")
 }
@@ -45,7 +45,7 @@ func hasExistingReviews[T database.Querier](q T) error {
 // This operation is not allowed if there are existing reviews in the DB.
 func Replay[T database.Querier](q T, r io.Reader) error {
 	if err := hasExistingReviews(q); err != nil {
-		return fmt.Errorf("failed to import review: %v", err)
+		return fmt.Errorf("failed to import review: %w", err)
 	}
 
 	reader := NewReviewReader(csv.NewReader(r))
@@ -59,7 +59,7 @@ func Replay[T database.Querier](q T, r io.Reader) error {
 			review.Correct,
 			review.Reviewed,
 		); err != nil {
-			return fmt.Errorf("failed to import review: %v", err)
+			return fmt.Errorf("failed to import review: %w", err)
 		}
 	}
 
@@ -76,12 +76,12 @@ func Replay[T database.Querier](q T, r io.Reader) error {
 			review.Correct,
 			review.Reviewed,
 		); err != nil {
-			return fmt.Errorf("failed to import review: %v", err)
+			return fmt.Errorf("failed to import review: %w", err)
 		}
 	}
 
 	if !isEOF(r) {
-		return fmt.Errorf("failed to import review: %v", err)
+		return fmt.Errorf("failed to import review: %w", err)
 	}
 	return nil
 }
@@ -89,10 +89,10 @@ func Replay[T database.Querier](q T, r io.Reader) error {
 func ReplayFile[T database.Querier](q T, path string) error {
 	f, err := os.Open(path)
 	if err != nil {
-		return fmt.Errorf("failed to import reviews from file: %v", err)
+		return fmt.Errorf("failed to import reviews from file: %w", err)
 	}
 	if err := Replay(q, f); err != nil {
-		return fmt.Errorf("failed to import reviews from file: %v", err)
+		return fmt.Errorf("failed to import reviews from file: %w", err)
 	}
 	return nil
 }

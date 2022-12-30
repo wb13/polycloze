@@ -26,7 +26,7 @@ func generateUniqueID(db *sql.DB) (string, error) {
 	for {
 		id, err := generateID()
 		if err != nil {
-			return "", fmt.Errorf("failed to generate a unique ID: %v", err)
+			return "", fmt.Errorf("failed to generate a unique ID: %w", err)
 		}
 
 		err = reserveID(db, id)
@@ -37,7 +37,7 @@ func generateUniqueID(db *sql.DB) (string, error) {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			continue
 		}
-		return "", fmt.Errorf("failed to generate a unique ID: %v", err)
+		return "", fmt.Errorf("failed to generate a unique ID: %w", err)
 	}
 }
 

@@ -61,14 +61,14 @@ func Summarize(db *sql.DB, from, to time.Time, step time.Duration) ([]Summary, e
 		sql.Named("step", step/time.Second),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to summarize review history: %v", err)
+		return nil, fmt.Errorf("failed to summarize review history: %w", err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
 		var i, intervalBefore, intervalAfter int64
 		if err := rows.Scan(&i, &intervalBefore, &intervalAfter); err != nil {
-			return nil, fmt.Errorf("failed to summarize review history: %v", err)
+			return nil, fmt.Errorf("failed to summarize review history: %w", err)
 		}
 
 		if intervalBefore <= 0 && intervalAfter <= 0 {
@@ -100,7 +100,7 @@ func Get(db *sql.DB, from, to time.Time, step time.Duration, limit int) ([]Revie
 
 	rows, err := db.Query(query, from.Unix(), to.Unix(), limit)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get past reviews: %v", err)
+		return nil, fmt.Errorf("failed to get past reviews: %w", err)
 	}
 	defer rows.Close()
 
@@ -116,7 +116,7 @@ func Get(db *sql.DB, from, to time.Time, step time.Duration, limit int) ([]Revie
 
 		err = rows.Scan(&review.Word, &reviewed, &intervalBefore, &intervalAfter)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get past reviews: %v", err)
+			return nil, fmt.Errorf("failed to get past reviews: %w", err)
 		}
 
 		review.Reviewed = time.Unix(reviewed, 0)

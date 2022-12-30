@@ -38,7 +38,7 @@ func NewReviewReader(r *csv.Reader) *ReviewReader {
 func (r *ReviewReader) ReadReview() (ReviewEvent, error) {
 	record, err := r.csvReader.Read()
 	if err != nil {
-		return ReviewEvent{}, fmt.Errorf("failed to read review from CSV: %v", err)
+		return ReviewEvent{}, fmt.Errorf("failed to read review from CSV: %w", err)
 	}
 	if len(record) != 3 {
 		return ReviewEvent{}, errors.New(
@@ -48,7 +48,7 @@ func (r *ReviewReader) ReadReview() (ReviewEvent, error) {
 
 	i, err := strconv.ParseInt(record[1], 10, 64)
 	if err != nil {
-		return ReviewEvent{}, fmt.Errorf("failed to read review from CSV: %v", err)
+		return ReviewEvent{}, fmt.Errorf("failed to read review from CSV: %w", err)
 	}
 
 	var correct bool
@@ -80,7 +80,7 @@ func NewReviewWriter(r *csv.Writer) *ReviewWriter {
 
 func (w *ReviewWriter) WriteReview(e ReviewEvent) error {
 	if err := w.csvWriter.Write(e.Record()); err != nil {
-		return fmt.Errorf("failed to write review into CSV: %v", err)
+		return fmt.Errorf("failed to write review into CSV: %w", err)
 	}
 	w.csvWriter.Flush()
 	return nil

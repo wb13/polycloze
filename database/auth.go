@@ -14,7 +14,7 @@ import (
 // Upgrades auth database to the latest version.
 func upgradeAuthDB(db *sql.DB) error {
 	if err := goose.Up(db, "migrations/auth"); err != nil {
-		return fmt.Errorf("failed to upgrade auth database: %v", err)
+		return fmt.Errorf("failed to upgrade auth database: %w", err)
 	}
 	return nil
 }
@@ -25,11 +25,11 @@ func OpenAuthDB(path string) (*sql.DB, error) {
 	// Open DB with foreign key enforcement.
 	db, err := Open(path + "?_fk=1")
 	if err != nil {
-		return nil, fmt.Errorf("failed to open auth database: %v", err)
+		return nil, fmt.Errorf("failed to open auth database: %w", err)
 	}
 	if err := upgradeAuthDB(db); err != nil {
 		db.Close()
-		return nil, fmt.Errorf("failed to open auth database: %v", err)
+		return nil, fmt.Errorf("failed to open auth database: %w", err)
 	}
 
 	// Use WAL mode, because the auth db can get many writes from different

@@ -81,7 +81,7 @@ func RandomSentences[T database.Querier](q T, limit int) ([]Sentence, error) {
 	`
 	rows, err := q.Query(query, limit)
 	if err != nil {
-		return nil, fmt.Errorf("failed to pick random sentences: %v", err)
+		return nil, fmt.Errorf("failed to pick random sentences: %w", err)
 	}
 	defer rows.Close()
 
@@ -91,7 +91,7 @@ func RandomSentences[T database.Querier](q T, limit int) ([]Sentence, error) {
 		var tatoebaID sql.NullInt64
 
 		if err := rows.Scan(&sentence.ID, &tatoebaID, &sentence.Text); err != nil {
-			return nil, fmt.Errorf("failed to pick random sentences: %v", err)
+			return nil, fmt.Errorf("failed to pick random sentences: %w", err)
 		}
 
 		if tatoebaID.Valid {
@@ -116,7 +116,7 @@ select id, tatoeba_id, tokens from sentence where text = ? collate nocase
 	var jsonStr string
 	err := row.Scan(&sentence.ID, &tatoebaID, &jsonStr)
 	if err != nil {
-		return sentence, fmt.Errorf("sentence not found (%v): %v", text, err)
+		return sentence, fmt.Errorf("sentence not found (%v): %w", text, err)
 	}
 	if tatoebaID.Valid {
 		sentence.TatoebaID = tatoebaID.Int64
@@ -124,7 +124,7 @@ select id, tatoeba_id, tokens from sentence where text = ? collate nocase
 		sentence.TatoebaID = -1
 	}
 	if err := json.Unmarshal([]byte(jsonStr), &sentence.Tokens); err != nil {
-		return sentence, fmt.Errorf("sentence not found (%v): %v", text, err)
+		return sentence, fmt.Errorf("sentence not found (%v): %w", text, err)
 	}
 	return sentence, nil
 }

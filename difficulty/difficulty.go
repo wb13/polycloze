@@ -81,7 +81,7 @@ func Update[T database.Querier](q T, difficulty Difficulty) error {
 		difficulty.Incorrect,
 	)
 	if err != nil {
-		return fmt.Errorf("failed to update difficulty table: %v", err)
+		return fmt.Errorf("failed to update difficulty table: %w", err)
 	}
 	return nil
 }

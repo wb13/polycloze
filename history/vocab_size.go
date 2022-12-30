@@ -28,7 +28,7 @@ func VocabSize(db *sql.DB, from, to time.Time, step time.Duration) ([]Metric[flo
 		sql.Named("step", step/time.Second),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to compute vocabulary size: %v", err)
+		return nil, fmt.Errorf("failed to compute vocabulary size: %w", err)
 	}
 	defer rows.Close()
 
@@ -36,7 +36,7 @@ func VocabSize(db *sql.DB, from, to time.Time, step time.Duration) ([]Metric[flo
 		var i int
 		var value float64
 		if err := rows.Scan(&i, &value); err != nil {
-			return nil, fmt.Errorf("failed to compute vocabulary size: %v", err)
+			return nil, fmt.Errorf("failed to compute vocabulary size: %w", err)
 		}
 		series[i].Value = value
 		series[i].initialized = true
@@ -54,7 +54,7 @@ func VocabSize(db *sql.DB, from, to time.Time, step time.Duration) ([]Metric[flo
 		`
 		err = db.QueryRow(query, from.Unix()).Scan(&series[0].Value)
 		if err != nil {
-			return nil, fmt.Errorf("failed to compute vocabulary size: %v", err)
+			return nil, fmt.Errorf("failed to compute vocabulary size: %w", err)
 		}
 		series[0].initialized = true
 	}

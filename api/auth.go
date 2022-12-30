@@ -138,10 +138,10 @@ func initUserDirectory(userID int) error {
 	reviews := path.Join(base, "reviews")
 
 	if err := os.MkdirAll(base, 0o700); err != nil {
-		return fmt.Errorf("failed to create user directory: %v", err)
+		return fmt.Errorf("failed to create user directory: %w", err)
 	}
 	if err := os.MkdirAll(reviews, 0o700); err != nil {
-		return fmt.Errorf("failed to create user directory: %v", err)
+		return fmt.Errorf("failed to create user directory: %w", err)
 	}
 	return nil
 }

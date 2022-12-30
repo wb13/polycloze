@@ -32,17 +32,17 @@ func sendJSON(w http.ResponseWriter, data any) {
 func writeJSON(name string, data any) error {
 	bytes, err := json.Marshal(data)
 	if err != nil {
-		return fmt.Errorf("failed to encode to JSON: %v", err)
+		return fmt.Errorf("failed to encode to JSON: %w", err)
 	}
 
 	f, err := os.Create(name)
 	if err != nil {
-		return fmt.Errorf("failed to create file: %v", err)
+		return fmt.Errorf("failed to create file: %w", err)
 	}
 	defer f.Close()
 
 	if _, err := f.Write(bytes); err != nil {
-		return fmt.Errorf("failed to write JSON: %v", err)
+		return fmt.Errorf("failed to write JSON: %w", err)
 	}
 	return nil
 }
@@ -52,7 +52,7 @@ func writeJSON(name string, data any) error {
 func parseJSON(w http.ResponseWriter, data []byte, v any) error {
 	if err := json.Unmarshal(data, v); err != nil {
 		http.Error(w, "could not parse JSON", http.StatusBadRequest)
-		return fmt.Errorf("could not parse JSON: %v", err)
+		return fmt.Errorf("could not parse JSON: %w", err)
 	}
 	return nil
 }

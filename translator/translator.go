@@ -35,7 +35,7 @@ func Translate[T database.Querier](q T, sentence sentences.Sentence) (Translatio
 	row := q.QueryRow(query, sentence.TatoebaID)
 	err := row.Scan(&translation.TatoebaID, &translation.Text)
 	if err != nil {
-		return translation, fmt.Errorf("failed to translate sentence: %v", err)
+		return translation, fmt.Errorf("failed to translate sentence: %w", err)
 	}
 	return translation, err
 }

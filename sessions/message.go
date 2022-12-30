@@ -49,7 +49,7 @@ func getMessages(
 	for _, context := range contexts {
 		rows, err := tx.Query(query, sessionID, context)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get messages from the database: %v", err)
+			return nil, fmt.Errorf("failed to get messages from the database: %w", err)
 		}
 		defer rows.Close()
 
@@ -63,7 +63,7 @@ func getMessages(
 				&message.Context,
 			)
 			if err != nil {
-				return nil, fmt.Errorf("failed to get messages from the database: %v", err)
+				return nil, fmt.Errorf("failed to get messages from the database: %w", err)
 			}
 			message.Created = time.Unix(created, 0)
 			messages = append(messages, message)
@@ -83,7 +83,7 @@ func deleteMessages(tx *sql.Tx, sessionID string, contexts ...string) error {
 	query := `DELETE FROM message WHERE session_id = ? AND context = ?`
 	for _, context := range contexts {
 		if _, err := tx.Exec(query, sessionID, context); err != nil {
-			return fmt.Errorf("failed to delete messages from the database: %v", err)
+			return fmt.Errorf("failed to delete messages from the database: %w", err)
 		}
 	}
 	return nil
@@ -97,20 +97,20 @@ func deleteMessages(tx *sql.Tx, sessionID string, contexts ...string) error {
 func (s *Session) Messages(contexts ...string) ([]Message, error) {
 	tx, err := s.db.Begin()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get messages from the database: %v", err)
+		return nil, fmt.Errorf("failed to get messages from the database: %w", err)
 	}
 
 	messages, err := getMessages(tx, s.ID, contexts...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get messages from the database: %v", err)
+		return nil, fmt.Errorf("failed to get messages from the database: %w", err)
 	}
 
 	if err := deleteMessages(tx, s.ID, contexts...); err != nil {
-		return nil, fmt.Errorf("failed to get messages from the database: %v", err)
+		return nil, fmt.Errorf("failed to get messages from the database: %w", err)
 	}
 
 	if err := tx.Commit(); err != nil {
-		return nil, fmt.Errorf("failed to get messages from the database: %v", err)
+		return nil, fmt.Errorf("failed to get messages from the database: %w", err)
 	}
 	return messages, nil
 }
@@ -143,7 +143,7 @@ func (s *Session) Message(kind string, message string, contexts ...string) error
 	// Add one copy of the message for each context arg.
 	tx, err := s.db.Begin()
 	if err != nil {
-		return fmt.Errorf("failed to save message for user: %v", err)
+		return fmt.Errorf("failed to save message for user: %w", err)
 	}
 
 	query := `
@@ -152,12 +152,12 @@ func (s *Session) Message(kind string, message string, contexts ...string) error
 	`
 	for _, context := range contexts {
 		if _, err := tx.Exec(query, s.ID, message, kind, context); err != nil {
-			return fmt.Errorf("failed to save message for user: %v", err)
+			return fmt.Errorf("failed to save message for user: %w", err)
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("failed to save message for user: %v", err)
+		return fmt.Errorf("failed to save message for user: %w", err)
 	}
 	return nil
 }

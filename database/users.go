@@ -14,7 +14,7 @@ import (
 // Upgrades user DB to the latest version.
 func upgradeUserDB(db *sql.DB) error {
 	if err := goose.Up(db, "migrations/users"); err != nil {
-		return fmt.Errorf("failed to upgrade user database: %v", err)
+		return fmt.Errorf("failed to upgrade user database: %w", err)
 	}
 	return nil
 }
@@ -24,11 +24,11 @@ func upgradeUserDB(db *sql.DB) error {
 func OpenUserDB(path string) (*sql.DB, error) {
 	db, err := Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open user database: %v", err)
+		return nil, fmt.Errorf("failed to open user database: %w", err)
 	}
 	if err := upgradeUserDB(db); err != nil {
 		db.Close()
-		return nil, fmt.Errorf("failed to open user database: %v", err)
+		return nil, fmt.Errorf("failed to open user database: %w", err)
 	}
 	return db, nil
 }

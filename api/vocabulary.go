@@ -46,7 +46,7 @@ func handleVocabulary(w http.ResponseWriter, r *http.Request) {
 	userID := s.Data["userID"].(int)
 	db, err = database.OpenReviewDB(basedir.Review(userID, l1, l2))
 	if err != nil {
-		log.Println(fmt.Errorf("could not open review database (%v-%v): %v", l1, l2, err))
+		log.Println(fmt.Errorf("could not open review database (%v-%v): %w", l1, l2, err))
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
@@ -55,7 +55,7 @@ func handleVocabulary(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	results, err := searchVocabulary(db, getLimit(q), getAfter(q), getSortBy(q))
 	if err != nil {
-		log.Println(fmt.Errorf("search error: %v", err))
+		log.Println(fmt.Errorf("search error: %w", err))
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
@@ -113,7 +113,7 @@ func queryIntervalStrengths(db *sql.DB) (map[int]int, error) {
 	query := `SELECT interval FROM interval ORDER BY interval ASC`
 	rows, err := db.Query(query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query intervals: %v", err)
+		return nil, fmt.Errorf("failed to query intervals: %w", err)
 	}
 	defer rows.Close()
 
@@ -122,7 +122,7 @@ func queryIntervalStrengths(db *sql.DB) (map[int]int, error) {
 	for rows.Next() {
 		var interval int
 		if err := rows.Scan(&interval); err != nil {
-			return nil, fmt.Errorf("failed to query intervals: %v", err)
+			return nil, fmt.Errorf("failed to query intervals: %w", err)
 		}
 		intervals[interval] = strength
 		strength++
@@ -148,7 +148,7 @@ func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]Wor
 
 	intervals, err := queryIntervalStrengths(db)
 	if err != nil {
-		return nil, fmt.Errorf("vocabulary search failed: %v", err)
+		return nil, fmt.Errorf("vocabulary search failed: %w", err)
 	}
 
 	query := fmt.Sprintf(`
@@ -162,7 +162,7 @@ func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]Wor
 	words := make([]Word, 0)
 	rows, err := db.Query(query, after, limit)
 	if err != nil {
-		return nil, fmt.Errorf("vocabulary search failed: %v", err)
+		return nil, fmt.Errorf("vocabulary search failed: %w", err)
 	}
 	defer rows.Close()
 
@@ -171,7 +171,7 @@ func searchVocabulary(db *sql.DB, limit int, after string, sortBy string) ([]Wor
 		var learned, reviewed, due int64
 		var interval int
 		if err := rows.Scan(&vocab.Word, &learned, &reviewed, &due, &interval); err != nil {
-			return nil, fmt.Errorf("vocabulary search failed: %v", err)
+			return nil, fmt.Errorf("vocabulary search failed: %w", err)
 		}
 		vocab.Learned = time.Unix(learned, 0)
 		vocab.Reviewed = time.Unix(reviewed, 0)

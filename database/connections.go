@@ -48,7 +48,7 @@ func (c *Connection) Begin() (*sql.Tx, error) {
 func (c *Connection) Close() error {
 	for i := len(c.hooks) - 1; i >= 0; i-- {
 		if err := c.hooks[i].Exit(c); err != nil {
-			return fmt.Errorf("could not run exit hooks: %v", err)
+			return fmt.Errorf("could not run exit hooks: %w", err)
 		}
 	}
 	return c.con.Close()
@@ -62,7 +62,7 @@ func NewConnection(
 ) (*Connection, error) {
 	con, err := db.Conn(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("could not get database connection: %v", err)
+		return nil, fmt.Errorf("could not get database connection: %w", err)
 	}
 
 	c := Connection{
@@ -79,7 +79,7 @@ func NewConnection(
 				_ = h.Exit(&c)
 			}(hook)
 		}
-		return nil, fmt.Errorf("could not run connection hooks: %v", err)
+		return nil, fmt.Errorf("could not run connection hooks: %w", err)
 	}
 	return &c, nil
 }
