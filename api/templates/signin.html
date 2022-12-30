@@ -17,9 +17,7 @@
 		<input id="password" name="password" type="password" required>
 	</div>
 
-	{{if .message}}
-	<div class="incorrect">{{.message}}</div>
-	{{end}}
+	{{template "_messages.html" .}}
 
 	<p class="button-group">
 		<button type="submit">Sign in</button>

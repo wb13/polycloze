@@ -13,14 +13,12 @@ import (
 )
 
 func handleSettings(w http.ResponseWriter, r *http.Request) {
-	var data map[string]any
 	db := auth.GetDB(r)
 	s, err := sessions.ResumeSession(db, w, r)
 	if err != nil || !s.IsSignedIn() {
 		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
 		return
 	}
-	data = s.Data
 
 	if r.Method == "POST" {
 		username := s.Data["username"].(string)
@@ -29,23 +27,23 @@ func handleSettings(w http.ResponseWriter, r *http.Request) {
 		csrfToken := r.FormValue("csrf-token")
 
 		if !sessions.CheckCSRFToken(s.ID, csrfToken) {
-			data["message"] = "Something went wrong. Please try again."
+			_ = s.Message(sessions.Error, "Something went wrong. Please try again.")
 			goto fail
 		}
 
 		id, err := auth.Authenticate(db, username, currentPassword)
 		if err != nil {
 			log.Println(err)
-			data["message"] = "Incorrect password."
+			_ = s.Message(sessions.Error, "Incorrect password.")
 			goto fail
 		}
 
 		if err := auth.ChangePassword(db, id, newPassword); err != nil {
-			data["message"] = "Something went wrong. Please try again."
+			_ = s.Message(sessions.Error, "Something went wrong. Please try again.")
 			goto fail
 		}
 
-		data["message"] = "Password updated."
+		_ = s.Message(sessions.Success, "Password updated.")
 	}
 
 fail:
@@ -58,7 +56,9 @@ fail:
 		return
 	}
 
-	data["course"] = course
-	data["csrfToken"] = sessions.CSRFToken(s.ID)
-	renderTemplate(w, "settings.html", data)
+	messages, _ := s.Messages()
+	s.Data["course"] = course
+	s.Data["csrfToken"] = sessions.CSRFToken(s.ID)
+	s.Data["messages"] = messages
+	renderTemplate(w, "settings.html", s.Data)
 }
