@@ -99,7 +99,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	if err := replay.Replay(db, file); err != nil {
 		if errors.Is(err, replay.ErrHasExistingReviews) {
 			_ = s.ErrorMessage(
-				"Can't import data. Existing reviews were found.",
+				"Can't import data, because existing reviews were found. Try resetting your progress first.",
 				"csv-upload",
 			)
 			goto fail
