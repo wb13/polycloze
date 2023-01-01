@@ -52,13 +52,47 @@
 		</script>
 	</form>
 
+	<h2>Reset progress</h2>
+
+	<form
+		class="signin"
+		action="/api/settings/reset/{{.course.L1.Code}}/{{.course.L2.Code}}"
+		method="POST"
+		>
+		{{template "_csrf.html" .}}
+		<div>
+			<label for="reset-progress/username" style="display:block">Username</label>
+			<input
+				id="reset-progress/username"
+				name="username"
+				autocapitalize="none"
+				value="{{.username}}"
+				required
+				readonly
+				>
+		</div>
+
+		<div>
+			<label for="reset-progress/password" style="display:block">Password</label>
+			<input id="reset-progress/password" name="password" type="password" required>
+		</div>
+
+		{{template "_messages.html" .resetProgressMessages}}
+
+		<p class="button-group">
+			<button type="submit">
+				<img src="/svg/ph@1.4.0/trash.svg" alt=""> Reset progress
+			</button>
+		</p>
+	</form>
+
 	<h2>Change password</h2>
 
 	<form class="signin" action="/settings" method="POST">
 		{{template "_csrf.html" .}}
 		<div>
 			<label for="username" style="display:block">Username</label>
-			<input id="username" name="username" required autocapitalize="none" value="{{.username}}" disabled>
+			<input id="username" name="username" required autocapitalize="none" value="{{.username}}" readonly>
 		</div>
 
 		<div>
