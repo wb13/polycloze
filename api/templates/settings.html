@@ -61,29 +61,39 @@
 		>
 		{{template "_csrf.html" .}}
 		<div>
-			<label for="reset-progress/username" style="display:block">Username</label>
-			<input
-				id="reset-progress/username"
-				name="username"
-				autocapitalize="none"
-				value="{{.username}}"
-				required
-				readonly
-				>
-		</div>
-
-		<div>
-			<label for="reset-progress/password" style="display:block">Password</label>
-			<input id="reset-progress/password" name="password" type="password" required>
+			<p>
+				Type <b>{{.username}}/{{.course.L1.Code}}-{{.course.L2.Code}}</b> to confirm
+				that you want to reset your progress in this course.
+				This step is irreversible.
+			</p>
+			<input id="confirm" name="confirm" autocapitalize="none" required>
 		</div>
 
 		{{template "_messages.html" .resetProgressMessages}}
 
 		<p class="button-group">
-			<button type="submit">
+			<button id="reset-progress/submit" type="submit">
 				<img src="/svg/ph@1.4.0/trash.svg" alt=""> Reset progress
 			</button>
 		</p>
+
+		<script>
+			const expected = "{{.username}}/{{.course.L1.Code}}-{{.course.L2.Code}}"
+			const confirm = document.getElementById("confirm")
+			const button = document.getElementById("reset-progress/submit")
+
+			button.addEventListener("click", event => {
+				if (confirm.value === expected) {
+					confirm.setCustomValidity("")
+				} else {
+					const message = "Incorrect confirmation string."
+					confirm.setCustomValidity(message)
+					confirm.reportValidity()
+					event.preventDefault()
+					event.stopPropagation()
+				}
+			})
+		</script>
 	</form>
 
 	<h2>Change password</h2>
@@ -113,7 +123,7 @@
 		{{template "_messages.html" .changePasswordMessages}}
 
 		<p class="button-group">
-			<button type="submit">
+			<button id="change-password/submit" type="submit">
 				<img src="/svg/ph@1.4.0/key.svg" alt=""> Change password
 			</button>
 		</p>
@@ -121,7 +131,8 @@
 		<script>
 			const newPassword = document.getElementById("new-password");
 			const confirmPassword = document.getElementById("confirm-password")
-			const button = document.querySelector('form.signin button[type="submit"]')
+			const button = document.getElementById("change-password/submit")
+
 			button.addEventListener("click", event => {
 				if (newPassword.value === confirmPassword.value) {
 					newPassword.setCustomValidity("")

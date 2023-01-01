@@ -98,9 +98,9 @@ func handleResetProgress(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userID := s.Data["userID"].(int)
+	username := s.Data["username"].(string)
 	csrfToken := r.FormValue("csrf-token")
-	username := r.FormValue("username")
-	password := r.FormValue("password")
+	confirm := r.FormValue("confirm")
 
 	// Check CSRF token.
 	if !sessions.CheckCSRFToken(s.ID, csrfToken) {
@@ -111,9 +111,9 @@ func handleResetProgress(w http.ResponseWriter, r *http.Request) {
 		goto fail
 	}
 
-	// Check username and password.
-	if _, err := auth.Authenticate(db, username, password); err != nil {
-		_ = s.ErrorMessage("Incorrect username or password", "reset-progress")
+	// Check confirmation string.
+	if confirm != fmt.Sprintf("%v/%v-%v", username, l1, l2) {
+		_ = s.ErrorMessage("Incorrect confirmation string.", "reset-progress")
 		goto fail
 	}
 
