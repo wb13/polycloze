@@ -9,7 +9,7 @@
 
 	<course-settings></course-settings>
 
-	<h2>Import data</h2>
+	<h2>Course data</h2>
 
 	<form
 		class="signin"
@@ -23,7 +23,13 @@
 		{{template "_messages.html" .csvUploadMessages}}
 
 		<p class="button-group">
-			<button type="submit">Upload CSV file</button>
+			<button type="submit">
+				<img src="/svg/ph@1.4.0/upload.svg" alt=""> Upload CSV file
+			</button>
+
+			<a class="button" href="/personal/reviews/{{.course.L1.Code}}-{{.course.L2.Code}}.db">
+				<img src="/svg/ph@1.4.0/download.svg" alt=""> Export data (SQLite)
+			</a>
 		</p>
 
 		<script>
@@ -45,16 +51,6 @@
 			});
 		</script>
 	</form>
-
-	<h2>Export data</h2>
-
-	<div>
-		<p style="justify-content:center" class="button-group">
-			<a class="button" href="/personal/reviews/{{.course.L1.Code}}-{{.course.L2.Code}}.db">
-				<img src="/svg/ph@1.4.0/download.svg" alt=""> Export data (SQLite)
-			</a>
-		</p>
-	</div>
 
 	<h2>Change password</h2>
 
