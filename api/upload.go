@@ -45,6 +45,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	var message string
 	userID := s.Data["userID"].(int)
 
 	// Check CSRF token.
@@ -58,26 +59,20 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	file, header, err := r.FormFile("csv-upload")
 	if err != nil {
 		log.Println(err)
-		_ = s.ErrorMessage(
-			"Something went wrong. Please try again.",
-			"csv-upload",
-		)
+		message = "Something went wrong. Please try again."
+		_ = s.ErrorMessage(message, "csv-upload")
 		goto fail
 	}
 
 	if header.Header.Get("Content-Type") != "text/csv" {
-		_ = s.ErrorMessage(
-			"Not a CSV file.",
-			"csv-upload",
-		)
+		message = "Not a CSV file."
+		_ = s.ErrorMessage(message, "csv-upload")
 		goto fail
 	}
 
 	if isTooBig(header.Size) {
-		_ = s.ErrorMessage(
-			"File is too big (>8MB).",
-			"csv-upload",
-		)
+		message = "File is too big (>8MB)."
+		_ = s.ErrorMessage(message, "csv-upload")
 		goto fail
 	}
 
@@ -86,10 +81,8 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	db, err = database.OpenReviewDB(basedir.Review(userID, l1, l2))
 	if err != nil {
 		log.Println(fmt.Errorf("could not open review database (%v-%v): %w", l1, l2, err))
-		_ = s.ErrorMessage(
-			"Something went wrong. Please try again.",
-			"csv-upload",
-		)
+		message = "Something went wrong. Please try again."
+		_ = s.ErrorMessage(message, "csv-upload")
 		goto fail
 	}
 	defer db.Close()
@@ -98,27 +91,24 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 	// database?
 	if err := replay.Replay(db, file); err != nil {
 		if errors.Is(err, replay.ErrHasExistingReviews) {
-			_ = s.ErrorMessage(
-				"Can't import data, because existing reviews were found. Try resetting your progress first.",
-				"csv-upload",
-			)
+			message = "Can't import data, because existing reviews were found. Try resetting your progress first."
+			_ = s.ErrorMessage(message, "csv-upload")
 			goto fail
 		}
 
 		log.Println(err)
-		_ = s.ErrorMessage(
-			"Something went wrong. Please try again.",
-			"csv-upload",
-		)
+		message = "Something went wrong. Please try again."
+		_ = s.ErrorMessage(message, "csv-upload")
 		goto fail
 	}
 
-	// Redirect to settings page.
-	// Returns 303 status instead of 307 to prevent client from resending POST
-	// data.
-	// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/303.
-	_ = s.SuccessMessage("File uploaded.", "csv-upload")
+	message = "File uploaded."
+	_ = s.SuccessMessage(message, "csv-upload")
 
 fail:
-	http.Redirect(w, r, "/settings", http.StatusSeeOther)
+	// Don't redirect to settings page.
+	// Client might use this API by using fetch.
+	sendJSON(w, map[string]string{
+		"message": message,
+	})
 }

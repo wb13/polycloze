@@ -129,3 +129,7 @@ export type ReviewResult = {
   // This field doesn't need to be sent to the server.
   new?: boolean;
 };
+
+export type UploadCSVFileResponse = {
+  message: string;
+};

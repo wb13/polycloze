@@ -5,7 +5,7 @@ import { day, endOfDay } from "./datetime";
 import { Difficulty } from "./difficulty";
 import { Item } from "./item";
 import { getL1, getL2 } from "./language";
-import { fetchJson, resolve, submitJson } from "./request";
+import { fetchJson, resolve, submitFormData, submitJson } from "./request";
 import {
   ActivitySchema,
   ActivitySummary,
@@ -21,6 +21,7 @@ import {
   ReviewResult,
   SetCourseResponse,
   Word,
+  UploadCSVFileResponse,
   VocabularySchema,
   VocabularySizeSchema,
 } from "./schema";
@@ -292,6 +293,36 @@ export async function fetchSentences(
     mode: "cors" as RequestMode,
   });
   return json.sentences;
+}
+
+type UploadCSVFileOptions = {
+  l1?: string;
+  l2?: string;
+};
+
+function defaultUploadCSVFileOptions(): UploadCSVFileOptions {
+  return {
+    l1: getL1().code,
+    l2: getL2().code,
+  };
+}
+
+// Uploads CSV file.
+// Caller should refresh the page afterwards.
+// Also doesn't check file validity.
+export function uploadCSVFile(
+  name: string, // Name of form field for the file
+  file: File,
+  options: UploadCSVFileOptions = {}
+): Promise<UploadCSVFileResponse> {
+  const { l1, l2 } = { ...defaultUploadCSVFileOptions(), ...options };
+
+  const formData = new FormData();
+  formData.append("csrf-token", csrf());
+  formData.append(name, file);
+
+  const url = resolve(`/api/settings/upload/${l1}/${l2}`);
+  return submitFormData<UploadCSVFileResponse>(url, formData);
 }
 
 export async function setActiveCourse(

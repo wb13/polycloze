@@ -1,8 +1,7 @@
 import "./upload.css";
+import { uploadCSVFile } from "./api";
 import { createButton } from "./button";
-import { csrf } from "./csrf";
 import { createLabeledIcon } from "./icon";
-import { getL1, getL2 } from "./language";
 import { resolve } from "./request";
 
 // Checks if the file the user wants to upload is too big.
@@ -14,7 +13,6 @@ function isTooBig(file: File): boolean {
 // Creates a hidden file input element for uploading CSV files.
 function createHiddenFileInput(
   name: string,
-  onSuccess: () => void,
   onError: (message: string) => void
 ): HTMLInputElement {
   const input = document.createElement("input");
@@ -26,14 +24,8 @@ function createHiddenFileInput(
 
   input.addEventListener("change", () => {
     const files = input.files || [];
-    for (const file of files) {
-      if (isTooBig(file)) {
-        input.value = ""; // Clears the file list.
-        onError("The file is too big.");
-        return;
-      }
-    }
-    onSuccess();
+    const file = files[0];
+    uploadFile(name, files[0], onError);
   });
   return input;
 }
@@ -72,16 +64,8 @@ function createErrorMessage(message: string): HTMLDivElement {
   return div;
 }
 
-// Creates form data to submit to server.
-// Includes a csrf token.
-function createFormData(): FormData {
-  const formData = new FormData();
-  formData.append("csrf-token", csrf());
-  return formData;
-}
-
 export function createFileBrowser(name: string): HTMLDivElement {
-  const input = createHiddenFileInput(name, onSuccess, onError);
+  const input = createHiddenFileInput(name, onError);
   const body = createFileBrowserBody(onClick);
 
   let error = document.createElement("div");
@@ -108,28 +92,13 @@ export function createFileBrowser(name: string): HTMLDivElement {
   });
   div.addEventListener("drop", (event) => {
     event.preventDefault();
-
     if (event.dataTransfer == null) {
       return;
     }
 
     // Upload file.
     const file = event.dataTransfer.files[0];
-    if (file == null) {
-      onError("Something went wrong. Please try again.");
-      return;
-    }
-    const formData = createFormData();
-    formData.append(name, file);
-
-    const l1 = getL1().code;
-    const l2 = getL2().code;
-
-    const request = new XMLHttpRequest();
-    request.open("POST", resolve(`/api/settings/upload/${l1}/${l2}`));
-    request.send(formData);
-    // TODO this works, but destroys success message, because redirect page
-    // gets thrown away
+    uploadFile(name, file, onError);
   });
   return div;
 
@@ -137,19 +106,34 @@ export function createFileBrowser(name: string): HTMLDivElement {
     input.click();
   }
 
-  function onSuccess() {
-    // Submits files by clicking on submit button.
-    // This gets triggers only when using the "Browse files" button.
-    const button = createButton("");
-    button.type = "submit";
-    button.style.display = "none";
-    div.appendChild(button);
-    button.click();
-  }
-
   function onError(message: string) {
     const replacement = createErrorMessage(message);
     error.replaceWith(replacement);
     error = replacement;
   }
+}
+
+// Wrapper around `uploadCSVFile` that checks for file validity and refreshes
+// the page after a successful upload.
+async function uploadFile(
+  name: string,
+  file: File | undefined,
+  onError: (message: string) => void
+) {
+  if (file == null) {
+    onError("Something went wrong. Please try again.");
+    return;
+  }
+  if (file.type !== "text/csv") {
+    onError("Not a CSV file.");
+    return;
+  }
+  if (isTooBig(file)) {
+    onError("The file is too big.");
+    return;
+  }
+  await uploadCSVFile(name, file);
+
+  // TODO refresh only if upload successful.
+  window.location.href = window.location.href;
 }
