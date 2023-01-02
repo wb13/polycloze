@@ -132,8 +132,9 @@ async function uploadFile(
     onError("The file is too big.");
     return;
   }
-  await uploadCSVFile(name, file);
-
-  // TODO refresh only if upload successful.
-  window.location.href = window.location.href;
+  const { message, success } = await uploadCSVFile(name, file);
+  if (success) {
+    window.location.href = window.location.href;
+  }
+  onError(message);
 }

@@ -132,4 +132,5 @@ export type ReviewResult = {
 
 export type UploadCSVFileResponse = {
   message: string;
+  success: boolean;
 };

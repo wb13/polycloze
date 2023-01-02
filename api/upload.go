@@ -46,6 +46,7 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var message string
+	var success bool
 	userID := s.Data["userID"].(int)
 
 	// Check CSRF token.
@@ -102,13 +103,15 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		goto fail
 	}
 
+	success = true
 	message = "File uploaded."
 	_ = s.SuccessMessage(message, "csv-upload")
 
 fail:
 	// Don't redirect to settings page.
 	// Client might use this API by using fetch.
-	sendJSON(w, map[string]string{
+	sendJSON(w, map[string]any{
 		"message": message,
+		"success": success,
 	})
 }
