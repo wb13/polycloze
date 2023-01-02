@@ -1,0 +1,20 @@
+.file-browser {
+  width: 100%;
+  min-height: 100px;
+  border: 2px dashed gray;
+}
+
+.file-browser-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
+
+  margin: 1rem;
+}
+
+/* For file-browser component */
+file-browser {
+  width: 100%;
+}

@@ -18,38 +18,15 @@
 		enctype="multipart/form-data"
 		>
 		{{template "_csrf.html" .}}
-		<input id="csv-upload" name="csv-upload" type="file" accept=".csv" required>
+		<file-browser name="csv-upload"></file-browser>
 
 		{{template "_messages.html" .csvUploadMessages}}
 
 		<p class="button-group">
-			<button type="submit">
-				<img src="/svg/ph@1.4.0/upload.svg" alt=""> Upload CSV file
-			</button>
-
 			<a class="button" href="/personal/reviews/{{.course.L1.Code}}-{{.course.L2.Code}}.db">
 				<img src="/svg/ph@1.4.0/download.svg" alt=""> Export data (SQLite)
 			</a>
 		</p>
-
-		<script>
-			// Checks if the file is too big (>8MB).
-			function isTooBig(file) {
-				return file.size > 8 * 1024 * 1024;
-			}
-
-			const csvUpload = document.getElementById("csv-upload");
-			csvUpload.addEventListener("change", () => {
-				for (const file of csvUpload.files) {
-					if (isTooBig(file)) {
-						csvUpload.setCustomValidity("The file is too big.");
-						csvUpload.reportValidity()
-					} else {
-						csvUpload.setCustomValidity("");
-					}
-				}
-			});
-		</script>
 	</form>
 
 	<h2>Reset progress</h2>
@@ -77,7 +54,7 @@
 			</button>
 		</p>
 
-		<script>
+		<script type="module">
 			const expected = "{{.username}}/{{.course.L1.Code}}-{{.course.L2.Code}}"
 			const confirm = document.getElementById("confirm")
 			const button = document.getElementById("reset-progress/submit")
