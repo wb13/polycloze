@@ -10,8 +10,6 @@ A self-hosted language learning website.
 - Auto-tuning spaced repetition algorithm
 - Adaptive word scheduler
     + Word scheduler estimates the student's vocabulary so it can skip words that are too easy.
-- [Digraphs](./docs/digraphs.md)
-    + For example, when you type `\a:`, it gets turned into `ä`.
 - [Automated course builder](./python)
 
 ## Usage
