@@ -48,7 +48,7 @@ export type Word = {
   strength: number;
 };
 
-// from /<l1>/<l2>/vocab
+// from /api/vocabulary/<l1>/<l2>
 export type VocabularySchema = {
   words: Word[];
 };

@@ -54,7 +54,7 @@ export async function fetchVocabulary(
     ...defaultFetchVocabularyOptions(),
     ...options,
   };
-  const url = resolve(`/${l1}/${l2}/vocab`);
+  const url = resolve(`/api/vocabulary/${l1}/${l2}`);
   setParams(url, { after, limit, sortBy });
 
   const json = await fetchJson<VocabularySchema>(url, {
