@@ -2,3 +2,8 @@
   display: flex;
   column-gap: 1rem;
 }
+
+.tts-demo select {
+  text-overflow: ellipsis;
+  width: 100%;
+}
