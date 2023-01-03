@@ -157,6 +157,13 @@ function createVoiceSelect(tts: TTS): HTMLSelectElement {
   }
   // TODO what if none selected?
 
+  // If there are no available voices, say so.
+  if (select.childElementCount <= 0) {
+    const option = document.createElement("option");
+    option.textContent = "(No voices available.)";
+    select.appendChild(option);
+  }
+
   select.addEventListener("change", () => setPreferredVoice(select.value));
   return select;
 }
