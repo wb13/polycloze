@@ -140,6 +140,7 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 
 	// serviceworker has to be at the root.
 	r.Handle("/serviceworker.js*", http.StripPrefix("/", serveDist()))
+	r.Handle("/robots.txt", http.StripPrefix("/", servePublic()))
 
 	r.HandleFunc("/api/sentences", handleSentences)
 

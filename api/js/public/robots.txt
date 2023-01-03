@@ -1,0 +1,14 @@
+User-agent: *
+Disallow: /settings
+Disallow: /study
+Disallow: /vocab
+Disallow: /welcome
+
+Disallow: /signout
+
+Disallow: /api/*
+Disallow: /personal/*
+
+Allow: /api/courses
+Allow: /api/languages
+Allow: /api/sentences
