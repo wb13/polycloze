@@ -1,4 +1,4 @@
-module github.com/poloycloze/polycloze
+module github.com/polycloze/polycloze
 
 go 1.19
 
