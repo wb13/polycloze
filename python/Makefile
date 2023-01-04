@@ -11,3 +11,7 @@ check:
 	pylint scripts -d C0115,C0116
 	flake8 --max-complexity 12 scripts
 	mypy --strict scripts
+
+.PHONY:	init
+init:
+	pip install -r requirements/dev.requirements.txt
