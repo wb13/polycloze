@@ -12,42 +12,70 @@ import { createDiacriticButtonSettingsSection } from "./diacritic";
 import { getL2 } from "./language";
 import { createResponsiveMenu } from "./menu";
 import { createOverviewPage } from "./overview";
+import { ActivitySummary, Course, DataPoint } from "./schema";
 import { createCourseSelectButton } from "./select";
 import { createVoiceSettingsSection, TTS } from "./tts";
 import { createFileBrowser } from "./upload";
 import { createVocabularyList } from "./vocab";
 
 export class ClozeApp extends HTMLElement {
-  async connectedCallback() {
-    const l2 = getL2().name;
+  promise: Promise<[HTMLDivElement, () => void]>;
+
+  constructor() {
+    super();
+
     const buffer = new ItemBuffer();
-    const [app, ready] = await createApp(buffer);
+    this.promise = createApp(buffer);
+  }
+
+  async connectedCallback() {
+    const [app, ready] = await this.promise;
     this.appendChild(app);
     ready();
-    document.title = `${await l2} | polycloze`;
+
+    const l2 = getL2().name;
+    document.title = `${l2} | polycloze`;
   }
 }
 
 export class CourseSelectButton extends HTMLElement {
+  courses: Promise<Course[]>;
+
+  constructor() {
+    super();
+    this.courses = fetchCourses();
+  }
+
   async connectedCallback() {
-    const courses = await fetchCourses();
+    const courses = await this.courses;
     this.appendChild(createCourseSelectButton(courses));
   }
 }
 
 export class ResponsiveMenu extends HTMLElement {
-  async connectedCallback() {
+  connectedCallback() {
     const signedIn = this.getAttribute("signed-in") != null;
     this.appendChild(createResponsiveMenu(signedIn));
   }
 }
 
 export class Overview extends HTMLElement {
+  activity: Promise<ActivitySummary[]>;
+  vocabularySize: Promise<DataPoint[]>;
+  estimatedLevel: Promise<DataPoint[]>;
+
+  constructor() {
+    super();
+    this.activity = fetchActivity();
+    this.vocabularySize = fetchVocabularySize();
+    this.estimatedLevel = fetchEstimatedLevel();
+  }
+
   async connectedCallback() {
     const resolved = await Promise.all([
-      fetchActivity(),
-      fetchVocabularySize(),
-      fetchEstimatedLevel(),
+      this.activity,
+      this.vocabularySize,
+      this.estimatedLevel,
     ]);
     const [activity, vocabularySize, estimatedLevel] = resolved;
     const page = createOverviewPage(activity, vocabularySize, estimatedLevel);
@@ -56,9 +84,16 @@ export class Overview extends HTMLElement {
 }
 
 export class ScoreCounter extends HTMLElement {
+  activity: Promise<ActivitySummary[]>;
+
+  constructor() {
+    super();
+    this.activity = fetchActivity();
+  }
+
   async connectedCallback() {
     // TODO only fetch activity today
-    const activity = await fetchActivity();
+    const activity = await this.activity;
     const today = activity[activity.length - 1];
     const { crammed, learned, strengthened } = today;
     const score = crammed + learned + strengthened;
