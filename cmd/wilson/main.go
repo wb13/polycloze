@@ -9,7 +9,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/lggruspe/polycloze/wilson"
+	"github.com/polycloze/polycloze/wilson"
 )
 
 func experiment(ns, nf int, z float64) {

@@ -12,14 +12,14 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/lggruspe/polycloze/auth"
-	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/database"
-	"github.com/lggruspe/polycloze/difficulty"
-	"github.com/lggruspe/polycloze/flashcards"
-	"github.com/lggruspe/polycloze/sessions"
-	"github.com/lggruspe/polycloze/text"
-	"github.com/lggruspe/polycloze/word_scheduler"
+	"github.com/polycloze/polycloze/auth"
+	"github.com/polycloze/polycloze/basedir"
+	"github.com/polycloze/polycloze/database"
+	"github.com/polycloze/polycloze/difficulty"
+	"github.com/polycloze/polycloze/flashcards"
+	"github.com/polycloze/polycloze/sessions"
+	"github.com/polycloze/polycloze/text"
+	"github.com/polycloze/polycloze/word_scheduler"
 )
 
 // Returns predicate to pass to item generator.

@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lggruspe/polycloze/review_scheduler"
-	"github.com/lggruspe/polycloze/utils"
+	"github.com/polycloze/polycloze/review_scheduler"
+	"github.com/polycloze/polycloze/utils"
 )
 
 func TestVocabSizeEmptyRange(t *testing.T) {

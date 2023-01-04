@@ -12,8 +12,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/go-chi/chi/v5"
 
-	"github.com/lggruspe/polycloze/auth"
-	"github.com/lggruspe/polycloze/database"
+	"github.com/polycloze/polycloze/auth"
+	"github.com/polycloze/polycloze/database"
 )
 
 // Creates user DB in memory for testing.

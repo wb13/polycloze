@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/lggruspe/polycloze/database"
+	"github.com/polycloze/polycloze/database"
 )
 
 type Sentence struct {

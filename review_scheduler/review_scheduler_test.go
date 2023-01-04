@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/lggruspe/polycloze/utils"
+	"github.com/polycloze/polycloze/utils"
 )
 
 func TestSchedule(t *testing.T) {

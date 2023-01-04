@@ -7,7 +7,7 @@ package word_scheduler
 import (
 	"database/sql"
 
-	"github.com/lggruspe/polycloze/database"
+	"github.com/polycloze/polycloze/database"
 )
 
 // Scans rows in query (each row has `word` and `frequency_class`).

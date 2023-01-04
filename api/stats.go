@@ -12,11 +12,11 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/lggruspe/polycloze/auth"
-	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/database"
-	"github.com/lggruspe/polycloze/history"
-	"github.com/lggruspe/polycloze/sessions"
+	"github.com/polycloze/polycloze/auth"
+	"github.com/polycloze/polycloze/basedir"
+	"github.com/polycloze/polycloze/database"
+	"github.com/polycloze/polycloze/history"
+	"github.com/polycloze/polycloze/sessions"
 )
 
 // If upgrade is non-empty, upgrades the database.

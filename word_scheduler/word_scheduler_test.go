@@ -7,8 +7,8 @@ import (
 	"database/sql"
 	"testing"
 
-	rs "github.com/lggruspe/polycloze/review_scheduler"
-	"github.com/lggruspe/polycloze/utils"
+	rs "github.com/polycloze/polycloze/review_scheduler"
+	"github.com/polycloze/polycloze/utils"
 )
 
 // NOTE Caller should close after use.

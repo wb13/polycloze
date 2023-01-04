@@ -7,8 +7,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/lggruspe/polycloze/database"
-	"github.com/lggruspe/polycloze/sentences"
+	"github.com/polycloze/polycloze/database"
+	"github.com/polycloze/polycloze/sentences"
 )
 
 type Translation struct {

@@ -9,8 +9,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/database"
+	"github.com/polycloze/polycloze/basedir"
+	"github.com/polycloze/polycloze/database"
 )
 
 // Version string of course files.
@@ -51,7 +51,7 @@ func Startup() {
 	courses := findCourses()
 	languages := findL1Languages(courses)
 	if len(languages) <= 0 {
-		log.Fatal("Couldn't find installed courses. Please visit https://github.com/lggruspe/polycloze/tree/main/python")
+		log.Fatal("Couldn't find installed courses. Please visit https://github.com/polycloze/polycloze/tree/main/python")
 	}
 
 	// Generate courses.json.

@@ -11,10 +11,10 @@ import (
 	"path"
 	"time"
 
-	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/database"
-	"github.com/lggruspe/polycloze/replay"
-	ws "github.com/lggruspe/polycloze/word_scheduler"
+	"github.com/polycloze/polycloze/basedir"
+	"github.com/polycloze/polycloze/database"
+	"github.com/polycloze/polycloze/replay"
+	ws "github.com/polycloze/polycloze/word_scheduler"
 )
 
 type Args struct {

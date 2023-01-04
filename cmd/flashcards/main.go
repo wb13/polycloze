@@ -12,9 +12,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/database"
-	"github.com/lggruspe/polycloze/flashcards"
+	"github.com/polycloze/polycloze/basedir"
+	"github.com/polycloze/polycloze/database"
+	"github.com/polycloze/polycloze/flashcards"
 )
 
 func pred(_ string) bool {

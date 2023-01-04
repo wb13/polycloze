@@ -6,7 +6,7 @@ package difficulty
 import (
 	"testing"
 
-	"github.com/lggruspe/polycloze/utils"
+	"github.com/polycloze/polycloze/utils"
 )
 
 func TestMinDifficultyEmptyTable(t *testing.T) {

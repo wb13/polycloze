@@ -1,6 +1,6 @@
 # polycloze.js
 
-[Polycloze](https://github.com/lggruspe/polycloze) front-end
+[Polycloze](https://github.com/polycloze/polycloze) front-end
 
 ## License
 

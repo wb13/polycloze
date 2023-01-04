@@ -7,10 +7,10 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/lggruspe/polycloze/database"
-	"github.com/lggruspe/polycloze/sentences"
-	"github.com/lggruspe/polycloze/translator"
-	"github.com/lggruspe/polycloze/word_scheduler"
+	"github.com/polycloze/polycloze/database"
+	"github.com/polycloze/polycloze/sentences"
+	"github.com/polycloze/polycloze/translator"
+	"github.com/polycloze/polycloze/word_scheduler"
 )
 
 // Different from sentences.Sentence

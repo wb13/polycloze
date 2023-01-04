@@ -6,8 +6,8 @@ package api
 import (
 	"net/http"
 
-	"github.com/lggruspe/polycloze/auth"
-	"github.com/lggruspe/polycloze/sessions"
+	"github.com/polycloze/polycloze/auth"
+	"github.com/polycloze/polycloze/sessions"
 )
 
 func ShowPage(name string) func(http.ResponseWriter, *http.Request) {

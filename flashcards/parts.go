@@ -8,8 +8,8 @@ import (
 	"math/rand"
 	"strings"
 
-	"github.com/lggruspe/polycloze/text"
-	"github.com/lggruspe/polycloze/word_scheduler"
+	"github.com/polycloze/polycloze/text"
+	"github.com/polycloze/polycloze/word_scheduler"
 )
 
 type Answer struct {

@@ -11,9 +11,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/lggruspe/polycloze/api"
-	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/database"
+	"github.com/polycloze/polycloze/api"
+	"github.com/polycloze/polycloze/basedir"
+	"github.com/polycloze/polycloze/database"
 )
 
 type Args struct {

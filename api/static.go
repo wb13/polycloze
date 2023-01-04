@@ -11,9 +11,9 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/lggruspe/polycloze/auth"
-	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/sessions"
+	"github.com/polycloze/polycloze/auth"
+	"github.com/polycloze/polycloze/basedir"
+	"github.com/polycloze/polycloze/sessions"
 )
 
 //go:embed js/dist

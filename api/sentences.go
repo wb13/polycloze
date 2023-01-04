@@ -9,9 +9,9 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/database"
-	"github.com/lggruspe/polycloze/sentences"
+	"github.com/polycloze/polycloze/basedir"
+	"github.com/polycloze/polycloze/database"
+	"github.com/polycloze/polycloze/sentences"
 )
 
 // Gets limit from URL query.

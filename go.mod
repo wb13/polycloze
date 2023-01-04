@@ -1,4 +1,4 @@
-module github.com/lggruspe/polycloze
+module github.com/poloycloze/polycloze
 
 go 1.19
 

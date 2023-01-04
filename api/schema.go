@@ -5,9 +5,9 @@
 package api
 
 import (
-	"github.com/lggruspe/polycloze/difficulty"
-	"github.com/lggruspe/polycloze/flashcards"
-	"github.com/lggruspe/polycloze/review_scheduler"
+	"github.com/polycloze/polycloze/difficulty"
+	"github.com/polycloze/polycloze/flashcards"
+	"github.com/polycloze/polycloze/review_scheduler"
 )
 
 type ReviewResult = review_scheduler.Result

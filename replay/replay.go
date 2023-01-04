@@ -12,8 +12,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/lggruspe/polycloze/database"
-	"github.com/lggruspe/polycloze/word_scheduler"
+	"github.com/polycloze/polycloze/database"
+	"github.com/polycloze/polycloze/word_scheduler"
 )
 
 var ErrHasExistingReviews = errors.New("found existing reviews")

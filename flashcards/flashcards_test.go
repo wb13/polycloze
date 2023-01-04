@@ -7,8 +7,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/lggruspe/polycloze/basedir"
-	"github.com/lggruspe/polycloze/database"
+	"github.com/polycloze/polycloze/basedir"
+	"github.com/polycloze/polycloze/database"
 )
 
 func pred(_ string) bool {

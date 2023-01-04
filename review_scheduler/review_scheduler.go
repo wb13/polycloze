@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lggruspe/polycloze/database"
+	"github.com/polycloze/polycloze/database"
 	_ "github.com/mattn/go-sqlite3"
 )
 

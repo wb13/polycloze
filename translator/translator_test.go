@@ -7,8 +7,8 @@ import (
 	"database/sql"
 	"testing"
 
-	"github.com/lggruspe/polycloze/sentences"
-	"github.com/lggruspe/polycloze/utils"
+	"github.com/polycloze/polycloze/sentences"
+	"github.com/polycloze/polycloze/utils"
 )
 
 func translator(reversed bool) *sql.DB {

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/lggruspe/polycloze/database"
+	"github.com/polycloze/polycloze/database"
 )
 
 // NOTE Caller should close DB.

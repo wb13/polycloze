@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lggruspe/polycloze.git"
+    "url": "git+https://github.com/polycloze/polycloze.git"
   },
   "keywords": [
     "cloze",
@@ -25,9 +25,9 @@
   "author": "Levi Gruspe",
   "license": "AGPLv3",
   "bugs": {
-    "url": "https://github.com/lggruspe/polycloze/issues"
+    "url": "https://github.com/polycloze/polycloze/issues"
   },
-  "homepage": "https://github.com/lggruspe/polycloze#readme",
+  "homepage": "https://github.com/polycloze/polycloze#readme",
   "devDependencies": {
     "@types/mocha": "^10.0.1",
     "@typescript-eslint/eslint-plugin": "^5.46.1",

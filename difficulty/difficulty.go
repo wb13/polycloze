@@ -6,7 +6,7 @@ package difficulty
 import (
 	"fmt"
 
-	"github.com/lggruspe/polycloze/database"
+	"github.com/polycloze/polycloze/database"
 )
 
 type Difficulty struct {

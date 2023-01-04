@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/lggruspe/polycloze/wilson"
+	"github.com/polycloze/polycloze/wilson"
 )
 
 const day time.Duration = 24 * time.Hour

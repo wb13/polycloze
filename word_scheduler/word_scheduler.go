@@ -6,10 +6,10 @@ package word_scheduler
 import (
 	"time"
 
-	"github.com/lggruspe/polycloze/database"
-	"github.com/lggruspe/polycloze/difficulty"
-	rs "github.com/lggruspe/polycloze/review_scheduler"
-	"github.com/lggruspe/polycloze/text"
+	"github.com/polycloze/polycloze/database"
+	"github.com/polycloze/polycloze/difficulty"
+	rs "github.com/polycloze/polycloze/review_scheduler"
+	"github.com/polycloze/polycloze/text"
 )
 
 // Same as GetWords, but takes an additional time.Time argument.
