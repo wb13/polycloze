@@ -14,4 +14,5 @@ check:
 
 .PHONY:	init
 init:
+	pip install --upgrade pip
 	pip install -r requirements/dev.requirements.txt
