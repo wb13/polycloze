@@ -39,6 +39,13 @@ func (a ByCode) Less(i, j int) bool {
 
 // Look for installed languages and courses.
 func Startup() {
+	// Look for courses and languages.
+	courses := findCourses()
+	languages := findL1Languages(courses)
+	if len(languages) <= 0 {
+		log.Fatal("Couldn't find installed courses. Please visit https://github.com/polycloze/polycloze/tree/main/python")
+	}
+
 	// Set version string.
 	versionFile := filepath.Join(basedir.DataDir, "version.txt")
 	version, err := os.ReadFile(versionFile)
@@ -46,13 +53,6 @@ func Startup() {
 		log.Fatal("Couldn't set version number.")
 	}
 	dataVersion = string(version)
-
-	// Look for courses and languages.
-	courses := findCourses()
-	languages := findL1Languages(courses)
-	if len(languages) <= 0 {
-		log.Fatal("Couldn't find installed courses. Please visit https://github.com/polycloze/polycloze/tree/main/python")
-	}
 
 	// Generate courses.json.
 	coursesJSON := filepath.Join(basedir.StateDir, "courses.json")

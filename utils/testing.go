@@ -9,8 +9,8 @@ import (
 	"embed"
 	"strings"
 
-	"github.com/polycloze/polycloze/database"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/polycloze/polycloze/database"
 )
 
 //go:embed test.sql

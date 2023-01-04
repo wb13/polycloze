@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/polycloze/polycloze/database"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/polycloze/polycloze/database"
 )
 
 // Returns items due for review, no more than count.
