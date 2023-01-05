@@ -24,7 +24,9 @@ function compareVoice(lang: string, voice: SpeechSynthesisVoice): boolean {
 
 // Async wrapper around `speechSynthesis.getVoices`.
 // Returns empty array only if no voices are installed.
-function getVoices(): Promise<SpeechSynthesisVoice[]> {
+// The promise can take a while to resolve on the first call.
+// The caller can call it on page load to speed up subsequent calls.
+export function getVoices(): Promise<SpeechSynthesisVoice[]> {
   return new Promise((resolve) => {
     const voices = speechSynthesis.getVoices();
     if (voices.length > 0) {
