@@ -244,6 +244,10 @@ export function fetchFlashcards(
 // server.
 // This can be safely used inside a `visibilitychange` listener to upload
 // review results before the browser gets closed.
+// Since this function doesn't have access to the `ItemBuffer`, it's the
+// caller's responsibility to clear the buffer when calling this function.
+// This is needed because the `sendBeacon` may get triggered when the user
+// switches to a different tab without closing it.
 export function sendReviewResults(
   reviews: ReviewResult[],
   difficulty: Difficulty

@@ -68,6 +68,15 @@ export class ItemBuffer {
     window.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden" && this.reviews.length > 0) {
         sendReviewResults(this.reviews, this.difficultyTuner.difficulty);
+
+        // Clear buffer to avoid resending sent reviews in case the user
+        // switches back to this tab.
+        const reviews = this.reviews.splice(0);
+        reviews.forEach((review) => this.keys.delete(review.word));
+
+        // This doesn't update the difficulty stats, but it shouldn't be a
+        // problem because the item buffer will get the updated stats on the
+        // next fetch.
       }
     });
   }
