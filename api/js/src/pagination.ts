@@ -6,7 +6,6 @@ function createTightButton(
   onClick?: (event: Event) => void
 ): HTMLButtonElement {
   const button = createButton(content, onClick);
-  button.classList.add("button-borderless");
   button.classList.add("button-tight");
   return button;
 }

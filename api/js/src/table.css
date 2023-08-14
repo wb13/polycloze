@@ -1,5 +1,5 @@
 tbody > tr:nth-of-type(odd) {
-  background-color: whitesmoke;
+  background-color: #222;
 }
 
 tbody > tr:hover {

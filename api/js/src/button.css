@@ -1,10 +1,11 @@
 button,
 .button {
-  background-color: inherit;
+  color: white;
+  background-color: #333;
 
-  border: 1px solid lightgray;
+  border: 1px solid gray;
   border-radius: 5px;
-  box-shadow: 1px 1px 1px gray;
+  box-shadow: 1px 1px 1px black;
 
   padding: 0.5em 1.5em;
 }
@@ -35,7 +36,7 @@ button:disabled:active,
 }
 
 a.button {
-  color: inherit;
+  color: white;
   text-decoration: none;
   text-align: center;
 }

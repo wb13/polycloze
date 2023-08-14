@@ -176,7 +176,6 @@ export function createCourseSelectButton(courses: Course[]): HTMLButtonElement {
   content.append(createLabeledIcon("translate", ` ${l1.code}-${l2.code}`));
 
   const button = createButton(content, show);
-  button.classList.add("button-borderless");
   button.classList.add("button-tight");
   return button;
 }
