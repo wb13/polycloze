@@ -6,7 +6,6 @@ function createModalCloseButton(
   onClick: (event: Event) => void
 ): HTMLButtonElement {
   const button = createButton(createIcon("x"), onClick);
-  button.classList.add("button-borderless");
   button.classList.add("button-tight");
   return button;
 }

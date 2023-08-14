@@ -5,12 +5,12 @@ import { createLink } from "./link";
 import { createModal } from "./modal";
 
 function createSignInButton(): HTMLAnchorElement {
-  const classes = ["button-borderless", "button-tight"];
+  const classes = ["button-tight"];
   return createLink("sign-in", "Sign in", "/signin", classes);
 }
 
 function createMenu(signedIn: boolean): HTMLDivElement {
-  const classes = ["button-borderless", "button-tight"];
+  const classes = ["button-tight"];
 
   const div = document.createElement("div");
   div.classList.add("menu");
@@ -33,7 +33,6 @@ function createMenu(signedIn: boolean): HTMLDivElement {
   const buttons = div.querySelectorAll("button");
   for (let i = 0; i < buttons.length; i++) {
     const button = buttons[i];
-    button.classList.add("button-borderless");
     button.classList.add("button-tight");
   }
   return div;
@@ -55,7 +54,6 @@ function createMenuListButton(signedIn: boolean): HTMLButtonElement {
   const button = createButton(icon, show);
   button.ariaLabel = "Menu";
   button.classList.add("menu-list-button");
-  button.classList.add("button-borderless");
   button.classList.add("button-tight");
   return button;
 }

@@ -49,7 +49,7 @@
   border: 1px solid lightgray;
   box-shadow: 1px 1px 1px gray;
 
-  background: white;
+  background: gray;
 
   transition: right 0.5s;
   overflow-x: hidden;

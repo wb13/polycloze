@@ -114,8 +114,16 @@ function createChart(
       responsive: true,
       maintainAspectRatio: false,
       scales: {
+        x: {
+          grid: {
+            color: "#444"
+          }
+        },
         y: {
           min: 0,
+          grid: {
+            color: "#444"
+          }
         },
       },
       plugins: {
@@ -156,8 +164,16 @@ export function createActivityChart(
       responsive: true,
       maintainAspectRatio: false,
       scales: {
+        x: {
+          grid: {
+            color: "#444"
+          }
+        },
         y: {
           min: 0,
+          grid: {
+            color: "#444"
+          }
         },
       },
       plugins: {
