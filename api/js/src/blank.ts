@@ -73,6 +73,7 @@ function normalize(word: string): string {
   while (word.endsWith(noBreakSpace)) {
     word = word.slice(0, word.length - noBreakSpace.length);
   }
+  word = word.toLowerCase();
   return word;
 }
 
