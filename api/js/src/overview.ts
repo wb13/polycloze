@@ -28,12 +28,12 @@ function praise(): string {
   return phrases[choice];
 }
 
-function createVocabularySummary(vocabularySize: number): HTMLParagraphElement {
+function createVocabularySummary(vocabularySize: number, estimatedLevel: number): HTMLParagraphElement {
   const p = document.createElement("p");
   if (vocabularySize <= 0) {
     p.textContent = `You haven't learned any words yet. ${encourage()}`;
   } else {
-    p.textContent = `You've learned ${vocabularySize} words. ${praise()}`;
+    p.textContent = `You've learned ${vocabularySize} words (level ${estimatedLevel}). ${praise()}`;
   }
   return p;
 }
@@ -130,7 +130,7 @@ function createStreakSummary(
     message = "Practice today";
   } else if (active) {
     icon = "barbell";
-    message = "Keep practicing";
+    message = `Keep practicing (day ${streak})`;
   } else {
     icon = "heartbeat";
     message = `Extend your ${streak}-day streak`;
@@ -149,6 +149,7 @@ export function createOverviewPage(
   estimatedLevel: DataPoint[]
 ): DocumentFragment {
   const size = vocabularySize[vocabularySize.length - 1].value;
+  const level = estimatedLevel[estimatedLevel.length - 1].value;
   const [streak, active] = computeActiveStreak(activity);
 
   const h2 = document.createElement("h2");
@@ -158,7 +159,7 @@ export function createOverviewPage(
   fragment.append(
     createOverviewHeader(),
     createVocabularyChart(vocabularySize, estimatedLevel),
-    createVocabularySummary(size),
+    createVocabularySummary(size, level),
     createActionButtons(size),
     h2,
     createActivityChart(activity),

@@ -99,6 +99,10 @@ function activityData(activity: ActivitySummary[]): ChartData {
         "Strengthened",
         points.map((p) => p.strengthened)
       ),
+      createDataset(
+        "Total",
+        points.map((p) => p.learned + p.forgotten + p.unimproved + p.crammed + p.strengthened)
+      )
     ],
   };
 }
