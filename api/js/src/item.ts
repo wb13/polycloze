@@ -100,7 +100,7 @@ export function createItem(
 
   const done = () => {
     const text = item.sentence.parts.map((part) => part.text).join("");
-    ts.speak(text);
+    tts.speak(text);
 
     hideDiacriticButtonGroup(getBody());
     showTranslationLink(item.translation, getBody());
