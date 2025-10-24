@@ -43,7 +43,7 @@ function vocabularyData(
   const dataVocab = points.map((point) => point.value);
   const dataEstimate = estimatedLevel
     .slice(-7)
-    .map((point) => Math.floor(0.85 * 2 ** (point.value - 1)));
+    .map((point) => Math.floor(0.85 * 2 ** (point.value + 1)));
   // Difficulty tuner increases difficulty when it's 85% confident that the
   // student already knows 85% of all words in the current difficulty.
   const labels = points.map((point) => dayLabels[point.time.getDay()]);

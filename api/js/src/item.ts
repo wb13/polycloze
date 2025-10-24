@@ -3,7 +3,8 @@ import { createButton } from "./button";
 import { createDiacriticButtonGroup } from "./diacritic";
 import { getL1, getL2 } from "./language";
 import { Sentence, createSentence } from "./sentence";
-import { TTS } from "./tts";
+import { createIcon } from "./icon";
+import { TTS, isEnabledTTS } from "./tts";
 
 export type Translation = {
   tatoebaID?: number;
@@ -68,9 +69,10 @@ function createItemBody(
   return [div, check, resize];
 }
 
-function createItemFooter(submitBtn: HTMLButtonElement): HTMLDivElement {
+function createItemFooter(submitBtn: HTMLButtonElement, ttsBtn: HTMLButtonElement): HTMLDivElement {
   const div = document.createElement("div");
   div.classList.add("button-group");
+  div.appendChild(ttsBtn);
   div.appendChild(submitBtn);
   return div;
 }
@@ -91,16 +93,60 @@ function createSubmitButton(
   return [button, enable];
 }
 
+function createVoicePlayButton(tts: TTS): HTMLButtonElement {
+  let playing = false;
+  let text = "";
+  let icon = createIcon("speaker-high");
+  tts.onStart(() => {
+    const replacement = createIcon("stop");
+    icon.replaceWith(replacement);
+    icon = replacement;
+    playing = true;
+  });
+  tts.onEnd(() => {
+    const replacement = createIcon("speaker-high");
+    icon.replaceWith(replacement);
+    icon = replacement;
+    playing = false;
+  });
+
+  const button = createButton(icon, async () => {
+    if (playing) {
+      tts.stop();
+      return;
+    }
+    if (text.length === 0) {
+      return;
+    }
+    tts.speak(text);
+  });
+  button.type = "button";
+  button.classList.add("button-tight");
+  button.classList.add("button-hidden");
+
+  const enable = (newText) => {
+    if (isEnabledTTS()) {
+      text = newText;
+      button.classList.remove("button-hidden");
+      tts.speak(text);
+    }
+  };
+
+  return [button, enable];
+}
+
 export function createItem(
   tts: TTS,
   item: Item,
   next: () => void
 ): [HTMLDivElement, () => void] {
   const [submitBtn, enable] = createSubmitButton();
+  const [ttsBtn, enableTTSBtn] = createVoicePlayButton(tts);
 
   const done = () => {
     const text = item.sentence.parts.map((part) => part.text).join("");
-    tts.speak(text);
+    //tts.speak(text);
+    enableTTSBtn(text);
 
     hideDiacriticButtonGroup(getBody());
     showTranslationLink(item.translation, getBody());
@@ -109,7 +155,7 @@ export function createItem(
     btn.focus();
   };
   const [body, check, resize] = createItemBody(item, done, enable);
-  const footer = createItemFooter(submitBtn);
+  const footer = createItemFooter(submitBtn, ttsBtn);
 
   submitBtn.addEventListener("click", check);
 

@@ -1,6 +1,7 @@
 import "./blank.css";
 import { substituteDigraphs } from "./digraph";
 import { getFont, getWidth } from "./font";
+import { getL2 } from "./language";
 
 import { distance } from "fastest-levenshtein";
 
@@ -105,13 +106,14 @@ export function evaluateInput(
     diffs.push(diff);
   }
 
+  const lang = getL2();
+
   // Only allow typos in preferred answer.
-  if (diffs[0] <= 2) {
+  if (diffs[0] <= 2 && lang.code != "jpn" && lang.code != "cmn") {
     changeStatus(input, "almost");
     return "almost";
   }
 
-  // Set status to incorrect.
   input.placeholder = answers[0].text;
   input.value = "";
   changeStatus(input, "incorrect");
