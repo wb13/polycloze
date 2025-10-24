@@ -244,7 +244,7 @@ function disableTTS() {
 }
 
 // Returns whether or not TTS is disabled for the selected language.
-function isEnabledTTS(): boolean {
+export function isEnabledTTS(): boolean {
   // Local storage stores `disabled` instead of `enabled`, because TTS is
   // enabled by default. So when the item in the local storage isn't set,
   // it is enabled.

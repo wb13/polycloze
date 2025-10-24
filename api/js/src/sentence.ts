@@ -49,6 +49,8 @@ export function createSentence(
   // NOTE `inputs` and `blankParts` have the same length.
   const inputs: HTMLInputElement[] = [];
   const blankParts: PartWithAnswers[] = [];
+  var revealPart = document.createElement("span");
+  var blankRef;
   for (const part of sentence.parts) {
     if (!hasAnswers(part)) {
       div.appendChild(createPart(part.text));
@@ -56,8 +58,11 @@ export function createSentence(
     }
 
     const checkedPart = part as PartWithAnswers;
-    const [blank, resize] = createBlank(checkedPart);
+    var [blank, resize] = createBlank(checkedPart);
+    blankRef = blank;
+    div.appendChild(revealPart);
     div.appendChild(blank);
+
     resizeFns.push(resize);
 
     inputs.push(blank);
@@ -101,7 +106,8 @@ export function createSentence(
     }
 
     // Check if everything is correct.
-    if (inputs.some((input) => !input.classList.contains("correct"))) {
+    const lang = getL2()
+    if (inputs.some((input) => !input.classList.contains("correct")) && lang.code != "jpn" && lang.code != "cmn") {
       return;
     }
 
@@ -111,6 +117,12 @@ export function createSentence(
     // Notify buffer of results.
     for (const [i, input] of inputs.entries()) {
       const answer = input.value;
+      if (input.value == "") {
+	input.value += input.placeholder;
+      }
+      blankRef.remove();
+      revealPart.appendChild(createPart(input.value));
+      revealPart.classList = input.classList;
 
       // Normalize word.
       let word = answer;
