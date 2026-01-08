@@ -49,6 +49,13 @@ function createTranslation(translation: Translation): HTMLParagraphElement {
   return p;
 }
 
+function showTranslation(translation: Translation, body: HTMLDivElement) {
+  const p = body.querySelector("p.translation");
+  if (p != null) {
+    p.textContent = translation.text;
+  }
+}
+
 function createItemBody(
   item: Item,
   done: () => void,
@@ -61,6 +68,29 @@ function createItemBody(
     enable
   );
   div.append(sentence, createTranslation(item.translation));
+
+  const child = createDiacriticButtonGroup(getL2().code, inputChar);
+  if (child != null) {
+    div.appendChild(child);
+  }
+  return [div, check, resize];
+}
+
+
+
+function createItemBodyListen(
+  item: Item,
+  done: () => void,
+  enable: (ok: boolean) => void
+): [HTMLDivElement, () => void, () => void] {
+  const div = document.createElement("div");
+  const [sentence, check, resize, inputChar] = createSentence(
+    item.sentence,
+    done,
+    enable,
+    false
+  );
+  div.append(sentence, createTranslation({text: ""}));
 
   const child = createDiacriticButtonGroup(getL2().code, inputChar);
   if (child != null) {
@@ -155,6 +185,40 @@ export function createItem(
     btn.focus();
   };
   const [body, check, resize] = createItemBody(item, done, enable);
+  const footer = createItemFooter(submitBtn, ttsBtn);
+
+  submitBtn.addEventListener("click", check);
+
+  const div = document.createElement("div");
+  div.classList.add("item");
+  div.append(body, footer);
+
+  function getBody(): HTMLDivElement {
+    return body;
+  }
+  return [div, resize];
+}
+
+export function createItemListen(
+  tts: TTS,
+  item: Item,
+  next: () => void
+): [HTMLDivElement, () => void] {
+  const [submitBtn, enable] = createSubmitButton();
+  const [ttsBtn, enableTTSBtn] = createVoicePlayButton(tts);
+
+  const text = item.sentence.parts.map((part) => part.text).join("");
+  enableTTSBtn(text);
+
+  const done = () => {
+    hideDiacriticButtonGroup(getBody());
+    showTranslation(item.translation, getBody());
+    showTranslationLink(item.translation, getBody());
+    const btn = createButton("Next", next);
+    submitBtn.replaceWith(btn);
+    btn.focus();
+  };
+  const [body, check, resize] = createItemBodyListen(item, done, enable);
   const footer = createItemFooter(submitBtn, ttsBtn);
 
   submitBtn.addEventListener("click", check);

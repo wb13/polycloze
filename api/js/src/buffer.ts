@@ -1,10 +1,10 @@
 // Item buffer
 
-import { fetchFlashcards, sendReviewResults } from "./api";
+import { fetchFlashcards, sendReviewResults, fetchSentences } from "./api";
 import { PartWithAnswers, hasAnswers } from "./blank";
 import { Difficulty, DifficultyTuner } from "./difficulty";
 import { Item } from "./item";
-import { ReviewResult } from "./schema";
+import { ReviewResult, RandomSentence } from "./schema";
 import { Sentence } from "./sentence";
 
 function* getBlankParts(sentence: Sentence): IterableIterator<PartWithAnswers> {
@@ -141,3 +141,31 @@ export function announceResult(result: ReviewResult) {
   });
   window.dispatchEvent(event);
 }
+
+export class RandomSentenceBuffer {
+  buffer: RandomSentence[];
+  difficulty: number;
+
+  constructor(difficulty: number) {
+    this.buffer = [];
+    this.difficulty = difficulty;
+  };
+
+  async fetch(limit: number): Promise<Item[]> {
+    const items = await fetchSentences({difficulty: this.difficulty, limit: limit});
+    items.forEach((item) => this.buffer.push(item));
+    return items;
+  }
+
+  async take(): Promise<RandomSentence | undefined> {
+    let promise = null;
+    if (this.buffer.length < 3) {
+      promise = await this.fetch(30);
+    }
+    if (this.buffer.length <= 0) {
+      await promise;
+    }
+    return this.buffer.shift();
+  }
+}
+

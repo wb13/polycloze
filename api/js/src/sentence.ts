@@ -35,7 +35,8 @@ function createPart(text: string): HTMLSpanElement {
 export function createSentence(
   sentence: Sentence,
   done: () => void,
-  enable: (ok: boolean) => void
+  enable: (ok: boolean) => void,
+  mustComplete: boolean = true
 ): [HTMLDivElement, () => void, () => void, (char: string) => void] {
   const resizeFns: Array<() => void> = [];
   const div = document.createElement("div");
@@ -102,12 +103,12 @@ export function createSentence(
 
     // Time to check.
     for (const [i, input] of inputs.entries()) {
-      evaluateInput(input, blankParts[i]);
+      evaluateInput(input, blankParts[i], mustComplete);
     }
 
     // Check if everything is correct.
     const lang = getL2()
-    if (inputs.some((input) => !input.classList.contains("correct")) && lang.code != "jpn" && lang.code != "cmn") {
+    if (mustComplete && inputs.some((input) => !input.classList.contains("correct")) && lang.code != "jpn" && lang.code != "cmn") {
       return;
     }
 

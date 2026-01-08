@@ -4,8 +4,8 @@ import {
   fetchEstimatedLevel,
   fetchVocabularySize,
 } from "./api";
-import { createApp } from "./app";
-import { ItemBuffer } from "./buffer";
+import { createApp, createListenApp } from "./app";
+import { ItemBuffer, RandomSentenceBuffer } from "./buffer";
 import { setButtonLink } from "./button";
 import { createScoreCounter } from "./counter";
 import { createDiacriticButtonSettingsSection } from "./diacritic";
@@ -14,7 +14,7 @@ import { createResponsiveMenu } from "./menu";
 import { createOverviewPage } from "./overview";
 import { ActivitySummary, Course, DataPoint } from "./schema";
 import { createCourseSelectButton } from "./select";
-import { createVoiceSettingsSection, TTS } from "./tts";
+import { createVoiceSettingsSection, getListenLevel, TTS } from "./tts";
 import { createFileBrowser } from "./upload";
 import { createVocabularyList } from "./vocab";
 
@@ -29,6 +29,30 @@ export class ClozeApp extends HTMLElement {
   }
 
   async connectedCallback() {
+    const [app, ready] = await this.promise;
+    this.appendChild(app);
+    ready();
+
+    const l2 = getL2().name;
+    document.title = `${l2} | polycloze`;
+  }
+}
+
+export class ListenApp extends HTMLElement {
+  promise: Promise<[HTMLDivElement, () => void]>;
+
+  constructor() {
+    super();
+
+    const targetLevel = getListenLevel();
+    const buffer = new RandomSentenceBuffer(targetLevel !== null ? targetLevel : 3);
+    this.promise = createListenApp(buffer);
+  }
+
+  async connectedCallback() {
+    //const estimatedLevel = await this.estimatedLevel;
+    //const targetLevel = Math.max(estimatedLevel[estimatedLevel.length-1].value-1, 1);
+
     const [app, ready] = await this.promise;
     this.appendChild(app);
     ready();
@@ -155,6 +179,7 @@ export class FileBrowser extends HTMLElement {
 }
 
 customElements.define("cloze-app", ClozeApp);
+customElements.define("listen-app", ListenApp);
 customElements.define("course-select-button", CourseSelectButton);
 customElements.define("responsive-menu", ResponsiveMenu);
 customElements.define("polycloze-overview", Overview);

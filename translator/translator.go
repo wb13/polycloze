@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	"github.com/polycloze/polycloze/database"
-	"github.com/polycloze/polycloze/sentences"
 )
 
 type Translation struct {
@@ -16,10 +15,10 @@ type Translation struct {
 	Text      string `json:"text"`
 }
 
-func Translate[T database.Querier](q T, sentence sentences.Sentence) (Translation, error) {
+func Translate[T database.Querier](q T, tatoebaID int64) (Translation, error) {
 	var translation Translation
 
-	if sentence.TatoebaID <= 0 {
+	if tatoebaID <= 0 {
 		return translation, errors.New("sentence has no TatoebaID")
 	}
 
@@ -32,7 +31,7 @@ func Translate[T database.Querier](q T, sentence sentences.Sentence) (Translatio
 		)
 	`
 
-	row := q.QueryRow(query, sentence.TatoebaID)
+	row := q.QueryRow(query, tatoebaID)
 	err := row.Scan(&translation.TatoebaID, &translation.Text)
 	if err != nil {
 		return translation, fmt.Errorf("failed to translate sentence: %w", err)

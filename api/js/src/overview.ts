@@ -46,6 +46,7 @@ function createActionButtons(vocabularySize: number): HTMLParagraphElement {
   p.style.justifyContent = "center";
   p.append(
     createLink("brain", text, "/study"),
+    createLink("speaker-high", "Listening practice", "/listen"),
     createLink("notebook", "Vocabulary", "/vocab")
   );
   return p;

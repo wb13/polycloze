@@ -90,6 +90,28 @@ func handleStudy(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "study.html", s.Data)
 }
 
+func handleListen(w http.ResponseWriter, r *http.Request) {
+	db := auth.GetDB(r)
+	s, err := sessions.ResumeSession(db, w, r)
+	if err != nil || !s.IsSignedIn() {
+		http.Redirect(w, r, "/signin", http.StatusTemporaryRedirect)
+		return
+	}
+
+	// Get active course.
+	userID := s.Data["userID"].(int)
+	course, err := getUserActiveCourse(userID)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	s.Data["course"] = course
+	s.Data["csrfToken"] = sessions.CSRFToken(s.ID)
+	renderTemplate(w, "listen.html", s.Data)
+}
+
 func handleVocabularyPage(w http.ResponseWriter, r *http.Request) {
 	db := auth.GetDB(r)
 	s, err := sessions.ResumeSession(db, w, r)
@@ -123,6 +145,7 @@ func Router(config Config, db *sql.DB) (chi.Router, error) {
 
 	r.HandleFunc("/", handleHome)
 	r.HandleFunc("/study", handleStudy)
+	r.HandleFunc("/listen", handleListen)
 	r.HandleFunc("/vocab", handleVocabularyPage)
 	r.HandleFunc("/about", handleAbout)
 	r.HandleFunc("/welcome", handleWelcome)

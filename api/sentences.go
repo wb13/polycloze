@@ -37,6 +37,11 @@ func handleSentences(w http.ResponseWriter, r *http.Request) {
 
 	l1 := q.Get("l1")
 	l2 := q.Get("l2")
+	difficultyStr := q.Get("difficulty")
+	difficulty, err := strconv.Atoi(difficultyStr)
+	if err != nil {
+		return
+	}
 	if l1 == "" || l2 == "" {
 		http.Error(w, "invalid course languages", http.StatusBadRequest)
 		return
@@ -51,7 +56,7 @@ func handleSentences(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	limit := getSentencesLimit(q)
-	result, err := sentences.RandomSentences(db, limit)
+	result, err := sentences.RandomSentences(db, difficulty, limit)
 	if err != nil {
 		log.Println(err)
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
