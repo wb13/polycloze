@@ -36,7 +36,7 @@ import (
 // 0.90				0.10							-1.285												1.285
 // 0.95				0.05							-1.645												1.645
 // 0.99				0.01							-2.325												2.325
-// 0.999			0.001							-3.1													3.1
+// 0.999			0.001							-3.1												3.1
 func Wilson(success, fail int, z float64) float64 {
 	ns := float64(success)
 	nf := float64(fail)
@@ -45,24 +45,31 @@ func Wilson(success, fail int, z float64) float64 {
 	return (ns+z2/2)/(n+z2) + (z/(n+z2))*math.Sqrt((ns*nf)/n+z2/4)
 }
 
-func IsTooEasy(correct, incorrect int) bool {
-	// Threshold can't be too high or the tuner will be too conservative.
-	// Only uses 0.85 confidence, higher values require too many samples.
+const sampleMinimum int = 100
 
-	z := -1.035 // z-score for one-sided confidence interval (85% confidence)
+func IsTooEasy(correct, incorrect int) bool {
+	if correct == 0 && incorrect == 0 || correct + incorrect < sampleMinimum {
+		return false
+	}
+
+	// Threshold can't be too high or the tuner will be too conservative.
+	// Uses 0.90 confidence, though higher values require many samples.
+
+	z := -1.285 // z-score for one-sided confidence interval (90% confidence)
 	lower := Wilson(correct, incorrect, z)
 
-	// 85% likelihood that the true proportion is bounded below by `lower`.
-	// It's too hard to level up with a 0.9 test when incorrect > 0.
-	return lower > 0.85
-
-	// 0.85 threshold is chosen so tuner won't trigger with < 5 samples.
+	// 90% likelihood that the true proportion is bounded below by `lower`.
+	return lower > 0.90
 }
 
 func IsTooHard(correct, incorrect int) bool {
+	if correct == 0 && incorrect == 0 || correct + incorrect < sampleMinimum {
+		return false
+	}
+
 	z := 3.1 // z-score for one-sided confidence interval
 	upper := Wilson(correct, incorrect, z)
 
 	// 99.9% confident that the true proportion is bounded above by `upper`.
-	return upper < 0.8
+	return upper < 0.75
 }
