@@ -12,7 +12,8 @@ import (
 	"github.com/polycloze/polycloze/wilson"
 )
 
-const day time.Duration = 24 * time.Hour
+const minimumInterval time.Duration = 12 * time.Hour // Half a day
+const maximumInterval time.Duration = 17520 * time.Hour // Two years
 
 // Auto-tunes intervals.
 func autoTune(tx *sql.Tx) error {
@@ -31,8 +32,7 @@ func autoTune(tx *sql.Tx) error {
 		}
 		interval *= time.Hour
 
-		if interval <= day {
-			// Don't change intervals = 0 and 1 day.
+		if interval < minimumInterval {
 			continue
 		}
 
@@ -51,7 +51,7 @@ func autoTune(tx *sql.Tx) error {
 
 // Returns biggest interval smaller than the specified value.
 func previousInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error) {
-	if interval <= day {
+	if interval <= minimumInterval {
 		return 0, nil
 	}
 	query := `select max(interval) from interval where interval < ?`
@@ -92,7 +92,7 @@ func setInterval(tx *sql.Tx, before, after time.Duration) error {
 }
 
 func shortenInterval(tx *sql.Tx, interval time.Duration) error {
-	if interval <= day {
+	if interval <= minimumInterval {
 		return nil
 	}
 
@@ -100,6 +100,7 @@ func shortenInterval(tx *sql.Tx, interval time.Duration) error {
 	if err != nil {
 		return err
 	}
+
 	mid := (prev + interval) / 2
 	return setInterval(tx, interval, mid)
 }
@@ -132,7 +133,7 @@ func insertMissingIntervals(tx *sql.Tx, interval time.Duration) error {
 
 	next := 2 * max
 	if next <= 0 {
-		next = day
+		next = minimumInterval
 	}
 
 	for next <= interval {
@@ -140,6 +141,10 @@ func insertMissingIntervals(tx *sql.Tx, interval time.Duration) error {
 			return err
 		}
 		next *= 2
+	}
+
+	if next > maximumInterval {
+		next = maximumInterval
 	}
 	// Make sure that a larger interval exists
 	return insertInterval(tx, next)
@@ -151,6 +156,10 @@ func nextInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error) {
 		return 0, err
 	}
 
+	if interval >= maximumInterval {
+		return maximumInterval, nil
+	}
+
 	query := `select min(interval) from interval where interval > ?`
 	row := tx.QueryRow(query, int64(interval.Hours()))
 
@@ -160,11 +169,10 @@ func nextInterval(tx *sql.Tx, interval time.Duration) (time.Duration, error) {
 }
 
 func lengthenInterval(tx *sql.Tx, interval time.Duration) error {
-	if interval <= day {
+	if interval < minimumInterval || interval >= maximumInterval {
 		return nil
 	}
 
-	// TODO what if it there's no next interval?
 	next, err := nextInterval(tx, interval)
 	if err != nil {
 		return err
