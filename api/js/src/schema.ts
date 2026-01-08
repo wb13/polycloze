@@ -94,6 +94,7 @@ export type RandomSentence = {
   id: number;
   tatoebaID?: number;
   text: string;
+  translation: string;
 };
 
 export type RandomSentencesSchema = {

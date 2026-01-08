@@ -59,6 +59,12 @@ function normalize(word: string): string {
   // Remove soft-hyphens.
   word = word.trim().replace(/\u00AD/g, "");
 
+  // Remove other punctuation
+  word = word.replace(/[-.,?!¿¡"'()«»]/g, "");
+
+  // Remove leftover whitespace
+  word = word.replace(/  |   /g, " ");
+
   const zeroWidthSpace = "\u200B";
   while (word.startsWith(zeroWidthSpace)) {
     word = word.slice(zeroWidthSpace.length);
@@ -92,7 +98,8 @@ export function compare(guess: string, answer: string): number {
 // - Incorrect otherwise
 export function evaluateInput(
   input: HTMLInputElement,
-  part: PartWithAnswers
+  part: PartWithAnswers,
+  mustComplete: boolean = true
 ): Status {
   const answers = part.answers;
   const diffs = [];
@@ -111,6 +118,10 @@ export function evaluateInput(
   // Only allow typos in preferred answer.
   if (diffs[0] <= 2 && lang.code != "jpn" && lang.code != "cmn") {
     changeStatus(input, "almost");
+    if (!mustComplete) {
+      input.placeholder = answers[0].text;
+      input.value = "";
+    }
     return "almost";
   }
 

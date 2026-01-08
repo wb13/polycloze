@@ -254,6 +254,44 @@ export function isEnabledTTS(): boolean {
     : true;
 }
 
+export function getListenLevel(): string | null {
+  const lang = getL2();
+  return localStorage.getItem(`tts.${lang.code}.listenLevel`);
+}
+
+function setListenLevel(level: int) {
+  const lang = getL2();
+  localStorage.setItem(`tts.${lang.code}.listenLevel`, level);
+}
+
+function createListenLevelSelect(): HTMLSelectElement {
+  const levelOptions = [3,4,5,6,7,8,9,10,11,12,13,14,15,16];
+  let currentLevel = getListenLevel();
+  if (currentLevel !== null)
+    currentLevel = Number(currentLevel);
+
+  const div = document.createElement("div");
+  div.innerHTML = `
+        <label>Listening practice level</label>
+    `;
+
+  const select = document.createElement("select");
+  for (const level of levelOptions) {
+    const option = document.createElement("option");
+    option.value = level;
+    option.textContent = level;
+    if (currentLevel === level) {
+      option.selected = true;
+    }
+    select.appendChild(option);
+  }
+
+  select.addEventListener("change", () => setListenLevel(select.value));
+  div.appendChild(select);
+  return div;
+}
+
+
 // Takes a callback function that gets called when the checkbox gets clicked.
 // The callback function takes a boolean (checked or not).
 function createVoiceCheckbox(
@@ -296,5 +334,6 @@ export function createVoiceSettingsSection(tts: TTS): HTMLFormElement {
 
   const [demo, hook] = createVoiceDemo(tts);
   form.append(createVoiceCheckbox(disabled, hook), demo);
+  form.append(createListenLevelSelect());
   return form;
 }

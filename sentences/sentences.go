@@ -9,15 +9,17 @@ import (
 	"fmt"
 
 	"github.com/polycloze/polycloze/database"
+	"github.com/polycloze/polycloze/translator"
 )
 
 type Sentence struct {
 	ID int `json:"id,omitempty"`
 
 	// Non-positive if none
-	TatoebaID int64    `json:"tatoebaID"`
-	Text      string   `json:"text"`
-	Tokens    []string `json:"tokens,omitempty"`
+	TatoebaID   int64                  `json:"tatoebaID"`
+	Text        string                 `json:"text"`
+	Tokens      []string               `json:"tokens,omitempty"`
+	Translation translator.Translation `json:"translation"`
 }
 
 func findWordID[T database.Querier](q T, word string) (int, error) {
@@ -72,14 +74,14 @@ func PickSentence[T database.Querier](q T, word string) (Sentence, error) {
 // The results don't include tokens.
 // NOTE Only picks random sentence from first 10,000 sentences in the DB for
 // speed.
-func RandomSentences[T database.Querier](q T, limit int) ([]Sentence, error) {
+func RandomSentences[T database.Querier](q T, difficulty int, limit int) ([]Sentence, error) {
 	query := `
 		SELECT id, tatoeba_id, text
-		FROM (SELECT * FROM sentence LIMIT 10000)
+		FROM (SELECT * FROM sentence WHERE frequency_class = ? LIMIT 10000)
 		ORDER BY random()
 		LIMIT ?
 	`
-	rows, err := q.Query(query, limit)
+	rows, err := q.Query(query, difficulty, limit)
 	if err != nil {
 		return nil, fmt.Errorf("failed to pick random sentences: %w", err)
 	}
@@ -99,6 +101,14 @@ func RandomSentences[T database.Querier](q T, limit int) ([]Sentence, error) {
 		} else {
 			sentence.TatoebaID = -1
 		}
+
+		translation, err := translator.Translate(q, sentence.TatoebaID)
+		if err != nil {
+			// Panic because this shouldn't happen with generated course files.
+			panic(fmt.Errorf("could not translate sentence (%v): %w", sentence, err))
+		}
+		sentence.Translation = translation
+
 		sentences = append(sentences, sentence)
 	}
 	return sentences, nil

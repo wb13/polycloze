@@ -271,6 +271,7 @@ export function sendReviewResults(
 type FetchSentencesOptions = {
   l1?: string;
   l2?: string;
+  difficulty?: number;
   limit?: number;
 };
 
@@ -278,6 +279,7 @@ function defaultFetchSentencesOptions(): FetchSentencesOptions {
   return {
     l1: getL1().code,
     l2: getL2().code,
+    difficulty: 10,
     limit: 1,
   };
 }
@@ -285,13 +287,13 @@ function defaultFetchSentencesOptions(): FetchSentencesOptions {
 export async function fetchSentences(
   options: FetchSentencesOptions = {}
 ): Promise<RandomSentence[]> {
-  const { l1, l2, limit } = { ...defaultFetchSentencesOptions(), ...options };
+  const { l1, l2, difficulty, limit } = { ...defaultFetchSentencesOptions(), ...options };
   if (l1 == null || l2 == null) {
     throw new Error("l1 and l2 required");
   }
 
   const url = resolve("/api/sentences");
-  setParams(url, { l1, l2, limit });
+  setParams(url, { l1, l2, difficulty, limit });
 
   const json = await fetchJson<RandomSentencesSchema>(url, {
     mode: "cors" as RequestMode,

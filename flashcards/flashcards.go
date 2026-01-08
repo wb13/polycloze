@@ -46,7 +46,7 @@ func generateItem[T database.Querier](q T, word word_scheduler.Word) (Item, erro
 		return item, err
 	}
 
-	translation, err := translator.Translate(q, sentence)
+	translation, err := translator.Translate(q, sentence.TatoebaID)
 	if err != nil {
 		// Panic because this shouldn't happen with generated course files.
 		panic(fmt.Errorf("could not translate sentence (%v): %w", sentence, err))
