@@ -28,6 +28,7 @@ func calculateInterval(tx *sql.Tx, review *Review, correct bool, now time.Time) 
 		return 0, nil
 	}
 	//reviewed := now
+	interval := time.Duration(0)
 	if review != nil {
 		if now.Before(review.Due()) {
 			// Don't increase interval if the user crammed
@@ -35,11 +36,11 @@ func calculateInterval(tx *sql.Tx, review *Review, correct bool, now time.Time) 
 			return review.Interval, nil
 		}
 		//reviewed = review.Reviewed
+		interval = review.Interval // Just use existing interval
 	}
 
 	//interval := now.Sub(reviewed) // this is greater than review.Interval
 	// ^ causes interval to grow disproportionately when you spend time away from training?
-	interval := review.Interval // Just use existing interval
 	return nextInterval(tx, interval)
 }
 
